@@ -121,7 +121,12 @@ fi
 if [[ "$("$ADB" -s "$SERIAL" shell getprop ro.build.version.sdk | tr -d '\r')" != 35 ]]; then
   echo 'Instrumentation requires the declared API 35 fixture.' >&2; exit 1
 fi
+"$ADB" -s "$SERIAL" shell input keyevent 224
 "$ADB" -s "$SERIAL" shell input keyevent 82
+"$ADB" -s "$SERIAL" shell wm dismiss-keyguard
+for animation_setting in window_animation_scale transition_animation_scale animator_duration_scale; do
+  "$ADB" -s "$SERIAL" shell settings put global "$animation_setting" 0
+done
 "$ADB" -s "$SERIAL" shell cmd connectivity airplane-mode enable
 "$ADB" -s "$SERIAL" shell svc wifi disable
 "$ADB" -s "$SERIAL" shell svc data disable

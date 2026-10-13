@@ -3,6 +3,7 @@ package com.hoyoung.assistant;
 import static org.junit.Assert.*;
 
 import android.app.ActivityManager;
+import android.app.KeyguardManager;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -16,6 +17,7 @@ import android.os.Build;
 import android.net.ConnectivityManager;
 import android.os.PowerManager;
 import android.os.SystemClock;
+import android.os.ParcelFileDescriptor;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -39,6 +41,8 @@ import com.hoyoung.assistant.store.InternalFiles;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.InputStream;
+import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.UUID;
@@ -47,10 +51,14 @@ import java.util.zip.ZipInputStream;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
+import org.xmlpull.v1.XmlPullParser;
 
 /** Real Android lifecycle/filesystem tests. Only fresh, offline emulator fixtures are permitted. */
 @RunWith(AndroidJUnit4.class)
@@ -58,14 +66,62 @@ import org.junit.runners.MethodSorters;
 public final class DeviceRuntimeIntegrationTest {
     private Context context;
     private UiDevice device;
+    private boolean disposableOfflineFixtureConfirmed;
 
-    @Before public void requireFixtureEmulator() {
+    @Rule public final TestWatcher failureDiagnostics = new TestWatcher() {
+        @Override protected void failed(Throwable failure, Description description) {
+            if (!disposableOfflineFixtureConfirmed || device == null) return;
+            try {
+                PowerManager power = context.getSystemService(PowerManager.class);
+                KeyguardManager keyguard = context.getSystemService(KeyguardManager.class);
+                JSONObject state = new JSONObject().put("test", description.getMethodName())
+                        .put("currentUiPackage", device.getCurrentPackageName())
+                        .put("screenInteractive", power.isInteractive()).put("keyguardLocked", keyguard.isKeyguardLocked());
+                ByteArrayOutputStream hierarchy = new ByteArrayOutputStream(); device.dumpWindowHierarchy(hierarchy);
+                XmlPullParser parser = android.util.Xml.newPullParser();
+                parser.setInput(new StringReader(hierarchy.toString(StandardCharsets.UTF_8.name())));
+                JSONArray nodes = new JSONArray();
+                java.util.List<String> publicLabels = java.util.Arrays.asList("설정", "확인", "파일", "Wait", "Close app", "System UI isn't responding");
+                for (int event = parser.getEventType(); event != XmlPullParser.END_DOCUMENT && nodes.length() < 80; event = parser.next()) {
+                    if (event != XmlPullParser.START_TAG || !"node".equals(parser.getName())) continue;
+                    String text = parser.getAttributeValue(null, "text");
+                    JSONObject node = new JSONObject().put("package", parser.getAttributeValue(null, "package"))
+                            .put("class", parser.getAttributeValue(null, "class")).put("bounds", parser.getAttributeValue(null, "bounds"))
+                            .put("enabled", parser.getAttributeValue(null, "enabled")).put("clickable", parser.getAttributeValue(null, "clickable"))
+                            .put("textLength", text == null ? 0 : text.length());
+                    if (publicLabels.contains(text)) node.put("publicLabel", text);
+                    nodes.put(node);
+                }
+                state.put("uiNodesWithoutPrivateText", nodes);
+                System.out.println("HOYOUNG_UI_FAILURE_DIAG " + state);
+                // The driver creates a wiped, offline AVD and never imports an account.
+                // A small test-only screenshot goes to free CI logs, not an uploaded artifact.
+                Bitmap screenshot = InstrumentationRegistry.getInstrumentation().getUiAutomation().takeScreenshot();
+                if (screenshot != null) {
+                    ByteArrayOutputStream image = new ByteArrayOutputStream();
+                    screenshot.compress(Bitmap.CompressFormat.JPEG, 40, image); screenshot.recycle();
+                    System.out.println("HOYOUNG_UI_FAILURE_JPEG_BASE64 " + android.util.Base64.encodeToString(image.toByteArray(), android.util.Base64.NO_WRAP));
+                }
+            } catch (Exception unavailable) { System.out.println("HOYOUNG_UI_FAILURE_DIAG_UNAVAILABLE " + unavailable.getClass().getSimpleName()); }
+        }
+    };
+
+    @Before public void requireFixtureEmulator() throws Exception {
         assertTrue("These tests must never mutate a physical phone", Build.HARDWARE.contains("ranchu") || Build.HARDWARE.contains("goldfish"));
         context = InstrumentationRegistry.getInstrumentation().getTargetContext();
         assertEquals("com.hoyoung.assistant", context.getPackageName());
         ConnectivityManager connectivity = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         assertNull("The driver must disable all emulator networking before real app tests", connectivity.getActiveNetwork());
         device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
+        disposableOfflineFixtureConfirmed = true;
+        device.wakeUp();
+        try (InputStream output = new ParcelFileDescriptor.AutoCloseInputStream(
+                InstrumentationRegistry.getInstrumentation().getUiAutomation().executeShellCommand("wm dismiss-keyguard"))) {
+            byte[] buffer = new byte[512]; while (output.read(buffer) != -1) { }
+        }
+        device.waitForIdle(1_000);
+        assertTrue("The real emulator display must be awake before UI interactions", context.getSystemService(PowerManager.class).isInteractive());
+        assertFalse("A keyguard must not cover the app's actual UI", context.getSystemService(KeyguardManager.class).isKeyguardLocked());
     }
 
     @Test public void aActualSettingsButtonPersistsAndBackupOpensAndroidDocumentPicker() throws Exception {
