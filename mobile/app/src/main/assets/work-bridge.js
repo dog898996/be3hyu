@@ -1,0 +1,567 @@
+/*
+ * DOM-only ChatGPT Work transport for Hoyoung's Android WebView.
+ * Composer, stable turn identities and answer/footer observation are adapted from
+ * miuuyy/codex-chatgpt-web (MIT), pinned 0b6087c5307c7a58adda9c420358f3f70d2035f5.
+ * This is not that project's desktop terminal bridge or an official Work API.
+ * It deliberately fails closed when Work/Temporary/model selection cannot be
+ * proven from the current UI. It never reads cookies, passwords or web storage.
+ */
+(function installHoyoungWorkBridge() {
+  'use strict';
+  if (window.HoyoungWorkBridge && window.HoyoungWorkBridge.__document === document) {
+    window.HoyoungWorkBridge.inspectAndEmit();
+    return;
+  }
+  if (window.HoyoungWorkBridge && typeof window.HoyoungWorkBridge.__dispose === 'function') {
+    window.HoyoungWorkBridge.__dispose('document_changed');
+  }
+
+  const initialDocument = document;
+  const initialUrl = location.href;
+  const COMPOSER = '[data-testid="prompt-textarea"], #prompt-textarea, [contenteditable="true"][data-lexical-editor="true"], form[data-chatgpt-composer] [data-composer-markdown][contenteditable="true"][role="textbox"]';
+  const SEND = '[data-testid="send-button"], button[type="submit"]';
+  const STOP = '[data-testid="stop-button"], button[aria-label="Stop generating"], button[aria-label="응답 생성 중지"]';
+  const ANSWER = '.markdown, [data-markdown-text-style="assistant-message"], .puik-root.not-markdown > [class*="_DilResponseRoot"]';
+  const FOOTER = 'button[data-testid="copy-turn-action-button"], .turn-action-controls button';
+  const TRANSCRIPT = '[data-turn-key], [data-testid^="conversation-turn-"], [data-turn-id-container], [data-message-author-role], [data-conversation-role], [data-user-message-bubble]';
+  const CONTROL = 'button, [role="button"], [role="tab"], [role="switch"], [role="menuitemradio"], [role="radio"], a[aria-current]';
+  const STOP_ICON_PATH = 'M4.5 5.75C4.5 5.05964 5.05964 4.5 5.75 4.5H14.25C14.9404 4.5 15.5 5.05964 15.5 5.75V14.25C15.5 14.9404 14.9404 15.5 14.25 15.5H5.75C5.05964 15.5 4.5 14.9404 4.5 14.25V5.75Z';
+  const DEFAULTS = { model: 'gpt-6.1-sol', effort: 'medium', speed: 'fast' };
+  const ACCEPT_TIMEOUT_MS = 30_000;
+  const SEND_ENABLE_TIMEOUT_MS = 5_000;
+  const ATTACHMENT_READY_TIMEOUT_MS = 60_000;
+  const COMPLETION_SETTLE_MS = 2_000;
+  let disposed = false;
+  let active = null;
+  let observer;
+  let interval;
+  let inspectionScheduled = false;
+  let lastStateKey = '';
+  let lastQuotaKey = '';
+  let quotaLatched = false;
+  const receipts = new Map();
+  const seenRequestIds = new Set();
+
+  function normalized(value) {
+    return String(value || '').normalize('NFKC').replace(/[\u200b-\u200f\u202a-\u202e\u2060-\u206f\ufeff]/g, '').replace(/\s+/g, ' ').trim();
+  }
+  function textOf(element) { return normalized(element && (element.innerText || element.textContent)); }
+  function labelOf(element) { return normalized(element && (element.getAttribute('aria-label') || element.getAttribute('title') || element.innerText || element.textContent)); }
+  function visible(element) {
+    if (!element || !element.isConnected) return false;
+    for (let parent = element; parent; parent = parent.parentElement) {
+      if (parent.matches('[hidden], [inert], [aria-hidden="true"]')) return false;
+      const style = getComputedStyle(parent);
+      if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') return false;
+    }
+    return element.getClientRects().length > 0;
+  }
+  function all(selector, scope) {
+    try { return Array.from((scope || document).querySelectorAll(selector)).filter(visible); }
+    catch (_) { return []; }
+  }
+  function controls() { return all(CONTROL).filter(element => !element.closest(TRANSCRIPT)); }
+  function selected(element) {
+    return element.getAttribute('aria-pressed') === 'true' || element.getAttribute('aria-selected') === 'true'
+      || element.getAttribute('aria-checked') === 'true' || /^(?:page|true)$/.test(element.getAttribute('aria-current') || '')
+      || /^(?:on|checked|active)$/.test(element.getAttribute('data-state') || '')
+      || element.getAttribute('data-selected') === 'true';
+  }
+  function isWork(element) { return /^(?:Work|ChatGPT Work|Work mode|워크|작업|Work 모드)$/i.test(labelOf(element)); }
+  function isTemporary(element) { return /^(?:Temporary(?: chat)?|임시 (?:채팅|대화))$/i.test(labelOf(element)); }
+  function composer() {
+    const candidates = all(COMPOSER).filter(element => !element.closest(TRANSCRIPT));
+    return candidates.length === 1 ? candidates[0] : null;
+  }
+  function composerScope(element) { return element && (element.closest('form') || element.closest('[data-chatgpt-composer]')); }
+  function stopButtons() {
+    const scope = composerScope(composer());
+    const buttons = all(STOP, scope || document).filter(element => !element.closest(TRANSCRIPT));
+    if (scope) for (const button of all('button[type="button"].size-token-button-composer', scope)) {
+      if (Array.from(button.querySelectorAll('svg.icon-primary-action > path')).some(path => path.getAttribute('d') === STOP_ICON_PATH)
+        && !buttons.includes(button)) buttons.push(button);
+    }
+    return buttons;
+  }
+  function sendButtons(editor) {
+    const scope = composerScope(editor);
+    return scope ? all(SEND, scope) : [];
+  }
+  function enabled(element) { return element && !element.disabled && element.getAttribute('aria-disabled') !== 'true'; }
+  function notify(event) {
+    if (disposed) return;
+    try {
+      if (window.HoyoungHost && typeof window.HoyoungHost.postMessage === 'function') {
+        window.HoyoungHost.postMessage(JSON.stringify(event));
+      }
+    } catch (_) { /* Native journal retains uncertain dispatches; never replay to repair a lost event. */ }
+  }
+  function result(code, extras) {
+    return Object.assign({ ok: code === 'ready', code, state: readState(), knownNotSent: false }, extras || {});
+  }
+  function emitError(code, requestId, extras) {
+    const event = Object.assign({ type: 'error', code, state: readState(), knownNotSent: false }, extras || {});
+    if (requestId) event.requestId = requestId;
+    notify(event);
+  }
+  function preflightFailure(code, requestId, extras) {
+    const metadata = Object.assign({ knownNotSent: true, retryAllowed: code === 'busy' }, extras || {});
+    emitError(code, requestId, metadata);
+    return result(code, Object.assign({ requestId }, metadata));
+  }
+  function parseModel(label) {
+    const match = /(?:^|\b)(?:GPT[-\s]?)?(\d+(?:\.\d+)?)\s*[- ]\s*(Sol|Astra|Luna)(?:\b|$)/i.exec(label);
+    return match ? 'gpt-' + match[1] + '-' + match[2].toLowerCase() : null;
+  }
+  function uniqueValue(values) {
+    const unique = Array.from(new Set(values.filter(Boolean)));
+    return unique.length === 1 ? unique[0] : null;
+  }
+  function preferenceEvidence() {
+    const chosen = controls().filter(selected);
+    const modelControls = all('button[data-testid="model-switcher-dropdown-button"], button[data-codex-intelligence-trigger="true"], [data-model-picker-view-toggle="true"]')
+      .filter(element => !element.closest(TRANSCRIPT));
+    const model = uniqueValue(modelControls.concat(chosen).map(element => parseModel(labelOf(element))));
+    const effort = uniqueValue(chosen.concat(modelControls).map(element => {
+      const label = labelOf(element);
+      const effortLabels = { low: 'low', medium: 'medium', high: 'high', ultra: 'ultra', 미디엄: 'medium', 중간: 'medium' };
+      if (selected(element) && effortLabels[label.toLowerCase()]) return effortLabels[label.toLowerCase()];
+      const description = /^(?:Reasoning effort|Thinking effort|추론 강도|생각 강도)\s*[:：]\s*(Low|Medium|High|Ultra|미디엄|중간)$/i.exec(label);
+      if (description) return effortLabels[description[1].toLowerCase()] || null;
+      return null;
+    }));
+    const speed = uniqueValue(chosen.concat(modelControls).map(element => {
+      const label = labelOf(element);
+      const speedLabels = { fast: 'fast', standard: 'standard', flex: 'flex', 빠름: 'fast' };
+      if (selected(element) && speedLabels[label.toLowerCase()]) return speedLabels[label.toLowerCase()];
+      const description = /^(?:Speed|Response speed|속도|응답 속도)\s*[:：]\s*(Fast|Standard|Flex|빠름)$/i.exec(label);
+      if (description) return speedLabels[description[1].toLowerCase()] || null;
+      return null;
+    }));
+    return { model, effort, speed };
+  }
+  function quotaBanner() {
+    const candidates = all('[role="alert"], [data-testid="error-message"], [data-testid="toast"], [data-testid*="usage-limit"], [data-testid*="rate-limit"]');
+    for (const element of candidates) {
+      if (element.closest('.markdown, [data-markdown-text-style], [data-user-message-bubble]')) continue;
+      const text = textOf(element);
+      if (/(?:usage limit|rate limit|limit reached|reached.{0,40}limit|too many requests|quota (?:exceeded|exhausted)|사용량.{0,20}한도|한도.{0,20}(?:소진|도달|초과)|요청.{0,20}너무.{0,10}많)/i.test(text)) return text.slice(0, 800);
+    }
+    return null;
+  }
+  function readState() {
+    const selectable = controls();
+    const editor = composer();
+    const loggedOut = selectable.some(element => /^(?:Log in|Login|Sign in|로그인)$/i.test(labelOf(element)));
+    const accountControl = selectable.some(element => element.matches('[data-testid="user-menu-button"]')
+      || /^(?:Open (?:profile|account|user) menu|(?:프로필|계정|사용자) 메뉴 열기)$/i.test(labelOf(element)));
+    // A guest composer alone is not proof of an authenticated subscription.
+    const authenticated = loggedOut ? false : editor && accountControl ? true : null;
+    const temporaryBanner = all('header [role="status"], main > [role="status"], header h1, main > h1')
+      .some(element => isTemporary(element) && !element.closest(TRANSCRIPT));
+    return Object.assign({
+      authenticated,
+      workSelected: selectable.some(element => isWork(element) && selected(element)),
+      temporary: selectable.some(element => isTemporary(element) && selected(element)) || temporaryBanner,
+      busy: stopButtons().length > 0 || !!(composerScope(editor) && composerScope(editor).getAttribute('aria-busy') === 'true'),
+      quota: quotaLatched || !!quotaBanner()
+    }, preferenceEvidence());
+  }
+  function readyCode(state, preferences) {
+    if (disposed || document !== initialDocument || location.origin !== 'https://chatgpt.com') return 'unsupported_origin';
+    if (state.authenticated === false) return 'authentication_required';
+    if (state.authenticated !== true) return 'authentication_unverified';
+    if (!state.workSelected) return 'work_unverified';
+    if (!state.temporary) return 'temporary_unverified';
+    if (state.model !== (preferences || DEFAULTS).model) return 'model_unverified';
+    if (state.effort !== (preferences || DEFAULTS).effort) return 'effort_unverified';
+    if (state.speed !== (preferences || DEFAULTS).speed) return 'speed_unverified';
+    if (state.quota) return 'quota_exhausted';
+    if (state.busy) return 'busy';
+    if (!composer() || !composerScope(composer())) return 'composer_unverified';
+    return 'ready';
+  }
+  function inspect() {
+    const state = readState();
+    const code = readyCode(state);
+    return { ok: code === 'ready', code, state, activeRequestId: active ? active.requestId : null, phase: active ? active.phase : null };
+  }
+
+  function turnSnapshot() {
+    const turns = [];
+    const known = new Set();
+    const groupKeys = new Set();
+    let valid = true;
+    for (const group of Array.from(document.querySelectorAll('[data-turn-key]'))) {
+      if (group.parentElement && group.parentElement.closest('[data-turn-key]')) continue;
+      const key = normalized(group.getAttribute('data-turn-key'));
+      if (!key || groupKeys.has(key)) { valid = false; continue; }
+      groupKeys.add(key);
+      known.add('group:user:' + key); known.add('group:assistant:' + key);
+      const userRoots = all('[data-user-message-bubble]', group);
+      const assistantRoots = all('[data-conversation-role="assistant"], [data-chatgpt-agent-turn-start]', group)
+        .filter(element => !element.parentElement || !element.parentElement.closest('[data-conversation-role="assistant"]'));
+      if (userRoots.length > 1) valid = false;
+      if (userRoots.length === 1) {
+        const user = userRoots[0];
+        const content = all('[data-search-result-target]', user);
+        turns.push({ id: 'group:user:' + key, key, role: 'user', root: group, content: user, text: textOf(content.length === 1 ? content[0] : user) });
+      }
+      if (assistantRoots.length) turns.push({ id: 'group:assistant:' + key, key, role: 'assistant', root: group, content: assistantRoots[assistantRoots.length - 1] });
+    }
+    const legacyKeys = new Set();
+    for (const turn of Array.from(document.querySelectorAll('[data-testid^="conversation-turn-"]'))) {
+      if (turn.closest('[data-turn-key]') || turn.parentElement && turn.parentElement.closest('[data-testid^="conversation-turn-"]')) continue;
+      const role = turn.getAttribute('data-turn') || turn.getAttribute('data-message-author-role')
+        || (turn.querySelector('[data-message-author-role="assistant"]') ? 'assistant' : turn.querySelector('[data-message-author-role="user"]') ? 'user' : null);
+      if (role !== 'assistant' && role !== 'user') continue;
+      const container = turn.closest('[data-turn-id-container]');
+      const key = normalized(turn.getAttribute('data-turn-id') || container && container.getAttribute('data-turn-id-container'));
+      if (!key || legacyKeys.has(role + ':' + key)) { valid = false; continue; }
+      legacyKeys.add(role + ':' + key);
+      const id = 'legacy:' + role + ':' + key;
+      const content = turn.querySelector('[data-message-author-role="' + role + '"]') || turn;
+      turns.push({ id, key, role, root: turn, content, text: role === 'user' ? textOf(content) : null });
+      known.add('legacy:user:' + key); known.add('legacy:assistant:' + key);
+    }
+    // Virtualized old turns still count in the baseline even when their content unmounts.
+    for (const container of Array.from(document.querySelectorAll('[data-turn-id-container]'))) {
+      if (container.closest('[data-turn-key]')) continue;
+      const key = normalized(container.getAttribute('data-turn-id-container'));
+      if (!key) { valid = false; continue; }
+      known.add('legacy:user:' + key); known.add('legacy:assistant:' + key);
+    }
+    return { turns, known, valid };
+  }
+  function answerSnapshot(turn) {
+    let answers = all(ANSWER, turn.root).filter(element => !element.closest('[data-user-message-bubble], [data-message-author-role="user"], [data-conversation-role="user"]')
+      && (turn.content.contains(element) || !!(turn.content.compareDocumentPosition(element) & Node.DOCUMENT_POSITION_FOLLOWING)));
+    if (turn.content.matches(ANSWER) && visible(turn.content)) answers.unshift(turn.content);
+    answers = answers.filter(element => !element.parentElement || !element.parentElement.closest(ANSWER)
+      || !turn.content.contains(element.parentElement.closest(ANSWER)));
+    const lastAnswer = answers[answers.length - 1];
+    if (!lastAnswer) return { text: '', complete: false };
+    const footer = all(FOOTER, turn.root).find(element => !element.closest('[data-user-message-bubble], [data-message-author-role="user"], [data-conversation-role="user"]')
+      && !lastAnswer.contains(element) && !!(lastAnswer.compareDocumentPosition(element) & Node.DOCUMENT_POSITION_FOLLOWING));
+    return { text: answers.map(element => (element.innerText || element.textContent || '').trim()).filter(Boolean).join('\n\n'), complete: !!footer };
+  }
+  function remember(receipt) {
+    seenRequestIds.add(receipt.requestId);
+    receipts.set(receipt.requestId, receipt);
+    while (receipts.size > 128) receipts.delete(receipts.keys().next().value);
+  }
+  function uncertain(code) {
+    if (!active || active.phase === 'uncertain') return;
+    active.phase = 'uncertain';
+    active.uncertaintyCode = code;
+    remember({ requestId: active.requestId, text: active.text, phase: 'uncertain', code });
+    emitError(code, active.requestId, { mayHaveBeenAccepted: !!active.clicked, retryAllowed: false });
+  }
+  function tick() {
+    if (disposed) return;
+    if (document !== initialDocument || location.origin !== 'https://chatgpt.com' || location.href !== initialUrl) {
+      dispose('navigation_uncertain'); return;
+    }
+    const quota = quotaBanner();
+    if (quota) {
+      quotaLatched = true;
+      const knownNotSent = !!(active && !active.clicked && (/^preparing(?:_attachments)?$/.test(active.phase) || active.knownNotSent === true));
+      if (quota !== lastQuotaKey) {
+        lastQuotaKey = quota;
+        notify({ type: 'quota', code: 'quota_exhausted', requestId: active ? active.requestId : undefined, text: quota, state: readState(), retryAllowed: false, knownNotSent });
+      }
+      if (active) {
+        active.phase = 'uncertain'; active.uncertaintyCode = 'quota_exhausted';
+        active.knownNotSent = knownNotSent;
+        remember({ requestId: active.requestId, text: active.text, phase: 'uncertain', code: 'quota_exhausted', knownNotSent });
+      }
+    }
+    inspectAndEmit();
+    if (!active || quotaLatched || active.phase === 'uncertain' || active.phase === 'preparing' || active.phase === 'preparing_attachments') return;
+    const snapshot = turnSnapshot();
+    if (!snapshot.valid) { uncertain('turn_identity_unverified'); return; }
+    const newUsers = snapshot.turns.filter(turn => turn.role === 'user' && !active.baseline.has(turn.id));
+    const matches = newUsers.filter(turn => turn.text === normalized(active.text));
+    if (matches.length > 1 || newUsers.some(turn => turn.text !== normalized(active.text))) { uncertain('turn_ambiguous'); return; }
+    if (!active.acceptedUserId && matches.length === 1) {
+      active.acceptedUserId = matches[0].id;
+      active.acceptedUserKey = matches[0].key;
+      active.phase = 'accepted';
+      remember({ requestId: active.requestId, text: active.text, phase: 'accepted' });
+      notify({ type: 'accepted', requestId: active.requestId, code: 'user_turn_confirmed', turnId: active.acceptedUserId, state: readState() });
+    }
+    if (!active.acceptedUserId) {
+      if (Date.now() - active.clickedAt >= ACCEPT_TIMEOUT_MS) uncertain('dispatch_uncertain');
+      return;
+    }
+    const user = snapshot.turns.find(turn => turn.id === active.acceptedUserId);
+    if (!user) return; // Virtualization alone does not undo the saved acknowledgement.
+    const candidates = snapshot.turns.filter(turn => turn.role === 'assistant' && !active.baseline.has(turn.id)
+      && (user.id.indexOf('group:') === 0 ? turn.key === user.key : !!(user.root.compareDocumentPosition(turn.root) & Node.DOCUMENT_POSITION_FOLLOWING)));
+    if (candidates.length > 1) { uncertain('turn_ambiguous'); return; }
+    if (!candidates.length) return;
+    const answer = answerSnapshot(candidates[0]);
+    if (answer.text !== active.lastText) {
+      active.lastText = answer.text;
+      active.settleKey = null;
+      if (answer.text) notify({ type: 'progress', requestId: active.requestId, text: answer.text, turnId: candidates[0].id, state: readState() });
+    }
+    const state = readState();
+    if (!answer.text || !answer.complete || state.busy) { active.settleKey = null; return; }
+    const settleKey = candidates[0].id + '\n' + answer.text;
+    if (active.settleKey !== settleKey) { active.settleKey = settleKey; active.settleAt = Date.now(); return; }
+    if (Date.now() - active.settleAt < COMPLETION_SETTLE_MS) return;
+    const finished = active;
+    active = null;
+    remember({ requestId: finished.requestId, text: finished.text, phase: 'completed', response: answer.text });
+    notify({ type: 'completed', requestId: finished.requestId, code: finished.cancelRequested ? 'completed_after_cancel_request' : 'completed', text: answer.text, turnId: candidates[0].id, state: readState() });
+  }
+  function inspectAndEmit() {
+    const inspection = inspect();
+    const key = JSON.stringify(inspection);
+    if (key !== lastStateKey) {
+      lastStateKey = key;
+      notify({ type: 'state', code: inspection.code, state: inspection.state, requestId: inspection.activeRequestId || undefined, phase: inspection.phase });
+    }
+    return inspection;
+  }
+  function selectWork() {
+    const inspection = inspect();
+    if (disposed || location.origin !== 'https://chatgpt.com') return result('unsupported_origin');
+    if (active || inspection.state.busy) return result('busy');
+    if (inspection.state.authenticated !== true) return result(inspection.state.authenticated === false ? 'authentication_required' : 'authentication_unverified');
+    const selectable = controls();
+    if (!inspection.state.workSelected) {
+      const work = selectable.filter(isWork);
+      if (work.length !== 1 || !enabled(work[0])) return result('work_control_unverified');
+      try { work[0].click(); } catch (_) { return result('work_selection_uncertain'); }
+      return { ok: true, code: 'work_selection_pending', state: readState() };
+    }
+    if (!inspection.state.temporary) {
+      const temporary = selectable.filter(isTemporary);
+      if (temporary.length !== 1 || !enabled(temporary[0])) return result('temporary_control_unverified');
+      try { temporary[0].click(); } catch (_) { return result('temporary_selection_uncertain'); }
+      return { ok: true, code: 'temporary_selection_pending', state: readState() };
+    }
+    return inspection;
+  }
+  function editorText(editor) { return editor.matches('textarea, input') ? normalized(editor.value) : textOf(editor); }
+  function fillEditor(editor, text) {
+    editor.focus();
+    if (editor.matches('textarea, input')) {
+      const prototype = editor.matches('textarea') ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype;
+      const setter = Object.getOwnPropertyDescriptor(prototype, 'value').set;
+      setter.call(editor, text);
+      editor.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertText', data: text }));
+      editor.dispatchEvent(new Event('change', { bubbles: true }));
+    } else {
+      const selection = window.getSelection();
+      const range = document.createRange();
+      range.selectNodeContents(editor);
+      selection.removeAllRanges(); selection.addRange(range);
+      if (!document.execCommand('insertText', false, text)) return false;
+    }
+    return editorText(editor) === normalized(text);
+  }
+  function validateAttachments(value) {
+    if (value === undefined) return { ok: true, files: [] };
+    if (!Array.isArray(value) || value.length > 10) return { ok: false, code: 'invalid_attachments' };
+    const names = new Set();
+    let total = 0;
+    for (const item of value) {
+      if (!item || typeof item.name !== 'string' || !item.name.trim() || item.name.length > 240
+        || /[\r\n\x00/\\]/.test(item.name) || names.has(item.name)
+        || typeof item.mime !== 'string' || !/^[A-Za-z0-9!#$&^_.+-]+\/[A-Za-z0-9!#$&^_.+-]+$/.test(item.mime)
+        || typeof item.base64 !== 'string' || item.base64.length > Math.ceil(10 * 1024 * 1024 / 3) * 4
+        || item.base64.length % 4 !== 0 || /[^A-Za-z0-9+/=]/.test(item.base64)
+        || !item.base64.length) return { ok: false, code: 'invalid_attachments' };
+      const padding = item.base64.endsWith('==') ? 2 : item.base64.endsWith('=') ? 1 : 0;
+      const firstPadding = item.base64.indexOf('=');
+      if (firstPadding >= 0 && firstPadding !== item.base64.length - padding) return { ok: false, code: 'invalid_attachments' };
+      const bytes = item.base64.length / 4 * 3 - padding;
+      if (bytes > 10 * 1024 * 1024) return { ok: false, code: 'attachment_too_large' };
+      total += bytes;
+      if (total > 20 * 1024 * 1024) return { ok: false, code: 'attachments_too_large' };
+      names.add(item.name);
+    }
+    return { ok: true, files: value };
+  }
+  function attachmentInput(editor, files) {
+    const scope = composerScope(editor);
+    if (!scope) return null;
+    const inputs = Array.from(scope.querySelectorAll('input[data-testid="upload-photos-input"][type="file"], input[type="file"][multiple]:not([accept])'))
+      .filter(element => element.isConnected && !element.disabled && (files.length < 2 || element.multiple));
+    if (inputs.length !== 1) return null;
+    const accept = (inputs[0].accept || '').split(',').map(value => value.trim().toLowerCase()).filter(Boolean);
+    if (accept.length && files.some(file => !accept.some(type => type === '*/*' || type === file.mime.toLowerCase()
+      || type.endsWith('/*') && file.mime.toLowerCase().startsWith(type.slice(0, -1))
+      || type.startsWith('.') && file.name.toLowerCase().endsWith(type)))) return null;
+    return inputs[0];
+  }
+  function attachFiles(input, files) {
+    try {
+      const transfer = new DataTransfer();
+      for (const item of files) {
+        const binary = atob(item.base64);
+        const bytes = new Uint8Array(binary.length);
+        for (let index = 0; index < binary.length; index++) bytes[index] = binary.charCodeAt(index);
+        transfer.items.add(new File([bytes], item.name, { type: item.mime }));
+      }
+      input.files = transfer.files;
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+      return input.files && input.files.length === files.length && files.every((file, index) => input.files[index].name === file.name);
+    } catch (_) { return false; }
+  }
+  function attachmentsReady(dispatch) {
+    if (!dispatch.attachmentNames.length) return true;
+    const scope = composerScope(dispatch.editor);
+    if (!scope || all('[role="progressbar"], [aria-busy="true"]', scope).length) return false;
+    return dispatch.attachmentNames.every(name => {
+      const cards = all('[role="group"], .composer-attachment-surface:is(button, [role="button"])', scope)
+        .filter(element => labelOf(element) === name);
+      return cards.length === 1 && (cards[0].getAttribute('aria-busy') === 'false'
+        || /^(?:complete|completed|ready|uploaded)$/.test(cards[0].getAttribute('data-state') || '')
+        || all('[role="status"]', cards[0]).some(status => /^(?:Uploaded|Upload complete|Ready|업로드 완료|첨부 완료)$/i.test(textOf(status))));
+    });
+  }
+  function clickWhenReady(requestId) {
+    if (disposed || !active || active.requestId !== requestId || !/^preparing(?:_attachments)?$/.test(active.phase)) return;
+    const state = readState();
+    const code = readyCode(state, active.preferences);
+    if (code !== 'ready' && !(code === 'busy' && active.attachmentNames.length)) { uncertain('selection_changed_before_send'); return; }
+    if (!active.editor.isConnected || editorText(active.editor) !== normalized(active.text)) { uncertain('composer_changed_before_send'); return; }
+    const buttons = sendButtons(active.editor);
+    if (buttons.length !== 1) { uncertain('send_control_unverified'); return; }
+    if (!attachmentsReady(active) || code === 'busy') {
+      if (Date.now() - active.preparingAt >= ATTACHMENT_READY_TIMEOUT_MS) { uncertain('attachment_upload_unverified'); return; }
+      setTimeout(function () { clickWhenReady(requestId); }, 100);
+      return;
+    }
+    if (!enabled(buttons[0])) {
+      if (Date.now() - active.preparingAt >= (active.attachmentNames.length ? ATTACHMENT_READY_TIMEOUT_MS : SEND_ENABLE_TIMEOUT_MS)) { uncertain('send_control_disabled'); return; }
+      setTimeout(function () { clickWhenReady(requestId); }, 100);
+      return;
+    }
+    // The guard precedes the side effect. Even a throwing click must never be replayed.
+    active.phase = 'awaiting_ack'; active.clicked = true; active.clickedAt = Date.now();
+    remember({ requestId: active.requestId, text: active.text, phase: 'awaiting_ack' });
+    try { buttons[0].click(); } catch (_) { uncertain('dispatch_uncertain'); return; }
+    tick();
+  }
+  function send(payload) {
+    if (disposed || document !== initialDocument || location.origin !== 'https://chatgpt.com') return result('bridge_stale', { retryAllowed: false });
+    const requestId = payload && typeof payload.requestId === 'string' ? payload.requestId : undefined;
+    const alreadyKnown = requestId && (seenRequestIds.has(requestId) || active && active.requestId === requestId);
+    if (!payload || typeof payload.requestId !== 'string' || !/^[A-Za-z0-9_.:-]{1,128}$/.test(payload.requestId)
+      || typeof payload.text !== 'string' || !payload.text.trim()) return alreadyKnown ? result('invalid_request') : preflightFailure('invalid_request', requestId);
+    if (payload.text.length > 100_000) return alreadyKnown ? result('message_too_large') : preflightFailure('message_too_large', requestId);
+    const receipt = receipts.get(payload.requestId);
+    const ownerRetryAuthorized = !!(receipt && receipt.phase === 'known_not_sent' && receipt.ownerRetryAuthorized);
+    if (receipt) {
+      if (receipt.text !== payload.text) return result('request_id_conflict');
+      if (!ownerRetryAuthorized) return { ok: receipt.phase !== 'uncertain', code: receipt.phase === 'uncertain' ? 'dispatch_uncertain' : 'duplicate_request', state: readState(), requestId: payload.requestId, phase: receipt.phase, response: receipt.response, retryAllowed: false, knownNotSent: false };
+    }
+    // Keep small ID tombstones after dropping older reply text. A long-running page
+    // can accept new requests without making an old dispatched ID replayable.
+    if (seenRequestIds.has(payload.requestId) && !ownerRetryAuthorized) return result('request_receipt_archived', { requestId: payload.requestId, retryAllowed: false });
+    if (active) return active.phase === 'uncertain'
+      ? result('dispatch_uncertain', { requestId: active.requestId, retryAllowed: false })
+      : preflightFailure('busy', payload.requestId, { activeRequestId: active.requestId, retryAllowed: false });
+    const attachmentValidation = validateAttachments(payload.attachments);
+    if (!attachmentValidation.ok) return preflightFailure(attachmentValidation.code, payload.requestId);
+    const preferences = { model: payload.requiredModel || DEFAULTS.model, effort: payload.requiredEffort || DEFAULTS.effort, speed: payload.requiredSpeed || DEFAULTS.speed };
+    if (preferences.model !== DEFAULTS.model || preferences.effort !== DEFAULTS.effort || preferences.speed !== DEFAULTS.speed) return preflightFailure('unsupported_preferences', payload.requestId);
+    const state = readState();
+    const code = readyCode(state, preferences);
+    if (code !== 'ready') return preflightFailure(code, payload.requestId);
+    const editor = composer();
+    if (editorText(editor)) return preflightFailure('composer_not_empty', payload.requestId);
+    const scope = composerScope(editor);
+    if (all('[role="progressbar"], [aria-busy="true"]', scope).length) return preflightFailure('attachment_upload_unverified', payload.requestId);
+    const files = attachmentValidation.files;
+    const uploadInput = files.length ? attachmentInput(editor, files) : null;
+    if (files.length && !uploadInput) return preflightFailure('attachment_control_unverified', payload.requestId);
+    if (sendButtons(editor).length !== 1) return preflightFailure('send_control_unverified', payload.requestId);
+    const snapshot = turnSnapshot();
+    if (!snapshot.valid) return preflightFailure('turn_identity_unverified', payload.requestId);
+    active = { requestId: payload.requestId, text: payload.text, preferences, phase: files.length ? 'preparing_attachments' : 'preparing', preparingAt: Date.now(), editor, baseline: snapshot.known, clicked: false, lastText: '', attachmentNames: files.map(file => file.name) };
+    remember({ requestId: active.requestId, text: active.text, phase: 'preparing' });
+    let filled = false;
+    try { filled = fillEditor(editor, payload.text); } catch (_) { /* An editor implementation changed; do not guess another editing path. */ }
+    if (!filled) {
+      uncertain('composer_write_unverified');
+      return result('composer_write_unverified', { requestId: payload.requestId, retryAllowed: false });
+    }
+    if (files.length && !attachFiles(uploadInput, files)) {
+      uncertain('attachment_forwarding_uncertain');
+      return result('attachment_forwarding_uncertain', { requestId: payload.requestId, retryAllowed: false });
+    }
+    setTimeout(function () { clickWhenReady(payload.requestId); }, 100);
+    return { ok: true, code: 'dispatch_pending', state: readState(), requestId: payload.requestId, retryAllowed: false, knownNotSent: false };
+  }
+  function prepareOwnerRetry() {
+    if (disposed || document !== initialDocument || location.origin !== 'https://chatgpt.com') return result('bridge_stale', { retryAllowed: false });
+    if (quotaBanner()) return result('quota_exhausted', { retryAllowed: false });
+    if (active && (active.clicked || !(/^preparing(?:_attachments)?$/.test(active.phase) || active.knownNotSent === true))) {
+      return result('outcome_uncertain', { requestId: active.requestId, retryAllowed: false });
+    }
+    let releasedRequestId;
+    if (active) {
+      const pending = active;
+      // Clear only our own staged draft. A different draft belongs to the owner.
+      if (pending.editor.isConnected && editorText(pending.editor) === normalized(pending.text)) {
+        let cleared = false;
+        try { cleared = fillEditor(pending.editor, ''); } catch (_) { /* Preserve the uncertain editor state. */ }
+        if (!cleared) return result('owner_retry_composer_unverified', { requestId: pending.requestId, retryAllowed: false });
+      }
+      active = null;
+      releasedRequestId = pending.requestId;
+      // Preserve the receipt and permit only an explicit owner-authorized replay
+      // of this proven-not-sent request. Clicked outcomes never reach this branch.
+      remember({ requestId: pending.requestId, text: pending.text, phase: 'known_not_sent', knownNotSent: true, ownerRetryAuthorized: true });
+      emitError('cancelled_before_send', pending.requestId, { knownNotSent: true, mayHaveBeenAccepted: false, retryAllowed: false });
+    }
+    quotaLatched = false;
+    lastQuotaKey = '';
+    const inspection = inspectAndEmit();
+    return { ok: true, code: 'owner_retry_enabled', state: inspection.state, requestId: releasedRequestId, quotaRecoveryVerified: false, knownNotSent: !!releasedRequestId };
+  }
+  function cancel() {
+    if (!active) return result('nothing_to_cancel');
+    if (/^preparing(?:_attachments)?$/.test(active.phase) && !active.clicked) {
+      const cancelled = active; active = null;
+      remember({ requestId: cancelled.requestId, text: cancelled.text, phase: 'cancelled' });
+      emitError('cancelled_before_send', cancelled.requestId, { mayHaveBeenAccepted: false, retryAllowed: false });
+      return { ok: true, code: 'cancelled_before_send', state: readState(), requestId: cancelled.requestId };
+    }
+    if (active.cancelRequested) return result('cancellation_pending', { requestId: active.requestId, retryAllowed: false });
+    const buttons = stopButtons();
+    if (buttons.length !== 1 || !enabled(buttons[0])) return result('cancellation_unverified', { requestId: active.requestId, retryAllowed: false });
+    active.cancelRequested = true;
+    try { buttons[0].click(); } catch (_) { uncertain('cancellation_uncertain'); return result('cancellation_uncertain', { retryAllowed: false }); }
+    notify({ type: 'progress', requestId: active.requestId, code: 'cancellation_requested', state: readState() });
+    return { ok: true, code: 'cancellation_requested', state: readState(), requestId: active.requestId, retryAllowed: false };
+  }
+  function dispose(code) {
+    if (disposed) return;
+    if (active) emitError(code || 'navigation_uncertain', active.requestId, { mayHaveBeenAccepted: !!active.clicked, retryAllowed: false });
+    disposed = true;
+    if (observer) observer.disconnect();
+    if (interval) clearInterval(interval);
+    window.removeEventListener('pagehide', onPageHide);
+  }
+  function onPageHide() { dispose('navigation_uncertain'); }
+  const api = { inspect, selectWork, send, cancel, inspectAndEmit, prepareOwnerRetry };
+  Object.defineProperty(api, '__document', { value: document });
+  Object.defineProperty(api, '__dispose', { value: dispose });
+  window.HoyoungWorkBridge = api;
+  observer = new MutationObserver(function () {
+    if (inspectionScheduled || disposed) return;
+    inspectionScheduled = true;
+    setTimeout(function () { inspectionScheduled = false; tick(); }, 0);
+  });
+  observer.observe(document.documentElement, { childList: true, subtree: true, characterData: true, attributes: true });
+  interval = setInterval(tick, 250);
+  window.addEventListener('pagehide', onPageHide);
+  tick();
+})();

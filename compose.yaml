@@ -1,0 +1,20 @@
+services:
+  assistant:
+    build: .
+    restart: unless-stopped
+    init: true
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DATA_DIR: /data
+      PORT: "8080"
+      HOST: 0.0.0.0
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - assistant-data:/data
+    shm_size: 1gb
+    stop_grace_period: 90s
+volumes:
+  assistant-data:

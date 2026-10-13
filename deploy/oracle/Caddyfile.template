@@ -1,0 +1,5 @@
+# The installer adds an optional ACME contact email before this block.
+{$ASSISTANT_HOSTNAME} {
+	encode zstd gzip
+	reverse_proxy assistant:8080
+}

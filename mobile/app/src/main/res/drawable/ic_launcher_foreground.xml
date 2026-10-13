@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Original Hoyoung identity: an asymmetric H with a luminous connection. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#12304B"
+        android:pathData="M54,21A33,33 0,1 1,54,87A33,33 0,1 1,54,21Z" />
+    <path
+        android:fillColor="#091326"
+        android:pathData="M54,23A31,31 0,1 1,54,85A31,31 0,1 1,54,23Z" />
+    <path
+        android:fillColor="#386FF4"
+        android:pathData="M33,33Q33,29 37,29H41Q45,29 45,33V74Q45,78 41,78H37Q33,78 33,74Z" />
+    <path
+        android:fillColor="#6D95FF"
+        android:pathData="M37,31H41Q43,31 43,33V43H37Z" />
+    <path
+        android:fillColor="#3AD1FF"
+        android:pathData="M64,39Q64,35 68,35H72Q76,35 76,39V74Q76,78 72,78H68Q64,78 64,74Z" />
+    <path
+        android:fillColor="#85E8FF"
+        android:pathData="M68,37H72Q74,37 74,39V45H68Z" />
+    <path
+        android:fillColor="#B9F7FF"
+        android:pathData="M43,48H65L70,53L65,58H43L38,53Z" />
+    <path
+        android:fillColor="#55DFFF"
+        android:pathData="M43,56H65L68,53H70L65,58H43L38,53H40Z" />
+    <path
+        android:fillColor="#83E9FF"
+        android:pathData="M72,27A3,3 0,1 1,72,33A3,3 0,1 1,72,27Z" />
+</vector>

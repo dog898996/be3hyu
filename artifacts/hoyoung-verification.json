@@ -1,0 +1,34 @@
+{
+  "version": "0.1.1",
+  "versionCode": 2,
+  "package": "com.hoyoung.assistant",
+  "apk": "hoyoung-0.1.1.apk",
+  "apkBytes": 1006083,
+  "sha256": "098a565d06a0e6125140f5c2956ff0e22eb682a47a630aa1f3a68af7e2b6496d",
+  "debuggable": false,
+  "requestedPermissionCount": 37,
+  "permissionsUnchanged": true,
+  "certificateSha256": "5b634dac5d4538f871ff0bfdbe1b31b2baa02dbe4390d11d7f6af235b2df1e3e",
+  "certificateMatchesPublicPem": true,
+  "androidTests": {
+    "tests": 59,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "nodeTests": {
+    "tests": 219,
+    "failures": 0,
+    "skipped": 0
+  },
+  "browserFixtureTestsIncludedInNodeTests": 18,
+  "lintErrors": 0,
+  "lintWarnings": 10,
+  "embeddedBridgeMatchesSource": true,
+  "signatureVerified": "APK v2 and v3 (apksigner)",
+  "realAccountWorkVerified": false,
+  "realAndroidDeviceVerified": false,
+  "twentyFourHourRunVerified": false,
+  "liveSteerVerified": false,
+  "memoryReferenceFileRead": false
+}

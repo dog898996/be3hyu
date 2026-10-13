@@ -1,0 +1,38 @@
+name: hoyoung
+services:
+  assistant:
+    platform: linux/arm64
+    build:
+      context: ./source
+    image: hoyoung-assistant:local
+    restart: unless-stopped
+    init: true
+    env_file: .env
+    environment:
+      HOST: 0.0.0.0
+      PORT: "8080"
+      DATA_DIR: /data
+      PERSIST_CODEX_AUTH: "true"
+      REQUIRE_BACKUP: "false"
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - ./data:/data
+    shm_size: 1gb
+    stop_grace_period: 90s
+  caddy:
+    platform: linux/arm64
+    image: caddy:2.11.7-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      ASSISTANT_HOSTNAME: ${ASSISTANT_HOSTNAME:?Set ASSISTANT_HOSTNAME}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./caddy-data:/data
+      - ./caddy-config:/config
+    depends_on:
+      - assistant

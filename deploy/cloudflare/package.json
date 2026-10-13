@@ -1,0 +1,16 @@
+{
+  "name": "autonomous-assistant-cloudflare",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "check": "wrangler deploy --dry-run --containers-rollout none --outdir .wrangler/check"
+  },
+  "dependencies": {
+    "@cloudflare/containers": "0.3.7"
+  },
+  "devDependencies": {
+    "wrangler": "4.149.0"
+  }
+}

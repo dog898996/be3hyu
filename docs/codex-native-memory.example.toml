@@ -1,0 +1,26 @@
+# 준비본: 적격 지속 native Codex 세션의 config.toml 예시.
+# 현재 호영이의 일회성 exec 어댑터에는 적용하지 않는다.
+# --ignore-user-config를 사용하는 연결은 이 파일을 읽지 않는다.
+# 백그라운드 기억 생성도 모델 이용량을 사용하며 즉시 실행되는 타이머는 아니다.
+# 필수 주인 지침/원문은 별도 영구 저장소에서 보존한다.
+
+forced_login_method = "chatgpt"
+
+[features]
+memories = true
+
+[memories]
+use_memories = true
+generate_memories = true
+dedicated_tools = true
+
+# 최근 입력을 더 오래 검토하고 더 자주 학습할 기회를 제공한다.
+# source 기준 지원 범위: age 0..90, unused 0..365, idle 1..48.
+max_rollout_age_days = 90
+max_rollouts_per_startup = 8
+min_rollout_idle_hours = 1
+max_raw_memories_for_consolidation = 1024
+max_unused_days = 365
+
+# 한도 여유가 부족할 때 자동 요약에 이용량을 쓰지 않는다.
+min_rate_limit_remaining_percent = 25

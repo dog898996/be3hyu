@@ -1,0 +1,2 @@
+# Keep the imported transcript's intentional Markdown line-break spaces.
+docs/source-transcript.txt whitespace=-blank-at-eol

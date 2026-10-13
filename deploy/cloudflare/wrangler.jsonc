@@ -1,0 +1,29 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "autonomous-personal-assistant",
+  "main": "worker.mjs",
+  "compatibility_date": "2026-10-12",
+  "observability": { "enabled": true },
+  "containers": [{
+    "class_name": "AssistantContainer",
+    "image": "../../Dockerfile",
+    "image_build_context": "../..",
+    "instance_type": "standard-1",
+    "max_instances": 1
+  }],
+  "durable_objects": { "bindings": [{
+    "name": "ASSISTANT",
+    "class_name": "AssistantContainer"
+  }] },
+  "exports": { "AssistantContainer": {
+    "type": "durable-object", "storage": "sqlite"
+  } },
+  "triggers": { "crons": ["* * * * *"] },
+  "r2_buckets": [{ "binding": "SNAPSHOTS", "bucket_name": "autonomous-assistant-data" }],
+  "vars": {
+    "S3_BUCKET": "autonomous-assistant-data",
+    "S3_PREFIX": "assistant",
+    "S3_REGION": "auto",
+    "BACKUP_INTERVAL_SECONDS": "300"
+  }
+}
