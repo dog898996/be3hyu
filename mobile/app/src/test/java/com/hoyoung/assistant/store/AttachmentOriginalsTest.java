@@ -56,6 +56,14 @@ public final class AttachmentOriginalsTest {
         String alias = "alias/" + id.substring(id.lastIndexOf('/') + 1);
         assertThrows(IOException.class, () -> files.writeFile(alias, "cannot replace through alias"));
         assertArrayEquals(original, export(id));
+        // Directory iteration may remove the target before its alias on another host.
+        // A broken symlink must still be removed as an inode, without following it.
+        deleteTree(new File(context.getFilesDir(), "projects/.attachment-originals"));
+        File danglingAlias = new File(context.getFilesDir(), "projects/alias");
+        assertTrue(Files.isSymbolicLink(danglingAlias.toPath()));
+        assertFalse(danglingAlias.exists());
+        deleteTree(danglingAlias);
+        assertFalse(Files.isSymbolicLink(danglingAlias.toPath()));
     }
 
     @Test public void freezeReusesPayloadAndPreservesMetadataAfterReopenWhileHidingPrivateSidecars() throws Exception {
@@ -182,5 +190,5 @@ public final class AttachmentOriginalsTest {
         entries.put("manifest.json", manifest.toString().getBytes(StandardCharsets.UTF_8));
         ByteArrayOutputStream bytes = new ByteArrayOutputStream(); try (ZipOutputStream zip = new ZipOutputStream(bytes)) { for (Map.Entry<String, byte[]> entry : entries.entrySet()) { zip.putNextEntry(new ZipEntry(entry.getKey())); zip.write(entry.getValue()); zip.closeEntry(); } } return bytes.toByteArray();
     }
-    private static void deleteTree(File root) throws IOException { if (!root.exists()) return; if (Files.isSymbolicLink(root.toPath())) { if (!root.delete()) throw new IOException("Cannot delete synthetic alias"); return; } if (root.isDirectory()) { File[] children = root.listFiles(); if (children == null) throw new IOException("Cannot inspect synthetic files"); for (File child : children) deleteTree(child); } if (!root.delete()) throw new IOException("Cannot delete synthetic file"); }
+    private static void deleteTree(File root) throws IOException { if (Files.isSymbolicLink(root.toPath())) { Files.deleteIfExists(root.toPath()); return; } if (!root.exists()) return; if (root.isDirectory()) { File[] children = root.listFiles(); if (children == null) throw new IOException("Cannot inspect synthetic files"); for (File child : children) deleteTree(child); } if (!root.delete()) throw new IOException("Cannot delete synthetic file"); }
 }

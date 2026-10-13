@@ -82,6 +82,14 @@ cleanup() {
   test_exit=$?
   trap - EXIT
   if [[ -n "$emulator_pid" ]]; then
+    if (( test_exit != 0 )); then
+      echo 'Offline disposable-emulator failure diagnostics (no account or physical phone was used):' >&2
+      timeout 8 "$ADB" -s "$SERIAL" logcat -d -t 250 -v brief \
+        'AndroidRuntime:E' 'HoyoungDeviceProof:I' '*:S' 2>/dev/null | tail -120 || true
+      if [[ -f "$LOG_DIR/emulator.log" ]]; then
+        tail -30 "$LOG_DIR/emulator.log" | sed '/pubkey/d;/public key/d' || true
+      fi
+    fi
     timeout 10 "$ADB" -s "$SERIAL" emu kill >/dev/null 2>&1 || kill "$emulator_pid" 2>/dev/null || true
     wait "$emulator_pid" 2>/dev/null || true
   fi

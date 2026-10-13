@@ -52,7 +52,17 @@ android {
             if (releaseSigningReady) signingConfig signingConfigs.hoyoungRelease
         }
     }
-    testOptions { unitTests.includeAndroidResources = true }
+    testOptions {
+        unitTests.includeAndroidResources = true
+        unitTests.all {
+            // Public CI keeps failure details in logs without uploading test artifacts.
+            testLogging {
+                events 'failed'
+                exceptionFormat 'full'
+                showStandardStreams = false
+            }
+        }
+    }
 }
 
 // Keep debug builds available, but never accidentally publish an unsigned release.
