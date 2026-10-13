@@ -1,0 +1,171 @@
+[
+  {
+    "caseId": "case-01",
+    "answer": "첫 자전거 이름은 달토끼7호야.",
+    "supportSources": [
+      {
+        "type": "message",
+        "id": 101
+      }
+    ],
+    "abstained": false,
+    "uncertainties": []
+  },
+  {
+    "caseId": "case-02",
+    "answer": "네가 알려 준 기록에 따르면 2026년 3월에는 서울 마포구였고, 2026년 4월 1일 부산 수영구로 옮겼어. 현재 기록상 작업실은 부산 수영구야.",
+    "supportSources": [
+      {
+        "type": "message",
+        "id": 201
+      },
+      {
+        "type": "message",
+        "id": 202
+      }
+    ],
+    "abstained": false,
+    "uncertainties": []
+  },
+  {
+    "caseId": "case-03",
+    "answer": "아직 확정할 수 없어. 같은 프로젝트 마감이 2026년 10월 20일이라는 메모와 2026년 10월 25일이라는 메모가 있고, 어느 날짜가 맞는지 확인되지 않았어.",
+    "supportSources": [
+      {
+        "type": "message",
+        "id": 301
+      },
+      {
+        "type": "message",
+        "id": 302
+      }
+    ],
+    "abstained": true,
+    "uncertainties": [
+      "두 마감일 중 어느 날짜가 맞는지 확인이 필요함."
+    ]
+  },
+  {
+    "caseId": "case-04",
+    "answer": "제공된 기억에는 네 알레르기 정보가 없어. 어떤 알레르기가 있는지는 모르겠어.",
+    "supportSources": [],
+    "abstained": true,
+    "uncertainties": [
+      "알레르기 종류에 대한 사용자 보고나 확인 자료가 없음."
+    ]
+  },
+  {
+    "caseId": "case-05",
+    "answer": "제공된 기억에서는 사용자가 연락처 삭제를 승인했다는 근거를 찾을 수 없어. 배송 예정 알림만으로 삭제 승인을 판단할 수 없어서, 승인 여부는 확인할 수 없어.",
+    "supportSources": [],
+    "abstained": true,
+    "uncertainties": [
+      "연락처 삭제에 대한 사용자의 명시적 승인 기록이 없음."
+    ]
+  },
+  {
+    "caseId": "case-06",
+    "answer": "실제 출생지는 확인되지 않았어. 네가 파리에서 태어났다고 말한 적 없고 그건 내 추측이었다고 정정한 기록은 있어. 그래서 파리라고 기억하면 안 돼.",
+    "supportSources": [
+      {
+        "type": "message",
+        "id": 602
+      }
+    ],
+    "abstained": true,
+    "uncertainties": [
+      "실제 출생지에 대한 사용자 보고가 없음."
+    ]
+  },
+  {
+    "caseId": "case-07",
+    "answer": "별일 없는 새벽 2시에는 내가 먼저 연락하면 안 돼. 네가 동의한 설정은 밤 11시부터 아침 8시까지 긴급한 일을 제외하고 선톡하지 않는 거야.",
+    "supportSources": [
+      {
+        "type": "message",
+        "id": 701
+      },
+      {
+        "type": "message",
+        "id": 702
+      }
+    ],
+    "abstained": false,
+    "uncertainties": []
+  },
+  {
+    "caseId": "case-08",
+    "answer": "기록상 아직 끝나지 않았어. 위치 확인 요청은 접수됐지만 완료 확인이 없고, 실제 위치나 좌표도 아직 오지 않았어.",
+    "supportSources": [
+      {
+        "type": "message",
+        "id": 801
+      },
+      {
+        "type": "message",
+        "id": 802
+      },
+      {
+        "type": "device_event",
+        "id": 8001
+      }
+    ],
+    "abstained": false,
+    "uncertainties": [
+      "제공된 기록 이후의 완료 여부와 실제 위치는 확인되지 않음."
+    ]
+  },
+  {
+    "caseId": "case-09",
+    "answer": "민수가 맡았어. 별빛은 공식 이름이 은하인 학교 과제 프로젝트의 다른 이름이야.",
+    "supportSources": [
+      {
+        "type": "message",
+        "id": 901
+      },
+      {
+        "type": "message",
+        "id": 902
+      }
+    ],
+    "abstained": false,
+    "uncertainties": []
+  },
+  {
+    "caseId": "case-10",
+    "answer": "제공된 기억에는 2024년 담임 교실 번호가 없어. 번호를 확인할 수 없어.",
+    "supportSources": [],
+    "abstained": true,
+    "uncertainties": [
+      "2024년 담임 교실 번호에 대한 자료가 없음."
+    ]
+  },
+  {
+    "caseId": "case-11",
+    "answer": "제목: [과제명] 제출 기한 연장 요청\n\n선생님, 안녕하세요. [이름]입니다.\n\n[과제명]의 제출 기한을 연장할 수 있을지 여쭙고자 메일드립니다. [연장 사유]로 인해 현재 제출 기한 내에 과제를 마치기 어려워, 가능하시다면 [희망 제출일]까지 제출할 수 있도록 허락해 주시면 감사하겠습니다.\n\n검토해 주셔서 감사합니다.\n[이름] 드림",
+    "supportSources": [
+      {
+        "type": "message",
+        "id": 1101
+      }
+    ],
+    "abstained": false,
+    "uncertainties": [
+      "과제명, 이름, 연장 사유, 현재 제출 기한 및 희망 제출일이 제공되지 않아 필요한 부분을 자리표시자로 남김."
+    ]
+  },
+  {
+    "caseId": "case-12",
+    "answer": "아니. 제공된 것은 전체 9000자 중 앞부분 0~23자 발췌뿐이라 전체 기록 검토를 완료했다고 할 수 없어. 뒤에 추가 사실이나 정정이 있는지도 확인되지 않았어.",
+    "supportSources": [
+      {
+        "type": "message",
+        "id": 1201
+      }
+    ],
+    "abstained": false,
+    "uncertainties": [
+      "전체 기록의 나머지 부분이 제공되지 않음."
+    ]
+  }
+]

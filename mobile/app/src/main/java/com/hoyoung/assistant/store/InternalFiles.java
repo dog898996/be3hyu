@@ -49,7 +49,11 @@ public final class InternalFiles {
     private final AttachmentOriginals attachmentOriginals;
     private final Object backupLock = new Object();
     private volatile BackupParticipant backupParticipant;
-    public interface BackupParticipant { void capture(File destination) throws IOException; }
+    public interface BackupParticipant {
+        void capture(File destination) throws IOException;
+        /** Validate the staged namespace before any live file or database replacement. */
+        default void validate(File stagedJournal) throws IOException { }
+    }
     public void setBackupParticipant(BackupParticipant participant) { backupParticipant = participant; }
 
     public InternalFiles(Context context) {
@@ -312,6 +316,8 @@ public final class InternalFiles {
                     ensureDirectory(deviceJournal);
                     File stagedDeviceJournal = new File(staging, "device-journal");
                     ensureDirectory(stagedDeviceJournal);
+                    BackupParticipant participant = backupParticipant;
+                    if (participant != null) participant.validate(stagedDeviceJournal);
                     writeRestoreJournal(token, staging, oldProjects, oldOriginals, oldDeviceJournal);
                     journalWritten = true;
                     atomicMove(projects, oldProjects);

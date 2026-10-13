@@ -69,12 +69,25 @@ public final class HoyoungNotificationListener extends NotificationListenerServi
             CharSequence text = extras == null ? null : extras.getCharSequence(Notification.EXTRA_TEXT);
             JSONObject payload = PhoneEventJournal.object("package", sbn.getPackageName(), "key", limit(sbn.getKey(), 512), "title", limit(title, 1000), "text", limit(text, 6000),
                 "postedAt", sbn.getPostTime(), "event", event, "removalReason", reason, "titleTruncated", title != null && title.length() > 1000,
-                "textTruncated", text != null && text.length() > 6000, "contentsMayBeRedactedByAndroid", true, "observedOnly", true);
+                "textTruncated", text != null && text.length() > 6000, "contentsMayBeRedactedByAndroid", true, "observedOnly", true,
+                "ownerReadConfirmed", false, "isOwnerInstruction", false);
+            boolean own = getPackageName().equals(sbn.getPackageName());
+            boolean assistantReply = own && extras != null && "assistant_reply".equals(extras.get("com.hoyoung.assistant.source_kind"));
+            payload.put("sourceKind", assistantReply ? "assistant_reply" : own ? "assistant_app_notification" : "external_notification");
+            payload.put("assistantGenerated", own);
+            if (assistantReply) {
+                Object sourceId = extras.get("com.hoyoung.assistant.assistant_message_id");
+                long messageId = sourceId instanceof Long ? (Long) sourceId : -1;
+                payload.put("assistantMessageId", messageId > 0 ? messageId : JSONObject.NULL);
+                payload.put("sourceReferencePresent", messageId > 0);
+                payload.put("replyStage", extras.get("com.hoyoung.assistant.reply_stage") instanceof String ? limit((String) extras.get("com.hoyoung.assistant.reply_stage"), 64) : "");
+                payload.put("externalInputTriggerEligible", false);
+            }
             long observed = "posted".equals(event) ? Math.max(0, sbn.getPostTime()) : System.currentTimeMillis();
             String key = "notification:" + PhoneEventJournal.hash(sbn.getKey() + ":" + observed + ":" + payload.toString());
             JSONObject saved = journal.append("notification", "android.notification_listener", payload, observed, key);
             if (saved.has("id") || saved.optBoolean("observationPersisted")) journal.put("notification.lastObservedAt", String.valueOf(System.currentTimeMillis()));
-        } catch (RuntimeException unavailable) { journal.gap("android.notification_listener", System.currentTimeMillis(), System.currentTimeMillis(), "notification_payload_unavailable"); }
+        } catch (RuntimeException | JSONException unavailable) { journal.gap("android.notification_listener", System.currentTimeMillis(), System.currentTimeMillis(), "notification_payload_unavailable"); }
     }
     private boolean allowed(PhoneEventJournal journal) { return journal.collectionEnabled() && journal.toolAllowed("phone_notifications_read") && new PermissionCatalog(this).notificationAccess(); }
     private static void migrateLegacyAsync(Context context, PhoneEventJournal journal) {

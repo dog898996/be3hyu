@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 import com.hoyoung.assistant.store.HoyoungStore;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -26,7 +27,7 @@ public final class MemoryReviewCoordinator {
         if (maxSerializedChars < 4_096 || maxSerializedChars > 250_000)
             throw new IllegalArgumentException("Review JSON budget must be 4,096..250,000 characters");
         return store.withTransaction(db -> {
-            discoverAssetSources(db, 256);
+            discoverAssetSources(db, 256); refreshPendingSources(db, 32);
             boolean revisit = revisitPending();
             String partialPrefix = revisit ? PREFIX + "revisit." : PREFIX;
             long cursor = revisit ? number(store.getSetting(PREFIX + "revisit.after", "0")) : store.getWatermark(WATERMARK);
@@ -128,7 +129,7 @@ public final class MemoryReviewCoordinator {
 
     public boolean hasPending() {
         return store.withTransaction(db -> {
-            discoverAssetSources(db, 32);
+            discoverAssetSources(db, 32); auditAssetSources(db, 32); refreshPendingSources(db, 32);
             return revisitPending() || store.lastUserMessageId() > store.getWatermark(WATERMARK) || assetPendingCount(db) > 0;
         });
     }
@@ -141,6 +142,7 @@ public final class MemoryReviewCoordinator {
                 "assetSourcesPending", store.withTransaction(MemoryReviewCoordinator::assetPendingSourceCount),
                 "assetReviewCursor", assetReviewCursor(),
                 "assetDiscoveryCursor", number(store.getSetting(PREFIX + "assetDiscoveryCursor", "0")),
+                "assetIntegrityAuditCursor", number(store.getSetting(PREFIX + "assetIntegrityAuditCursor", "0")),
                 "assetAnalysisIndependentlyVerified", false,
                 "partialMessageId", number(store.getSetting(PREFIX + "partialId", "0")),
                 "partialOffsetChars", number(store.getSetting(PREFIX + "partialOffset", "0")),
@@ -152,7 +154,7 @@ public final class MemoryReviewCoordinator {
 
     public boolean acknowledge(JSONObject expected, JSONObject review, boolean memoriesAccepted, int proposedMemories) {
         if (expected != null && "asset".equals(expected.optString("reviewMode")))
-            return reject("asset_analysis_receipt_required");
+            return acknowledgeObservedAssets(expected);
         if (expected == null || expected.optJSONArray("sourceRanges") == null
                 || expected.optJSONArray("sourceRanges").length() == 0) return false;
         if (!memoriesAccepted || review == null || !expected.optString("batchId").equals(review.optString("batchId")))
@@ -227,16 +229,18 @@ public final class MemoryReviewCoordinator {
     }
 
     public JSONObject assetCoverage(long messageId) {
-        JSONObject source = store.getMessage(messageId);
-        if (source == null || !"user".equals(source.optString("role"))) throw new IllegalArgumentException("Unknown owner asset source");
-        JSONObject coverage = parse(store.getSetting("assetCoverage:" + messageId, "{}"));
-        put(coverage, "messageId", messageId); put(coverage, "analysisVerified", false);
-        return coverage;
+        return store.withTransaction(db -> {
+            JSONObject source = store.getMessage(messageId);
+            if (source == null || !"user".equals(source.optString("role"))) throw new IllegalArgumentException("Unknown owner asset source");
+            JSONObject coverage = loadAssetCoverage(source, messageId);
+            updateAssetPendingIndex(db, messageId, coverage);
+            put(coverage, "messageId", messageId); put(coverage, "analysisVerified", false); return coverage;
+        });
     }
 
     /** Bare model review acknowledgements do not call or satisfy this receipt-gated path. */
     public JSONObject acceptAssetAnalysis(long messageId, String assetId, String sha256, String providerAnalysis) {
-        JSONObject receipt = parse(store.getSetting(assetReceiptKey(messageId, sha256), "{}"));
+        JSONObject receipt = parse(readAssetReceipt(messageId, assetId, sha256));
         return acceptAssetAnalysis(messageId, assetId, sha256, providerAnalysis, receipt);
     }
 
@@ -274,7 +278,7 @@ public final class MemoryReviewCoordinator {
                         "analysisSourceMessageId", asset.optLong("analysisSourceMessageId"));
             JSONObject originalAnalysis = store.addMessage("assistant", providerAnalysis, requestId);
             long analysisSource = originalAnalysis.optLong("id");
-            String memoryKey = assetMemoryKey(messageId, sha256);
+            String memoryKey = assetMemoryKey(messageId, sha256, assetId);
             store.upsertMemoryWithSources(memoryKey, safePrefix(providerAnalysis, 24_000), "observation",
                     new JSONArray().put(object("type", "message", "id", messageId)).put(object("type", "message", "id", analysisSource)));
             store.putMemoryMetadata(memoryKey, object("provenance", "provider_asset_analysis", "evidenceState", "generated_observation",
@@ -284,9 +288,10 @@ public final class MemoryReviewCoordinator {
             put(asset, "coverageStage", "provider_analyzed"); put(asset, "analysisSourceMessageId", analysisSource);
             put(asset, "analysisHash", analysisHash); put(asset, "providerRequestId", requestId);
             put(asset, "analysisVerified", false); put(asset, "userConfirmed", false); put(asset, "analyzedAt", System.currentTimeMillis());
+            put(asset, "analysisReceiptKey", assetReceiptKey(messageId, sha256, assetId));
             put(coverage, "stage", anyPendingAsset(coverage) ? "partially_analyzed" : "provider_analyzed");
             put(coverage, "analysisVerified", false); store.putSetting("assetCoverage:" + messageId, coverage.toString());
-            store.putSetting(assetReceiptKey(messageId, sha256), receipt.toString()); registerAssetSource(db, messageId);
+            store.putSetting(assetReceiptKey(messageId, sha256, assetId), receipt.toString()); registerAssetSource(db, messageId);
             store.recordEvent("asset_provider_analysis_observed", object("messageId", messageId, "assetId", assetId, "sha256", sha256,
                     "providerRequestId", requestId, "analysisSourceMessageId", analysisSource, "analysisHash", analysisHash,
                     "analysisIndependentlyVerified", false, "originalImageFullyUnderstood", false));
@@ -339,12 +344,11 @@ public final class MemoryReviewCoordinator {
     private boolean registerAssetSource(SQLiteDatabase db, long messageId) {
         JSONObject source = store.getMessage(messageId);
         if (source == null || !"user".equals(source.optString("role"))) throw new IllegalArgumentException("Unknown owner asset source");
-        String serialized = store.getSetting("assetCoverage:" + messageId, "");
-        JSONObject coverage = parse(serialized);
-        if (serialized.isEmpty()) {
-            JSONArray legacy = parseArray(store.getSetting("attachmentMetadata:" + source.optString("request_id"), "[]"));
-            if (legacy.length() > 0) { coverage = object("stage", "needs_reanalysis", "assets", legacy, "analysisVerified", false, "legacySourceIdentityUnverified", true); store.putSetting("assetCoverage:" + messageId, coverage.toString()); }
-        }
+        JSONObject coverage = loadAssetCoverage(source, messageId);
+        return updateAssetPendingIndex(db, messageId, coverage);
+    }
+
+    private boolean updateAssetPendingIndex(SQLiteDatabase db, long messageId, JSONObject coverage) {
         int pendingCount = pendingAssetCount(coverage);
         String existing = store.getSetting(assetPendingKey(messageId), "");
         int previousCount = existing.isEmpty() ? 0 : parse(existing).optInt("pendingAssetCount", 1);
@@ -355,6 +359,149 @@ public final class MemoryReviewCoordinator {
         return pendingCount > 0;
     }
 
+    /** Bounded local integrity audit also revisits terminal coverage; it performs no provider calls. */
+    private void auditAssetSources(SQLiteDatabase db, int limit) {
+        long cursor = number(store.getSetting(PREFIX + "assetIntegrityAuditCursor", "0"));
+        if (cursor >= store.lastUserMessageId()) cursor = 0;
+        JSONArray sources = store.listUserMessagesAfter(cursor, limit); long last = cursor;
+        for (int i = 0; i < sources.length(); i++) { last = sources.optJSONObject(i).optLong("id"); registerAssetSource(db, last); }
+        if (sources.length() > 0) store.putSetting(PREFIX + "assetIntegrityAuditCursor", String.valueOf(last));
+    }
+    private boolean acknowledgeObservedAssets(JSONObject expected) {
+        return store.withTransaction(db -> {
+            long id = expected.optLong("assetSourceMessageId"); JSONArray ranges = expected.optJSONArray("sourceRanges");
+            if (id <= 0 || ranges == null || ranges.length() != 1) return reject("asset_analysis_receipt_required");
+            JSONObject range = ranges.optJSONObject(0); JSONArray refs = range == null ? null : range.optJSONArray("assetRefs");
+            if (range == null || range.optLong("messageId") != id || refs == null || refs.length() == 0) return reject("asset_analysis_receipt_required");
+            JSONObject coverage;
+            try { coverage = assetCoverage(id); }
+            catch (IllegalArgumentException unreadable) { return reject("asset_review_source_unavailable"); }
+            JSONArray assets = coverage.optJSONArray("assets");
+            if (pendingAssetCount(coverage) > 0 || assets == null || assets.length() != refs.length()) return reject("asset_analysis_receipt_required");
+            for (int i = 0; i < refs.length(); i++) {
+                JSONObject ref = refs.optJSONObject(i); JSONObject asset = ref == null ? null : findAsset(assets, ref.optString("assetId"));
+                if (asset == null || !asset.optString("sha256").equals(ref.optString("sha256")) || !analysisProofExists(id, asset))
+                    return reject("asset_analysis_receipt_required");
+            }
+            try {
+                JSONObject original = store.readOriginalText(id, range.optLong("offsetChars"),
+                        (int) (range.optLong("nextOffsetChars") - range.optLong("offsetChars")));
+                if (!range.optString("contentHash").equals(original.optString("contentHash"))
+                        || !range.optString("recordHash").equals(original.optString("recordHash"))
+                        || !range.optString("text").equals(original.optString("text"))) return reject("asset_review_source_changed");
+            } catch (IOException | IllegalArgumentException unavailable) { return reject("asset_review_source_unavailable"); }
+            store.putSetting(PREFIX + "lastCode", "asset_receipts_verified");
+            store.recordEvent("asset_review_receipts_verified", object("messageId", id, "assetCount", refs.length(),
+                    "batchId", expected.optString("batchId"), "textCursorChanged", false,
+                    "assetStagesChangedByAcknowledgement", false, "analysisIndependentlyVerified", false));
+            return true;
+        });
+    }
+
+    private void refreshPendingSources(SQLiteDatabase db, int limit) {
+        java.util.List<Long> pending = new java.util.ArrayList<>();
+        try (Cursor rows = db.rawQuery("SELECT value FROM settings WHERE setting_key >= ? AND setting_key < ? ORDER BY setting_key ASC LIMIT ?", new String[]{ASSET_PENDING, ASSET_PENDING_END, String.valueOf(limit)})) {
+            while (rows.moveToNext()) pending.add(parse(rows.getString(0)).optLong("messageId"));
+        }
+        for (long id : pending) {
+            JSONObject source = store.getMessage(id);
+            if (source != null && "user".equals(source.optString("role"))) registerAssetSource(db, id);
+            // An orphaned pending source is still an integrity failure, not evidence that it was analyzed.
+        }
+    }
+
+    private JSONObject loadAssetCoverage(JSONObject source, long messageId) {
+        String serialized = store.getSetting("assetCoverage:" + messageId, "");
+        String originalMetadata = store.getSetting("attachmentMetadata:" + source.optString("request_id"), "");
+        JSONArray originals = strictAssetArray(originalMetadata);
+        JSONObject coverage = strictCoverage(serialized);
+        String failure = "";
+        if (coverage == null && !serialized.isEmpty()) failure = "coverage_json_unreadable";
+        else if (coverage != null) {
+            JSONArray assets = coverage.optJSONArray("assets");
+            if (assets == null || (assets.length() == 0 && coverage.optInt("pendingUnknownAssets") <= 0)) failure = "coverage_assets_missing";
+            else if (assets != null) for (int i = 0; i < assets.length(); i++) {
+                JSONObject asset = assets.optJSONObject(i);
+                if (asset == null || asset.optString("originalAssetId", asset.optString("id")).isEmpty()) { failure = "coverage_asset_identity_invalid"; break; }
+                String id = asset.optString("originalAssetId", asset.optString("id")); JSONObject original = findAsset(originals, id);
+                if (originals != null && originals.length() > 0 && (original == null || !original.optString("sha256").equals(asset.optString("sha256")))) { failure = "coverage_source_sha_mismatch"; break; }
+                if (("provider_analyzed".equals(asset.optString("coverageStage")) || "user_confirmed".equals(asset.optString("coverageStage")))
+                        && !analysisProofExists(messageId, asset)) { failure = "provider_analysis_proof_missing"; break; }
+            }
+            if (failure.isEmpty() && originals != null && originals.length() > 0 && assets != null && assets.length() != originals.length()) failure = "coverage_asset_count_mismatch";
+        }
+        String pendingSerialized = store.getSetting(assetPendingKey(messageId), "");
+        if (coverage != null && failure.isEmpty()) return coverage;
+        boolean hasOriginals = originals != null && originals.length() > 0;
+        if (serialized.isEmpty() && !hasOriginals && pendingSerialized.isEmpty() && originalMetadata.isEmpty())
+            return object("stage", "not_applicable", "assets", new JSONArray(), "analysisVerified", false);
+        if (failure.isEmpty()) failure = serialized.isEmpty() ? "coverage_missing" : "coverage_assets_missing";
+        JSONArray recovered = hasOriginals ? originals : coverage == null ? new JSONArray() : coverage.optJSONArray("assets");
+        if (recovered == null) recovered = new JSONArray();
+        JSONArray safe = new JSONArray(); boolean immutableIdentity = recovered.length() > 0;
+        for (int i = 0; i < recovered.length(); i++) {
+            JSONObject asset = recovered.optJSONObject(i); if (asset == null) { immutableIdentity = false; continue; }
+            JSONObject raw = parse(asset.toString()); put(raw, "coverageStage", "raw_saved"); put(raw, "analysisVerified", false); put(raw, "userConfirmed", false);
+            raw.remove("analysisSourceMessageId"); raw.remove("analysisHash"); raw.remove("providerRequestId"); raw.remove("confirmationMessageId"); raw.remove("analysisReceiptKey");
+            String identity = raw.optString("originalAssetId", raw.optString("id")), sha = raw.optString("sha256");
+            immutableIdentity &= Boolean.TRUE.equals(raw.opt("immutable")) && sha.matches("[a-f0-9]{64}")
+                    && identity.startsWith(".attachment-originals/" + sha + "."); safe.put(raw);
+        }
+        JSONObject repaired = object("stage", serialized.isEmpty() ? "needs_reanalysis" : "raw_saved", "assets", safe,
+                "analysisVerified", false, "sourceIntegrity", failure, "originalIdentityMetadataVerified", immutableIdentity,
+                "pendingUnknownAssets", safe.length() == 0 ? Math.max(1, parse(pendingSerialized).optInt("pendingAssetCount", 1)) : 0,
+                "legacySourceIdentityUnverified", !immutableIdentity, "recoveredAt", System.currentTimeMillis());
+        if (!serialized.isEmpty()) {
+            JSONObject preserved = store.addMessage("system", object("assetMessageId", messageId, "rawCoverage", serialized).toString(), null);
+            put(repaired, "previousCoverageSourceMessageId", preserved.optLong("id")); put(repaired, "previousCoverageHash", digest(serialized));
+        }
+        store.putSetting("assetCoverage:" + messageId, repaired.toString());
+        store.recordEvent("asset_coverage_integrity_recovered", object("messageId", messageId, "code", failure,
+                "sourceIdentitiesRecovered", safe.length(), "rawOriginalsRetained", true, "semanticAnalysisRestored", false));
+        return repaired;
+    }
+
+    private boolean analysisProofExists(long messageId, JSONObject asset) {
+        JSONObject analysis = store.getMessage(asset.optLong("analysisSourceMessageId"));
+        String sha = asset.optString("sha256"), hash = asset.optString("analysisHash"), assetId = asset.optString("originalAssetId", asset.optString("id"));
+        if (analysis == null || !"assistant".equals(analysis.optString("role")) || hash.isEmpty()
+                || !hash.equals(analysis.optString("raw_content_hash"))) return false;
+        JSONObject receipt = strictCoverage(readAssetReceipt(messageId, assetId, sha));
+        return receipt != null && Boolean.TRUE.equals(receipt.opt("uploadObserved")) && Boolean.TRUE.equals(receipt.opt("responseObserved"))
+                && receipt.optLong("sourceMessageId") == messageId && assetId.equals(receipt.optString("assetId"))
+                && sha.equals(receipt.optString("sha256")) && hash.equals(receipt.optString("analysisHash"))
+                && asset.optString("providerRequestId").equals(receipt.optString("providerRequestId"))
+                && asset.optString("providerRequestId").equals(analysis.optString("request_id"))
+                && receipt.optString("providerResponseHash").matches("[a-f0-9]{64}");
+    }
+    private static JSONObject strictCoverage(String serialized) {
+        if (serialized == null || serialized.isEmpty() || !boundedJsonDepth(serialized)) return null;
+        try {
+            JSONTokener tokener = new JSONTokener(serialized); Object value = tokener.nextValue();
+            return value instanceof JSONObject && tokener.nextClean() == 0 ? (JSONObject) value : null;
+        } catch (Exception invalid) { return null; }
+    }
+    private static JSONArray strictAssetArray(String serialized) {
+        if (serialized == null || serialized.isEmpty()) return new JSONArray();
+        if (!boundedJsonDepth(serialized)) return null;
+        try {
+            JSONTokener tokener = new JSONTokener(serialized); Object value = tokener.nextValue();
+            return value instanceof JSONArray && tokener.nextClean() == 0 ? (JSONArray) value : null;
+        } catch (Exception invalid) { return null; }
+    }
+
+    private static boolean boundedJsonDepth(String serialized) {
+        boolean quoted = false, escaped = false; int depth = 0;
+        for (int i = 0; i < serialized.length(); i++) {
+            char value = serialized.charAt(i);
+            if (quoted) {
+                if (escaped) escaped = false; else if (value == '\\') escaped = true; else if (value == '"') quoted = false;
+            } else if (value == '"') quoted = true;
+            else if (value == '[' || value == '{') { if (++depth > 64) return false; }
+            else if (value == ']' || value == '}') { if (--depth < 0) return false; }
+        }
+        return true;
+    }
     private JSONObject prepareAssetBatch(SQLiteDatabase db, long cursor, long partialId, long partialOffset, int maxSerializedChars) {
         long id = 0;
         try (Cursor first = db.rawQuery("SELECT value FROM settings WHERE setting_key >= ? AND setting_key < ? ORDER BY setting_key ASC LIMIT 1", new String[]{ASSET_PENDING, ASSET_PENDING_END})) {
@@ -377,7 +524,12 @@ public final class MemoryReviewCoordinator {
     }
 
     private void attachAssetContext(JSONObject range, long messageId) {
-        JSONObject coverage = parse(store.getSetting("assetCoverage:" + messageId, "{}")); JSONArray assets = coverage.optJSONArray("assets");
+        JSONObject coverage = assetCoverage(messageId); JSONArray assets = coverage.optJSONArray("assets");
+        put(range, "assetSourceIntegrity", coverage.optString("sourceIntegrity", "stored_metadata"));
+        if (coverage.optInt("pendingUnknownAssets") > 0) {
+            put(range, "assetCoverageStage", "needs_reanalysis"); put(range, "assetsNeedAnalysis", true);
+            put(range, "pendingUnknownAssets", coverage.optInt("pendingUnknownAssets"));
+        }
         if (assets == null || assets.length() == 0) return;
         JSONArray refs = new JSONArray();
         for (int i = 0; i < assets.length(); i++) {
@@ -417,21 +569,14 @@ public final class MemoryReviewCoordinator {
         try (Cursor count = db.rawQuery("SELECT COUNT(*) FROM settings WHERE setting_key >= ? AND setting_key < ?", new String[]{ASSET_PENDING, ASSET_PENDING_END})) { return count.moveToFirst() ? count.getLong(0) : 0; }
     }
     private static int pendingAssetCount(JSONObject coverage) {
-        JSONArray assets = coverage.optJSONArray("assets"); int count = 0;
+        JSONArray assets = coverage.optJSONArray("assets"); int count = Math.max(0, coverage.optInt("pendingUnknownAssets"));
         for (int i = 0; assets != null && i < assets.length(); i++) {
             JSONObject asset = assets.optJSONObject(i);
             if (asset == null || !("provider_analyzed".equals(asset.optString("coverageStage")) || "user_confirmed".equals(asset.optString("coverageStage")))) count++;
         }
         return count;
     }
-    private static boolean anyPendingAsset(JSONObject coverage) {
-        JSONArray assets = coverage.optJSONArray("assets"); if (assets == null) return false;
-        for (int i = 0; i < assets.length(); i++) {
-            JSONObject asset = assets.optJSONObject(i); if (asset == null) return true;
-            if (!("provider_analyzed".equals(asset.optString("coverageStage")) || "user_confirmed".equals(asset.optString("coverageStage")))) return true;
-        }
-        return false;
-    }
+    private static boolean anyPendingAsset(JSONObject coverage) { return pendingAssetCount(coverage) > 0; }
     private static boolean allUserConfirmed(JSONObject coverage) {
         JSONArray assets = coverage.optJSONArray("assets"); if (assets == null || assets.length() == 0) return false;
         for (int i = 0; i < assets.length(); i++) if (!"user_confirmed".equals(assets.optJSONObject(i).optString("coverageStage"))) return false; return true;
@@ -441,8 +586,12 @@ public final class MemoryReviewCoordinator {
     }
     private JSONObject assetReject(String code) { store.recordEvent("asset_analysis_rejected", object("code", code)); return object("ok", false, "code", code, "analysisVerified", false); }
     private static String assetPendingKey(long id) { return ASSET_PENDING + String.format(Locale.ROOT, "%019d", id); }
-    private static String assetMemoryKey(long id, String sha) { return "asset-analysis:" + id + ":" + sha; }
-    private static String assetReceiptKey(long id, String sha) { return "assetAnalysisReceipt:" + id + ":" + sha; }
+    private static String assetMemoryKey(long id, String sha, String assetId) { return "asset-analysis:" + id + ":" + sha + ":" + digest(assetId); }
+    private static String assetReceiptKey(long id, String sha, String assetId) { return "assetAnalysisReceipt:" + id + ":" + sha + ":" + digest(assetId); }
+    private String readAssetReceipt(long id, String assetId, String sha) {
+        String current = store.getSetting(assetReceiptKey(id, sha, assetId), "");
+        return current.isEmpty() ? store.getSetting("assetAnalysisReceipt:" + id + ":" + sha, "") : current;
+    }
     private static JSONArray parseArray(String value) { try { return new JSONArray(value); } catch (Exception invalid) { return new JSONArray(); } }
 
     private void fitToSerializedBudget(JSONObject batch, int cap) {

@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "repository": "dog898996/be3hyu",
+  "sourceCommit": "2b9403ab02bbda29fc21736d852d71637d2f84d4",
+  "workflowRunId": 38446332061,
+  "jobId": 115465583362,
+  "workflowUrl": "https://github.com/dog898996/be3hyu/actions/runs/38446332061",
+  "environment": {
+    "androidApi": 35,
+    "systemImage": "system-images;android-35;default;x86_64",
+    "actualKvmAcceleration": true,
+    "networkDisabledBeforeInstallation": true,
+    "physicalPhoneUsed": false,
+    "realChatGPTAccountUsed": false,
+    "releaseSigningKeyUsed": false
+  },
+  "verification": {
+    "gradleApkBuildUnitSuiteLintPassed": true,
+    "binaryPermissionsAndNativePackagingPassed": true,
+    "primaryInstrumentationTestsPassed": 10,
+    "explicitReopenInstrumentationTestsPassed": 1,
+    "foregroundScreenOffObservationSeconds": 65,
+    "automaticForceStopRecoveryClaimed": false,
+    "continuous24HourOperationMeasured": false,
+    "applicationJournalParticipantNewFeatureIncluded": false,
+    "latestAnnV2CheckpointNewFeatureIncluded": false,
+    "latestPhoneRawCompactionNewFeatureIncluded": false
+  },
+  "actualAndroidNeural": {
+    "modelId": "sentence-transformers/distiluse-base-multilingual-cased-v2@bfe45d0732ca50787611c0fe107ba278c7f3f889|bert-wordpiece-cased-v1|mean-dense-tanh512|query-overlap110-v1",
+    "dimensions": 512,
+    "readyMillis": 1205,
+    "fourEmbeddingsMillis": 99,
+    "koreanParaphraseCosine": 0.6993165044409766,
+    "koreanEnglishCosine": 0.814342814824652,
+    "unrelatedCosine": 0.09307882640893467,
+    "applicationOwnedEncoder": true,
+    "actualHostReferenceCompared": true,
+    "physicalPhoneBenchmark": false,
+    "textSentToService": false
+  },
+  "actualAndroidAnn": {
+    "actualAndroidJniExecuted": true,
+    "vectors": 256,
+    "dimensions": 512,
+    "querySelfTop1": true,
+    "excludedLabelAbsent": true,
+    "shaCacheRoundTrip": true,
+    "corruptCacheRejected": true,
+    "nonfiniteVectorRejected": true,
+    "elapsedMillis": 92,
+    "fullNeuralQualityMeasured": false,
+    "realUserPhoneMeasured": false
+  },
+  "limitations": [
+    "This is a synthetic, offline API35 x86_64 AOSP emulator run, not a Galaxy S24 Ultra measurement.",
+    "No authenticated ChatGPT Work/browser transport was exercised.",
+    "New uncommitted features require another complete source checkpoint and CI run.",
+    "Four public sentences and 256 synthetic ANN vectors do not establish a year of universal memory recall."
+  ]
+}

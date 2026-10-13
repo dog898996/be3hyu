@@ -155,6 +155,38 @@ public final class InternalFilesTest {
         assertEquals("keep", store.getMessage(original).getString("text"));
     }
 
+    @Test public void participantValidationRejectsBeforeAnyLiveNamespaceOrDatabaseSwap() throws Exception {
+        files.writeFile("keep.txt", "backup tree");
+        store.addMessage("user", "backup original", null);
+        files.setBackupParticipant(destination -> {
+            File raw = new File(destination, "archive/segments/synthetic.hja");
+            assertTrue(raw.getParentFile().mkdirs());
+            Files.write(raw.toPath(), "invalid internal frame".getBytes(StandardCharsets.UTF_8));
+        });
+        ByteArrayOutputStream backup = new ByteArrayOutputStream();
+        files.exportBackup(backup, store);
+        files.writeFile("keep.txt", "active tree");
+        long activeId = store.addMessage("user", "active original", null).getLong("id");
+        store.putSetting("autonomy.enabled", "true");
+        File activeJournal = new File(context.getFilesDir(), "device-journal/active.json");
+        assertTrue(activeJournal.getParentFile().isDirectory() || activeJournal.getParentFile().mkdirs());
+        Files.write(activeJournal.toPath(), "active journal".getBytes(StandardCharsets.UTF_8));
+        files.setBackupParticipant(new InternalFiles.BackupParticipant() {
+            @Override public void capture(File destination) { }
+            @Override public void validate(File stagedJournal) throws IOException {
+                assertTrue(new File(stagedJournal, "archive/segments/synthetic.hja").isFile());
+                assertEquals("active tree", files.readText("keep.txt", 100));
+                throw new IOException("Synthetic internal frame validation failed");
+            }
+        });
+        assertThrows(IOException.class, () -> files.importBackup(new ByteArrayInputStream(backup.toByteArray()), store));
+        assertEquals("active tree", files.readText("keep.txt", 100));
+        assertEquals("active original", store.getMessage(activeId).getString("text"));
+        assertEquals("true", store.getSetting("autonomy.enabled", "false"));
+        assertEquals("active journal", new String(Files.readAllBytes(activeJournal.toPath()), StandardCharsets.UTF_8));
+        assertFalse(new File(context.getFilesDir(), ".restore-transaction.json").exists());
+    }
+
     @Test public void restartRollsBackFileSwapIfBackupDatabaseNeverCommitted() throws Exception {
         files.writeFile("keep.txt", "original tree");
         JSONObject record = simulateInterruptedDirectorySwap("uncommitted tree");

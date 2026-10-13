@@ -1,0 +1,87 @@
+{
+  "benchmark": "actual-host-JNI-SQLite-checkpoint-restart-and-cadence-regressions",
+  "results": [
+    {
+      "name": "nativeRestartReplaysOnlyPureAppendTailFromOlderCheckpoint",
+      "run": 1,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "nativeRestartAfterUpdateRejectsCheckpointAndRebuildsCurrentVector",
+      "run": 1,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "nativeRestartAfterDeleteRejectsCheckpointWithoutDeletingOriginals",
+      "run": 1,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "nativeCheckpointFullF32PrefixRejectsVectorChangesEvenWithRolledBackEpoch",
+      "run": 1,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "nativeCorruptGraphIsRebuiltAndOriginalArchiveSurvives",
+      "run": 1,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "nativeDayOfMinuteAppendsUsesFiveCheckpointsAndStableTicksDoNotWrite",
+      "run": 1,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "nativeBurstCannotWriteBeforeFloorAndFirstPartialBuildDoesNotCheckpoint",
+      "run": 1,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "nativeDifferentEncoderIdentityDoesNotReuseOldCheckpoint",
+      "run": 1,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "nativeProviderMaintainsAppendDuringPartialBuildAndInvalidatesReplacement",
+      "run": 1,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "name": "nativeProviderFiltersCurrentPermissionBeforeTopKAndSupportsDateAndEntityConstraints",
+      "run": 1,
+      "failed": 0,
+      "skipped": 0
+    }
+  ],
+  "productionFilesSha256": {
+    "mobile/app/src/main/java/com/hoyoung/assistant/memory/NativeAnnIndex.java": "0e64ae7b8cc2289cb00983682e61af06860449cb7ccc50c2c515325ae7c19d20",
+    "mobile/app/src/main/java/com/hoyoung/assistant/memory/SemanticAnnCache.java": "e792b8e045e30c2012719e184dadcc8f4782222d394d237c84a7e1bcce5db9cf"
+  },
+  "newCheckpointTests": 8,
+  "priorNativeProviderRegressionTests": 2,
+  "simulatedCadence": {
+    "clockInjected": true,
+    "simulatedHours": 24,
+    "appendedRowsPerMinute": 8,
+    "originalsRetained": 11521,
+    "checkpointsIncludingInitial": 5,
+    "unchangedTicksWriteAdditionalCheckpoint": false,
+    "vectorsSynthetic": true,
+    "dimensions": 4
+  },
+  "restartScope": "module-reconstruction from real checksum-validated graph files and real SQLite; Android process death is a separate test",
+  "canonicalOriginalsAuthoritative": true,
+  "fullF32PrefixHashValidated": true,
+  "realAndroidExecutionMeasured": false,
+  "real24HourBackgroundExecutionMeasured": false,
+  "actualLmMeasured": false
+}

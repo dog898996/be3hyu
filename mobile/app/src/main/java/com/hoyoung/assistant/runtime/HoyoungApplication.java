@@ -4,6 +4,7 @@ import android.app.Application;
 
 import com.hoyoung.assistant.phone.PhoneTools;
 import com.hoyoung.assistant.phone.PhoneContextCollector;
+import com.hoyoung.assistant.phone.PhoneEventJournal;
 import com.hoyoung.assistant.memory.MemoryRetriever;
 import com.hoyoung.assistant.memory.SemanticAnnCache;
 import com.hoyoung.assistant.memory.local.LocalSemanticEncoder;
@@ -30,6 +31,14 @@ public final class HoyoungApplication extends Application {
         files = new InternalFiles(this);
         phoneTools = new PhoneTools(this, store);
         phoneContext = new PhoneContextCollector(this, phoneTools, store);
+        files.setBackupParticipant(new InternalFiles.BackupParticipant() {
+            @Override public void capture(java.io.File destination) throws java.io.IOException {
+                PhoneEventJournal.captureBackupSnapshot(HoyoungApplication.this, destination);
+            }
+            @Override public void validate(java.io.File stagedJournal) throws java.io.IOException {
+                PhoneEventJournal.validateBackupSnapshot(stagedJournal);
+            }
+        });
         semanticEncoder = new LocalSemanticEncoder(this);
         memoryRetriever = new MemoryRetriever(store, semanticEncoder);
         memoryRetriever.setDeviceSourceVisibility(phoneTools::canReadStoredSource);

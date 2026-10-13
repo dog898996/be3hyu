@@ -42,12 +42,16 @@ public final class PhoneEventJournal {
     private final AtomicLong policyEpoch = new AtomicLong();
     private final Object policyLock = new Object();
     private volatile boolean restorePaused;
+    private volatile String archiveFailure = "";
+    private volatile long nextArchiveAttemptAt;
+    private final Object archiveHealthLock = new Object();
 
     private PhoneEventJournal(Context context, HoyoungStore store) {
         this.store = store;
         try { spool = new PhoneObservationSpool(new File(context.getFilesDir(), "device-journal")); }
         catch (IOException failure) { throw new IllegalStateException("Private device journal cannot be initialized", failure); }
         restoreFailureMarker();
+        if (!spool.readState("health.archiveFailure", "").isEmpty()) archiveFailure = "prior_archive_failure_pending_reverification";
         // No SQLite calls on this constructor/callback path. Previously persisted policy starts
         // fail-closed until it is verified against current app settings by the background worker.
         collectionEnabled = false; policyReady = false;
@@ -97,12 +101,47 @@ public final class PhoneEventJournal {
     }
     private void requestDrain() {
         if (!closed && !restorePaused && scheduled.compareAndSet(false, true)) worker.execute(() -> {
-            boolean retry = false;
-            try { refreshPolicyBlocking(); ingestPending(); mirrorState(); if (failedEvents == 0 && lastFailure.startsWith("database_")) lastFailure = ""; }
+            boolean retry = false; long archiveDelay = 0;
+            try { refreshPolicyBlocking(); ingestPending(); mirrorState(); archiveDelay = maintainArchive(); if (failedEvents == 0 && lastFailure.startsWith("database_")) lastFailure = ""; }
             catch (RuntimeException failure) { lastFailure = "database_ingest_unavailable; observations_remain_spooled"; retry = true; }
             finally { scheduled.set(false); }
-            if (!closed && !restorePaused && (retry || spool.pendingCount() > 0 || !dirtyState.isEmpty())) worker.schedule(this::requestDrain, retry ? 1000 : 10, TimeUnit.MILLISECONDS);
+            if (!closed && !restorePaused && (retry || spool.pendingCount() > 0 || !dirtyState.isEmpty() || spool.archiveMaintenanceNeeded())) {
+                long delay = retry ? 1000 : spool.pendingCount() > 0 || !dirtyState.isEmpty() ? 10 : Math.max(10, archiveDelay);
+                worker.schedule(this::requestDrain, delay, TimeUnit.MILLISECONDS);
+            }
         });
+    }
+    private long maintainArchive() {
+        synchronized (ingestionLock) {
+            if (closed || restorePaused || !spool.archiveMaintenanceNeeded()) return 0;
+            long now = android.os.SystemClock.elapsedRealtime(); if (nextArchiveAttemptAt > now) return nextArchiveAttemptAt - now;
+            try {
+                spool.compactArchive(); nextArchiveAttemptAt = 0;
+                synchronized (archiveHealthLock) {
+                    if (!spool.archiveAuditPending()) {
+                        archiveFailure = "";
+                        if (!spool.readState("health.archiveFailure", "").isEmpty()) spool.writeState("health.archiveFailure", "");
+                    }
+                }
+                return spool.archiveSnapshotActive() ? 1000 : 10;
+            } catch (IOException failure) {
+                nextArchiveAttemptAt = now + 30000;
+                recordArchiveFailure(failure);
+                return 30000;
+            }
+        }
+    }
+    private void recordArchiveFailure(IOException failure) {
+        synchronized (archiveHealthLock) {
+            archiveFailure = "archive_compaction_or_validation_unavailable; existing_originals_and_segments_retained";
+            String signature = hash(failure.getClass().getName() + ":" + failure.getMessage());
+            if (!signature.equals(spool.readState("health.archiveFailure", ""))) {
+                try {
+                    spool.append("collector_gap", "phone.private_archive", object("reason", "raw_archive_compaction_or_validation_failed", "existingOriginalsAndSegmentsRetained", true, "archiveCompletenessUnconfirmed", true), Math.max(0, System.currentTimeMillis()), null);
+                    spool.writeState("health.archiveFailure", signature);
+                } catch (IOException gapUnavailable) { failed("phone.private_archive", gapUnavailable); }
+            }
+        }
     }
     private void ingestPending() {
         synchronized (ingestionLock) {
@@ -160,13 +199,16 @@ public final class PhoneEventJournal {
             localState.clear(); dirtyState.clear();
             try { spool.afterRestore(); } catch (IOException unavailable) { failed("phone.backup_restore", unavailable); throw new IllegalStateException("Restored device journal is unavailable; collection remains paused", unavailable); }
             failedEvents = 0; failedSince = 0; lastFailure = ""; restoreFailureMarker();
+            archiveFailure = spool.readState("health.archiveFailure", "").isEmpty() ? "" : "prior_archive_failure_pending_reverification"; nextArchiveAttemptAt = 0;
             synchronized (policyLock) { policyEpoch.incrementAndGet(); policyReady = false; collectionEnabled = false; restorePaused = false; }
         }
         if (!closed) worker.execute(this::refreshPolicyBlocking);
         requestDrain();
     }
-    public void captureBackupSnapshot(File destination) throws IOException { spool.captureSnapshot(destination); }
+    public void captureBackupSnapshot(File destination) throws IOException { try { spool.captureSnapshot(destination); } catch (IOException validationFailure) { recordArchiveFailure(validationFailure); throw validationFailure; } finally { requestDrain(); } }
     public static void captureBackupSnapshot(Context context, File destination) throws IOException { forContext(context).captureBackupSnapshot(destination); }
+    /** Pure background validation of staged raw segments, before any live restore replacement. */
+    public static void validateBackupSnapshot(File stagedJournal) throws IOException { PhoneObservationSpool.validateSnapshot(stagedJournal); }
     public JSONArray events(String category, String source, long afterId, int limit) { return store.deviceEvents(category, source, afterId, limit); }
     public JSONArray recent(int limit) { return store.listDeviceEvents(limit); }
     public JSONArray recent(String category, String source, int limit) { return store.recentDeviceEvents(category, source, limit); }
@@ -186,9 +228,10 @@ public final class PhoneEventJournal {
     public boolean toolAllowed(String name) { if (restorePaused || !policyReady) return false; try { JSONObject settings = new JSONObject(permissionJson); return !settings.has(name) || Boolean.TRUE.equals(settings.opt(name)); } catch (JSONException corrupt) { return false; } }
     public boolean collectionEnabled() { return !restorePaused && policyReady && collectionEnabled; }
     public JSONObject receipt(String spoolId) { try { return new JSONObject(spool.readState("receipt." + spoolId, "{}")); } catch (JSONException invalid) { return new JSONObject(); } }
-    public JSONObject health() { return object("ok", failedEvents == 0, "pendingGapSince", failedEvents == 0 ? JSONObject.NULL : failedSince, "failedEvents", failedEvents,
-        "pendingSpoolRecords", spool.pendingCount(), "lastIngestedDeviceEventId", lastIngestedId, "policyVerified", policyReady, "lastFailure", lastFailure, "durability", "private_file_fsync_and_atomic_rename_before_sqlite_ingest"); }
-    void ingestPendingForTests() { if (closed || restorePaused) throw new IllegalStateException("Cannot drain a closed or restoring journal"); refreshPolicyBlocking(); do { ingestPending(); } while (spool.pendingCount() > 0); mirrorState(); }
+    public JSONObject health() { return object("ok", failedEvents == 0 && archiveFailure.isEmpty(), "pendingGapSince", failedEvents == 0 ? JSONObject.NULL : failedSince, "failedEvents", failedEvents,
+        "pendingSpoolRecords", spool.pendingCount(), "lastIngestedDeviceEventId", lastIngestedId, "policyVerified", policyReady, "lastFailure", lastFailure, "archiveFailure", archiveFailure,
+        "rawArchiveFormat", "exact_original_files_or_sha256_verified_immutable_segments", "rawArchiveSegmentMaxBytes", PhoneArchiveSegments.MAX_SEGMENT_BYTES, "durability", "private_file_fsync_and_atomic_rename_before_sqlite_ingest"); }
+    void ingestPendingForTests() { if (closed || restorePaused) throw new IllegalStateException("Cannot drain a closed or restoring journal"); refreshPolicyBlocking(); do { ingestPending(); } while (spool.pendingCount() > 0); mirrorState(); maintainArchive(); }
     void closeWorker() { closed = true; worker.shutdownNow(); }
     void awaitClosedForTests() { synchronized (ingestionLock) { } }
     File spoolDirectoryForTests() { return spool.directory(); }

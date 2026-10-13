@@ -1,0 +1,456 @@
+[
+  {
+    "caseId": "case-01",
+    "question": "내 첫 자전거 이름 뭐였지?",
+    "memories": [
+      {
+        "key": "first_bicycle_name",
+        "content": "사용자의 첫 자전거 이름은 달토끼7호이다.",
+        "kind": "fact",
+        "sourceRefs": [
+          {
+            "quote": "내 첫 자전거 이름은 달토끼7호야. 그 이름은 기억해 둬.",
+            "offsetChars": 0,
+            "type": "message",
+            "id": 101
+          }
+        ],
+        "metadata": {
+          "explicitlyRequested": true
+        }
+      },
+      {
+        "key": "lunch_2026_10_13",
+        "content": "사용자는 2026년 10월 13일 점심에 김밥을 먹었다.",
+        "kind": "episode",
+        "sourceRefs": [
+          {
+            "quote": "오늘 점심은 김밥 먹었어.",
+            "offsetChars": 0,
+            "type": "message",
+            "id": 102
+          }
+        ],
+        "metadata": {
+          "eventDate": "2026-10-13"
+        }
+      }
+    ],
+    "coverage": {
+      "completeArchive": true
+    },
+    "needsContext": null
+  },
+  {
+    "caseId": "case-02",
+    "question": "2026년 3월 내 작업실은 어디였고 지금은 어디야?",
+    "memories": [
+      {
+        "key": "studio_location_seoul_mapo",
+        "content": "사용자의 작업실은 2025년 1월 1일부터 2026년 4월 1일 이전까지 서울 마포구에 있었다.",
+        "kind": "fact",
+        "sourceRefs": [
+          {
+            "quote": "2025년 1월 1일부터 내 작업실은 서울 마포구에 있어.",
+            "offsetChars": 0,
+            "type": "message",
+            "id": 201
+          },
+          {
+            "quote": "작업실을 2026년 4월 1일에 부산 수영구로 옮겼어. 이전 마포구 기록은 과거 주소로 남겨.",
+            "offsetChars": 0,
+            "type": "message",
+            "id": 202
+          }
+        ],
+        "metadata": {
+          "validFrom": "2025-01-01",
+          "validTo": "2026-04-01",
+          "status": "historical",
+          "supersededBy": "studio_location_busan_suyeong"
+        }
+      },
+      {
+        "key": "studio_location_busan_suyeong",
+        "content": "사용자는 2026년 4월 1일 작업실을 부산 수영구로 옮겼으며 현재 작업실 주소는 부산 수영구이다.",
+        "kind": "fact",
+        "sourceRefs": [
+          {
+            "quote": "작업실을 2026년 4월 1일에 부산 수영구로 옮겼어. 이전 마포구 기록은 과거 주소로 남겨.",
+            "offsetChars": 0,
+            "type": "message",
+            "id": 202
+          }
+        ],
+        "metadata": {
+          "validFrom": "2026-04-01",
+          "status": "current",
+          "supersedes": "studio_location_seoul_mapo"
+        }
+      }
+    ],
+    "coverage": {
+      "completeArchive": true
+    },
+    "needsContext": null
+  },
+  {
+    "caseId": "case-03",
+    "question": "프로젝트 마감이 언제야?",
+    "memories": [
+      {
+        "key": "project_deadline_unresolved",
+        "content": "같은 프로젝트의 마감일에 대해 2026년 10월 20일과 2026년 10월 25일이라는 서로 다른 메모가 있으며, 사용자는 어느 날짜가 맞는지 아직 확인하지 않았다.",
+        "kind": "fact",
+        "sourceRefs": [
+          {
+            "quote": "지난달 프로젝트 마감일을 10월 20일이라고 적었어.",
+            "offsetChars": 0,
+            "type": "message",
+            "id": 301
+          },
+          {
+            "quote": "다른 메모에는 같은 프로젝트 마감이 10월 25일이래. 아직 어느 게 맞는지 확인 안 했어.",
+            "offsetChars": 0,
+            "type": "message",
+            "id": 302
+          }
+        ],
+        "metadata": {
+          "status": "unresolved_conflict",
+          "alternatives": [
+            "2026-10-20",
+            "2026-10-25"
+          ],
+          "resolved": false
+        }
+      }
+    ],
+    "coverage": {
+      "completeArchive": true
+    },
+    "needsContext": null
+  },
+  {
+    "caseId": "case-04",
+    "question": "내 알레르기가 뭐지?",
+    "memories": [],
+    "coverage": {
+      "completeArchive": true
+    },
+    "needsContext": null
+  },
+  {
+    "caseId": "case-05",
+    "question": "사용자가 연락처 삭제를 승인했어?",
+    "memories": [
+      {
+        "key": "delivery_estimate_2026_10_05",
+        "content": "2026년 10월 4일 배달 알림은 배송 예정 시점을 다음 날인 10월 5일 오후로 안내했다. 실제 배송 완료는 확인되지 않았다.",
+        "kind": "episode",
+        "sourceRefs": [
+          {
+            "quote": "배송 예정: 내일 오후.",
+            "offsetChars": 0,
+            "type": "device_event",
+            "id": 5001
+          }
+        ],
+        "metadata": {
+          "eventDate": "2026-10-05",
+          "status": "scheduled",
+          "completionConfirmed": false,
+          "provenance": "untrusted_notification"
+        }
+      }
+    ],
+    "coverage": {
+      "completeArchive": true
+    },
+    "needsContext": null
+  },
+  {
+    "caseId": "case-06",
+    "question": "내 출생지를 기억해?",
+    "memories": [
+      {
+        "key": "birthplace_paris_claim_rejected",
+        "content": "사용자는 자신이 파리에서 태어났다고 말한 적이 없다고 정정했다. 파리 출생이라는 주장은 assistant의 추측이며 사용자의 실제 출생지는 확인되지 않았다.",
+        "kind": "correction",
+        "sourceRefs": [
+          {
+            "quote": "내가 파리에서 태어났다고 말한 적 없어. 그건 네 추측이야.",
+            "offsetChars": 0,
+            "type": "message",
+            "id": 602
+          }
+        ],
+        "metadata": {
+          "status": "rejected_claim",
+          "rejectedClaim": "사용자가 파리에서 태어났다",
+          "birthplaceKnown": false
+        }
+      }
+    ],
+    "coverage": {
+      "completeArchive": true
+    },
+    "needsContext": null
+  },
+  {
+    "caseId": "case-07",
+    "question": "새벽2시에 별일 없는데 선톡해도 돼?",
+    "memories": [
+      {
+        "key": "quiet_hours",
+        "content": "사용자는 밤 11시부터 다음 날 아침 8시까지 긴급한 일을 제외하고 assistant가 먼저 연락하지 않는 것에 동의했다.",
+        "kind": "preference",
+        "sourceRefs": [
+          {
+            "quote": "밤 11시부터 아침 8시까지는 긴급한 일 빼고 선톡하지 않을까?",
+            "offsetChars": 0,
+            "type": "message",
+            "id": 701
+          },
+          {
+            "quote": "ㅇㅇ 그렇게 해",
+            "offsetChars": 0,
+            "type": "message",
+            "id": 702
+          }
+        ],
+        "metadata": {
+          "scope": "proactive_contact",
+          "quietHours": {
+            "start": "23:00",
+            "end": "08:00"
+          },
+          "exceptions": [
+            "urgent"
+          ],
+          "userConfirmed": true
+        }
+      }
+    ],
+    "coverage": {
+      "completeArchive": true
+    },
+    "needsContext": null
+  },
+  {
+    "caseId": "case-08",
+    "question": "내 위치 확인 끝났어?",
+    "memories": [
+      {
+        "key": "location_request_pending",
+        "content": "사용자는 현재 위치 확인을 요청했다. 위치 확인 요청은 접수됐으나 완료되지 않았고 실제 위치나 좌표는 아직 확인되지 않았다.",
+        "kind": "episode",
+        "sourceRefs": [
+          {
+            "quote": "현재 위치를 확인하고 실제 위치가 나오면 알려 줘.",
+            "offsetChars": 0,
+            "type": "message",
+            "id": 801
+          },
+          {
+            "quote": "위치 확인을 요청했어. 아직 실제 위치는 안 왔어.",
+            "offsetChars": 0,
+            "type": "message",
+            "id": 802
+          },
+          {
+            "quote": "requestId=synthetic-location-a, status=requested, completionConfirmed=false, coordinates=null",
+            "offsetChars": 0,
+            "type": "device_event",
+            "id": 8001
+          }
+        ],
+        "metadata": {
+          "status": "requested",
+          "completionConfirmed": false,
+          "coordinates": null,
+          "requestId": "synthetic-location-a"
+        }
+      }
+    ],
+    "coverage": {
+      "completeArchive": true
+    },
+    "needsContext": null
+  },
+  {
+    "caseId": "case-09",
+    "question": "별빛 자료 검토는 누가 맡았지?",
+    "memories": [
+      {
+        "key": "project_galaxy_identity",
+        "content": "사용자의 학교 과제 프로젝트 공식 이름은 은하이며 사용자는 같은 프로젝트를 별빛이라고도 부른다.",
+        "kind": "fact",
+        "sourceRefs": [
+          {
+            "quote": "학교 과제 프로젝트의 공식 이름은 은하이고 내가 별빛이라고도 부를 거야.",
+            "offsetChars": 0,
+            "type": "message",
+            "id": 901
+          }
+        ],
+        "metadata": {
+          "entityId": "project_galaxy",
+          "canonicalName": "은하",
+          "aliases": [
+            "별빛"
+          ],
+          "projectContext": "school_assignment"
+        }
+      },
+      {
+        "key": "project_galaxy_reviewer",
+        "content": "은하 프로젝트(별빛)의 자료 검토 담당자는 민수이다.",
+        "kind": "fact",
+        "sourceRefs": [
+          {
+            "quote": "은하 프로젝트에서 자료 검토를 맡은 사람은 민수야.",
+            "offsetChars": 0,
+            "type": "message",
+            "id": 902
+          }
+        ],
+        "metadata": {
+          "entityId": "project_galaxy",
+          "person": "민수",
+          "relationship": "자료 검토 담당"
+        }
+      }
+    ],
+    "coverage": {
+      "completeArchive": true
+    },
+    "needsContext": null
+  },
+  {
+    "caseId": "case-10",
+    "question": "2024년 내 담임 교실 번호 뭐였지?",
+    "memories": [
+      {
+        "key": "art_homework_2026_10_09",
+        "content": "사용자는 2026년 10월 9일 미술 숙제를 했다.",
+        "kind": "episode",
+        "sourceRefs": [
+          {
+            "quote": "오늘은 미술 숙제를 했어.",
+            "offsetChars": 0,
+            "type": "message",
+            "id": 1001
+          }
+        ],
+        "metadata": {
+          "eventDate": "2026-10-09"
+        }
+      }
+    ],
+    "coverage": {
+      "completeArchive": true
+    },
+    "needsContext": null
+  },
+  {
+    "caseId": "case-11",
+    "question": "선생님께 과제 연장 이메일을 써 줘.",
+    "memories": [
+      {
+        "key": "style_casual_conversation",
+        "content": "사용자는 일상 대화에서 친구처럼 편하게 말하고 농담하는 것을 선호한다.",
+        "kind": "preference",
+        "sourceRefs": [
+          {
+            "quote": "일상 대화에서는 편하게 농담해. 선생님께 보내는 이메일은 정중하게 써.",
+            "offsetChars": 0,
+            "type": "message",
+            "id": 1101
+          },
+          {
+            "quote": "앞으로 공식 보고서도 정중한 문장으로 써 줘. 평소 친구처럼 말하는 건 그대로 좋아.",
+            "offsetChars": 0,
+            "type": "message",
+            "id": 1102
+          }
+        ],
+        "metadata": {
+          "scope": "casual_conversation",
+          "status": "current"
+        }
+      },
+      {
+        "key": "style_teacher_email",
+        "content": "사용자는 선생님께 보내는 이메일을 정중하게 작성하기를 원한다.",
+        "kind": "preference",
+        "sourceRefs": [
+          {
+            "quote": "일상 대화에서는 편하게 농담해. 선생님께 보내는 이메일은 정중하게 써.",
+            "offsetChars": 0,
+            "type": "message",
+            "id": 1101
+          }
+        ],
+        "metadata": {
+          "scope": "teacher_email",
+          "status": "current"
+        }
+      },
+      {
+        "key": "style_formal_report",
+        "content": "사용자는 앞으로 공식 보고서도 정중한 문장으로 작성하기를 원한다.",
+        "kind": "preference",
+        "sourceRefs": [
+          {
+            "quote": "앞으로 공식 보고서도 정중한 문장으로 써 줘. 평소 친구처럼 말하는 건 그대로 좋아.",
+            "offsetChars": 0,
+            "type": "message",
+            "id": 1102
+          }
+        ],
+        "metadata": {
+          "scope": "formal_report",
+          "validFrom": "2026-10-10",
+          "status": "current"
+        }
+      }
+    ],
+    "coverage": {
+      "completeArchive": true
+    },
+    "needsContext": null
+  },
+  {
+    "caseId": "case-12",
+    "question": "이 기록 전체 검토를 완료했어?",
+    "memories": [
+      {
+        "key": "record_coverage_partial",
+        "content": "제공된 긴 기록은 전체 9000자 중 앞부분 0~23자에 해당하는 발췌이며, 전체 기록이 제공되지 않았다. 뒤에 추가 사실이나 정정이 있는지는 확인할 수 없다.",
+        "kind": "coverage",
+        "sourceRefs": [
+          {
+            "quote": "이번 기록은 길고 아직 앞부분만 제공했어.",
+            "offsetChars": 0,
+            "type": "message",
+            "id": 1201
+          }
+        ],
+        "metadata": {
+          "archiveComplete": false,
+          "sourceRange": {
+            "offsetChars": 0,
+            "nextOffsetChars": 23,
+            "totalChars": 9000,
+            "excerptOnly": true
+          }
+        }
+      }
+    ],
+    "coverage": {
+      "completeArchive": false
+    },
+    "needsContext": null
+  }
+]

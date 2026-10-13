@@ -1,0 +1,124 @@
+{
+  "schemaVersion": "hoyoung-model-memory-probe.execution.v1",
+  "reviewRecordedAtUtc": "2026-10-13T18:16:47.560762+00:00",
+  "caseCount": 12,
+  "synthetic": true,
+  "publicSyntheticDataOnly": true,
+  "standardLongMemEval": false,
+  "actualAppRetrieverMeasured": false,
+  "actualWorkMeasured": false,
+  "actualAndroidDeviceMeasured": false,
+  "writerAndReaderCompleted": true,
+  "requestedConfiguration": {
+    "model": "gpt-6.1-sol",
+    "reasoningEffort": "medium",
+    "forkTurns": "none",
+    "roles": [
+      "writer",
+      "reader"
+    ],
+    "evidence": "parent-agent-orchestration-report-and-completed-output-files"
+  },
+  "independentlyConfirmedRuntimeModel": null,
+  "fastConfirmed": null,
+  "tokensUsed": null,
+  "billingMeasured": false,
+  "billingAmount": null,
+  "separatePaidApiOrPrivateCloudServerInitiated": false,
+  "externalWorkCallsReported": 0,
+  "phoneActionsReported": 0,
+  "generationRetryCount": null,
+  "generationRetryCountEvidence": "Complete provider/retry trace unavailable; one completed output file per generation role is preserved.",
+  "blinding": {
+    "writerInputFiles": [
+      "writer-inputs.json"
+    ],
+    "writerReceivedQuestionsOrGoldenAccordingToProtocol": false,
+    "readerInputFiles": [
+      "reader-inputs.json"
+    ],
+    "readerReceivedStandaloneOriginalsOrGoldenAccordingToProtocol": false,
+    "readerSawQuotesEmbeddedInMemories": true,
+    "sharedFilesystemTechnicallyIsolated": false,
+    "fullToolReadTracePublished": false
+  },
+  "normalization": {
+    "originalWriterContractMismatch": true,
+    "readerUsedNormalizedWriter": true,
+    "transformations": [
+      "sourceRefs.sourceType/sourceId renamed type/id",
+      "extra note fields moved under metadata without value changes",
+      "archiveCoverage.complete renamed coverage.completeArchive",
+      "actions empty arrays explicitly added"
+    ],
+    "memoryContentKeyKindQuotesDatesAndStatusValuesUnchanged": true,
+    "normalizedSha256": "875d6b223b5fe1c38686ff41dfa25188b56bc992c70013060af7ac95ab1e2d20",
+    "semanticRepairPerformed": false,
+    "runtimeValidatorAcceptanceMeasured": false
+  },
+  "mechanicalMetrics": {
+    "memoryCount": 16,
+    "exactQuoteCount": 22,
+    "quoteCount": 22,
+    "invalidSourceReferences": 0,
+    "missingCases": 0,
+    "rankedSourcesProvided": false,
+    "retrievalAccuracy": null,
+    "semanticExtractionAccuracy": null,
+    "answerAccuracy": null,
+    "unitTestsPassed": 7,
+    "unitTestsTotal": 7
+  },
+  "qualitativeReviewFile": "qualitative-review.json",
+  "artifactChecksums": {
+    "README.md": {
+      "sha256": "d7ba2ecd592b56803d2f34d76dbd5b5c870c42af008873120c7199c56bf54d36",
+      "bytes": 1472
+    },
+    "evidence-metrics.json": {
+      "sha256": "418e3b0199b46dbd7ab5262324419d0b4792962ea090d903c7af68ccf7d70a29",
+      "bytes": 6808
+    },
+    "fixture.json": {
+      "sha256": "88ac53592f13b3cf7868df562d31fe8d646968075f7bee93f0eab09768a6b0dd",
+      "bytes": 15702
+    },
+    "golden.json": {
+      "sha256": "e8205ce96e0735d6278b9b296bc739fd84690f1403e056da17c7dd9da8a8ad4e",
+      "bytes": 6483
+    },
+    "preparation-manifest.json": {
+      "sha256": "cda2516f0633abe076caac6b74509d25637c7052a132862760d64f484a8fed83",
+      "bytes": 503
+    },
+    "qualitative-review.json": {
+      "sha256": "fc5197fea2dec33e1a36f1b4a3582537880af95b3b6dc2bcdff94aa276f74770",
+      "bytes": 12937
+    },
+    "questions.json": {
+      "sha256": "43b8634d981dc4c5baf0272021e4fde0c38cd1343fbb9af8fbf6e510bd7a867a",
+      "bytes": 1119
+    },
+    "reader-inputs.json": {
+      "sha256": "50cb198b64cf06108b900a7ab63018043251330a5c9beb7286d6b591cbd15ddf",
+      "bytes": 13787
+    },
+    "reader-outputs.json": {
+      "sha256": "b2da88cc6dd6cec40730b4ec719546034a78048afeff38b8ece072a62f4a893c",
+      "bytes": 5330
+    },
+    "writer-inputs.json": {
+      "sha256": "ce348a945dfdeb280e444b7d40ff671580977b747260e5751c7ece684c76c14c",
+      "bytes": 6533
+    },
+    "writer-outputs-contract-v2.json": {
+      "sha256": "875d6b223b5fe1c38686ff41dfa25188b56bc992c70013060af7ac95ab1e2d20",
+      "bytes": 8664
+    },
+    "writer-outputs.json": {
+      "sha256": "6279d58d9a1f703a036630ae2f76a70c209e97255b8c46f267160e68bef80150",
+      "bytes": 8564
+    }
+  },
+  "selfChecksumExcluded": true
+}

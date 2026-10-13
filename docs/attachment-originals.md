@@ -30,4 +30,6 @@ SHA 계산과 파일 복사는 크기에 비례한다. import/freeze/archive/rea
 
 원본과 sidecar는 기존 `projects` ZIP namespace에 포함된다. 복원 staging에서 payload 파일명 SHA, 실제 binary SHA/size, sidecar identity, 저장된 attachment metadata reference를 확인한 뒤에만 현재 DB/파일 tree를 교체한다. ZIP checksum을 새로 계산한 변조 archive도 content-addressed 원본이 일치하지 않으면 거부한다. 백업이 없으면 앱 데이터 삭제·제거로 private 원본도 지워진다. SAF에서 외부 저장소로 내보낸 백업이 필요하다.
 
+현재 streaming 백업은 ZIP 압축 bytes와 펼친 payload 합계 각각 4 GiB, 파일당 64 MiB, 전체 ZIP entry 100,000개까지다. 제한을 넘으면 명시적으로 중단하며 오래된 원문을 조용히 제외하지 않는다. 폰 관찰의 immutable segment 보관은 작은 파일 수와 ZIP entry 부담을 줄이는 방식이지 원문 bytes를 줄이거나 백업 크기 한도를 없애는 방식은 아니다. 복원에는 staging과 기존 파일 tree가 동시에 존재할 여유 공간도 필요하다.
+
 합성 회귀는 working file 덮어쓰기 후 원본 유지, prefix/alias 쓰기 차단, 동일 payload 재사용, provider MIME 유지, SHA/size 허위 claim 거부, 동일 길이/mtime 변조 감지, 정상 백업 복원과 checksum을 일관되게 바꾼 원본 변조 거부, 큰 도구 결과 및 emoji range 경계를 확인한다. 실제 기기의 전원 차단·가득 찬 디스크 검증은 별도다.

@@ -520,7 +520,7 @@ public final class HoyoungStore extends SQLiteOpenHelper {
 
     /** Read only. The caller must persist dispatching BEFORE starting any remote action. */
     public synchronized JSONObject nextQueuedRequest() {
-        return one(getReadableDatabase(), "SELECT * FROM requests WHERE status = 'queued' ORDER BY id ASC LIMIT 1", null);
+        return one(getReadableDatabase(), "SELECT * FROM requests WHERE status = 'queued' ORDER BY CASE WHEN kind='user' THEN 0 ELSE 1 END,id ASC LIMIT 1", null);
     }
 
     public synchronized void markRequest(long id, String status, String resultNullable) {
@@ -641,6 +641,14 @@ public final class HoyoungStore extends SQLiteOpenHelper {
 
     public synchronized JSONObject getMemory(String key) {
         return enrichMemory(getReadableDatabase(), one(getReadableDatabase(), "SELECT * FROM memories WHERE memory_key = ?", new String[]{required(key, "key", 512)}));
+    }
+
+    /** Bounded candidate view; use getMemory for the complete authoritative memory. */
+    public synchronized JSONObject getMemoryCandidate(String key) {
+        SQLiteDatabase db = getReadableDatabase();
+        JSONObject row = one(db, "SELECT " + memoryCandidateProjection("m") + " FROM memories m WHERE m.memory_key=?",
+                new String[]{required(key, "key", 512)});
+        return row == null ? null : enrichMemoryCandidate(db, row);
     }
 
     public synchronized JSONObject getMemoryMetadata(String key) {

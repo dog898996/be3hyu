@@ -591,6 +591,150 @@ public class AssistantRuntimeTest {
         assertNull(store.getMemory("wrong-cat")); assertTrue(store.events(50).toString().contains("memory_rejected"));
     }
 
+    @Test public void emptyExistingReceiptNeverBecomesAReplayableNewAction() throws Exception {
+        ready(); JSONObject request = runtime.receive("기존 영수증 확인", new JSONArray());
+        String receiptKey = "actionReceipt:" + request.optString("external_id") + ":existing";
+        store.putSetting(receiptKey, "");
+        complete(request, envelope("쓰기 요청", new JSONArray().put(action("existing", "files.write", object("relativePath", "never-replay.txt", "content", "bad"))), null));
+        assertEquals(0, files.listFiles().length());
+        assertEquals("", store.getSetting(receiptKey, "missing"));
+        assertEquals("uncertain", store.getRequest(request.optLong("id")).optString("status"));
+        assertTrue(runtime.state().optBoolean("uncertaintyBlocked"));
+        assertEquals(1, transport.ids.size());
+    }
+
+    @Test public void rejectedMemoryCannotDisappearAcrossReadContinuationAndFinalAcknowledgement() throws Exception {
+        long source = store.addMessage("user", "내 고양이 이름은 나비야", null).optLong("id");
+        runtime.requestMemoryReview(); ready(); JSONObject request = store.getRequest(runtime.state().optLong("activeStoreId"));
+        JSONObject bad = ownerMemory("pet.name", source, "내 고양이 이름은 호랑이야");
+        complete(request, envelope("원문 다시 읽기", new JSONArray().put(action("read-repair", "memory.source.read", object("messageId", source))), new JSONArray().put(bad)));
+        JSONObject next = store.getRequest(runtime.state().optLong("activeStoreId"));
+        assertEquals("true", store.getSetting("memoryReviewHadRejected:" + next.optString("external_id"), "false"));
+        assertTrue(transport.prompts.get(1).contains("거절된 기억 제안"));
+        JSONObject expected = new JSONObject(store.getSetting("memoryReview:" + next.optString("external_id"), "{}"));
+        complete(next, object("protocol", "hoyoung.v1", "requestId", next.optString("external_id"), "memories", new JSONArray().put(ownerMemory("pet.name", source, "내 고양이 이름은 나비야")), "review", reviewAck(expected)).toString());
+        assertNotNull(store.getMemory("pet.name"));
+        assertEquals(0, store.getWatermark(MemoryReviewCoordinator.WATERMARK));
+        assertTrue(runtime.getMemoryReview().hasPending());
+        runtime.requestMemoryReview();
+        JSONObject fresh = store.getRequest(runtime.state().optLong("activeStoreId"));
+        JSONObject freshBatch = new JSONObject(store.getSetting("memoryReview:" + fresh.optString("external_id"), "{}"));
+        assertEquals("false", store.getSetting("memoryReviewHadRejected:" + fresh.optString("external_id"), "false"));
+        complete(fresh, object("protocol", "hoyoung.v1", "requestId", fresh.optString("external_id"), "memories", new JSONArray().put(ownerMemory("pet.name", source, "내 고양이 이름은 나비야")), "review", reviewAck(freshBatch)).toString());
+        assertEquals(source, store.getWatermark(MemoryReviewCoordinator.WATERMARK));
+    }
+
+    @Test public void reviewedMemorySavedByToolIsCountedWhenFinalTurnHasNoDuplicateProposal() throws Exception {
+        long source = store.addMessage("user", "난 답변을 짧게 받는 게 좋아", null).optLong("id");
+        runtime.requestMemoryReview(); ready(); JSONObject request = store.getRequest(runtime.state().optLong("activeStoreId"));
+        complete(request, envelope("도구로 기억 저장", new JSONArray().put(action("save-review", "memory.save", ownerMemory("reply.length", source, "난 답변을 짧게 받는 게 좋아"))), null));
+        JSONObject next = store.getRequest(runtime.state().optLong("activeStoreId"));
+        assertEquals("1", store.getSetting("memoryReviewSavedCount:" + next.optString("external_id"), "0"));
+        JSONObject batch = new JSONObject(store.getSetting("memoryReview:" + next.optString("external_id"), "{}"));
+        complete(next, object("protocol", "hoyoung.v1", "requestId", next.optString("external_id"), "memories", new JSONArray(), "review", reviewAck(batch)).toString());
+        assertEquals(source, store.getWatermark(MemoryReviewCoordinator.WATERMARK));
+        assertFalse(runtime.getMemoryReview().hasPending());
+    }
+
+    @Test public void failedMemorySaveToolIsNotHiddenByAnotherSuccessfulSaveInTheSameChain() throws Exception {
+        long source = store.addMessage("user", "내 고양이 이름은 나비야", null).optLong("id");
+        runtime.requestMemoryReview(); ready(); JSONObject request = store.getRequest(runtime.state().optLong("activeStoreId"));
+        JSONArray actions = new JSONArray().put(action("valid-memory", "memory.save", ownerMemory("pet.correct", source, "내 고양이 이름은 나비야")))
+                .put(action("invalid-memory", "memory.save", ownerMemory("pet.invalid", source, "내 고양이 이름은 호랑이야")));
+        complete(request, envelope("기억 도구 요청", actions, null));
+        JSONObject next = store.getRequest(runtime.state().optLong("activeStoreId"));
+        assertEquals("1", store.getSetting("memoryReviewSavedCount:" + next.optString("external_id"), "0"));
+        assertEquals("true", store.getSetting("memoryReviewHadRejected:" + next.optString("external_id"), "false"));
+        JSONObject batch = new JSONObject(store.getSetting("memoryReview:" + next.optString("external_id"), "{}"));
+        complete(next, object("protocol", "hoyoung.v1", "requestId", next.optString("external_id"), "review", reviewAck(batch), "memories", new JSONArray()).toString());
+        assertEquals(0, store.getWatermark(MemoryReviewCoordinator.WATERMARK));
+        assertNotNull(store.getMemory("pet.correct")); assertNull(store.getMemory("pet.invalid"));
+        assertTrue(runtime.getMemoryReview().hasPending());
+    }
+
+    private static JSONObject ownerMemory(String key, long source, String quote) throws Exception {
+        return object("key", key, "content", quote, "kind", "fact", "sourceRefs", new JSONArray().put(object("type", "message", "id", source, "quote", quote, "offsetChars", 0)));
+    }
+
+    @Test public void newOwnerInputRevokesPreparedWireAuthorizationBeforeSubmission() throws Exception {
+        ready(); JSONObject first = runtime.receive("첫 요청", new JSONArray());
+        assertTrue(runtime.preparedDispatchStillAllowed(first.optString("external_id")));
+        JSONObject newer = runtime.receive("아까 요청 정정: 실행하지 마", new JSONArray());
+        assertFalse(runtime.preparedDispatchStillAllowed(first.optString("external_id")));
+        assertEquals("queued", store.getRequest(newer.optLong("id")).optString("status"));
+        assertEquals("아까 요청 정정: 실행하지 마", store.getMessage(Long.parseLong(store.getSetting("ownerInputRevision", "0"))).optString("text"));
+    }
+
+    @Test public void advertisedSourceReaderCanReadAssistantAndSystemOriginals() throws Exception {
+        long assistantSource = store.addMessage("assistant", "생성 관찰 원문", null).optLong("id");
+        long systemSource = store.addMessage("system", "앱 진행 상태 원문", null).optLong("id");
+        ready(); JSONObject request = runtime.receive("이전 근거 문맥 확인", new JSONArray());
+        complete(request, envelope("원문 읽기", new JSONArray().put(action("read-generated", "memory.source.read", object("messageId", assistantSource))).put(action("read-system", "memory.source.read", object("messageId", systemSource))), null));
+        for (String id : new String[]{"read-generated", "read-system"}) {
+            JSONObject receipt = new JSONObject(store.getSetting("actionReceipt:" + request.optString("external_id") + ":" + id, "{}"));
+            assertTrue(receipt.getJSONObject("result").getBoolean("ok"));
+            assertFalse(receipt.getJSONObject("result").getJSONObject("original").has("assetCoverage"));
+        }
+        assertTrue(transport.prompts.get(1).contains("생성 관찰 원문"));
+        assertTrue(transport.prompts.get(1).contains("앱 진행 상태 원문"));
+    }
+
+    @Test public void ownerSteeringHoldsOldActionsAndFreshContinuationReceivesExactLatestInput() throws Exception {
+        ready(); JSONObject first = runtime.receive("파일을 써 줘", new JSONArray()); accept(first);
+        String steering = "  방금 그 파일 작성은 취소야.\n새로 쓰지 마.  ";
+        JSONObject newer = runtime.receive(steering, new JSONArray());
+        complete(first, envelope("예전 계획", new JSONArray().put(action("old-write", "files.write", object("relativePath", "cancelled.txt", "content", "should not run"))), null));
+        assertEquals(0, files.listFiles().length());
+        assertEquals("missing", store.getSetting("actionReceipt:" + first.optString("external_id") + ":old-write", "missing"));
+        assertEquals(newer.optString("external_id"), transport.ids.get(1));
+        complete(newer, "취소 요청을 확인했어.");
+        JSONObject replanned = store.getRequest(runtime.state().optLong("activeStoreId"));
+        assertEquals(first.optString("external_id"), store.getSetting("requestRoot:" + replanned.optString("external_id"), ""));
+        assertTrue(transport.prompts.get(2).contains("owner_steering_pending"));
+        assertTrue(transport.prompts.get(2).contains("started:false"));
+        assertTrue(transport.prompts.get(2).contains(steering));
+        complete(replanned, object("protocol", "hoyoung.v1", "requestId", replanned.optString("external_id"), "status", "blocked", "message", "최신 취소 지시에 따라 파일 작성은 수행하지 않았어.").toString());
+        assertEquals(0, files.listFiles().length());
+        assertEquals("blocked", runtime.getGoalLedger().get(first.optString("external_id")).optString("stage"));
+        assertFalse(store.events(100).toString().contains("\"cloudStopped\":true"));
+    }
+
+    @Test public void explicitPauseAfterAcceptanceHoldsEffectsWithoutInventingCloudStopOrReplay() throws Exception {
+        ready(); JSONObject request = runtime.receive("작업 도중 중지", new JSONArray()); accept(request);
+        JSONObject paused = runtime.pauseCurrentWork("주인이 앱 버튼을 직접 누름");
+        assertTrue(paused.getBoolean("newLocalEffectsHeld"));
+        assertTrue(paused.getBoolean("cloudCancellationRequested"));
+        assertFalse(paused.getBoolean("cloudStoppedConfirmed"));
+        assertEquals(1, transport.cancels);
+        assertEquals("accepted", store.getRequest(request.optLong("id")).optString("status"));
+        complete(request, envelope("중지 뒤 옛 제안", new JSONArray().put(action("paused-write", "files.write", object("relativePath", "pause.txt", "content", "no"))), null));
+        assertEquals(0, files.listFiles().length()); assertEquals(1, transport.ids.size());
+        assertEquals("blocked", runtime.getGoalLedger().get(request.optString("external_id")).optString("stage"));
+        assertTrue(store.getRequest(request.optLong("id")).optString("result").contains("paused-write"));
+        assertFalse(store.events(100).toString().contains("\"cloudStoppedConfirmed\":true"));
+    }
+
+    @Test public void explicitPauseDuringPreparationIsProvenUnsentAndOwnerRetryResumesFreshAttempt() throws Exception {
+        List<Runnable> pending = new ArrayList<>();
+        runtime = new AssistantRuntime(context, store, files, new PhoneTools(context, store), pending::add);
+        pending.remove(0).run(); runtime.attachTransport(transport); ready();
+        JSONObject request = runtime.receive("준비 단계 중지", new JSONArray());
+        JSONObject paused = runtime.pauseCurrentWork("앱의 현재 작업 중지");
+        assertTrue(paused.getBoolean("knownNotSent"));
+        assertEquals(0, transport.cancels);
+        pending.remove(0).run(); assertEquals(0, transport.ids.size());
+        assertEquals("blocked", store.getRequest(request.optLong("id")).optString("status"));
+        JSONObject retry = runtime.retryRequest(request.optLong("id")); ready(); pending.remove(0).run();
+        assertEquals(retry.optString("external_id"), transport.ids.get(0));
+        assertTrue(runtime.preparedDispatchStillAllowed(retry.optString("external_id")));
+    }
+
+    private static JSONObject reviewAck(JSONObject batch) throws Exception {
+        JSONArray ranges = new JSONArray(); JSONArray sources = batch.getJSONArray("sourceRanges");
+        for (int i = 0; i < sources.length(); i++) { JSONObject source = sources.getJSONObject(i); ranges.put(object("messageId", source.getLong("messageId"), "offsetChars", source.getLong("offsetChars"), "nextOffsetChars", source.getLong("nextOffsetChars"), "contentHash", source.getString("contentHash"))); }
+        return object("batchId", batch.getString("batchId"), "sourceRanges", ranges, "noMemoryNeeded", false, "reason", "받은 원문을 검토하고 출처가 있는 기억을 저장함");
+    }
+
     private void ready() throws Exception { runtime.onWebEvent(object("type", "state", "code", "ready", "state", readyState())); }
     private static JSONObject readyState() throws Exception { return object("authenticated", true, "workSelected", true, "temporary", true, "model", "gpt-6.1-sol", "effort", "medium", "speed", "fast", "busy", false, "quota", false); }
     private void accept(JSONObject request) throws Exception { runtime.onWebEvent(object("type", "accepted", "requestId", request.optString("external_id"))); }

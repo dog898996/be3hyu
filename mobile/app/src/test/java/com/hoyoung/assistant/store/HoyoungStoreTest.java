@@ -35,6 +35,25 @@ public final class HoyoungStoreTest {
         context.deleteDatabase(HoyoungStore.DATABASE_NAME);
     }
 
+    @Test public void newOwnerInputRunsAheadOfOlderBackgroundContinuationsWhileUserFifoAndOriginalsRemain() throws Exception {
+        long continuation = store.enqueueRequest("older tool continuation", "tool-continuation", "old-child").getLong("id");
+        long autonomy = store.enqueueRequest("older autonomous task", "autonomy", "old-auto").getLong("id");
+        long review = store.enqueueRequest("older memory review", "memory-review", "old-review").getLong("id");
+        long firstUser = store.enqueueRequest("first direct owner request", "user", "owner-1").getLong("id");
+        long secondUser = store.enqueueRequest("latest direct owner request", "user", "owner-2").getLong("id");
+        assertEquals(firstUser, store.nextQueuedRequest().getLong("id"));
+        store.markRequest(firstUser, "completed", "done first owner");
+        assertEquals(secondUser, store.nextQueuedRequest().getLong("id"));
+        store.markRequest(secondUser, "completed", "done second owner");
+        assertEquals(continuation, store.nextQueuedRequest().getLong("id"));
+        store.markRequest(continuation, "completed", "continued after owner requests");
+        assertEquals(autonomy, store.nextQueuedRequest().getLong("id"));
+        assertEquals("queued", store.getRequest(review).getString("status"));
+        assertEquals("older tool continuation", store.getRequest(continuation).getString("text"));
+        assertEquals("latest direct owner request", store.getRequest(secondUser).getString("text"));
+        assertEquals(5, store.listRequests(20).length());
+    }
+
     @Test public void queueReopenRetainsCompletedAndQueuedButDoesNotReplayInFlight() throws Exception {
         JSONObject queued = store.enqueueRequest("first", "owner", "same-owner-id");
         JSONObject accepted = store.enqueueRequest("remote accepted", "owner", "accepted-id");

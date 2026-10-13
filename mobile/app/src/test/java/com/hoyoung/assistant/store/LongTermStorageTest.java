@@ -47,6 +47,25 @@ public final class LongTermStorageTest {
         deleteTree(context.getFilesDir());
     }
 
+    @Test public void keyedMemoryCandidateBoundsPayloadWithoutLosingAuthoritativeContentOrProvenance() throws Exception {
+        JSONArray sourceIds = new JSONArray();
+        for (int i = 0; i < 130; i++) sourceIds.put(store.addMessage("user", "Synthetic evidence " + i, null).getLong("id"));
+        String complete = repeat('x', 12_000) + " original tail evidence";
+        store.upsertMemory("large-keyed-candidate", complete, "fact", sourceIds);
+        JSONObject candidate = store.getMemoryCandidate("large-keyed-candidate");
+        assertEquals(8192, candidate.getString("content").length());
+        assertEquals(complete.length(), candidate.getInt("fullContentChars"));
+        assertTrue(candidate.getBoolean("candidateExcerpt"));
+        assertEquals(128, candidate.getJSONArray("sourceRefs").length());
+        assertEquals(130, candidate.getInt("sourceCount"));
+        assertTrue(candidate.getBoolean("sourceRefsTruncated"));
+        JSONObject original = store.getMemory("large-keyed-candidate");
+        assertEquals(complete, original.getString("content"));
+        assertEquals(130, original.getJSONArray("sourceRefs").length());
+        assertEquals(original.getString("content_hash"), candidate.getString("content_hash"));
+        assertNull(store.getMemoryCandidate("unknown-key"));
+    }
+
     @Test public void versionOneMigrationPreservesOriginalsCorrectionHistoryAndLegacyProvenance() throws Exception {
         store.close(); context.deleteDatabase(HoyoungStore.DATABASE_NAME);
         try (SQLiteDatabase legacy = SQLiteDatabase.openOrCreateDatabase(context.getDatabasePath(HoyoungStore.DATABASE_NAME), null)) {

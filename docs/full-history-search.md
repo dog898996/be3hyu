@@ -22,4 +22,6 @@ bootstrap 중에도 indexed FTS lane과 아직 색인하지 못한 역사 범위
 
 SDK28 native 회귀는 날짜 숫자 fan-out을 일으키던 복합 식별자, 여러 메시지의 OR 근거, 10,001개 event의 오래된 희귀 근거, 관찰 날짜 필터, 미완료 색인 중 역사 fallback, batch 재개, FTS가 없던 기존 v2 reopening, 원문/첨부/백업/사진 preview를 확인한다.
 
-10만 합성 raw 메시지의 30개 gold 질문은 Recall@10=1을 유지했다. 공개 LongMemEval cleaned oracle를 변형한 heldout40 원문 검색은 lexical macro source Recall@20=.4625, host ONNX 벡터를 쓴 hybrid=.76625로 기존 결과를 유지했다. 이 수치는 표준 LongMemEval 점수, 자동 사실 추출 성능, 모델 최종 답변 품질, 실제 사용자 폰 latency를 측정한 것이 아니다. 백만 건 결과와 실제 Android device 검증은 별도 보고한다.
+최종 FTS 코드의 합성 100만 raw 메시지·50,989개 메모리 native SQLite 벤치마크는 30개 gold 질문 모두 Recall@10=1이었다. 날짜별 상태, 충돌, 증거 없음 회귀도 통과했다. 조회 중앙값 790ms, 평균 838ms, 최댓값 2,156ms였으며 생성과 검증을 포함한 총 시간은 441초였다. 기존 넓은 OR 구현의 기록상 최댓값 12,908ms보다 줄었으나, 동시 호스트 부하가 다른 실행 간 비교이므로 정밀한 속도 배율로 해석하지 않는다. 측정 원자료는 [benchmark JSON](benchmarks/full-history-search/million-native-sqlite.json)에 보관한다.
+
+공개 LongMemEval cleaned oracle를 변형한 heldout40 원문 검색은 lexical macro source Recall@20=.4625, host ONNX 벡터를 쓴 hybrid=.76625로 기존 결과를 유지했다. 이 수치는 표준 LongMemEval 점수, 자동 사실 추출 성능, 모델 최종 답변 품질, 실제 사용자 폰 latency를 측정한 것이 아니다. 합성 gold 메모리는 수동 seed이며 실제 Android device 지연 검증은 별도 수행해야 한다.

@@ -245,6 +245,71 @@ public class MemoryReviewCoordinatorTest {
         assertTrue(coordinator.hasPending());assertEquals(1,coordinator.status().getLong("assetsPending"));
         store.importSnapshot(backup);assertEquals("asset",coordinator.prepareBatch().getString("reviewMode"));assertEquals(id,store.getWatermark(MemoryReviewCoordinator.WATERMARK));
     }
+    @Test public void corruptCoverageAfterTextReviewStaysPendingAcrossRestartAndPreservesEvidence() throws Exception {
+        JSONObject fixture=assetOwner(2);long id=fixture.getLong("messageId");JSONObject batch=coordinator.prepareBatch();assertTrue(coordinator.acknowledge(batch,ack(batch,true),true,0));
+        String corrupt="{ malformed provider state";store.putSetting("assetCoverage:"+id,corrupt);
+        store.close();store=new HoyoungStore(context);coordinator=new MemoryReviewCoordinator(store);
+        assertTrue(coordinator.hasPending());assertEquals(2,coordinator.status().getLong("assetsPending"));assertEquals(id,store.getWatermark(MemoryReviewCoordinator.WATERMARK));
+        JSONObject repaired=coordinator.assetCoverage(id);assertEquals("raw_saved",repaired.getString("stage"));assertEquals("coverage_json_unreadable",repaired.getString("sourceIntegrity"));assertTrue(repaired.getBoolean("originalIdentityMetadataVerified"));
+        for(int i=0;i<2;i++)assertEquals("raw_saved",repaired.getJSONArray("assets").getJSONObject(i).getString("coverageStage"));
+        JSONObject original=new JSONObject(store.readOriginalText(repaired.getLong("previousCoverageSourceMessageId"),0,2000).getString("text"));assertEquals(corrupt,original.getString("rawCoverage"));
+        JSONObject next=coordinator.prepareBatch();assertEquals("asset",next.getString("reviewMode"));assertEquals("coverage_json_unreadable",next.getJSONArray("sourceRanges").getJSONObject(0).getString("assetSourceIntegrity"));
+    }
+    @Test public void forgedAnalyzedStageWithoutProviderProofDoesNotClearBacklog() throws Exception {
+        JSONObject fixture=assetOwner(1);long id=fixture.getLong("messageId");JSONObject coverage=coordinator.assetCoverage(id);
+        coverage.put("stage","provider_analyzed");coverage.getJSONArray("assets").getJSONObject(0).put("coverageStage","provider_analyzed").put("analysisSourceMessageId",999999).put("analysisHash","a".repeat(64));
+        store.putSetting("assetCoverage:"+id,coverage.toString());assertTrue(coordinator.hasPending());assertEquals(1,coordinator.status().getLong("assetsPending"));
+        JSONObject repaired=coordinator.assetCoverage(id);assertEquals("provider_analysis_proof_missing",repaired.getString("sourceIntegrity"));assertEquals("raw_saved",repaired.getString("stage"));
+    }
+    @Test public void unreadableOriginalMetadataKeepsUnknownAssetsRatherThanClaimingNoWork() throws Exception {
+        JSONObject fixture=assetOwner(1);long id=fixture.getLong("messageId");JSONObject text=coordinator.prepareBatch();assertTrue(coordinator.acknowledge(text,ack(text,true),true,0));
+        store.putSetting("assetCoverage:"+id,"invalid coverage");store.putSetting("attachmentMetadata:asset-owner","invalid original metadata");
+        assertTrue(coordinator.hasPending());JSONObject repaired=coordinator.assetCoverage(id);assertEquals(1,repaired.getInt("pendingUnknownAssets"));assertFalse(repaired.getBoolean("originalIdentityMetadataVerified"));
+        assertEquals(1,coordinator.status().getLong("assetsPending"));JSONObject batch=coordinator.prepareBatch();assertTrue(batch.getJSONArray("sourceRanges").getJSONObject(0).getBoolean("assetsNeedAnalysis"));
+        assertFalse(coordinator.acknowledge(batch,ack(batch,true),true,0));assertEquals(1,coordinator.status().getLong("assetsPending"));
+    }
+    @Test public void emptyAndDeeplyNestedCoverageCannotPretendPreviouslyAttachedAssetsDisappeared() throws Exception {
+        JSONObject fixture=assetOwner(1);long id=fixture.getLong("messageId");store.putSetting("assetCoverage:"+id,"{\"stage\":\"provider_analyzed\",\"assets\":[]}");
+        assertTrue(coordinator.hasPending());assertEquals("coverage_assets_missing",coordinator.assetCoverage(id).getString("sourceIntegrity"));
+        store.putSetting("assetCoverage:"+id,"{\"assets\":"+"[".repeat(1000)+"0"+"]".repeat(1000)+"}");
+        assertTrue(coordinator.hasPending());assertEquals("coverage_json_unreadable",coordinator.assetCoverage(id).getString("sourceIntegrity"));assertEquals(1,coordinator.status().getLong("assetsPending"));
+    }
+    @Test public void boundedIntegrityAuditDetectsCorruptPreviouslyCompletedCoverageAfterRestart() throws Exception {
+        JSONObject fixture=assetOwner(1),asset=fixture.getJSONArray("assets").getJSONObject(0);long id=fixture.getLong("messageId");
+        JSONObject text=coordinator.prepareBatch();assertTrue(coordinator.acknowledge(text,ack(text,true),true,0));String analysis="이미 제공자가 분석한 원문";
+        coordinator.acceptAssetAnalysis(id,asset.getString("id"),asset.getString("sha256"),analysis,providerReceipt(id,asset,"provider",analysis));assertFalse(coordinator.hasPending());
+        store.putSetting("assetCoverage:"+id,"corrupt completed coverage");store.close();store=new HoyoungStore(context);coordinator=new MemoryReviewCoordinator(store);
+        assertTrue(coordinator.hasPending());assertEquals(1,coordinator.status().getLong("assetsPending"));assertEquals(id,store.getWatermark(MemoryReviewCoordinator.WATERMARK));
+        assertEquals("raw_saved",coordinator.assetCoverage(id).getString("stage"));assertEquals(1,store.memoryCount());
+    }
+    @Test public void assetAcknowledgementSucceedsOnlyAfterAllStoredObservedReceiptsAndNeverMovesTextCursor() throws Exception {
+        JSONObject fixture=assetOwner(2);long id=fixture.getLong("messageId");JSONArray assets=fixture.getJSONArray("assets");
+        JSONObject text=coordinator.prepareBatch();assertTrue(coordinator.acknowledge(text,ack(text,true),true,0));JSONObject assetBatch=coordinator.prepareBatch();
+        assertFalse(coordinator.acknowledge(assetBatch,ack(assetBatch,true),true,0));assertEquals(2,coordinator.status().getLong("assetsPending"));
+        JSONObject first=assets.getJSONObject(0),second=assets.getJSONObject(1);String a="첫 분석",b="둘째 분석";
+        coordinator.acceptAssetAnalysis(id,first.getString("id"),first.getString("sha256"),a,providerReceipt(id,first,"provider-a",a));
+        assertFalse(coordinator.acknowledge(assetBatch,ack(assetBatch,true),true,0));assertEquals(1,coordinator.status().getLong("assetsPending"));
+        coordinator.acceptAssetAnalysis(id,second.getString("id"),second.getString("sha256"),b,providerReceipt(id,second,"provider-b",b));
+        assertTrue(coordinator.acknowledge(assetBatch,null,false,0));assertEquals("asset_receipts_verified",coordinator.status().getString("lastReviewCode"));
+        assertEquals(id,store.getWatermark(MemoryReviewCoordinator.WATERMARK));assertEquals(0,coordinator.status().getLong("assetsPending"));
+        JSONObject altered=new JSONObject(assetBatch.toString());altered.getJSONArray("sourceRanges").getJSONObject(0).getJSONArray("assetRefs").getJSONObject(0).put("sha256","0".repeat(64));
+        assertFalse(coordinator.acknowledge(altered,ack(altered,true),true,0));
+        store.putSetting(coordinator.assetCoverage(id).getJSONArray("assets").getJSONObject(0).getString("analysisReceiptKey"),"broken receipt");
+        assertFalse(coordinator.acknowledge(assetBatch,ack(assetBatch,true),true,0));assertTrue(coordinator.status().getLong("assetsPending")>0);
+    }
+    @Test public void sameBinaryHashWithDifferentAssetIdsDoesNotOverwriteAnalysisProof() throws Exception {
+        InternalFiles files=new InternalFiles(context);files.writeFile("same-body.txt","같은 원본 바이트");files.writeFile("same-body.md","같은 원본 바이트");
+        JSONArray assets=files.freezeAttachments(new JSONArray().put("same-body.txt").put("same-body.md"));JSONObject first=assets.getJSONObject(0),second=assets.getJSONObject(1);
+        assertEquals(first.getString("sha256"),second.getString("sha256"));assertNotEquals(first.getString("id"),second.getString("id"));
+        store.enqueueRequest("첨부 파일 확인해 줘","user","same-owner");long id=store.addMessage("user","첨부 파일 확인해 줘","same-owner").getLong("id");
+        store.putSetting("attachmentMetadata:same-owner",assets.toString());store.putSetting("assetCoverage:"+id,new JSONObject().put("stage","raw_saved").put("assets",assets).put("analysisVerified",false).toString());coordinator.registerAssetSource(id);
+        JSONObject text=coordinator.prepareBatch();assertTrue(coordinator.acknowledge(text,ack(text,true),true,0));JSONObject expected=coordinator.prepareBatch();
+        String a="텍스트 파일 분석",b="마크다운 파일 분석";
+        assertTrue(coordinator.acceptAssetAnalysis(id,first.getString("id"),first.getString("sha256"),a,providerReceipt(id,first,"same-provider-a",a)).getBoolean("ok"));
+        assertTrue(coordinator.acceptAssetAnalysis(id,second.getString("id"),second.getString("sha256"),b,providerReceipt(id,second,"same-provider-b",b)).getBoolean("ok"));
+        assertFalse(coordinator.hasPending());assertTrue(coordinator.acknowledge(expected,null,false,0));
+        JSONArray covered=coordinator.assetCoverage(id).getJSONArray("assets");assertNotEquals(covered.getJSONObject(0).getString("analysisReceiptKey"),covered.getJSONObject(1).getString("analysisReceiptKey"));
+    }
     private JSONObject assetOwner(int count)throws Exception {
         InternalFiles files=new InternalFiles(context);JSONArray ids=new JSONArray();
         for(int i=0;i<count;i++){String id="asset-fixture-"+i+".txt";files.writeFile(id,"테스트 첨부 원문 "+i);ids.put(id);}

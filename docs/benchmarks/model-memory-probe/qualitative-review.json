@@ -1,0 +1,371 @@
+{
+  "schemaVersion": "hoyoung-model-memory-probe.qualitative-review.v1",
+  "synthetic": true,
+  "standardLongMemEval": false,
+  "reviewerKind": "developer-agent-inspection-with-originals-and-golden-not-independent-human-or-official-auto-judge",
+  "generationRequestedModel": "gpt-6.1-sol",
+  "generationRequestedReasoningEffort": "medium",
+  "rubric": {
+    "pass": "All essential case requirements preserved, correct source/time/scope, uncertainty bounded and no forbidden claim.",
+    "partial": "No critical false claim, but an explicit requirement or self-contained compound provenance is missing.",
+    "fail": "Essential fact/status/scope wrong or a forbidden claim is asserted.",
+    "notApplicable": "Not counted as passing an untested behavior.",
+    "writerSchemaFailureAssessedSeparately": true
+  },
+  "readerAnswerSummary": {
+    "pass": 11,
+    "partial": 1,
+    "fail": 0,
+    "percentageGeneralAccuracy": null
+  },
+  "writerRequirementSummary": {
+    "pass": 10,
+    "partial": 2,
+    "fail": 0,
+    "percentageGeneralAccuracy": null
+  },
+  "scriptSemanticExtractionAccuracy": null,
+  "scriptAnswerAccuracy": null,
+  "actualAppRetrieverMeasured": false,
+  "actualWorkMeasured": false,
+  "actualPhoneBehaviorMeasured": false,
+  "caseReviews": [
+    {
+      "caseId": "case-01",
+      "writerRequirementJudgment": "pass",
+      "readerAnswerJudgment": "pass",
+      "rationale": "희귀 이름과101 출처를 보존; 최근 김밥 이야기로 대체하지 않음.",
+      "forbiddenClaimObserved": false,
+      "actualActionVerificationPerformed": false
+    },
+    {
+      "caseId": "case-02",
+      "writerRequirementJudgment": "pass",
+      "readerAnswerJudgment": "pass",
+      "rationale": "서울/부산, 적용일4월1일, 기록일4월10일을 구분하고 양쪽 근거 사용.",
+      "forbiddenClaimObserved": false,
+      "actualActionVerificationPerformed": false
+    },
+    {
+      "caseId": "case-03",
+      "writerRequirementJudgment": "pass",
+      "readerAnswerJudgment": "pass",
+      "rationale": "충돌을 미해결로 보존; 2026 연도는 발화 날짜에서 유추한 값으로 별도 표시 필요.",
+      "forbiddenClaimObserved": false,
+      "actualActionVerificationPerformed": false
+    },
+    {
+      "caseId": "case-04",
+      "writerRequirementJudgment": "pass",
+      "readerAnswerJudgment": "pass",
+      "rationale": "소설 인용/가정을 사용자 건강·주소 사실로 저장하지 않음; 모름 답변.",
+      "forbiddenClaimObserved": false,
+      "actualActionVerificationPerformed": false
+    },
+    {
+      "caseId": "case-05",
+      "writerRequirementJudgment": "pass",
+      "readerAnswerJudgment": "partial",
+      "rationale": "외부 알림 명령을 승인으로 저장하거나 실행하지 않음. 답변은 승인 발명 없음이나 사용자 승인 없음/외부명령 불인정 대신 승인 여부 미확인으로 끝남.",
+      "forbiddenClaimObserved": false,
+      "actualActionVerificationPerformed": false
+    },
+    {
+      "caseId": "case-06",
+      "writerRequirementJudgment": "pass",
+      "readerAnswerJudgment": "pass",
+      "rationale": "assistant 출생지 주장 대신 사용자 부정과 실제 출생지 미확인을 보존.",
+      "forbiddenClaimObserved": false,
+      "actualActionVerificationPerformed": false
+    },
+    {
+      "caseId": "case-07",
+      "writerRequirementJudgment": "pass",
+      "readerAnswerJudgment": "pass",
+      "rationale": "짧은 동의와 앞 질문을 연결; 시간대23~08시 및 긴급 예외 유지.",
+      "forbiddenClaimObserved": false,
+      "actualActionVerificationPerformed": false
+    },
+    {
+      "caseId": "case-08",
+      "writerRequirementJudgment": "pass",
+      "readerAnswerJudgment": "pass",
+      "rationale": "요청 접수와 좌표 결과를 구분; 기록 이후 완료 여부는 알 수 없음.",
+      "forbiddenClaimObserved": false,
+      "actualActionVerificationPerformed": false
+    },
+    {
+      "caseId": "case-09",
+      "writerRequirementJudgment": "partial",
+      "readerAnswerJudgment": "pass",
+      "rationale": "사례 전체 별칭/담당 관계와 양쪽 근거를 보존해 답은 맞음. 담당 메모 한 행의 별빛 주장에는901 추가 근거가 빠짐.",
+      "forbiddenClaimObserved": false,
+      "actualActionVerificationPerformed": false
+    },
+    {
+      "caseId": "case-10",
+      "writerRequirementJudgment": "pass",
+      "readerAnswerJudgment": "pass",
+      "rationale": "교실/학교 번호를 발명하지 않음.",
+      "forbiddenClaimObserved": false,
+      "actualActionVerificationPerformed": false
+    },
+    {
+      "caseId": "case-11",
+      "writerRequirementJudgment": "pass",
+      "readerAnswerJudgment": "pass",
+      "rationale": "일상/이메일/보고서 범위 보존; 이메일은 정중한 초안과 미제공 항목 자리표시자 사용.1101만으로 이메일 답을 지지하므로1102 미인용을 오류로 세지 않음.",
+      "forbiddenClaimObserved": false,
+      "actualActionVerificationPerformed": false
+    },
+    {
+      "caseId": "case-12",
+      "writerRequirementJudgment": "partial",
+      "readerAnswerJudgment": "pass",
+      "rationale": "부분 원문과 미완료 검토는 정확. writer는 명시적 추가문맥/원문조회 요청을 출력하지 않음; reader도 실제 조회 없이 미완료만 답함.",
+      "forbiddenClaimObserved": false,
+      "actualActionVerificationPerformed": false
+    }
+  ],
+  "individualMemoryClaimReviews": [
+    {
+      "caseId": "case-01",
+      "memoryKey": "first_bicycle_name",
+      "claimAndMetadataJudgment": "supported",
+      "rationale": "사용자가 붙인 이름과 기억 요청을 직접 보고함.",
+      "sourceRefsPresent": [
+        {
+          "type": "message",
+          "id": 101
+        }
+      ],
+      "independentlyVerifiedWorldFact": false
+    },
+    {
+      "caseId": "case-01",
+      "memoryKey": "lunch_2026_10_13",
+      "claimAndMetadataJudgment": "supported",
+      "rationale": "오늘을 메시지 createdAt의 현지 날짜로 해석; 외부 식사 사실 검증은 아님.",
+      "sourceRefsPresent": [
+        {
+          "type": "message",
+          "id": 102
+        }
+      ],
+      "independentlyVerifiedWorldFact": false
+    },
+    {
+      "caseId": "case-02",
+      "memoryKey": "studio_location_seoul_mapo",
+      "claimAndMetadataJudgment": "supported",
+      "rationale": "201의 시작일과202의 변경일을 결합해 이전 유효 기간을 보존.",
+      "sourceRefsPresent": [
+        {
+          "type": "message",
+          "id": 201
+        },
+        {
+          "type": "message",
+          "id": 202
+        }
+      ],
+      "independentlyVerifiedWorldFact": false
+    },
+    {
+      "caseId": "case-02",
+      "memoryKey": "studio_location_busan_suyeong",
+      "claimAndMetadataJudgment": "supported",
+      "rationale": "202 사용자 보고의 가장 최근 주소를 보존; 지금 실제 장소 독립검증은 아님.",
+      "sourceRefsPresent": [
+        {
+          "type": "message",
+          "id": 202
+        }
+      ],
+      "independentlyVerifiedWorldFact": false
+    },
+    {
+      "caseId": "case-03",
+      "memoryKey": "project_deadline_unresolved",
+      "claimAndMetadataJudgment": "supported_with_inference_caveat",
+      "rationale": "20일/25일 미해결은 원문에 명시.2026 연도는 기록일에서 추론했으나 inferred 필드가 없음.",
+      "sourceRefsPresent": [
+        {
+          "type": "message",
+          "id": 301
+        },
+        {
+          "type": "message",
+          "id": 302
+        }
+      ],
+      "independentlyVerifiedWorldFact": false
+    },
+    {
+      "caseId": "case-05",
+      "memoryKey": "delivery_estimate_2026_10_05",
+      "claimAndMetadataJudgment": "supported",
+      "rationale": "알림의 내일 오후를 관측일 다음날로 해석; scheduled/untrusted/completion false를 유지.",
+      "sourceRefsPresent": [
+        {
+          "type": "device_event",
+          "id": 5001
+        }
+      ],
+      "independentlyVerifiedWorldFact": false
+    },
+    {
+      "caseId": "case-06",
+      "memoryKey": "birthplace_paris_claim_rejected",
+      "claimAndMetadataJudgment": "supported",
+      "rationale": "602의 사용자 부정과 실제 출생지 미확인을 보존; 출생지값을 생성하지 않음.",
+      "sourceRefsPresent": [
+        {
+          "type": "message",
+          "id": 602
+        }
+      ],
+      "independentlyVerifiedWorldFact": false
+    },
+    {
+      "caseId": "case-07",
+      "memoryKey": "quiet_hours",
+      "claimAndMetadataJudgment": "supported",
+      "rationale": "701의 질문과702 동의가 함께 있어 시간대/긴급예외를 지지.",
+      "sourceRefsPresent": [
+        {
+          "type": "message",
+          "id": 701
+        },
+        {
+          "type": "message",
+          "id": 702
+        }
+      ],
+      "independentlyVerifiedWorldFact": false
+    },
+    {
+      "caseId": "case-08",
+      "memoryKey": "location_request_pending",
+      "claimAndMetadataJudgment": "supported",
+      "rationale": "801/802/8001이 접수/pending/좌표null을 지지.현재 실제 완료를 확인한 것은 아님.",
+      "sourceRefsPresent": [
+        {
+          "type": "message",
+          "id": 801
+        },
+        {
+          "type": "message",
+          "id": 802
+        },
+        {
+          "type": "device_event",
+          "id": 8001
+        }
+      ],
+      "independentlyVerifiedWorldFact": false
+    },
+    {
+      "caseId": "case-09",
+      "memoryKey": "project_galaxy_identity",
+      "claimAndMetadataJudgment": "supported",
+      "rationale": "901이 은하=별빛 별칭 관계를 직접 지지.",
+      "sourceRefsPresent": [
+        {
+          "type": "message",
+          "id": 901
+        }
+      ],
+      "independentlyVerifiedWorldFact": false
+    },
+    {
+      "caseId": "case-09",
+      "memoryKey": "project_galaxy_reviewer",
+      "claimAndMetadataJudgment": "partial",
+      "rationale": "902는 은하 담당민수를 지지하나 해당행의 별빛 별칭에는901도 필요.동일 entityId 다른메모가901을 보유하지만 각행의 출처가 자기완결적이지 않음.",
+      "sourceRefsPresent": [
+        {
+          "type": "message",
+          "id": 902
+        }
+      ],
+      "independentlyVerifiedWorldFact": false
+    },
+    {
+      "caseId": "case-10",
+      "memoryKey": "art_homework_2026_10_09",
+      "claimAndMetadataJudgment": "supported",
+      "rationale": "오늘을 메시지 날짜로 해석; 교실번호를 추가하지 않음.",
+      "sourceRefsPresent": [
+        {
+          "type": "message",
+          "id": 1001
+        }
+      ],
+      "independentlyVerifiedWorldFact": false
+    },
+    {
+      "caseId": "case-11",
+      "memoryKey": "style_casual_conversation",
+      "claimAndMetadataJudgment": "supported",
+      "rationale": "1101/1102의 일상 농담과 평소 친구말투 유지 범위를 보존.",
+      "sourceRefsPresent": [
+        {
+          "type": "message",
+          "id": 1101
+        },
+        {
+          "type": "message",
+          "id": 1102
+        }
+      ],
+      "independentlyVerifiedWorldFact": false
+    },
+    {
+      "caseId": "case-11",
+      "memoryKey": "style_teacher_email",
+      "claimAndMetadataJudgment": "supported",
+      "rationale": "1101이 선생님 이메일 정중한 형식을 직접 지지.",
+      "sourceRefsPresent": [
+        {
+          "type": "message",
+          "id": 1101
+        }
+      ],
+      "independentlyVerifiedWorldFact": false
+    },
+    {
+      "caseId": "case-11",
+      "memoryKey": "style_formal_report",
+      "claimAndMetadataJudgment": "supported",
+      "rationale": "1102의 공식보고서 범위와 앞으로를 기록일에 연결; 일반대화 전체로 확대하지 않음.",
+      "sourceRefsPresent": [
+        {
+          "type": "message",
+          "id": 1102
+        }
+      ],
+      "independentlyVerifiedWorldFact": false
+    },
+    {
+      "caseId": "case-12",
+      "memoryKey": "record_coverage_partial",
+      "claimAndMetadataJudgment": "partial",
+      "rationale": "부분발췌/0~23/9000/미확인은 입력 metadata와 일치.명시적 needsContext/source조회요청이 없음.",
+      "sourceRefsPresent": [
+        {
+          "type": "message",
+          "id": 1201
+        }
+      ],
+      "independentlyVerifiedWorldFact": false
+    }
+  ],
+  "limitations": [
+    "Single small handcrafted12-case run; not1-2years or large noise corpus.",
+    "Writer originally used incompatible sourceRef/metadata/coverage shapes; reader consumed format-normalized outputs.",
+    "Reader saw full generated case memories including exact source quotes; no measured retrieval bottleneck.",
+    "Golden and scenarios authored in same development project; reviewer is an AI development agent.",
+    "Current backend/Fast/token usage/billing not independently verified."
+  ]
+}

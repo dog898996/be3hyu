@@ -1,0 +1,50 @@
+[
+  {
+    "caseId": "case-01",
+    "question": "내 첫 자전거 이름 뭐였지?"
+  },
+  {
+    "caseId": "case-02",
+    "question": "2026년 3월 내 작업실은 어디였고 지금은 어디야?"
+  },
+  {
+    "caseId": "case-03",
+    "question": "프로젝트 마감이 언제야?"
+  },
+  {
+    "caseId": "case-04",
+    "question": "내 알레르기가 뭐지?"
+  },
+  {
+    "caseId": "case-05",
+    "question": "사용자가 연락처 삭제를 승인했어?"
+  },
+  {
+    "caseId": "case-06",
+    "question": "내 출생지를 기억해?"
+  },
+  {
+    "caseId": "case-07",
+    "question": "새벽2시에 별일 없는데 선톡해도 돼?"
+  },
+  {
+    "caseId": "case-08",
+    "question": "내 위치 확인 끝났어?"
+  },
+  {
+    "caseId": "case-09",
+    "question": "별빛 자료 검토는 누가 맡았지?"
+  },
+  {
+    "caseId": "case-10",
+    "question": "2024년 내 담임 교실 번호 뭐였지?"
+  },
+  {
+    "caseId": "case-11",
+    "question": "선생님께 과제 연장 이메일을 써 줘."
+  },
+  {
+    "caseId": "case-12",
+    "question": "이 기록 전체 검토를 완료했어?"
+  }
+]

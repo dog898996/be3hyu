@@ -26,6 +26,7 @@ public final class SemanticIndex {
     private boolean scanLimitReached;
     public synchronized void resetScanDiagnostics(){scannedVectors=0;scannedBytes=0;scanMillis=0;scanLimitReached=false;}
     public synchronized JSONObject scanDiagnostics(){JSONObject r=new JSONObject();MemoryPolicy.put(r,"method","paged_exact_cosine_with_1500ms_per_index_budget");MemoryPolicy.put(r,"scannedVectors",scannedVectors);MemoryPolicy.put(r,"scannedVectorBytes",scannedBytes);MemoryPolicy.put(r,"elapsedMillis",scanMillis);MemoryPolicy.put(r,"limitReached",scanLimitReached);MemoryPolicy.put(r,"approximateNearestNeighbor",false);return r;}
+    synchronized void recordSelectiveScan(long vectors,long bytes,long millis){scannedVectors+=vectors;scannedBytes+=bytes;scanMillis+=millis;}
     public SemanticIndex(HoyoungStore store, SemanticEncoder encoder) { this.store = store; this.encoder = encoder; ensureSchema(); }
 
     private void ensureSchema() {
@@ -39,6 +40,7 @@ public final class SemanticIndex {
             db.execSQL("CREATE TABLE IF NOT EXISTS semantic_index_progress (source_type TEXT NOT NULL, source_id INTEGER NOT NULL, source_hash TEXT NOT NULL, "
                     + "model_id TEXT NOT NULL, next_offset INTEGER NOT NULL, complete INTEGER NOT NULL, updated_at INTEGER NOT NULL, "
                     + "PRIMARY KEY(source_type,source_id,model_id))");
+            db.execSQL("CREATE INDEX IF NOT EXISTS semantic_index_progress_model ON semantic_index_progress(model_id)");
         }
     }
     public synchronized JSONObject indexPending(int maximumSources, long timeBudgetMillis) {
@@ -184,10 +186,8 @@ public final class SemanticIndex {
             SQLiteDatabase db=store.getReadableDatabase(); String model=encoder==null?"":encoder.modelId();
             MemoryPolicy.put(result,"semanticIndexedCount",scalar(db,"SELECT COUNT(*) FROM semantic_vectors v JOIN memories m ON v.memory_key=m.memory_key AND v.revision=m.revision AND v.source_hash=m.content_hash WHERE v.model_id=?",model));
             long total=store.messageCount()+store.deviceEventStats().optLong("count"); MemoryPolicy.put(result,"sourceTotals",total); MemoryPolicy.put(result,"memoryTotals",store.memoryCount());
-            String sources="SELECT 'message' AS type,id,content_hash AS hash,raw_char_count AS chars FROM messages UNION ALL SELECT 'device_event',id,content_hash,length(payload) FROM device_events";
-            long done=scalar(db,"SELECT COUNT(*) FROM semantic_index_progress p JOIN ("+sources+") s ON p.source_type=s.type AND p.source_id=s.id AND p.source_hash=s.hash WHERE p.model_id=? AND p.complete=1",model);
-            long covered=scalar(db,"SELECT COALESCE(SUM(MIN(p.next_offset,s.chars)),0) FROM semantic_index_progress p JOIN ("+sources+") s ON p.source_type=s.type AND p.source_id=s.id AND p.source_hash=s.hash WHERE p.model_id=?",model);
-            long totalChars=scalar(db,"SELECT COALESCE(SUM(chars),0) FROM ("+sources+")",null);
+            long done=0,covered=0;if(scalar(db,"SELECT COUNT(*) FROM semantic_index_progress WHERE model_id=?",model)>0){try(Cursor c=db.rawQuery("SELECT COALESCE(SUM(CASE WHEN p.complete=1 THEN 1 ELSE 0 END),0),COALESCE(SUM(MIN(p.next_offset,CASE WHEN p.source_type='message' THEN m.raw_char_count ELSE length(e.payload) END)),0) FROM semantic_index_progress p LEFT JOIN messages m ON p.source_type='message' AND m.id=p.source_id LEFT JOIN device_events e ON p.source_type='device_event' AND e.id=p.source_id WHERE p.model_id=? AND p.source_hash=COALESCE(m.content_hash,e.content_hash)",new String[]{model})){if(c.moveToFirst()){done=c.getLong(0);covered=c.getLong(1);}}}
+            long totalChars=scalar(db,"SELECT COALESCE(SUM(raw_char_count),0) FROM messages",null)+scalar(db,"SELECT COALESCE(SUM(length(payload)),0) FROM device_events",null);
             MemoryPolicy.put(result,"semanticCompletedSources",done); MemoryPolicy.put(result,"sourceCoverage",total==0?1.0:(double)done/total); MemoryPolicy.put(result,"semanticCoveredChars",covered); MemoryPolicy.put(result,"sourceChars",totalChars); MemoryPolicy.put(result,"characterCoverage",totalChars==0?1.0:(double)covered/totalChars);
             MemoryPolicy.put(result,"semanticChunkCount",scalar(db,"SELECT COUNT(*) FROM semantic_chunks WHERE model_id=?",model)); MemoryPolicy.put(result,"vectorEncoding",VectorCodec.ENCODING); MemoryPolicy.put(result,"derivedCacheRebuildable",true);
         }

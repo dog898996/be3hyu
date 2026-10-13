@@ -38,12 +38,27 @@ canonical cache. Native links and labels add overhead; it is not a claim that ye
 can fit in 20 MB.
 
 The cache has an encoder/pipeline identity, mutation generation and SHA-256 fingerprint of ordered
-SQLite row IDs, source hashes, ranges, dimensions and encoding. Inserts can be added incrementally;
-replacement/deletion causes a rebuild. A graph that covers only part of the canonical corpus is not
+SQLite row IDs, source hashes, ranges, dimensions, encoding **and canonical float32 bytes**. Its
+version-2 checkpoint manifest records the base generation, count and maximum row ID. On restart,
+an older graph is reused only when generation growth equals positive row-count growth and its
+entire original prefix still matches the recorded hash. Only rows after that base are replayed.
+Updates, replacements, deletion, model changes and bad prefix/graph hashes cause a derived rebuild;
+original records remain untouched. A graph that covers only part of the canonical corpus is not
 advertised as ready. A checksummed atomic manifest is written after the graph is flushed; loading
 also validates allocation bounds, link references and norms before native deserialization. A bad,
 missing or incompatible cache falls back to the canonical search; original records are untouched.
-The cache is not imported from backups and can be rebuilt after cache deletion.
+The cache is not imported from backups and can be rebuilt after deletion. The application keeps
+it in `getNoBackupFilesDir()/derived-indexes/semantic-ann` so ordinary cache cleaning does not discard
+a costly graph. Process death leaves SQLite and originals authoritative.
+
+Checkpoint writes are bounded. The first **fully caught-up** nonempty graph is saved once. Later
+writes require at least 15 minutes and either 4,096 changed rows / 5% of the checkpoint size,
+whichever is larger, or six hours of dirty checkpoint age. Unchanged ticks never save a graph.
+At 100k rows with eight new chunks per minute, this changes a roughly 66 MB rewrite each minute
+into a checkpoint about every six hours. Replay uses the normal background batch/time budget.
+Full float32-prefix hashing runs only for load validation or an actually due save, not every minute.
+UI diagnostics use an immutable snapshot and show validation/preparation, dirty rows, write/file
+byte counts, load decisions and pending replay; a diagnostic read does not wait for a build.
 
 Current date and device-grant exclusions apply before native top-k selection. Full returned records
 are checked again. The optional source/category policy cache is query-local and is enabled only
@@ -116,6 +131,17 @@ Cache construction/index DDL is deferred from the application constructor to its
 worker. Diagnostic reads use a completed immutable snapshot so the UI does not wait for a native
 build. Unknown corpus size is reported as unknown rather than 100% covered, and graph coverage
 means the currently generated canonical chunks; raw-source embedding coverage remains separate.
+
+Eight additional actual host-JNI/SQLite checkpoint tests passed without skipped branches: restart
+after pure appends replays only the tail; vector updates and deletion reject the old base; full
+float32-prefix hashing detects vector changes even if an epoch is rolled back; graph corruption
+rebuilds without removing originals; another encoder cannot reuse the graph; a minute-by-minute
+eight-row workload across a simulated 24 hours writes five checkpoints including the initial one;
+and burst growth cannot bypass the minimum interval or save a half-built graph. The clock is
+injected, while graph files, checksums, SQLite and native operations are real. This is a cadence
+simulation, not proof that Android keeps the app running for a real 24 hours. Two earlier native
+permission/date/entity and partial-build/update regression branches also passed with the new code.
+The source-free receipts are saved in `docs/benchmarks/native-ann-checkpoint-regressions.json`.
 
 `semantic_vectors` for derived memory entries still uses its older bounded exact scan; this module
 accelerates raw source chunks. Neither a million real source vectors nor 1–2 years of actual

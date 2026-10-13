@@ -79,6 +79,26 @@ public final class PhoneContextTest {
         assertEquals(2, store.deviceEvents("notification", null, 0, 500).length());
     }
 
+    @Test public void ownReplyNotificationsRetainAssistantProvenanceWithoutExternalInputOrReadClaims() throws Exception {
+        notificationGrant(); HoyoungNotificationListener listener = Robolectric.buildService(HoyoungNotificationListener.class).create().get();
+        Notification notification = new Notification(); notification.extras.putCharSequence(Notification.EXTRA_TEXT, "assistant-only-synthetic");
+        notification.extras.putString("com.hoyoung.assistant.source_kind", "assistant_reply"); notification.extras.putLong("com.hoyoung.assistant.assistant_message_id", 712);
+        notification.extras.putString("com.hoyoung.assistant.reply_stage", "proactive");
+        StatusBarNotification own = new StatusBarNotification(context.getPackageName(), context.getPackageName(), 712, null, Process.myUid(), 0, 0, notification, Process.myUserHandle(), System.currentTimeMillis());
+        listener.onNotificationPosted(own);
+        StatusBarNotification forgedExternal = notice(713); forgedExternal.getNotification().extras.putString("com.hoyoung.assistant.source_kind", "assistant_reply"); forgedExternal.getNotification().extras.putLong("com.hoyoung.assistant.assistant_message_id", 712);
+        listener.onNotificationPosted(forgedExternal); journal.ingestPendingForTests();
+        JSONArray rows = store.deviceEvents("notification", null, 0, 100); assertEquals(2, rows.length());
+        JSONObject reply = rows.getJSONObject(0).getJSONObject("payload");
+        assertEquals("assistant_reply", reply.getString("sourceKind")); assertEquals(712, reply.getLong("assistantMessageId")); assertEquals("proactive", reply.getString("replyStage"));
+        assertTrue(reply.getBoolean("assistantGenerated")); assertFalse(reply.getBoolean("ownerReadConfirmed")); assertFalse(reply.getBoolean("isOwnerInstruction")); assertFalse(reply.getBoolean("externalInputTriggerEligible"));
+        JSONObject external = rows.getJSONObject(1).getJSONObject("payload"); assertEquals("external_notification", external.getString("sourceKind")); assertFalse(external.getBoolean("assistantGenerated")); assertFalse(external.has("assistantMessageId"));
+        assertTrue(tools.canReadStoredSource(rows.getJSONObject(0))); assertFalse(tools.canUseImplicitMemorySource(rows.getJSONObject(0)));
+        assertTrue(tools.canUseImplicitMemorySource(rows.getJSONObject(1)));
+        assertFalse(tools.contextSummary("알림 메시지 확인", 12000).contains("assistant-only-synthetic"));
+        assertEquals("assistant_reply", tools.execute("phone_context_read", new JSONObject().put("eventId", rows.getJSONObject(0).getLong("id"))).getJSONObject("event").getJSONObject("payload").getString("sourceKind"));
+    }
+
     @Test public void notificationGrantRevocationAndAppDisableFilterPreviouslySavedData() throws Exception {
         notificationGrant(); journal.append("notification", "android.notification_listener", new JSONObject().put("text", "private synthetic"), 123, null); journal.ingestPendingForTests(); long id = store.deviceEvents("notification", null, 0, 100).getJSONObject(0).getLong("id");
         assertTrue(tools.execute("phone_context_read", new JSONObject().put("eventId", id)).getBoolean("ok"));

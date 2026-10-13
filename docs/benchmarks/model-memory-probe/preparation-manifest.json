@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "hoyoung-model-memory-evaluation.v1",
+  "caseCount": 12,
+  "synthetic": true,
+  "standardLongMemEval": false,
+  "actualLmMeasured": false,
+  "actualWorkCalls": 0,
+  "paidApiCalls": 0,
+  "artifactSha256": {
+    "writer-inputs.json": "ce348a945dfdeb280e444b7d40ff671580977b747260e5751c7ece684c76c14c",
+    "questions.json": "43b8634d981dc4c5baf0272021e4fde0c38cd1343fbb9af8fbf6e510bd7a867a",
+    "golden.json": "e8205ce96e0735d6278b9b296bc739fd84690f1403e056da17c7dd9da8a8ad4e"
+  }
+}

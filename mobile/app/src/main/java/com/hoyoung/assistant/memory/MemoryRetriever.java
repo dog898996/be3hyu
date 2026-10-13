@@ -35,7 +35,9 @@ public final class MemoryRetriever {
         JSONObject diagnostics=diagnostics();JSONArray missingSources=new JSONArray();boolean candidateCap=false,historyCap=false;
         JSONArray exact=store.retrieveMemoryCandidates(q.query,500),expanded=store.retrieveMemoryCandidates(q.expanded,500);
         candidateCap=exact.length()>=500||expanded.length()>=500;
-        collect(memories,exact,1.0,false);collect(memories,expanded,0.8,false);collect(memories,store.retrievePinnedMemories(1000),0,true);
+        JSONArray pins=store.retrievePinnedMemories(1000);long pinnedPopulation; synchronized(store){try(Cursor c=store.getReadableDatabase().rawQuery("SELECT COUNT(*) FROM memory_metadata x JOIN memories m ON m.memory_key=x.memory_key WHERE x.pinned=1",null)){pinnedPopulation=c.moveToFirst()?c.getLong(0):0;}}
+        collect(memories,exact,1.0,false);collect(memories,expanded,0.8,false);collect(memories,pins,0,true);
+        MemoryPolicy.put(diagnostics,"pinnedCandidateCount",pins.length());MemoryPolicy.put(diagnostics,"pinnedPopulationCount",pinnedPopulation);MemoryPolicy.put(diagnostics,"pinnedCandidateLimitReached",pinnedPopulation>pins.length());MemoryPolicy.put(diagnostics,"pinnedReservationLimit",12);
         JSONArray raw=store.rankedOriginalCandidates(q.query,q.from,q.to,500);
         candidateCap|=raw.length()>=500;addOriginals(originals,raw,q);
         JSONArray rawExpanded=store.rankedOriginalCandidates(q.expanded,q.from,q.to,500);
@@ -43,17 +45,18 @@ public final class MemoryRetriever {
         JSONArray devices=store.rankedDeviceCandidates(q.query,q.from,q.to,500);
         candidateCap|=devices.length()>=500;addDeviceOriginals(originals,devices,q);
         if(!q.expanded.equals(q.query)){JSONArray deviceExpanded=store.rankedDeviceCandidates(q.expanded,q.from,q.to,500);candidateCap|=deviceExpanded.length()>=500;addDeviceOriginals(originals,deviceExpanded,q);}
-        String semanticError="";JSONObject annDiagnostic=null;
+        String semanticError="";JSONObject annDiagnostic=null,structuredDiagnostic=null;
         semantic.resetScanDiagnostics();
         if(semanticEnabled&&semantic.ready()&&!q.query.isEmpty()) try {
             float[] vector=VectorCodec.normalize(encoder.encode(q.query),encoder.dimensions());
-            collect(memories,semantic.memories(vector,Math.max(50,q.limit*3)),1.0,false);
+            long exactMemoryLimit=Math.max(128,Math.min(4096,8L*1024*1024/(Math.max(1,encoder.dimensions())*4L)));boolean boundedMemories=diagnostics.optLong("semanticIndexedCount")>exactMemoryLimit;
+            if(!boundedMemories){collect(memories,semantic.memories(vector,Math.max(50,q.limit*3)),1.0,false);structuredDiagnostic=new JSONObject();MemoryPolicy.put(structuredDiagnostic,"method","paged-exact-current-memory-vectors");MemoryPolicy.put(structuredDiagnostic,"fullMemoryVectorScanSkipped",false);MemoryPolicy.put(structuredDiagnostic,"exactScanRowThreshold",exactMemoryLimit);MemoryPolicy.put(structuredDiagnostic,"indexedCorpusCount",diagnostics.optLong("semanticIndexedCount"));MemoryPolicy.put(structuredDiagnostic,"wholeCorpusMemoryNeuralSearch",diagnostics.optLong("semanticIndexedCount")>=diagnostics.optLong("memoryTotals")&&!semantic.scanDiagnostics().optBoolean("limitReached"));}
             JSONArray chunks;SemanticCandidateProvider provider=candidateProvider;
             if(provider!=null&&provider.isReady(encoder.modelId())){
                 try{chunks=provider.chunks(vector,q,Math.max(30,q.limit*2),deviceVisibility);annDiagnostic=providerDiagnostic(provider);MemoryPolicy.put(annDiagnostic,"usedForThisSearch",true);}
                 catch(Exception failed){chunks=semantic.chunks(vector,q,Math.max(30,q.limit*2));annDiagnostic=providerDiagnostic(provider);MemoryPolicy.put(annDiagnostic,"usedForThisSearch",false);MemoryPolicy.put(annDiagnostic,"fallback","paged_exact_cosine");MemoryPolicy.put(annDiagnostic,"error",failed.getClass().getSimpleName());}
             }else{chunks=semantic.chunks(vector,q,Math.max(30,q.limit*2));if(provider!=null){annDiagnostic=providerDiagnostic(provider);MemoryPolicy.put(annDiagnostic,"usedForThisSearch",false);MemoryPolicy.put(annDiagnostic,"fallback","paged_exact_cosine");MemoryPolicy.put(annDiagnostic,"fallbackReason","ann_cache_not_current_or_ready");}}
-            for(int i=0;i<chunks.length();i++) {
+            JSONArray verifiedChunks=new JSONArray();for(int i=0;i<chunks.length();i++) {
                 JSONObject chunk=chunks.optJSONObject(i);JSONObject source=source(chunk.optString("type"),chunk.optLong("id"));
                 if(chunk.has("modelId")&&!encoder.modelId().equals(chunk.optString("modelId")))continue;
                 if(source==null||!chunk.optString("hash").equals(source.optString("content_hash"))||!q.recordedInRange(source.optLong("message".equals(chunk.optString("type"))?"created_at":"observed_at")))continue;
@@ -61,9 +64,11 @@ public final class MemoryRetriever {
                 JSONObject range=semantic.sourceRange(chunk.optString("type"),chunk.optLong("id"),chunk.optLong("offsetChars"),chunk.optInt("lengthChars"));
                 if(!chunk.optString("hash").equals(range.optString("recordHash")))continue;
                 if(!entitiesMatch(q.entities,range.optString("text")))continue;
+                verifiedChunks.put(chunk);
                 MemoryPolicy.put(evidence,"excerpt",range.optString("text"));MemoryPolicy.put(evidence,"offsetChars",range.optLong("offsetChars"));MemoryPolicy.put(evidence,"lengthChars",range.optString("text").length());MemoryPolicy.put(evidence,"exactOriginalRange",true);MemoryPolicy.put(evidence,"semanticSimilarity",chunk.optDouble("semanticSimilarity"));
                 MemoryPolicy.put(evidence,"retrievalScore",chunk.optDouble("semanticSimilarity")*2);MemoryPolicy.put(evidence,"relevantToQuery",chunk.optDouble("semanticSimilarity")>=0.25);mergeSemantic(originals,evidence,i+1);
             }
+            if(boundedMemories){JSONObject selected=new StructuredMemorySearch(store,encoder,semantic).retrieve(vector,Math.max(50,q.limit*3),memories.keySet(),verifiedChunks);collect(memories,selected.optJSONArray("rows"),1.0,false);structuredDiagnostic=selected.optJSONObject("diagnostics");MemoryPolicy.put(structuredDiagnostic,"indexedCorpusCount",diagnostics.optLong("semanticIndexedCount"));MemoryPolicy.put(structuredDiagnostic,"exactScanRowThreshold",exactMemoryLimit);}
         } catch(Exception unavailable) {semanticError=unavailable.getClass().getSimpleName();}
         List<Candidate> ranked=new ArrayList<>(memories.values());
         for(Candidate candidate:ranked) {
@@ -81,6 +86,7 @@ public final class MemoryRetriever {
         List<JSONObject> selected=new ArrayList<>();int pinnedCount=0;
         // Profile constraints get a separate reservation, so busy/newer conversations cannot evict them.
         for(Candidate c:ranked)if(c.pinned&&pinnedCount++<12)selected.add(c.row);
+        MemoryPolicy.put(diagnostics,"pinnedVisibleCandidates",pinnedCount);MemoryPolicy.put(diagnostics,"selectedPinnedCount",Math.min(12,pinnedCount));MemoryPolicy.put(diagnostics,"pinnedReservationSaturated",pinnedCount>12);
         for(Candidate c:ranked)if(selected.size()<q.limit+12&&!selected.contains(c.row)&&c.relevant)selected.add(c.row);
         List<JSONObject> history=new ArrayList<>();
         for(JSONObject row:selected) {
@@ -118,7 +124,7 @@ public final class MemoryRetriever {
         if(evidence.size()>q.limit*2)evidence=new ArrayList<>(evidence.subList(0,q.limit*2));
         boolean answerEvidence=false;for(JSONObject row:all)answerEvidence|=row.optBoolean("relevantToQuery")&&!"unsourced_unverified".equals(row.optString("epistemicStatus"));
         for(JSONObject row:evidence)answerEvidence|=row.optBoolean("relevantToQuery");
-        MemoryPolicy.put(diagnostics,"candidateLimitReached",candidateCap);MemoryPolicy.put(diagnostics,"historyLimitReached",historyCap);MemoryPolicy.put(diagnostics,"missingOrChangedSourceRefs",missingSources);MemoryPolicy.put(diagnostics,"semanticError",semanticError);MemoryPolicy.put(diagnostics,"semanticScan",semantic.scanDiagnostics());if(annDiagnostic!=null)MemoryPolicy.put(diagnostics,"semanticAnn",annDiagnostic);MemoryPolicy.put(diagnostics,"sourceRanking","reciprocal-rank-fusion-k60-plus-exact-identifier");MemoryPolicy.put(diagnostics,"noEvidenceIsNotProofOfAbsence",true);MemoryPolicy.put(diagnostics,"relevanceIsNotTruthConfidence",true);
+        MemoryPolicy.put(diagnostics,"candidateLimitReached",candidateCap);MemoryPolicy.put(diagnostics,"historyLimitReached",historyCap);MemoryPolicy.put(diagnostics,"missingOrChangedSourceRefs",missingSources);MemoryPolicy.put(diagnostics,"semanticError",semanticError);MemoryPolicy.put(diagnostics,"semanticScan",semantic.scanDiagnostics());if(annDiagnostic!=null)MemoryPolicy.put(diagnostics,"semanticAnn",annDiagnostic);if(structuredDiagnostic!=null)MemoryPolicy.put(diagnostics,"structuredMemorySemantic",structuredDiagnostic);MemoryPolicy.put(diagnostics,"sourceRanking","reciprocal-rank-fusion-k60-plus-exact-identifier");MemoryPolicy.put(diagnostics,"noEvidenceIsNotProofOfAbsence",true);MemoryPolicy.put(diagnostics,"relevanceIsNotTruthConfidence",true);
         JSONObject result=new JSONObject();MemoryPolicy.put(result,"memories",new JSONArray(selected));MemoryPolicy.put(result,"history",new JSONArray(history));MemoryPolicy.put(result,"originalEvidence",new JSONArray(evidence));MemoryPolicy.put(result,"conflicts",conflicts);MemoryPolicy.put(result,"hasRelevantEvidence",answerEvidence);MemoryPolicy.put(result,"diagnostics",diagnostics);
         MemoryPolicy.put(result,"context",format(all,evidence,conflicts,diagnostics,q.maxChars,q.query));return result;
     }
@@ -185,10 +191,11 @@ public final class MemoryRetriever {
         StringBuilder out=new StringBuilder("[Persistent memory evidence: relevance does not prove truth. Owner statements/device observations/generated summaries are separate. Recorded time does not establish a fact's validity. If evidence is insufficient, retrieve source.read/memory.search; do not invent.]\n");
         int omitted=0;int memoryBudget=Math.max(600,budget*60/100),pinnedUsed=0;
         List<JSONObject> ordered=new ArrayList<>(rows);ordered.sort((a,b)->{int relevant=Boolean.compare(b.optBoolean("relevantToQuery"),a.optBoolean("relevantToQuery"));return relevant!=0?relevant:Double.compare(b.optDouble("retrievalScore"),a.optDouble("retrievalScore"));});
-        for(JSONObject row:ordered){JSONArray refs=row.optJSONArray("sourceRefs"),few=new JSONArray();if(refs!=null)for(int i=0;i<Math.min(5,refs.length());i++)few.put(refs.opt(i));String line="MEMORY "+row.optString("key")+" revision="+row.optInt("revision")+" "+row.optString("temporalStatus")+" "+row.optString("epistemicStatus")+(row.optBoolean("pinned")?" PINNED":"")+" sources="+few+" sourceCount="+(refs==null?0:refs.length())+" metadata="+MemoryText.window(MemoryPolicy.metadata(row).toString(),query,800)+"\n"+MemoryText.window(row.optString("content"),query,1200)+"\n";boolean profile=row.optBoolean("pinned")&&!row.optBoolean("relevantToQuery");if(out.length()+line.length()>memoryBudget||(profile&&pinnedUsed+line.length()>budget/4)){omitted++;continue;}out.append(line);if(profile)pinnedUsed+=line.length();}
+        for(JSONObject row:ordered){JSONArray refs=row.optJSONArray("sourceRefs"),few=new JSONArray();if(refs!=null)for(int i=0;i<Math.min(5,refs.length());i++)few.put(refs.opt(i));String line="MEMORY "+row.optString("key")+" revision="+row.optInt("revision")+" "+row.optString("temporalStatus")+" "+row.optString("epistemicStatus")+(row.optBoolean("pinned")?" PINNED":"")+" sources="+few+" sourceCount="+row.optInt("sourceCount",refs==null?0:refs.length())+" sourceRefsTruncated="+row.optBoolean("sourceRefsTruncated")+" metadata="+MemoryText.window(MemoryPolicy.metadata(row).toString(),query,800)+"\n"+MemoryText.window(row.optString("content"),query,1200)+"\n";boolean profile=row.optBoolean("pinned")&&!row.optBoolean("relevantToQuery");if(out.length()+line.length()>memoryBudget||(profile&&pinnedUsed+line.length()>budget/4)){omitted++;continue;}out.append(line);if(profile)pinnedUsed+=line.length();}
         String conflictLine="CONFLICTS "+conflicts+"\n";if(out.length()+conflictLine.length()<budget-500)out.append(conflictLine);else if(conflicts.length()>0)out.append("CONFLICTS exist; memory.search returns both versions and sources.\n");
         for(JSONObject row:evidence){String extra=row.optString("lexicalExcerpt");String line="ORIGINAL "+row.optString("type")+":"+row.optLong("id")+" hash="+row.optString("hash")+" role="+row.optString("role")+" recordedAt="+row.optLong("recordedAt")+(row.optBoolean("exactOriginalRange")?" range="+row.optLong("offsetChars")+"+"+row.optInt("lengthChars"):" excerpt_with_approximate_match_markers")+"\n"+row.optString("excerpt")+(extra.isEmpty()||extra.equals(row.optString("excerpt"))?"":"\nlexical_excerpt: "+MemoryText.window(extra,query,800))+"\n";if(out.length()+line.length()>budget-450){omitted++;continue;}out.append(line);}
         JSONObject scan=diagnostics.optJSONObject("semanticScan"),ann=diagnostics.optJSONObject("semanticAnn");String footer="RETRIEVAL LIMITS omittedItems="+omitted+" candidateLimitReached="+diagnostics.optBoolean("candidateLimitReached")+" historyLimitReached="+diagnostics.optBoolean("historyLimitReached")+" semanticMode="+diagnostics.optString("semanticMode")+" sourceCoverage="+diagnostics.optDouble("sourceCoverage")+" semanticSearchLimitReached="+(scan!=null&&scan.optBoolean("limitReached"))+" approximateCandidateSelection="+(ann!=null&&ann.optBoolean("usedForThisSearch")&&ann.optBoolean("approximateNearestNeighbor"))+" semanticConstraintLimitReached="+(ann!=null&&ann.optBoolean("usedForThisSearch")&&ann.optBoolean("constraintCandidateLimitReached"))+". Unreturned evidence may still exist; original sources remain stored.\n";
+        JSONObject structured=diagnostics.optJSONObject("structuredMemorySemantic");footer+="PROFILE LIMITS pinnedCandidatesLimited="+diagnostics.optBoolean("pinnedCandidateLimitReached")+" pinnedReservationSaturated="+diagnostics.optBoolean("pinnedReservationSaturated")+". SUMMARY NEURAL LIMITS wholeCorpusSearched="+(structured!=null&&structured.optBoolean("wholeCorpusMemoryNeuralSearch"))+" shortlistLimited="+(structured!=null&&structured.optBoolean("candidateLimitReached"))+".\n";
         if(out.length()+footer.length()>budget)out.setLength(Math.max(0,budget-footer.length()));out.append(footer);return out.toString();
     }
     private static final class Candidate {JSONObject row;double score;boolean pinned,relevant;Candidate(JSONObject row){this.row=row;}}

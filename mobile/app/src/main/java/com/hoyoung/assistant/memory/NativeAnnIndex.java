@@ -41,12 +41,22 @@ public final class NativeAnnIndex implements AutoCloseable {
     public synchronized void setExcludedLabels(long[] denied){checkOpen();nativeExclude(handle,denied);}
     public synchronized SearchResult search(float[] query,int k,int ef){checkOpen();return nativeSearch(handle,query,k,Math.max(k,ef));}
     public synchronized JSONObject saveVerified(File directory,String canonicalFingerprint)throws IOException{
+        return saveVerified(directory,canonicalFingerprint,null);
+    }
+    /** Optional checkpoint metadata is bound to the verified canonical prefix fingerprint. */
+    public synchronized JSONObject saveVerified(File directory,String canonicalFingerprint,JSONObject checkpoint)throws IOException{
         checkOpen();validateFingerprint(canonicalFingerprint);if(!directory.isDirectory()&&!directory.mkdirs())throw new IOException("Cannot create ANN cache directory");
+        JSONObject checkpointCopy=null;
+        if(checkpoint!=null){
+            if(!canonicalFingerprint.equals(checkpoint.optString("prefixSha256"))||checkpoint.optLong("canonicalCount",-1)!=count())throw new IOException("ANN checkpoint does not describe this graph");
+            try{checkpointCopy=new JSONObject(checkpoint.toString());}catch(Exception invalid){throw new IOException("Invalid ANN checkpoint metadata",invalid);}
+        }
         String name="graph-"+UUID.randomUUID()+".bin";File graph=new File(directory,name),pending=new File(directory,name+".pending");
         try{
             nativeSave(handle,pending.getAbsolutePath());try(FileOutputStream flush=new FileOutputStream(pending,true)){flush.getFD().sync();}
             Files.move(pending.toPath(),graph.toPath(),StandardCopyOption.ATOMIC_MOVE);
-            JSONObject manifest=new JSONObject();put(manifest,"schema",1);put(manifest,"profile",PROFILE);put(manifest,"modelId",modelId);put(manifest,"dimensions",dimensions);put(manifest,"count",count());put(manifest,"capacity",capacity);put(manifest,"canonicalFingerprint",canonicalFingerprint);put(manifest,"file",name);put(manifest,"bytes",graph.length());put(manifest,"sha256",sha256(graph));put(manifest,"approximateNearestNeighbor",true);
+            JSONObject manifest=new JSONObject();put(manifest,"schema",checkpoint==null?1:2);put(manifest,"profile",PROFILE);put(manifest,"modelId",modelId);put(manifest,"dimensions",dimensions);put(manifest,"count",count());put(manifest,"capacity",capacity);put(manifest,"canonicalFingerprint",canonicalFingerprint);put(manifest,"file",name);put(manifest,"bytes",graph.length());put(manifest,"sha256",sha256(graph));put(manifest,"approximateNearestNeighbor",true);
+            if(checkpointCopy!=null)put(manifest,"checkpoint",checkpointCopy);
             File metadataPending=new File(directory,"manifest.json.pending"),metadata=new File(directory,"manifest.json");
             try(FileOutputStream output=new FileOutputStream(metadataPending)){output.write(manifest.toString().getBytes(StandardCharsets.UTF_8));output.getFD().sync();}
             Files.move(metadataPending.toPath(),metadata.toPath(),StandardCopyOption.REPLACE_EXISTING,StandardCopyOption.ATOMIC_MOVE);
@@ -56,15 +66,22 @@ public final class NativeAnnIndex implements AutoCloseable {
         }catch(RuntimeException nativeError){throw new IOException("ANN cache save failed",nativeError);}finally{pending.delete();}
     }
     public synchronized boolean loadVerified(File directory,String canonicalFingerprint)throws IOException{
-        checkOpen();validateFingerprint(canonicalFingerprint);File metadata=new File(directory,"manifest.json");if(!metadata.isFile())return false;
+        checkOpen();validateFingerprint(canonicalFingerprint);
         try{
-            if(metadata.length()>16_384)throw new IOException("ANN cache manifest too large");JSONObject manifest=new JSONObject(new String(Files.readAllBytes(metadata.toPath()),StandardCharsets.UTF_8));
-            if(manifest.optInt("schema")!=1||!PROFILE.equals(manifest.optString("profile"))||!modelId.equals(manifest.optString("modelId"))||dimensions!=manifest.optInt("dimensions")||!canonicalFingerprint.equals(manifest.optString("canonicalFingerprint")))return false;
+            JSONObject manifest=readManifest(directory);if(manifest==null)return false;
+            if((manifest.optInt("schema")!=1&&manifest.optInt("schema")!=2)||!PROFILE.equals(manifest.optString("profile"))||!modelId.equals(manifest.optString("modelId"))||dimensions!=manifest.optInt("dimensions")||!canonicalFingerprint.equals(manifest.optString("canonicalFingerprint")))return false;
             String name=manifest.optString("file");if(!name.matches("graph-[a-fA-F0-9-]{36}\\.bin"))throw new IOException("Invalid ANN cache filename");
             File graph=new File(directory,name);long bytes=manifest.optLong("bytes",-1);int count=manifest.optInt("count",-1),storedCapacity=manifest.optInt("capacity",-1);
             if(count<0||count>MAX_ELEMENTS||storedCapacity<count||storedCapacity>MAX_ELEMENTS||bytes<96||bytes>3L*1024*1024*1024||!graph.isFile()||graph.length()!=bytes||!sha256(graph).equals(manifest.optString("sha256")))throw new IOException("ANN cache integrity mismatch");
             nativeLoad(handle,graph.getAbsolutePath(),count);capacity=storedCapacity;return true;
         }catch(IOException e){throw e;}catch(Exception invalid){throw new IOException("ANN cache is incompatible or corrupt; rebuild from canonical vectors",invalid);}
+    }
+    /** This is untrusted metadata until loadVerified validates its graph hash and identity. */
+    public static JSONObject readManifest(File directory)throws IOException{
+        File metadata=new File(directory,"manifest.json");if(!metadata.isFile())return null;
+        if(metadata.length()>16_384)throw new IOException("ANN cache manifest too large");
+        try{return new JSONObject(new String(Files.readAllBytes(metadata.toPath()),StandardCharsets.UTF_8));}
+        catch(Exception invalid){throw new IOException("Invalid ANN cache manifest",invalid);}
     }
     public synchronized void close(){if(handle!=0){nativeClose(handle);handle=0;}}
     private void checkOpen(){if(handle==0)throw new IllegalStateException("ANN index closed");}

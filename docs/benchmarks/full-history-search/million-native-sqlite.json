@@ -1,0 +1,475 @@
+{
+  "benchmark": "actual-sqlite-store-hybrid-retriever-synthetic-scaling-v1",
+  "messages": 1000000,
+  "memories": 50989,
+  "smallCorpus": [
+    {
+      "type": "old_exact",
+      "query": "RARE-OLD-FACT-0-K831",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 27,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "korean_alias",
+      "query": "조식 slot0",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 18,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "entity_multihop",
+      "query": "Project-Zeta-0",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 12,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "old_exact",
+      "query": "RARE-OLD-FACT-1-K831",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 7,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "korean_alias",
+      "query": "조식 slot1",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 10,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "entity_multihop",
+      "query": "Project-Zeta-1",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 5,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "old_exact",
+      "query": "RARE-OLD-FACT-2-K831",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 5,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "korean_alias",
+      "query": "조식 slot2",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 7,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "entity_multihop",
+      "query": "Project-Zeta-2",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 4,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "old_exact",
+      "query": "RARE-OLD-FACT-3-K831",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 3,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "korean_alias",
+      "query": "조식 slot3",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 7,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "entity_multihop",
+      "query": "Project-Zeta-3",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 3,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "old_exact",
+      "query": "RARE-OLD-FACT-4-K831",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 3,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "korean_alias",
+      "query": "조식 slot4",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 6,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "entity_multihop",
+      "query": "Project-Zeta-4",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 3,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "old_exact",
+      "query": "RARE-OLD-FACT-5-K831",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 3,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "korean_alias",
+      "query": "조식 slot5",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 5,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "entity_multihop",
+      "query": "Project-Zeta-5",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 3,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "old_exact",
+      "query": "RARE-OLD-FACT-6-K831",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 3,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "korean_alias",
+      "query": "조식 slot6",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 5,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "entity_multihop",
+      "query": "Project-Zeta-6",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 3,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "old_exact",
+      "query": "RARE-OLD-FACT-7-K831",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 3,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "korean_alias",
+      "query": "조식 slot7",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 5,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "entity_multihop",
+      "query": "Project-Zeta-7",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 3,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "old_exact",
+      "query": "RARE-OLD-FACT-8-K831",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 3,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "korean_alias",
+      "query": "조식 slot8",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 6,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "entity_multihop",
+      "query": "Project-Zeta-8",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 3,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "old_exact",
+      "query": "RARE-OLD-FACT-9-K831",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 2,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "korean_alias",
+      "query": "조식 slot9",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 5,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "entity_multihop",
+      "query": "Project-Zeta-9",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 3,
+      "candidateLimitReached": false
+    }
+  ],
+  "largeCorpus": [
+    {
+      "type": "old_exact",
+      "query": "RARE-OLD-FACT-0-K831",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 2156,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "korean_alias",
+      "query": "조식 slot0",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 830,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "entity_multihop",
+      "query": "Project-Zeta-0",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 788,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "old_exact",
+      "query": "RARE-OLD-FACT-1-K831",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 686,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "korean_alias",
+      "query": "조식 slot1",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 674,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "entity_multihop",
+      "query": "Project-Zeta-1",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 735,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "old_exact",
+      "query": "RARE-OLD-FACT-2-K831",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 665,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "korean_alias",
+      "query": "조식 slot2",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 668,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "entity_multihop",
+      "query": "Project-Zeta-2",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 664,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "old_exact",
+      "query": "RARE-OLD-FACT-3-K831",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 929,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "korean_alias",
+      "query": "조식 slot3",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 868,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "entity_multihop",
+      "query": "Project-Zeta-3",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 797,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "old_exact",
+      "query": "RARE-OLD-FACT-4-K831",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 792,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "korean_alias",
+      "query": "조식 slot4",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 775,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "entity_multihop",
+      "query": "Project-Zeta-4",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 875,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "old_exact",
+      "query": "RARE-OLD-FACT-5-K831",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 976,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "korean_alias",
+      "query": "조식 slot5",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 687,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "entity_multihop",
+      "query": "Project-Zeta-5",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 887,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "old_exact",
+      "query": "RARE-OLD-FACT-6-K831",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 844,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "korean_alias",
+      "query": "조식 slot6",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 675,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "entity_multihop",
+      "query": "Project-Zeta-6",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 658,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "old_exact",
+      "query": "RARE-OLD-FACT-7-K831",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 661,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "korean_alias",
+      "query": "조식 slot7",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 677,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "entity_multihop",
+      "query": "Project-Zeta-7",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 722,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "old_exact",
+      "query": "RARE-OLD-FACT-8-K831",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 826,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "korean_alias",
+      "query": "조식 slot8",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 762,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "entity_multihop",
+      "query": "Project-Zeta-8",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 895,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "old_exact",
+      "query": "RARE-OLD-FACT-9-K831",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 1041,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "korean_alias",
+      "query": "조식 slot9",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 941,
+      "candidateLimitReached": false
+    },
+    {
+      "type": "entity_multihop",
+      "query": "Project-Zeta-9",
+      "goldRecallAt10": 1,
+      "elapsedMillis": 988,
+      "candidateLimitReached": false
+    }
+  ],
+  "dateStateRecall": true,
+  "conflictDetected": true,
+  "absentEvidenceHandled": true,
+  "databaseAndWalBytes": 535127496,
+  "semantic": {
+    "semanticMode": "concept-fallback",
+    "encoderModel": null,
+    "actualLmMeasured": false,
+    "semanticIndexedCount": 0,
+    "sourceTotals": 1000000,
+    "memoryTotals": 50989,
+    "semanticCompletedSources": 0,
+    "sourceCoverage": 0,
+    "semanticCoveredChars": 0,
+    "sourceChars": 102823923,
+    "characterCoverage": 0,
+    "semanticChunkCount": 0,
+    "vectorEncoding": "unit-f32-le-v1",
+    "derivedCacheRebuildable": true,
+    "semanticEnabled": true
+  },
+  "goldNotesManuallySeeded": true,
+  "extractionMeasured": false,
+  "actualLmMeasured": false,
+  "realDeviceLatencyMeasured": false,
+  "totalElapsedMillis": 441321,
+  "measurementEnvironment": {
+    "runtime": "Robolectric SDK28 native SQLite, OpenJDK17 host",
+    "command": "HOYOUNG_MEMORY_SCALE=1000000 python3 run-memory.py <log> com.hoyoung.assistant.memory.LargeCorpusRetrievalBenchmarkTest",
+    "storeAlgorithm": "compound implicit conjunction per whitespace-word, SQL UNION lanes, message docid SUM prefix scoring",
+    "queuePriorityChangeAfterMeasurement": "No search effect",
+    "concurrentHostLoadControlled": false
+  },
+  "latencySummary": {
+    "queries": 30,
+    "medianMillis": 790.0,
+    "meanMillis": 838.0666666666667,
+    "maxMillis": 2156
+  },
+  "limitations": [
+    "Synthetic gold memories manually seeded; not extraction accuracy",
+    "Concept fallback vectors; no actual LM measurement",
+    "Host latency, not physical S24 Ultra latency",
+    "Not a standard LongMemEval score",
+    "One run; host load and cold/warm caches are not controlled"
+  ]
+}

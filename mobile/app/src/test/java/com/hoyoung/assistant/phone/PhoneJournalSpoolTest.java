@@ -102,7 +102,8 @@ public final class PhoneJournalSpoolTest {
         File[] raw = buckets[0].listFiles(); assertNotNull(raw); assertEquals(1, raw.length);
         JSONObject original = new PhoneObservationSpool(journal.spoolDirectoryForTests()).read(raw[0]); assertEquals("raw source bytes retained", original.getJSONObject("payload").getString("text"));
         File snapshot = new File(context.getCacheDir(), "journal-snapshot"); journal.captureBackupSnapshot(snapshot);
-        File copied = new File(new File(new File(snapshot, "archive"), buckets[0].getName()), raw[0].getName()); assertArrayEquals(Files.readAllBytes(raw[0].toPath()), Files.readAllBytes(copied.toPath()));
+        File[] copied = new File(new File(snapshot, "archive"), "segments").listFiles(file -> file.getName().endsWith(".hja")); assertNotNull(copied); assertEquals(1, copied.length);
+        PhoneArchiveSegments.verify(copied[0], true, (path, bytes, checksum) -> { assertEquals(buckets[0].getName() + "/" + raw[0].getName(), path); assertArrayEquals(Files.readAllBytes(raw[0].toPath()), bytes); });
     }
     @Test public void validFsyncedPartialSurvivesInterruptedRenameAndIsReplayed() throws Exception {
         journal.closeWorker(); journal.awaitClosedForTests(); journal.append("device_state", "android.device_state", new JSONObject().put("value", "interrupted-but-complete"), 12, null);
@@ -110,6 +111,24 @@ public final class PhoneJournalSpoolTest {
         Files.move(pending.toPath(), new File(pending.getParentFile(), ".partial-synthetic-interrupted-write").toPath());
         journal = PhoneEventJournal.bind(context, store); journal.ingestPendingForTests();
         assertEquals(1, store.deviceEvents("device_state", null, 0, 100).length()); assertEquals(0, journal.health().getInt("pendingSpoolRecords"));
+    }
+    @Test public void archiveCorruptionReportsOneDurableFailureGapAcrossRestartAndClearsOnlyAfterVerification() throws Exception {
+        journal.append("device_state", "android.device_state", new JSONObject().put("value", "retained original"), 17, null); journal.ingestPendingForTests();
+        journal.closeWorker(); journal.awaitClosedForTests();
+        File archive = new File(journal.spoolDirectoryForTests(), "archive"); File bucket = archive.listFiles()[0]; File raw = bucket.listFiles()[0];
+        java.util.List<PhoneArchiveSegments.Source> sources = java.util.Collections.singletonList(new PhoneArchiveSegments.Source(bucket.getName() + "/" + raw.getName(), raw));
+        File segment = PhoneArchiveSegments.write(new File(archive, "segments"), sources, PhoneArchiveSegments.MAX_SEGMENT_BYTES);
+        byte[] originalContainer = Files.readAllBytes(segment.toPath()), changed = originalContainer.clone(); changed[changed.length - 2] ^= 1; Files.write(segment.toPath(), changed);
+        journal = PhoneEventJournal.bind(context, store); journal.ingestPendingForTests(); journal.ingestPendingForTests();
+        assertFalse(journal.health().getBoolean("ok")); assertFalse(journal.health().getString("archiveFailure").isEmpty()); assertTrue(raw.exists());
+        assertEquals(1, store.deviceEvents("collector_gap", "phone.private_archive", 0, 100).length());
+        journal.closeWorker(); journal.awaitClosedForTests(); journal = PhoneEventJournal.bind(context, store); journal.ingestPendingForTests();
+        assertFalse(journal.health().getBoolean("ok")); assertEquals("Repeated detection of the same unrepaired corruption must not invent new gaps", 1, store.deviceEvents("collector_gap", "phone.private_archive", 0, 100).length());
+        journal.closeWorker(); journal.awaitClosedForTests(); Files.write(segment.toPath(), originalContainer);
+        journal = PhoneEventJournal.bind(context, store); journal.ingestPendingForTests();
+        assertTrue(journal.health().toString(), journal.health().getBoolean("ok")); assertEquals("", journal.health().getString("archiveFailure"));
+        assertEquals(1, store.deviceEvents("device_state", null, 0, 100).length()); assertEquals(1, store.deviceEvents("collector_gap", "phone.private_archive", 0, 100).length());
+        PhoneArchiveSegments.verify(segment, true, null);
     }
     private static void clearTestFiles(File file) { if (file.isDirectory()) { File[] children = file.listFiles(); if (children != null) for (File child : children) clearTestFiles(child); } if (file.exists()) assertTrue(file.delete()); }
 }

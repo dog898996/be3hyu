@@ -19,6 +19,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.function.LongSupplier;
 
 /** Derived native shortlist, then exact canonical-f32 reranking and original-source validation.
  * Maintenance and search run on background workers. FTS/pinned/current-fact retrieval stay separate.
@@ -28,8 +29,15 @@ public final class SemanticAnnCache implements SemanticCandidateProvider, AutoCl
     private final SemanticEncoder encoder;
     private final File directory;
     private final boolean categoricalVisibility;
+    private final LongSupplier elapsedClock,wallClock;
+    static final long MIN_CHECKPOINT_INTERVAL_MILLIS=15*60_000L,MAX_CHECKPOINT_INTERVAL_MILLIS=6*60*60_000L;
+    static final String FINGERPRINT_PROFILE="ordered-chunk-metadata-and-canonical-f32-prefix-sha256-v2";
     private NativeAnnIndex graph;
-    private long afterRowId, syncedGeneration=-1, targetGeneration=-1, targetCanonicalCount, canonicalCount, lastSavedAt, lastSavedCount;
+    private long afterRowId,syncedGeneration=-1,targetGeneration=-1,targetCanonicalCount,canonicalCount,lastSavedCount;
+    private long lastSavedEpochMillis,lastSavedElapsedMillis,checkpointAgeAtLoadMillis,checkpointWrites,checkpointBytesWritten,checkpointLoads;
+    private long checkpointLoadValidationMillis;
+    private boolean hasCheckpoint;
+    private String checkpointLoadDecision="not_attempted";
     private volatile boolean ready;
     private String status="not_initialized",error="";
     private long lastSearchMillis,lastCandidateBytes,lastExcludedCount,lastCandidateCount;
@@ -42,7 +50,11 @@ public final class SemanticAnnCache implements SemanticCandidateProvider, AutoCl
      * plus current OS/app grants, as PhoneTools.canReadStoredSource currently does. The default
      * evaluates each full device record, including predicates that depend on payload or ID. */
     public SemanticAnnCache(HoyoungStore store,SemanticEncoder encoder,File directory,boolean categoricalVisibility){
+        this(store,encoder,directory,categoricalVisibility,()->System.nanoTime()/1_000_000,System::currentTimeMillis);
+    }
+    SemanticAnnCache(HoyoungStore store,SemanticEncoder encoder,File directory,boolean categoricalVisibility,LongSupplier elapsedClock,LongSupplier wallClock){
         this.store=store;this.encoder=encoder;this.directory=directory;this.categoricalVisibility=categoricalVisibility;
+        this.elapsedClock=elapsedClock;this.wallClock=wallClock;
         publishDiagnostics();
     }
     /** Creating a covering index over a long-lived corpus belongs to the maintenance worker. */
@@ -66,20 +78,18 @@ public final class SemanticAnnCache implements SemanticCandidateProvider, AutoCl
         long start=now(),deadline=start+Math.max(10,Math.min(5000,budgetMillis));int added=0;
         try{
             ensureSchema();
-            long currentGeneration=generation(),count=countRows();canonicalCount=count;corpusCountKnown=true;
+            Snapshot current=snapshot();long currentGeneration=current.generation,count=current.count;canonicalCount=count;corpusCountKnown=true;
             if(graph==null){
-                graph=new NativeAnnIndex(encoder.modelId(),encoder.dimensions(),capacityFor(count));
-                String fingerprint=fingerprint(currentGeneration,count);
-                try{if(graph.loadVerified(directory,fingerprint)){afterRowId=maxRowId();syncedGeneration=currentGeneration;targetGeneration=currentGeneration;targetCanonicalCount=count;lastSavedCount=count;lastSavedAt=now();ready=true;status="loaded_verified_cache";error="";return publishDiagnostics();}}
-                catch(Exception cacheInvalid){error="cache_rebuild: "+cacheInvalid.getClass().getSimpleName();}
-                targetGeneration=currentGeneration;targetCanonicalCount=count;
+                boolean loaded=restoreCheckpoint(currentGeneration,count);
+                current=snapshot();currentGeneration=current.generation;count=current.count;canonicalCount=count;
+                if(!loaded){graph=new NativeAnnIndex(encoder.modelId(),encoder.dimensions(),capacityFor(count));afterRowId=0;hasCheckpoint=false;targetGeneration=currentGeneration;targetCanonicalCount=count;}
             }
             if(currentGeneration!=targetGeneration){
                 long delta=currentGeneration-targetGeneration,countDelta=count-targetCanonicalCount;
                 // A pure append can be inserted incrementally. Replacement/deletion/model mutation
                 // rebuilds the derived graph, so stale row IDs cannot silently stand for new vectors.
                 if(!(delta==countDelta&&countDelta>0&&maxRowId()>afterRowId)){
-                    graph.close();graph=new NativeAnnIndex(encoder.modelId(),encoder.dimensions(),capacityFor(count));afterRowId=0;
+                    graph.close();graph=new NativeAnnIndex(encoder.modelId(),encoder.dimensions(),capacityFor(count));afterRowId=0;hasCheckpoint=false;
                 }
                 targetGeneration=currentGeneration;targetCanonicalCount=count;ready=false;
             }
@@ -90,16 +100,74 @@ public final class SemanticAnnCache implements SemanticCandidateProvider, AutoCl
                 for(int i=0;i<rows.size();i++){IndexedRow row=rows.get(i);float[] decoded=VectorCodec.decode(row.vector,encoder.dimensions());labels[i]=row.rowId;System.arraycopy(decoded,0,vectors,i*encoder.dimensions(),decoded.length);}
                 graph.addBatch(labels,vectors);afterRowId=rows.get(rows.size()-1).rowId;added+=rows.size();
             }
-            long afterGeneration=generation();canonicalCount=countRows();
-            ready=afterGeneration==targetGeneration&&graph.count()==canonicalCount;
-            if(ready){syncedGeneration=targetGeneration;status="ready";if(graph.count()!=lastSavedCount&&(graph.count()-lastSavedCount>=1024||now()-lastSavedAt>30_000)){
-                String fingerprint=fingerprint(targetGeneration,canonicalCount);
-                if(generation()==targetGeneration){graph.saveVerified(directory,fingerprint);lastSavedCount=graph.count();lastSavedAt=now();}
-            }}else status="building_partial_cache";
+            Snapshot after=snapshot();canonicalCount=after.count;
+            ready=after.generation==targetGeneration&&graph.count()==canonicalCount;
+            if(ready){syncedGeneration=targetGeneration;status="ready";if(checkpointDue())writeCheckpoint();}
+            else status=hasCheckpoint?"replaying_checkpoint_appends":"building_partial_cache";
             error="";
         }catch(Exception failure){ready=false;status="maintenance_failed_rebuildable";error=failure.getClass().getSimpleName()+": "+failure.getMessage();}
         JSONObject result=publishDiagnostics();put(result,"rowsAddedThisBatch",added);put(result,"maintenanceMillis",now()-start);return result;
     }
+    private boolean restoreCheckpoint(long currentGeneration,long currentCount){
+        long began=now();NativeAnnIndex restored=null;
+        try{
+            JSONObject manifest=NativeAnnIndex.readManifest(directory);
+            if(manifest==null){checkpointLoadDecision="no_checkpoint";return false;}
+            JSONObject checkpoint=manifest.optJSONObject("checkpoint");
+            if(manifest.optInt("schema")!=2||checkpoint==null||checkpoint.optInt("schema")!=1||!FINGERPRINT_PROFILE.equals(checkpoint.optString("fingerprintProfile"))||!NativeAnnIndex.PROFILE.equals(manifest.optString("profile"))||!encoder.modelId().equals(manifest.optString("modelId"))||encoder.dimensions()!=manifest.optInt("dimensions")){
+                checkpointLoadDecision="incompatible_checkpoint_identity";return false;
+            }
+            long baseGeneration=integer(checkpoint,"canonicalGeneration"),baseCount=integer(checkpoint,"canonicalCount"),baseMax=integer(checkpoint,"maxRowId"),savedEpoch=integer(checkpoint,"writtenAtEpochMillis");
+            if(baseCount!=integer(manifest,"count")||baseCount>NativeAnnIndex.MAX_ELEMENTS||baseMax<baseCount||!appendCompatible(currentGeneration,currentCount,baseGeneration,baseCount)){
+                checkpointLoadDecision="rejected_non_append_epoch_or_count";return false;
+            }
+            status="validating_checkpoint_prefix";publishDiagnostics();
+            Prefix prefix=fingerprint(baseGeneration,baseCount,baseMax);
+            if(prefix.count!=baseCount||prefix.maximumRowId!=baseMax||!prefix.sha256.equals(checkpoint.optString("prefixSha256"))||!prefix.sha256.equals(manifest.optString("canonicalFingerprint"))){
+                checkpointLoadDecision="rejected_checkpoint_prefix_hash_or_range";return false;
+            }
+            // Sources can grow during validation. Recheck the mutation algebra before accepting
+            // the prefix: any update or delete makes epochDelta differ from the positive countDelta.
+            Snapshot fresh=snapshot();long freshGeneration=fresh.generation,freshCount=fresh.count;
+            if(!appendCompatible(freshGeneration,freshCount,baseGeneration,baseCount)){
+                checkpointLoadDecision="rejected_mutation_during_validation";return false;
+            }
+            status="loading_verified_checkpoint_graph";publishDiagnostics();
+            restored=new NativeAnnIndex(encoder.modelId(),encoder.dimensions(),1024);
+            if(!restored.loadVerified(directory,prefix.sha256)){
+                checkpointLoadDecision="checkpoint_changed_during_load";return false;
+            }
+            Snapshot afterLoad=snapshot();
+            if(!appendCompatible(afterLoad.generation,afterLoad.count,baseGeneration,baseCount)){
+                checkpointLoadDecision="rejected_mutation_during_graph_load";return false;
+            }
+            graph=restored;restored=null;afterRowId=baseMax;lastSavedCount=baseCount;hasCheckpoint=true;checkpointLoads++;
+            targetGeneration=afterLoad.generation;targetCanonicalCount=afterLoad.count;
+            lastSavedEpochMillis=savedEpoch;lastSavedElapsedMillis=now();checkpointAgeAtLoadMillis=Math.min(MAX_CHECKPOINT_INTERVAL_MILLIS,Math.max(0,wallClock.getAsLong()-savedEpoch));
+            checkpointLoadDecision=afterLoad.count==baseCount?"loaded_exact_checkpoint":"loaded_checkpoint_and_replay_appends";
+            return true;
+        }catch(Exception invalid){checkpointLoadDecision="invalid_or_corrupt_checkpoint";error="cache_rebuild: "+invalid.getClass().getSimpleName();return false;}
+        finally{if(restored!=null)restored.close();checkpointLoadValidationMillis=now()-began;}
+    }
+    private static boolean appendCompatible(long currentGeneration,long currentCount,long baseGeneration,long baseCount){
+        return currentGeneration>=baseGeneration&&currentCount>=baseCount&&currentGeneration-baseGeneration==currentCount-baseCount;
+    }
+    private boolean checkpointDue(){
+        if(!ready||graph.count()==0)return false;
+        if(!hasCheckpoint)return true;
+        long dirty=graph.count()-lastSavedCount;if(dirty<=0)return false;
+        long age=checkpointAgeMillis();
+        return age>=MIN_CHECKPOINT_INTERVAL_MILLIS&&(dirty>=Math.max(4096,lastSavedCount/20)||age>=MAX_CHECKPOINT_INTERVAL_MILLIS);
+    }
+    private void writeCheckpoint()throws Exception{
+        status="preparing_checkpoint";publishDiagnostics();Prefix prefix=fingerprint(targetGeneration,canonicalCount,afterRowId);
+        if(prefix.count!=canonicalCount||prefix.maximumRowId!=afterRowId||generation()!=targetGeneration){ready=false;status="checkpoint_deferred_canonical_changed";return;}
+        long writtenAt=wallClock.getAsLong();JSONObject checkpoint=new JSONObject();put(checkpoint,"schema",1);put(checkpoint,"canonicalGeneration",targetGeneration);put(checkpoint,"canonicalCount",canonicalCount);put(checkpoint,"maxRowId",afterRowId);put(checkpoint,"prefixSha256",prefix.sha256);put(checkpoint,"fingerprintProfile",FINGERPRINT_PROFILE);put(checkpoint,"writtenAtEpochMillis",writtenAt);
+        JSONObject manifest=graph.saveVerified(directory,prefix.sha256,checkpoint);
+        hasCheckpoint=true;lastSavedCount=graph.count();lastSavedEpochMillis=writtenAt;lastSavedElapsedMillis=now();checkpointAgeAtLoadMillis=0;checkpointWrites++;checkpointBytesWritten+=manifest.optLong("bytes")+manifest.toString().getBytes(StandardCharsets.UTF_8).length;status="ready";
+    }
+    private long checkpointAgeMillis(){return checkpointAgeAtLoadMillis+Math.max(0,now()-lastSavedElapsedMillis);}
+    private static long integer(JSONObject json,String name){Object value=json.opt(name);if(!(value instanceof Number)||!value.toString().matches("[0-9]+"))throw new IllegalArgumentException("Invalid checkpoint integer "+name);long result=Long.parseLong(value.toString());if(result<0)throw new IllegalArgumentException("Negative checkpoint integer");return result;}
     public synchronized JSONArray chunks(float[] query,MemoryQuery constraints,int limit,Predicate<JSONObject> deviceVisibility)throws Exception{
         if(!isReady(encoder.modelId()))throw new IllegalStateException("ANN cache not current; canonical fallback required");
         long started=now();lastCandidateBytes=0;lastCandidateCount=0;constraintLimitReached=false;
@@ -156,25 +224,35 @@ public final class SemanticAnnCache implements SemanticCandidateProvider, AutoCl
     /** Reading the last completed snapshot cannot wait behind a native graph build on the UI. */
     public JSONObject diagnostics(){try{return new JSONObject(publishedDiagnostics);}catch(Exception absent){JSONObject d=new JSONObject();put(d,"status","not_initialized");put(d,"approximateNearestNeighbor",true);return d;}}
     private JSONObject publishDiagnostics(){
-        JSONObject d=new JSONObject();put(d,"method","native_hnsw_int8_cosine_then_exact_f32_shortlist_rerank");put(d,"profile",NativeAnnIndex.PROFILE);put(d,"approximateNearestNeighbor",true);put(d,"originalsAuthoritative",true);put(d,"derivedCacheRebuildable",true);put(d,"status",status);put(d,"ready",ready);put(d,"readinessScope","last_completed_maintenance; current_generation_rechecked_before_query");put(d,"canonicalChunkCountKnown",corpusCountKnown);put(d,"canonicalChunkCount",corpusCountKnown?canonicalCount:JSONObject.NULL);put(d,"indexedChunkCount",graph==null?0:graph.count());put(d,"candidateCoverage",!corpusCountKnown?JSONObject.NULL:canonicalCount==0?1.0:(double)(graph==null?0:graph.count())/canonicalCount);put(d,"coverageScope","currently_generated_canonical_chunks; raw_source_encoding_coverage_is_separate");put(d,"fullCorpusGraphCoverage",ready);put(d,"topKRecallGuaranteed",false);put(d,"canonicalFingerprintScope","encoder_profile+mutation_generation+ordered_rowid_source_hash_range_dimension_encoding");put(d,"canonicalFloat32CacheRetained",true);put(d,"excludedBeforeTopK",lastExcludedCount);put(d,"constraintsFilterMode",categoricalVisibility?"query_local_current_source_category_policy_then_full_candidate_recheck":"full_device_record_predicate");put(d,"candidateCount",lastCandidateCount);put(d,"canonicalCandidateBytes",lastCandidateBytes);put(d,"lastSearchMillis",lastSearchMillis);put(d,"constraintCandidateLimitReached",constraintLimitReached);put(d,"realDeviceLatencyMeasured",false);if(!error.isEmpty())put(d,"error",error);publishedDiagnostics=d.toString();return d;
+        JSONObject d=new JSONObject();put(d,"method","native_hnsw_int8_cosine_then_exact_f32_shortlist_rerank");put(d,"profile",NativeAnnIndex.PROFILE);put(d,"approximateNearestNeighbor",true);put(d,"originalsAuthoritative",true);put(d,"derivedCacheRebuildable",true);put(d,"status",status);put(d,"ready",ready);put(d,"readinessScope","last_completed_maintenance; current_generation_rechecked_before_query");put(d,"canonicalChunkCountKnown",corpusCountKnown);put(d,"canonicalChunkCount",corpusCountKnown?canonicalCount:JSONObject.NULL);put(d,"indexedChunkCount",graph==null?0:graph.count());put(d,"candidateCoverage",!corpusCountKnown?JSONObject.NULL:canonicalCount==0?1.0:(double)(graph==null?0:graph.count())/canonicalCount);put(d,"coverageScope","currently_generated_canonical_chunks; raw_source_encoding_coverage_is_separate");put(d,"fullCorpusGraphCoverage",ready);put(d,"topKRecallGuaranteed",false);put(d,"canonicalFingerprintScope",FINGERPRINT_PROFILE);put(d,"canonicalFloat32CacheRetained",true);put(d,"checkpointAvailable",hasCheckpoint);put(d,"checkpointCount",hasCheckpoint?lastSavedCount:JSONObject.NULL);put(d,"checkpointDirtyRows",graph==null?0:Math.max(0,graph.count()-(hasCheckpoint?lastSavedCount:0)));put(d,"checkpointMinimumIntervalMillis",MIN_CHECKPOINT_INTERVAL_MILLIS);put(d,"checkpointMaximumDirtyAgeMillis",MAX_CHECKPOINT_INTERVAL_MILLIS);put(d,"checkpointDirtyRowsThreshold",Math.max(4096,lastSavedCount/20));put(d,"checkpointWrittenAtEpochMillis",hasCheckpoint?lastSavedEpochMillis:JSONObject.NULL);put(d,"checkpointAgeMillis",hasCheckpoint?checkpointAgeMillis():JSONObject.NULL);put(d,"checkpointWritesThisProcess",checkpointWrites);put(d,"checkpointFileBytesWrittenThisProcess",checkpointBytesWritten);put(d,"checkpointLoadsThisProcess",checkpointLoads);put(d,"checkpointLoadDecision",checkpointLoadDecision);put(d,"checkpointLoadValidationMillis",checkpointLoadValidationMillis);put(d,"excludedBeforeTopK",lastExcludedCount);put(d,"constraintsFilterMode",categoricalVisibility?"query_local_current_source_category_policy_then_full_candidate_recheck":"full_device_record_predicate");put(d,"candidateCount",lastCandidateCount);put(d,"canonicalCandidateBytes",lastCandidateBytes);put(d,"lastSearchMillis",lastSearchMillis);put(d,"constraintCandidateLimitReached",constraintLimitReached);put(d,"realDeviceLatencyMeasured",false);if(!error.isEmpty())put(d,"error",error);publishedDiagnostics=d.toString();return d;
     }
     public synchronized void close(){ready=false;if(graph!=null){graph.close();graph=null;}status="closed";publishDiagnostics();}
     private long generation(){synchronized(store){try(Cursor c=store.getReadableDatabase().rawQuery("SELECT generation FROM semantic_ann_generation WHERE id=1",null)){return c.moveToFirst()?c.getLong(0):-1;}}}
+    private Snapshot snapshot(){synchronized(store){return new Snapshot(generation(),countRows());}}
     private long countRows(){return scalar("SELECT COUNT(*) FROM semantic_chunks WHERE model_id=? AND dimension=? AND encoding=?");}
     private long maxRowId(){return scalar("SELECT COALESCE(MAX(rowid),0) FROM semantic_chunks WHERE model_id=? AND dimension=? AND encoding=?");}
     private long scalar(String sql){synchronized(store){try(Cursor c=store.getReadableDatabase().rawQuery(sql,parameters())){return c.moveToFirst()?c.getLong(0):0;}}}
     private String[] parameters(){return new String[]{encoder.modelId(),String.valueOf(encoder.dimensions()),VectorCodec.ENCODING};}
     private List<IndexedRow> vectorRows(long after,int limit){List<IndexedRow> rows=new ArrayList<>();synchronized(store){String[] p=Arrays.copyOf(parameters(),5);p[3]=String.valueOf(after);p[4]=String.valueOf(limit);try(Cursor c=store.getReadableDatabase().rawQuery("SELECT rowid,source_type,source_id,source_hash,chunk_offset,chunk_length,vector FROM semantic_chunks WHERE model_id=? AND dimension=? AND encoding=? AND rowid>CAST(? AS INTEGER) ORDER BY rowid LIMIT ?",p)){while(c.moveToNext())rows.add(row(c));}}return rows;}
     private Map<Long,IndexedRow> metadataRows(long[] ids){Map<Long,IndexedRow> rows=new HashMap<>();for(int base=0;base<ids.length;base+=256){int end=Math.min(ids.length,base+256);StringBuilder in=new StringBuilder();String[] args=new String[end-base+3];String[] p=parameters();System.arraycopy(p,0,args,0,3);for(int i=base;i<end;i++){if(i>base)in.append(',');in.append('?');args[i-base+3]=String.valueOf(ids[i]);}synchronized(store){try(Cursor c=store.getReadableDatabase().rawQuery("SELECT rowid,source_type,source_id,source_hash,chunk_offset,chunk_length,vector FROM semantic_chunks WHERE model_id=? AND dimension=? AND encoding=? AND rowid IN("+in+")",args)){while(c.moveToNext()){IndexedRow r=row(c);rows.put(r.rowId,r);}}}}return rows;}
-    private String fingerprint(long generation,long count)throws Exception{MessageDigest hash=MessageDigest.getInstance("SHA-256");digest(hash,NativeAnnIndex.PROFILE);digest(hash,encoder.modelId());digest(hash,generation+":"+count);long after=0;
-        while(true){int n=0;synchronized(store){String[] p=Arrays.copyOf(parameters(),4);p[3]=String.valueOf(after);try(Cursor c=store.getReadableDatabase().rawQuery("SELECT rowid,source_type,source_id,source_hash,chunk_offset,chunk_length,dimension,encoding FROM semantic_chunks WHERE model_id=? AND dimension=? AND encoding=? AND rowid>CAST(? AS INTEGER) ORDER BY rowid LIMIT 256",p)){while(c.moveToNext()){after=c.getLong(0);for(int i=0;i<8;i++)digest(hash,c.getString(i));n++;}}}if(n<256)break;}
-        StringBuilder out=new StringBuilder(64);for(byte value:hash.digest())out.append(String.format(Locale.ROOT,"%02x",value&255));return out.toString();}
+    private Prefix fingerprint(long generation,long expectedCount,long maximumRowId)throws Exception{
+        MessageDigest hash=MessageDigest.getInstance("SHA-256");digest(hash,NativeAnnIndex.PROFILE);digest(hash,encoder.modelId());digest(hash,FINGERPRINT_PROFILE);digest(hash,generation+":"+expectedCount+":"+maximumRowId);
+        long after=0,observed=0;
+        while(true){int n=0;synchronized(store){String[] p=Arrays.copyOf(parameters(),5);p[3]=String.valueOf(after);p[4]=String.valueOf(maximumRowId);
+            try(Cursor c=store.getReadableDatabase().rawQuery("SELECT rowid,source_type,source_id,source_hash,chunk_offset,chunk_length,dimension,encoding,vector FROM semantic_chunks WHERE model_id=? AND dimension=? AND encoding=? AND rowid>CAST(? AS INTEGER) AND rowid<=CAST(? AS INTEGER) ORDER BY rowid LIMIT 64",p)){
+                while(c.moveToNext()){after=c.getLong(0);for(int i=0;i<8;i++)digest(hash,c.getString(i));byte[] vector=c.getBlob(8);if(vector.length!=encoder.dimensions()*4)throw new IllegalStateException("Canonical checkpoint vector length mismatch");hash.update(ByteBuffer.allocate(4).putInt(vector.length).array());hash.update(vector);n++;observed++;}
+            }}if(n<64)break;
+        }
+        StringBuilder out=new StringBuilder(64);for(byte value:hash.digest())out.append(String.format(Locale.ROOT,"%02x",value&255));return new Prefix(out.toString(),observed,after);
+    }
     private static void digest(MessageDigest hash,String value){byte[] bytes=value.getBytes(StandardCharsets.UTF_8);hash.update(ByteBuffer.allocate(4).putInt(bytes.length).array());hash.update(bytes);}
     private static IndexedRow row(Cursor c){IndexedRow r=new IndexedRow();r.rowId=c.getLong(0);r.type=c.getString(1);r.id=c.getLong(2);r.hash=c.getString(3);r.offset=c.getLong(4);r.length=c.getInt(5);r.vector=c.getBlob(6);return r;}
     private static int capacityFor(long count){if(count>NativeAnnIndex.MAX_ELEMENTS)throw new IllegalArgumentException("ANN corpus exceeds native capacity; shard/reconfigure the derived cache");return (int)Math.max(1024,Math.min(NativeAnnIndex.MAX_ELEMENTS,count+Math.max(256,count/8)));}
     private static int diverseCount(List<IndexedRow> rows,int maximum){Map<String,Integer> sources=new HashMap<>();int count=0;for(IndexedRow row:rows){String key=row.type+":"+row.id;int used=sources.getOrDefault(key,0);if(used<2){sources.put(key,used+1);if(++count>=maximum)break;}}return count;}
     private static void put(JSONObject object,String key,Object value){MemoryPolicy.put(object,key,value);}
-    private static long now(){return System.nanoTime()/1_000_000;}
+    private long now(){return elapsedClock.getAsLong();}
+    private static final class Prefix{final String sha256;final long count,maximumRowId;Prefix(String sha256,long count,long maximumRowId){this.sha256=sha256;this.count=count;this.maximumRowId=maximumRowId;}}
+    private static final class Snapshot{final long generation,count;Snapshot(long generation,long count){this.generation=generation;this.count=count;}}
     private static final class IndexedRow {long rowId,id,offset;String type,hash;int length;byte[] vector;boolean allowed;double score;}
     private static final class Longs{long[] values=new long[64];int size;void add(long v){if(size==values.length)values=Arrays.copyOf(values,values.length*2);values[size++]=v;}long[] array(){return Arrays.copyOf(values,size);}}
 }

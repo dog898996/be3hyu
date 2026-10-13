@@ -143,31 +143,32 @@ timeout 720 "$ADB" -s "$SERIAL" shell am instrument -w -r \
   -e fixtureModelPath /data/local/tmp/hoyoung-semantic-model \
   "$TEST_RUNNER" | tee "$LOG_DIR/instrumentation.log"
 verify_instrumentation() {
-python3 - "$1" <<'PY'
+python3 - "$1" "$2" <<'PY'
 import pathlib, re, sys
 text = pathlib.Path(sys.argv[1]).read_text()
 failure = re.search(r'FAILURES!!!|INSTRUMENTATION_FAILED|INSTRUMENTATION_ABORTED|Process crashed', text)
 success = re.search(r'OK \((\d+) tests?\)', text)
-if failure or not success or int(success.group(1)) < 1:
-    raise SystemExit('Real instrumentation did not report a passing, nonempty test suite.')
+if failure or not success or int(success.group(1)) < int(sys.argv[2]):
+    raise SystemExit('Real instrumentation did not report the required passing test count.')
 print('Verified real Android instrumentation:', success.group(1), 'passing tests.')
 PY
 }
-verify_instrumentation "$LOG_DIR/instrumentation.log"
+verify_instrumentation "$LOG_DIR/instrumentation.log" 12
 "$ADB" -s "$SERIAL" shell am force-stop "$APP_ID"
 echo 'The force-stopped app is explicitly reopened by a second instrumentation process; no automatic force-stop recovery is claimed.'
 timeout 120 "$ADB" -s "$SERIAL" shell am instrument -w -r \
   -e recoveryOnly true \
   -e class com.hoyoung.assistant.DeviceRuntimeIntegrationTest#dAcknowledgedOwnerDataSurvivesExplicitProcessStop \
   "$TEST_RUNNER" | tee "$LOG_DIR/recovery.log"
-verify_instrumentation "$LOG_DIR/recovery.log"
+verify_instrumentation "$LOG_DIR/recovery.log" 1
 "$ADB" -s "$SERIAL" logcat -d -v brief 'HoyoungDeviceProof:I' '*:S' | tee "$LOG_DIR/device-proof.log"
 python3 - "$LOG_DIR/device-proof.log" <<'PY'
 import pathlib, sys
 text = pathlib.Path(sys.argv[1]).read_text()
 for marker in ('HOYOUNG_REAL_ANDROID_NN', 'HOYOUNG_REAL_ANDROID_ANN', 'HOYOUNG_DEVICE_SCREEN_OFF',
-               'HOYOUNG_DEVICE_RECOVERY verified-after-explicit-force-stop'):
+               'HOYOUNG_DEVICE_RECOVERY verified-after-explicit-force-stop', 'HOYOUNG_DEVICE_APP_JOURNAL_BACKUP',
+               'HOYOUNG_DEVICE_PHOTO_UI'):
     if marker not in text:
         raise SystemExit('Missing actual Android proof marker: ' + marker)
-print('Real native-neural, native ANN, screen-off service, and explicit-reopen recovery proof reached the CI log.')
+print('Real native-neural, ANN, screen-off service, explicit-reopen recovery, application journal-backup, and native photo-UI proof reached the CI log.')
 PY

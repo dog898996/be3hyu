@@ -151,6 +151,7 @@ public final class MainActivity extends Activity {
         entry.addView(composer, new LinearLayout.LayoutParams(0, -2, 1));
         entry.addView(button("보내기", this::send), new LinearLayout.LayoutParams(dp(76), dp(52)));
         content.addView(entry); displayedMessageId = -1; refreshMessages();
+        content.addView(button("현재 작업 중지", () -> io.execute(() -> { app.getRuntime().pauseCurrentWork("사용자가 대화 화면에서 현재 작업 중지 선택"); main.post(this::refreshStatus); })));
     }
 
     private void send() {
@@ -286,11 +287,14 @@ public final class MainActivity extends Activity {
                 JSONObject review = app.getRuntime().getMemoryReview().status();
                 JSONObject model = app.getSemanticEncoder().state();
                 JSONObject indexed = app.getMemoryRetriever().diagnostics();
+                JSONObject deviceSearch = app.getStore().deviceSearchIndexStatus();
                 state = "보관 원문 " + app.getStore().messageCount() + "건\n기억 검토: "
                         + (review.optBoolean("hasPending") ? "대기 원문 있음" : "현재 검토 대기 없음")
                         + "\n의미 검색 모델: " + semanticPhase(model.optString("phase"))
                         + "\n의미 검색 준비: " + Math.round(indexed.optDouble("sourceCoverage", 0) * 100) + "% ("
-                        + indexed.optLong("semanticCompletedSources") + "/" + indexed.optLong("sourceTotals") + "건)";
+                        + indexed.optLong("semanticCompletedSources") + "/" + indexed.optLong("sourceTotals") + "건)"
+                        + "\n휴대폰 기록 검색: " + (deviceSearch.optBoolean("complete") ? "전체 색인 준비됨" : "이전 기록 색인 준비 중 · 원문 검색 유지")
+                        + (deviceSearch.has("error") ? " · 상태 확인 필요" : "");
             } catch (Exception error) { state = "기억 상태를 읽지 못했어. 원문을 삭제하거나 초기화하지 않았어."; }
             final String shown = state; main.post(() -> { if (!isFinishing() && "기억".equals(tab)) status.setText(shown); });
         });
@@ -392,7 +396,7 @@ public final class MainActivity extends Activity {
         JSONArray tools = app.getPhoneTools().catalog();
         JSONArray fileTools = app.getFiles().catalog();
         for (int i = 0; i < fileTools.length(); i++) tools.put(fileTools.optJSONObject(i));
-        for (String name : new String[]{"memory.search", "memory.save", "memory.source.read", "memory.history", "memory.review", "tasks.list", "tasks.update", "actions.receipt.read", "memory.asset.analyze", "app.settings.get", "app.settings.update"}) {
+        for (String name : new String[]{"memory.search", "memory.save", "memory.source.read", "memory.history", "memory.review", "tasks.list", "tasks.update", "actions.receipt.read", "memory.asset.analyze", "app.settings.get", "app.settings.update", "app.work.pause"}) {
             try { tools.put(new JSONObject().put("name", name)); } catch (Exception ignored) { }
         }
         JSONObject allowed = parseObject(app.getStore().getSetting("toolPermissions", "{}"));
@@ -655,6 +659,7 @@ public final class MainActivity extends Activity {
             case "phone_files_list" -> "휴대폰 공유 파일 목록"; case "phone_files_read" -> "휴대폰 공유 파일 읽기"; case "phone_files_write" -> "휴대폰 공유 파일 쓰기";
             case "files.list" -> "작업 파일 목록"; case "files.read" -> "작업 파일 읽기"; case "files.write" -> "작업 파일 쓰기";
             case "memory.search" -> "저장된 기억 검색"; case "memory.save" -> "기억 추가·수정"; case "app.settings.get" -> "앱 설정 확인"; case "app.settings.update" -> "대화에서 앱 설정 변경";
+            case "app.work.pause" -> "현재 작업의 새 폰·앱 실행 중지";
             default -> name;
         };
     }
