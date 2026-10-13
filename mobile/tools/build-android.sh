@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Pinned Linux x86_64 build tools. Downloads stay outside the app's source tree.
-# Usage: build-android.sh [--prepare] [mobile-project-directory] [Gradle tasks...]
+# Usage: build-android.sh [--prepare|--prepare-native] [mobile-project-directory] [Gradle tasks...]
 set -euo pipefail
 
 if [[ "$(uname -s)" != Linux || "$(uname -m)" != x86_64 ]]; then
@@ -10,10 +10,11 @@ fi
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 PREPARE_ONLY=false
-if [[ "${1:-}" == --prepare ]]; then
-  PREPARE_ONLY=true
-  shift
-fi
+PREPARE_NATIVE=false
+case "${1:-}" in
+  --prepare) PREPARE_ONLY=true; shift ;;
+  --prepare-native) PREPARE_ONLY=true; PREPARE_NATIVE=true; shift ;;
+esac
 PROJECT_DIR="${1:-$(dirname -- "$SCRIPT_DIR")}"
 if [[ $# -gt 0 ]]; then shift; fi
 TOOLS_DIR="${HOYOUNG_ANDROID_TOOLS_DIR:-/workspace/.tools/android-build}"
@@ -23,6 +24,9 @@ JDK_DIR="$TOOLS_DIR/jdk-17.0.16+8"
 GRADLE_DIR="$TOOLS_DIR/gradle-8.11.1"
 GRADLE_CACHE_DIR="${HOYOUNG_GRADLE_CACHE_DIR:-$TOOLS_DIR/gradle-cache}"
 CMDLINE_DIR="$SDK_DIR/cmdline-tools/15859902"
+NDK_VERSION='28.2.13676358'
+CMAKE_VERSION='3.22.1'
+if [[ -f "$PROJECT_DIR/app/src/main/cpp/CMakeLists.txt" ]]; then PREPARE_NATIVE=true; fi
 mkdir -p "$DOWNLOADS_DIR" "$SDK_DIR/cmdline-tools" "$GRADLE_CACHE_DIR"
 
 # SHA256 values published by Gradle, Adoptium's version API, and Google's
@@ -101,17 +105,30 @@ PY
 )
 SDK_JAVA_OPTIONS="${JAVA_OPTS:-} ${TRUST_ARGS[*]}"
 
-if [[ ! -f "$SDK_DIR/platforms/android-35/android.jar" || ! -x "$SDK_DIR/build-tools/35.0.0/aapt2" ]]; then
+SDK_PACKAGES=()
+if [[ ! -f "$SDK_DIR/platforms/android-35/android.jar" ]]; then SDK_PACKAGES+=('platforms;android-35'); fi
+if [[ ! -x "$SDK_DIR/build-tools/35.0.0/aapt2" ]]; then SDK_PACKAGES+=('build-tools;35.0.0'); fi
+if $PREPARE_NATIVE; then
+  if [[ ! -f "$SDK_DIR/ndk/$NDK_VERSION/source.properties" ]]; then SDK_PACKAGES+=("ndk;$NDK_VERSION"); fi
+  if [[ ! -x "$SDK_DIR/cmake/$CMAKE_VERSION/bin/cmake" ]]; then SDK_PACKAGES+=("cmake;$CMAKE_VERSION"); fi
+fi
+if [[ ${#SDK_PACKAGES[@]} -gt 0 ]]; then
   # User requested building the app; SDK terms are accepted for this build only.
-  python3 - "$JDK_DIR" "$SDK_DIR" "$CMDLINE_DIR/bin/sdkmanager" "$SDK_JAVA_OPTIONS" "$TOOLS_DIR" "${SDK_PROXY_ARGS[@]}" <<'PY'
-import os, pathlib, subprocess, sys
+  python3 - "$JDK_DIR" "$SDK_DIR" "$CMDLINE_DIR/bin/sdkmanager" "$SDK_JAVA_OPTIONS" "$TOOLS_DIR" "${SDK_PROXY_ARGS[@]}" -- "${SDK_PACKAGES[@]}" <<'PY'
+import os, pathlib, shutil, subprocess, sys
 sdk_env = dict(os.environ, JAVA_HOME=sys.argv[1], ANDROID_HOME=sys.argv[2], JAVA_OPTS=sys.argv[4])
-command = [sys.argv[3], '--sdk_root=' + sys.argv[2], *sys.argv[6:]]
+arguments = sys.argv[6:]
+separator = arguments.index('--')
+packages = arguments[separator + 1:]
+if any(package.startswith('ndk;') for package in packages) and shutil.disk_usage(sys.argv[2]).free < 4 * 1024 ** 3:
+    raise SystemExit('Pinned native toolchain installation requires at least 4 GiB free; no private files are removed automatically.')
+command = [sys.argv[3], '--sdk_root=' + sys.argv[2], '--channel=0', *arguments[:separator]]
 license_log = pathlib.Path(sys.argv[5]) / 'sdk-license-acceptance.log'
 with license_log.open('w') as stream:
     subprocess.run([*command, '--licenses'], input='y\n' * 100, text=True, env=sdk_env, check=True, stdout=stream, stderr=subprocess.STDOUT)
 print('SDK build licenses accepted; transcript:', license_log)
-subprocess.run([*command, '--install', 'platforms;android-35', 'build-tools;35.0.0'], env=sdk_env, check=True)
+# Official sdkmanager verifies archives against Google's published repository metadata.
+subprocess.run([*command, '--install', *packages], env=sdk_env, check=True)
 PY
 fi
 
@@ -136,10 +153,15 @@ allprojects {
             if (propertyValue != null) systemProperty propertyName, propertyValue
         }
         systemProperty 'robolectric.dependency.repo.url', 'https://repo.maven.apache.org/maven2'
+        // Opt-in Linux JNI regression probes are separate from real Android instrumentation.
+        def hostAnnDirectory = System.getenv('HOYOUNG_HOST_ANN_DIR')
+        if (hostAnnDirectory != null && !hostAnnDirectory.isEmpty()) {
+            systemProperty 'java.library.path', hostAnnDirectory
+        }
     }
 }
 GRADLE
-exec env JAVA_HOME="$JDK_DIR" ANDROID_HOME="$SDK_DIR" ANDROID_SDK_ROOT="$SDK_DIR" \
+exec flock --exclusive "$TOOLS_DIR/gradle-run.lock" env JAVA_HOME="$JDK_DIR" ANDROID_HOME="$SDK_DIR" ANDROID_SDK_ROOT="$SDK_DIR" \
   GRADLE_USER_HOME="$GRADLE_CACHE_DIR" "$GRADLE_DIR/bin/gradle" \
   --no-daemon --max-workers=2 --console=plain -I "$NETWORK_INIT_SCRIPT" -p "$PROJECT_DIR" \
   "${TRUST_ARGS[@]}" "${PROXY_ARGS[@]}" "$@"

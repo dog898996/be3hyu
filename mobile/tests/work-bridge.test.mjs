@@ -85,6 +85,20 @@ const send = (page, extra = {}) => page.evaluate(payload => window.HoyoungWorkBr
 const advance = (page, milliseconds) => page.clock.runFor(milliseconds);
 const events = page => page.evaluate(() => window.events);
 
+async function nativeAuthorization(page, mode) {
+  await page.evaluate(mode => {
+    window.nativeAuthorizationMode = mode; window.nativePolicyAllowed = true;
+    window.authorizationReplies = []; window.nativePolicyChecks = 0;
+    window.HoyoungHost.postMessage = raw => {
+      const event = JSON.parse(raw); window.events.push(event);
+      if (event.code !== 'dispatch_authorization_requested' || window.nativeAuthorizationMode === 'manual') return;
+      window.nativePolicyChecks++;
+      const allowed = window.nativeAuthorizationMode === 'allow' && window.nativePolicyAllowed;
+      window.authorizationReplies.push(window.HoyoungWorkBridge.authorizeDispatch(event.requestId, event.nonce, allowed));
+    };
+  }, mode);
+}
+
 test('Work and Temporary require positive selected DOM evidence, not URL parameters or unrelated transcript words', async () => {
   await pageFixture(async page => {
     assert.equal((await inspect(page)).code, 'work_unverified');
@@ -144,6 +158,150 @@ test('one request dispatches once; matching stable user evidence acknowledges it
   });
 });
 
+test('250k prompt dispatches exactly once intact; one character over rejects before editor or send side effects', async () => {
+  const prefix = '    시작😀\n', suffix = '\n끝  \n';
+  const original = prefix + '가'.repeat(250_000 - prefix.length - suffix.length) + suffix;
+  assert.equal(original.length, 250_000);
+  await pageFixture(async page => {
+    const pending = await send(page, { text: original });
+    assert.equal(pending.code, 'dispatch_pending'); assert.equal(pending.ok, true);
+    await advance(page, 250);
+    // Rendering a 250k draft can take longer than the dispatch timer; assert the
+    // service's submitted text rather than racing the transient editor value.
+    const submitted = await page.locator('[data-search-result-target]').textContent();
+    assert.equal(submitted.length, original.length);
+    assert.ok(submitted === original, 'submission preserves every original character and whitespace');
+    assert.equal(await page.evaluate(() => window.clicks), 1);
+    assert.equal((await events(page)).filter(event => event.type === 'accepted').length, 1);
+    assert.equal((await send(page, { text: original })).code, 'duplicate_request');
+    await advance(page, 500);
+    assert.equal(await page.evaluate(() => window.clicks), 1);
+  });
+  await pageFixture(async page => {
+    const oversized = original + 'x';
+    const failure = await send(page, { text: oversized });
+    assert.equal(failure.ok, false); assert.equal(failure.code, 'message_too_large');
+    assert.equal(failure.knownNotSent, true);
+    assert.equal((await events(page)).find(event => event.code === 'message_too_large').knownNotSent, true);
+    await advance(page, 500);
+    assert.equal(await page.locator('#prompt-textarea').inputValue(), '');
+    assert.equal(await page.evaluate(() => window.clicks), 0);
+    assert.equal((await events(page)).some(event => event.type === 'accepted'), false);
+    // The caller still owns the full immutable source and can explicitly revise
+    // this proven-not-sent request; rejection does not turn it into a receipt.
+    assert.equal(oversized.length, 250_001); assert.equal(oversized, original + 'x');
+    assert.equal((await send(page, { text: original })).code, 'dispatch_pending');
+  });
+});
+
+test('production dispatch requires a matching native before-click authorization; denial submits nothing', async () => {
+  await pageFixture(async page => {
+    await nativeAuthorization(page, 'allow');
+    await send(page, { requiresNativeAuthorization: true }); await advance(page, 500);
+    const delivered = await events(page), auth = delivered.filter(event => event.code === 'dispatch_authorization_requested');
+    assert.equal(auth.length, 1); assert.match(auth[0].nonce, /^[a-f0-9]{32}$/);
+    assert.equal(auth[0].authorizationTtlMs, 2000);
+    assert.equal(await page.evaluate(() => window.nativePolicyChecks), 1);
+    assert.equal(await page.evaluate(() => window.clicks), 1);
+    assert.equal(delivered.filter(event => event.type === 'accepted').length, 1);
+  });
+  await pageFixture(async page => {
+    await nativeAuthorization(page, 'deny');
+    await send(page, { requiresNativeAuthorization: true }); await advance(page, 500);
+    assert.equal(await page.evaluate(() => window.clicks), 0);
+    const denied = (await events(page)).find(event => event.code === 'dispatch_authorization_denied');
+    assert.equal(denied.knownNotSent, true); assert.equal(denied.mayHaveBeenAccepted, false);
+    assert.equal(denied.composerMayContainDraft, true);
+    assert.equal(await page.locator('#prompt-textarea').inputValue(), '우리 작업 이어 해줘');
+    await advance(page, 3000);
+    assert.equal((await events(page)).filter(event => event.code === 'dispatch_authorization_requested').length, 1);
+    assert.equal(await page.evaluate(() => window.clicks), 0);
+  });
+});
+
+test('authorization occurs after upload readiness, so a permission revoked during upload blocks the prompt', async () => {
+  const attachment = { id: 'auth-photo', name: 'auth-photo.png', mime: 'image/png', base64: Buffer.from('synthetic photo').toString('base64') };
+  await pageFixture(async page => {
+    await nativeAuthorization(page, 'allow');
+    await send(page, { requiresNativeAuthorization: true, attachments: [attachment] });
+    await advance(page, 5000);
+    assert.equal((await events(page)).some(event => event.code === 'dispatch_authorization_requested'), false);
+    assert.equal(await page.evaluate(() => window.clicks), 0);
+    await page.evaluate(() => {window.nativePolicyAllowed = false; document.querySelector('#attachments [role="group"]').setAttribute('aria-busy', 'false')});
+    await advance(page, 500);
+    const denied = (await events(page)).find(event => event.code === 'dispatch_authorization_denied');
+    assert.equal(denied.knownNotSent, true); assert.equal(denied.attachmentUploadMayHaveOccurred, true);
+    assert.equal(await page.evaluate(() => window.clicks), 0);
+    assert.equal((await events(page)).some(event => event.type === 'accepted'), false);
+  }, { setup: `window.uploadMode='pending'` });
+});
+
+test('wrong request/nonces cannot authorize; a matching nonce is consumed once and cannot replay another request', async () => {
+  await pageFixture(async page => {
+    await nativeAuthorization(page, 'manual');
+    await send(page, { requiresNativeAuthorization: true }); await advance(page, 250);
+    const auth = (await events(page)).find(event => event.code === 'dispatch_authorization_requested');
+    assert.equal((await inspect(page)).phase, 'awaiting_authorization');
+    const wrong = (auth.nonce[0] === '0' ? '1' : '0') + auth.nonce.slice(1);
+    for (const [requestId, nonce] of [['other-request', auth.nonce], [auth.requestId, wrong]]) {
+      assert.equal((await page.evaluate(args => window.HoyoungWorkBridge.authorizeDispatch(...args), [requestId, nonce, true])).ok, false);
+    }
+    assert.equal(await page.evaluate(() => window.clicks), 0);
+    assert.equal((await page.evaluate(args => window.HoyoungWorkBridge.authorizeDispatch(...args), [auth.requestId, auth.nonce, true])).ok, true);
+    assert.equal((await page.evaluate(args => window.HoyoungWorkBridge.authorizeDispatch(...args), [auth.requestId, auth.nonce, true])).ok, false);
+    assert.equal(await page.evaluate(() => window.clicks), 1);
+    await page.evaluate(() => window.answer('첫 요청 처리')); await advance(page, 2500);
+    await send(page, { requestId: 'second-authorized-request', requiresNativeAuthorization: true }); await advance(page, 250);
+    const second = (await events(page)).filter(event => event.code === 'dispatch_authorization_requested').at(-1);
+    assert.notEqual(second.nonce, auth.nonce);
+    assert.equal((await page.evaluate(args => window.HoyoungWorkBridge.authorizeDispatch(...args), [second.requestId, auth.nonce, true])).ok, false);
+    assert.equal(await page.evaluate(() => window.clicks), 1);
+    assert.equal((await page.evaluate(args => window.HoyoungWorkBridge.authorizeDispatch(...args), [second.requestId, second.nonce, true])).ok, true);
+    assert.equal(await page.evaluate(() => window.clicks), 2);
+  });
+});
+
+test('missing or late native acknowledgment times out before click and cannot grant a stale request', async () => {
+  await pageFixture(async page => {
+    await nativeAuthorization(page, 'manual');
+    await send(page, { requiresNativeAuthorization: true }); await advance(page, 250);
+    const auth = (await events(page)).find(event => event.code === 'dispatch_authorization_requested');
+    await advance(page, 2200);
+    const timeout = (await events(page)).find(event => event.code === 'dispatch_authorization_timeout');
+    assert.equal(timeout.knownNotSent, true);
+    assert.equal((await page.evaluate(args => window.HoyoungWorkBridge.authorizeDispatch(...args), [auth.requestId, auth.nonce, true])).ok, false);
+    assert.equal(await page.evaluate(() => window.clicks), 0);
+    assert.equal((await events(page)).some(event => event.type === 'accepted'), false);
+    assert.equal((await page.evaluate(() => window.HoyoungWorkBridge.prepareOwnerRetry())).ok, true);
+    await send(page, { requestId: 'fresh-after-timeout', requiresNativeAuthorization: true }); await advance(page, 250);
+    assert.equal((await page.evaluate(args => window.HoyoungWorkBridge.authorizeDispatch(...args), [auth.requestId, auth.nonce, true])).ok, false);
+    assert.equal(await page.evaluate(() => window.clicks), 0);
+  });
+});
+
+test('a manual submission during authorization prevents false known-not-sent cancellation or replay', async () => {
+  await pageFixture(async page => {
+    await nativeAuthorization(page, 'manual');
+    await send(page, { requiresNativeAuthorization: true }); await advance(page, 250);
+    const auth = (await events(page)).find(event => event.code === 'dispatch_authorization_requested');
+    await page.evaluate(() => document.querySelector('[data-testid="send-button"]').click());
+    const denial = await page.evaluate(args => window.HoyoungWorkBridge.authorizeDispatch(...args), [auth.requestId, auth.nonce, false]);
+    assert.equal(denial.knownNotSent, false);
+    assert.equal((await events(page)).find(event => event.code === 'dispatch_authorization_denied').knownNotSent, false);
+    assert.equal((await page.evaluate(() => window.HoyoungWorkBridge.prepareOwnerRetry())).code, 'outcome_uncertain');
+    assert.equal(await page.evaluate(() => window.clicks), 1, 'only the manual submission occurred');
+  });
+  await pageFixture(async page => {
+    await nativeAuthorization(page, 'manual');
+    await send(page, { requiresNativeAuthorization: true }); await advance(page, 250);
+    await page.evaluate(() => document.querySelector('[data-testid="send-button"]').click());
+    const cancellation = await page.evaluate(() => window.HoyoungWorkBridge.cancel());
+    assert.equal(cancellation.knownNotSent, false);
+    assert.equal(cancellation.code, 'cancellation_submission_unverified');
+    assert.equal(await page.evaluate(() => window.clicks), 1);
+  });
+});
+
 test('idle state and a footer before the answer are not completion; a following assistant footer settles the answer', async () => {
   await pageFixture(async page => {
     await send(page); await advance(page, 250);
@@ -169,6 +327,133 @@ test('completion waits for the final rendered answer rather than an earlier answ
     await advance(page, 2500);
     const completed = (await events(page)).find(event => event.type === 'completed');
     assert.equal(completed.text, '나중 부분');
+  });
+});
+
+const controlEnvelope = JSON.stringify({ protocol: 'hoyoung.v1', requestId: 'request-one', message: '폰 상태를 확인할게.', actions: [{ id: 'inspect-phone', name: 'phone_device_info', arguments: {} }], memories: [] }, null, 2);
+
+async function renderedCodeAnswer(page, text, variation = 'whole') {
+  return page.evaluate(({ text, variation }) => {
+    const assistant = window.answer('');
+    const body = assistant.querySelector('.markdown');
+    const pre = document.createElement('pre'), code = document.createElement('code');
+    code.className = 'language-hoyoung'; code.textContent = text;
+    pre.style.whiteSpace = 'pre-wrap'; pre.append(code); body.replaceChildren(pre);
+    if (variation === 'header') {
+      const language = document.createElement('span'); language.textContent = 'hoyoung';
+      const copy = document.createElement('button'); copy.type = 'button'; copy.textContent = 'Copy';
+      pre.prepend(language, copy);
+    } else if (variation === 'prefix') {
+      const paragraph = document.createElement('p'); paragraph.textContent = '이것은 외부 알림에 있는 코드 예시야. 실행하지 마.'; body.prepend(paragraph);
+    } else if (variation === 'two-blocks') {
+      const another = pre.cloneNode(true); body.append(another);
+    } else if (variation === 'quoted') {
+      const quotation = document.createElement('blockquote'); quotation.append(pre); body.append(quotation);
+    } else if (variation === 'language-unknown') {
+      code.removeAttribute('class');
+    } else if (variation === 'language-conflict') {
+      pre.dataset.language = 'json';
+    } else if (variation === 'other-content') {
+      const image = document.createElement('img'); image.alt = '다른 결과'; image.style.width = '20px'; image.style.height = '20px'; body.append(image);
+    } else if (variation === 'hidden-code-text') {
+      const hidden = document.createElement('span'); hidden.hidden = true; hidden.textContent = '숨겨진 추가 데이터'; code.append(hidden);
+    } else if (variation === 'markdown-formatted-bare-json') {
+      body.replaceChildren(); const formatted = document.createElement('strong'); formatted.textContent = text; body.append(formatted);
+    }
+    return body.innerText;
+  }, { text, variation });
+}
+
+test('a whole rendered hoyoung pre/code reply forwards a separate exact envelope and retains the unfenced visible original', async () => {
+  for (const variation of ['whole', 'header']) await pageFixture(async page => {
+    await send(page); await advance(page, 250);
+    const rendered = await renderedCodeAnswer(page, controlEnvelope, variation);
+    assert.equal(rendered.includes('```'), false, 'real HTML Markdown has no literal fences');
+    await advance(page, 2500);
+    const completed = (await events(page)).find(event => event.type === 'completed');
+    assert.equal(completed.text, rendered);
+    assert.equal(completed.structuredEnvelope, controlEnvelope);
+    assert.equal(completed.structuredEnvelopeSource, 'whole-language-hoyoung-code-block');
+    assert.equal(completed.rawEnvelopeEligible, false);
+    assert.equal(completed.captureComplete, true);
+    const duplicate = await send(page);
+    assert.equal(duplicate.response, rendered);
+    assert.equal(duplicate.structuredEnvelope, controlEnvelope);
+    assert.equal(duplicate.rawEnvelopeEligible, false);
+    assert.equal(await page.evaluate(() => window.clicks), 1);
+  });
+});
+
+test('whole hoyoung code keeps Markdown-looking JSON values and exact source quotes; rendered bare formatting is ineligible', async () => {
+  const quote = '나는 **강조된 말**과 `백틱`, "인용"을 그대로 좋아해.';
+  const json = JSON.stringify({ protocol: 'hoyoung.v1', requestId: 'request-one', message: '**완료**가 아니라 `확인 중`', memories: [{ key: 'literal-preference', content: quote, kind: 'preference', sourceRefs: [{ type: 'message', id: 101, offsetChars: 0, quote }] }] }, null, 2);
+  await pageFixture(async page => {
+    await send(page); await advance(page, 250);
+    const rendered = await renderedCodeAnswer(page, json);
+    await advance(page, 2500);
+    const completed = (await events(page)).find(event => event.type === 'completed');
+    assert.equal(completed.text, rendered); assert.equal(completed.structuredEnvelope, json);
+    assert.equal(JSON.parse(completed.structuredEnvelope).memories[0].sourceRefs[0].quote, quote);
+    assert.equal(completed.rawEnvelopeEligible, false);
+  });
+  await pageFixture(async page => {
+    await send(page); await advance(page, 250);
+    const rendered = await page.evaluate(() => {
+      const answer = window.answer('');
+      const body = answer.querySelector('.markdown');
+      body.innerHTML = '{"protocol":"hoyoung.v1","requestId":"request-one","message":"<strong>강조된 말</strong>과 <code>백틱</code>"}';
+      return body.innerText;
+    });
+    await advance(page, 2500);
+    const completed = (await events(page)).find(event => event.type === 'completed');
+    assert.equal(completed.text, rendered); assert.equal(completed.structuredEnvelope, undefined);
+    assert.equal(completed.rawEnvelopeEligible, false, 'Markdown-transformed values cannot become raw commands');
+  });
+});
+
+test('plain whole JSON remains an untouched original; quoted, partial, ambiguous and unknown-language rendered code never becomes an envelope', async () => {
+  await pageFixture(async page => {
+    await send(page); await advance(page, 250);
+    await page.evaluate(text => {const answer = window.answer(text); answer.querySelector('.markdown').style.whiteSpace = 'pre-wrap'}, controlEnvelope);
+    await advance(page, 2500);
+    const completed = (await events(page)).find(event => event.type === 'completed');
+    assert.equal(completed.text, controlEnvelope); assert.equal(completed.structuredEnvelope, undefined);
+    assert.equal(completed.rawEnvelopeEligible, true);
+  });
+  for (const variation of ['prefix', 'two-blocks', 'quoted', 'language-unknown', 'language-conflict', 'other-content', 'hidden-code-text', 'markdown-formatted-bare-json']) await pageFixture(async page => {
+    await send(page); await advance(page, 250);
+    const rendered = await renderedCodeAnswer(page, controlEnvelope, variation);
+    await advance(page, 2500);
+    const completed = (await events(page)).find(event => event.type === 'completed');
+    assert.equal(completed.text, rendered, variation + ' keeps the visible source');
+    assert.equal(completed.structuredEnvelope, undefined, variation + ' is output data, not a control envelope');
+    assert.equal(completed.structuredEnvelopeSource, undefined);
+    assert.equal(completed.rawEnvelopeEligible, false, variation + ' cannot bypass the guard through raw innerText');
+  });
+});
+
+test('rendered envelope metadata must settle and oversized structured code is reported explicitly without clipping the original', async () => {
+  await pageFixture(async page => {
+    await send(page); await advance(page, 250);
+    await renderedCodeAnswer(page, controlEnvelope, 'language-unknown');
+    await advance(page, 1500);
+    await page.evaluate(() => document.querySelector('pre code').className = 'language-hoyoung');
+    await advance(page, 750);
+    assert.equal((await events(page)).some(event => event.type === 'completed'), false);
+    await advance(page, 2000);
+    assert.equal((await events(page)).find(event => event.type === 'completed').structuredEnvelope, controlEnvelope);
+  });
+  await pageFixture(async page => {
+    await send(page); await advance(page, 250);
+    const oversized = JSON.stringify({ protocol: 'hoyoung.v1', requestId: 'request-one', message: 'x'.repeat(250_001) });
+    const rendered = await renderedCodeAnswer(page, oversized);
+    await advance(page, 2500);
+    const completed = (await events(page)).find(event => event.type === 'completed');
+    assert.equal(completed.text, rendered);
+    assert.equal(completed.structuredEnvelope, undefined);
+    assert.equal(completed.structuredEnvelopeUnavailable, 'structured_envelope_too_large');
+    assert.equal(completed.structuredEnvelopeObservedChars, oversized.length);
+    assert.equal(completed.captureComplete, true);
   });
 });
 
@@ -199,6 +484,18 @@ test('a click with no acknowledgement becomes uncertain and never automatically 
     assert.equal(await page.evaluate(() => window.clicks), 1);
     assert.equal((await events(page)).filter(event => event.code === 'dispatch_uncertain' && event.type === 'error').length, 1);
   }, { setup: `window.autoAck=false` });
+});
+
+test('tracking query/hash changes preserve the same document while actual conversation path replacement stays guarded', async () => {
+  await pageFixture(async page => {
+    await send(page); await advance(page, 250);
+    await page.evaluate(() => history.replaceState({}, '', '/?temporary-chat=true&tracking=changed#message'));
+    await advance(page, 250);
+    assert.equal((await inspect(page)).phase, 'accepted');
+    assert.equal((await events(page)).some(event => event.code === 'navigation_uncertain'), false);
+    await page.evaluate(() => window.answer('동일한 작업의 답변')); await advance(page, 2500);
+    assert.equal((await events(page)).find(event => event.type === 'completed').text, '동일한 작업의 답변');
+  });
 });
 
 test('a throwing click can already have caused a side effect and is not retried', async () => {
@@ -266,7 +563,7 @@ test('owner may explicitly replay a preserved proven-before-click quota receipt,
 
 test('only proven preflight rejections flag knownNotSent; editor side effects and existing receipts retain uncertainty', async () => {
   await pageFixture(async page => {
-    const tooLarge = await send(page, { text: 'a'.repeat(100_001) });
+    const tooLarge = await send(page, { text: 'a'.repeat(250_001) });
     assert.equal(tooLarge.code, 'message_too_large'); assert.equal(tooLarge.knownNotSent, true);
     assert.equal((await events(page)).find(event => event.code === 'message_too_large').knownNotSent, true);
     const preferences = await send(page, { requiredEffort: 'ultra' });
@@ -344,7 +641,10 @@ test('photos are forwarded through the real composer file input and prompt waits
     assert.equal(await page.evaluate(() => document.querySelector('input[type="file"]').files[0].name), 'photo.png');
     assert.equal(await page.evaluate(() => document.querySelector('input[type="file"]').files[0].text()), 'fixture image bytes');
     assert.equal(await page.evaluate(() => window.clicks), 1);
-    assert.equal((await events(page)).some(event => event.type === 'accepted'), true);
+    const accepted = (await events(page)).find(event => event.type === 'accepted');
+    assert.equal(accepted.uploadObserved, true);
+    assert.deepEqual(accepted.attachmentNames, ['photo.png']);
+    assert.equal(accepted.uploadObservationScope, 'composer_reports_uploaded_before_user_turn_confirmation');
   });
   await pageFixture(async page => {
     assert.equal((await send(page, { attachments: [attachment] })).code, 'dispatch_pending');
@@ -374,4 +674,133 @@ test('missing file inputs, unknown upload activation and oversized attachments n
     assert.equal(await page.evaluate(() => window.clicks), 0);
     assert.equal(await page.evaluate(() => window.fileChanges || 0), 0);
   });
+});
+
+test('over 400k observed characters are delivered exactly, including code indentation and trailing whitespace', async () => {
+  await pageFixture(async page => {
+    await send(page); await advance(page, 250);
+    const original = '    시작 코드\n' + '원문😀 \n'.repeat(90_000) + '끝  \n';
+    await page.evaluate(text => {const answer = window.answer(text); answer.querySelector('.markdown').style.whiteSpace = 'pre-wrap'}, original);
+    await advance(page, 2500);
+    const completed = (await events(page)).find(event => event.type === 'completed');
+    assert.equal(completed.text, original);
+    assert.equal(completed.observedChars, original.length);
+    assert.equal(completed.sourceFormat, 'visible-dom-text');
+    assert.equal(completed.renderedOnly, true);
+    assert.equal(completed.captureComplete, true);
+    const preview = (await events(page)).filter(event => event.type === 'progress' && !event.captureId).at(-1);
+    assert.equal(preview.previewOnly, true); assert.equal(preview.captureComplete, false);
+    assert.equal(preview.text.length, 2000);
+  });
+});
+
+test('large replies use ordered bounded pieces with intact Unicode and a completion manifest, never a truncated reply', async () => {
+  await pageFixture(async page => {
+    await send(page); await advance(page, 250);
+    const original = 'x'.repeat(99_999) + '😀\n' + '한'.repeat(900_000);
+    await page.evaluate(text => {const answer = window.answer(text); answer.querySelector('.markdown').style.whiteSpace = 'pre-wrap'}, original);
+    await advance(page, 2500);
+    const delivered = await events(page);
+    const pieces = delivered.filter(event => event.code === 'response_capture_part');
+    const completed = delivered.find(event => event.type === 'completed');
+    assert.ok(pieces.length > 1);
+    assert.equal(pieces.map(piece => piece.text).join(''), original);
+    assert.equal(completed.text, undefined);
+    assert.equal(completed.observedChars, original.length);
+    assert.equal(completed.captureComplete, true);
+    assert.equal(completed.totalParts, pieces.length);
+    assert.equal(completed.captureEncoding, 'utf-8');
+    assert.equal(pieces.every((piece, index) => piece.index === index && piece.captureId === completed.captureId && piece.totalParts === pieces.length && piece.text.length <= 100_001), true);
+    assert.equal(pieces.some(piece => /[\uD800-\uDBFF]$/.test(piece.text) || /^[\uDC00-\uDFFF]/.test(piece.text)), false);
+    assert.equal(delivered.every(event => JSON.stringify(event).length <= 900_000), true);
+    const duplicate = await send(page);
+    assert.equal(duplicate.response, undefined); assert.equal(duplicate.capture.captureId, completed.captureId);
+  });
+});
+
+test('capture overflow and missing native delivery remain uncertain instead of declaring a clipped reply complete', async () => {
+  await pageFixture(async page => {
+    await send(page); await advance(page, 250);
+    await page.evaluate(() => {const answer = window.answer('x'.repeat(10_000_001)); answer.querySelector('.markdown').style.whiteSpace = 'pre'});
+    await advance(page, 2500);
+    const delivered = await events(page);
+    assert.equal(delivered.some(event => event.type === 'completed'), false);
+    const failure = delivered.find(event => event.code === 'response_capture_overflow');
+    assert.equal(failure.observedChars, 10_000_001); assert.equal(failure.captureComplete, false);
+    assert.equal(failure.rawTextAvailableInPage, true); assert.equal(failure.knownNotSent, false);
+    assert.equal((await inspect(page)).phase, 'uncertain');
+    assert.equal((await send(page)).code, 'dispatch_uncertain');
+  });
+  await pageFixture(async page => {
+    await send(page); await advance(page, 250);
+    await page.evaluate(() => {
+      const normal = window.HoyoungHost.postMessage;
+      window.HoyoungHost.postMessage = raw => {if (JSON.parse(raw).type === 'completed') throw new Error('native sink lost'); normal(raw)};
+      window.answer('이 원문은 전달 여부가 불확실함');
+    });
+    await advance(page, 2500);
+    assert.equal((await events(page)).some(event => event.type === 'completed'), false);
+    assert.equal((await events(page)).some(event => event.code === 'response_capture_delivery_uncertain'), true);
+    assert.equal((await inspect(page)).phase, 'uncertain');
+    assert.equal(await page.evaluate(() => window.clicks), 1);
+  });
+});
+
+test('service input requests pause completion and report queued input without clicking approvals; quoted text does not', async () => {
+  await pageFixture(async page => {
+    await send(page); await advance(page, 250);
+    await page.evaluate(() => {
+      window.answer('결과를 확인해 줘');
+      const dialog = document.createElement('div'); dialog.setAttribute('role', 'dialog'); dialog.id = 'approval';
+      dialog.textContent = 'Waiting for your approval';
+      const approve = document.createElement('button'); approve.textContent = 'Approve'; approve.onclick = () => window.approveClicks = (window.approveClicks || 0) + 1;
+      dialog.append(approve); document.body.append(dialog);
+    });
+    await advance(page, 2500);
+    assert.equal((await events(page)).some(event => event.type === 'completed'), false);
+    assert.equal((await inspect(page)).state.needsInput, true);
+    const waiting = (await events(page)).find(event => event.code === 'work_input_required');
+    assert.equal(waiting.queuedInputOnly, true);
+    assert.equal(await page.evaluate(() => window.approveClicks || 0), 0);
+    await page.evaluate(() => document.querySelector('#approval').remove()); await advance(page, 2500);
+    assert.equal((await events(page)).some(event => event.type === 'completed'), true);
+  });
+  await pageFixture(async page => {
+    await send(page); await advance(page, 250);
+    await page.evaluate(() => {const answer = window.answer('인용문'); const quotation = document.createElement('div'); quotation.setAttribute('role', 'alert'); quotation.textContent = 'Waiting for your approval'; answer.querySelector('.markdown').append(quotation)});
+    await advance(page, 2500);
+    assert.equal((await inspect(page)).state.needsInput, false);
+    assert.equal((await events(page)).some(event => event.type === 'completed'), true);
+  });
+});
+
+test('an accepted multi-hour task is observed until actual completion without periodic duplicate submissions', async () => {
+  await pageFixture(async page => {
+    await send(page); await advance(page, 250);
+    await page.clock.fastForward(2 * 60 * 60 * 1000);
+    assert.equal((await inspect(page)).phase, 'accepted');
+    assert.equal((await events(page)).some(event => event.type === 'completed'), false);
+    assert.equal(await page.evaluate(() => window.clicks), 1);
+    assert.equal((await send(page, { requestId: 'new-input-during-long-task' })).code, 'busy');
+    await page.evaluate(() => window.answer('오래 걸린 작업 결과')); await advance(page, 2500);
+    assert.equal((await events(page)).find(event => event.type === 'completed').text, '오래 걸린 작업 결과');
+  });
+});
+
+test('DOM drift cannot mistake unrelated forms or a manual different turn for this dispatch', async () => {
+  await pageFixture(async page => {
+    assert.equal((await send(page)).code, 'send_control_unverified');
+    assert.equal(await page.evaluate(() => window.clicks), 0);
+  }, { setup: `const another=document.createElement('button'); another.type='submit'; another.textContent='Unrelated submit'; document.querySelector('form').append(another)` });
+  await pageFixture(async page => {
+    assert.equal((await inspect(page)).state.workSelected, false);
+    assert.equal((await send(page)).code, 'work_unverified');
+  }, { setup: `document.querySelector('#work').hidden=true` });
+  await pageFixture(async page => {
+    await send(page); await advance(page, 250);
+    await page.evaluate(() => {const article = document.createElement('article'); article.dataset.turnKey='manual-other'; const user=document.createElement('div'); user.setAttribute('data-user-message-bubble',''); user.textContent='다른 요청'; article.append(user); document.querySelector('#turns').append(article)});
+    await advance(page, 250);
+    assert.equal((await events(page)).some(event => event.code === 'turn_ambiguous'), true);
+    assert.equal((await inspect(page)).phase, 'uncertain');
+  }, { setup: `window.autoAck=false` });
 });

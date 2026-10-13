@@ -20,7 +20,7 @@ public class MainActivitySmokeTest {
     @Test public void nativeAppStartsWithoutAccountAndKeepsTypedDraft() {
         ActivityController<MainActivity> controller = Robolectric.buildActivity(MainActivity.class).setup();
         MainActivity activity = controller.get();
-        assertNotNull(findText(activity.findViewById(android.R.id.content), "호영이"));
+        assertNotNull(findText(activity.findViewById(android.R.id.content), "호영"));
         EditText composer = findEditor(activity.findViewById(android.R.id.content));
         assertNotNull(composer);
         composer.setText("연결 전 입력도 폰에 저장해야 해");

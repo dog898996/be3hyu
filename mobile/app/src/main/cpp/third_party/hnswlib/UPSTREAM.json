@@ -1,0 +1,18 @@
+{
+  "repository": "https://github.com/nmslib/hnswlib",
+  "tag": "v0.8.0",
+  "commit": "3f3429661187e4c24a490a0f148fc6bc89042b3d",
+  "license": "Apache-2.0",
+  "upstreamFilesUnmodified": true,
+  "filesSha256": {
+    "ALGO_PARAMS.md": "3ccad67dbe9e304ade739b6d63dac1a08931e96a5ab071b90317bcd862a9e22e",
+    "LICENSE": "b40930bbcf80744c86c46a12bc9da056641d722716c378f5659b9e555ef833e1",
+    "bruteforce.h": "da1f179e99d8e5a4c39b5db0c681bccf3c63e797aaa4982620519f8e001cb2c6",
+    "hnswalg.h": "0fb2c1b1d3aae1ea959b536f96844f3f3ae6a2f32ce063f2c31f93d84a7e5c32",
+    "hnswlib.h": "54403db81f55fd28246114c5c9f683e663a2a55ad64903b56578c73e6db5ad2c",
+    "space_ip.h": "6a89b5275527fe3592a9b02ea4fc50293fdc68cbd9f7c1ec13683581e1ebbaf7",
+    "space_l2.h": "c599d024657896412250b4fde1a95e39f8bc55cccd263f36c8948fa35779edf1",
+    "stop_condition.h": "930da73eead77dff0c8c9f3281c5d12250051c90ef98fcfbab8f5f307bdae8d9",
+    "visited_list_pool.h": "8e5bab8d12b5ef26e3b603b656b8a1acba6738498d1d98f44c9fdb1cb0e25110"
+  }
+}

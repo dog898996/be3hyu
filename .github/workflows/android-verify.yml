@@ -1,0 +1,121 @@
+name: Android verification
+
+on:
+  push:
+    paths:
+      - 'mobile/**'
+      - '.github/workflows/android-verify.yml'
+  pull_request:
+    paths:
+      - 'mobile/**'
+      - '.github/workflows/android-verify.yml'
+  workflow_dispatch:
+
+# Only free, standard GitHub-hosted runners for this PUBLIC repository.
+# No signing secrets, cross-run caches, or uploaded artifacts are used.
+permissions:
+  contents: read
+
+concurrency:
+  group: android-verify-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  android:
+    if: github.event.repository.private == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Check out source
+        # Official actions/checkout v7.0.1, verified against its release tag.
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+
+      - name: Set up Java 17
+        # Official actions/setup-java v6.0.1, verified against its release tag.
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6
+        with:
+          distribution: temurin
+          java-version: '17.0.16+8'
+
+      - name: Require runner SDK and hardware acceleration
+        run: |
+          set -euo pipefail
+          runner_sdk_dir="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}"
+          if [[ -z "$runner_sdk_dir" || ! -d "$runner_sdk_dir" ]]; then
+            echo '::error::The standard runner Android SDK is unavailable.' >&2
+            exit 1
+          fi
+          if [[ ! -x "$JAVA_HOME/bin/javac" ]]; then
+            echo '::error::Java 17 setup did not provide javac.' >&2
+            exit 1
+          fi
+          if [[ ! -c /dev/kvm ]]; then
+            echo '::error::Hardware-accelerated instrumentation requires /dev/kvm.' >&2
+            exit 1
+          fi
+          sudo chmod 0666 /dev/kvm
+          if [[ ! -r /dev/kvm || ! -w /dev/kvm ]]; then
+            echo '::error::The runner cannot access /dev/kvm.' >&2
+            exit 1
+          fi
+          tools_dir="$RUNNER_TEMP/hoyoung-android-tools"
+          model_dir="$RUNNER_TEMP/hoyoung-semantic-model"
+          mkdir -p "$tools_dir"
+          ln -s "$runner_sdk_dir" "$tools_dir/sdk"
+          ln -s "$JAVA_HOME" "$tools_dir/jdk-17.0.16+8"
+          echo "HOYOUNG_ANDROID_TOOLS_DIR=$tools_dir" >> "$GITHUB_ENV"
+          echo "HOYOUNG_SEMANTIC_MODEL_DIR=$model_dir" >> "$GITHUB_ENV"
+
+      - name: Prepare pinned build tools
+        run: ./mobile/tools/build-android.sh --prepare ./mobile
+
+      - name: Install official API 35 AOSP emulator
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import os
+          import pathlib
+          import subprocess
+
+          sdk = pathlib.Path(os.environ['HOYOUNG_ANDROID_TOOLS_DIR']) / 'sdk'
+          sdkmanager = sdk / 'cmdline-tools/15859902/bin/sdkmanager'
+          if not sdkmanager.is_file() or not os.access(sdkmanager, os.X_OK):
+              raise SystemExit('Pinned official sdkmanager is missing.')
+          command = [str(sdkmanager), '--sdk_root=' + str(sdk), '--channel=0']
+          accepted = subprocess.run(
+              [*command, '--licenses'], input='y\n' * 100,
+              text=True, capture_output=True)
+          if accepted.returncode:
+              print(accepted.stdout)
+              print(accepted.stderr)
+              raise SystemExit(accepted.returncode)
+          subprocess.run([
+              *command, '--install', 'platform-tools', 'emulator',
+              'system-images;android-35;default;x86_64'], check=True)
+          PY
+          "$HOYOUNG_ANDROID_TOOLS_DIR/sdk/emulator/emulator" -accel-check
+
+      - name: Prepare checksum-verified public ONNX test model
+        run: |
+          set -euo pipefail
+          python3 mobile/tools/prepare-semantic-model.py \
+            --output "$HOYOUNG_SEMANTIC_MODEL_DIR"
+
+      - name: Build debug APKs, unit tests, and lint
+        run: |
+          ./mobile/tools/build-android.sh ./mobile \
+            assembleDebug assembleDebugAndroidTest testDebugUnitTest lintDebug
+
+      - name: Verify binary permissions and real native packaging
+        run: |
+          python3 mobile/tools/verify-apk.py \
+            mobile/app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Test real Android runtime and ONNX on accelerated emulator
+        timeout-minutes: 20
+        run: ./mobile/tools/run-emulator-tests.sh ./mobile

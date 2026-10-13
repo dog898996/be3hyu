@@ -17,7 +17,7 @@
   }
 
   const initialDocument = document;
-  const initialUrl = location.href;
+  const initialPath = location.pathname;
   const COMPOSER = '[data-testid="prompt-textarea"], #prompt-textarea, [contenteditable="true"][data-lexical-editor="true"], form[data-chatgpt-composer] [data-composer-markdown][contenteditable="true"][role="textbox"]';
   const SEND = '[data-testid="send-button"], button[type="submit"]';
   const STOP = '[data-testid="stop-button"], button[aria-label="Stop generating"], button[aria-label="응답 생성 중지"]';
@@ -30,7 +30,16 @@
   const ACCEPT_TIMEOUT_MS = 30_000;
   const SEND_ENABLE_TIMEOUT_MS = 5_000;
   const ATTACHMENT_READY_TIMEOUT_MS = 60_000;
+  const DISPATCH_AUTHORIZATION_TTL_MS = 2_000;
   const COMPLETION_SETTLE_MS = 2_000;
+  // UTF-16 character limit shared with the Android transport/runtime. Prompt
+  // originals are rejected intact before any editor/upload/send side effect.
+  const MAX_PROMPT_CHARS = 250_000;
+  const MAX_STRUCTURED_ENVELOPE_CHARS = 250_000;
+  const MAX_INLINE_EVENT_CHARS = 900_000;
+  const CAPTURE_PART_CHARS = 100_000;
+  const MAX_CAPTURE_CHARS = 10_000_000;
+  const MAX_PROGRESS_PREVIEW_CHARS = 2_000;
   let disposed = false;
   let active = null;
   let observer;
@@ -39,6 +48,7 @@
   let lastStateKey = '';
   let lastQuotaKey = '';
   let quotaLatched = false;
+  let lastInputRequiredKey = '';
   const receipts = new Map();
   const seenRequestIds = new Set();
 
@@ -89,12 +99,16 @@
   }
   function enabled(element) { return element && !element.disabled && element.getAttribute('aria-disabled') !== 'true'; }
   function notify(event) {
-    if (disposed) return;
+    if (disposed) return false;
     try {
       if (window.HoyoungHost && typeof window.HoyoungHost.postMessage === 'function') {
-        window.HoyoungHost.postMessage(JSON.stringify(event));
+        const payload = JSON.stringify(event);
+        if (payload.length > MAX_INLINE_EVENT_CHARS) return false;
+        window.HoyoungHost.postMessage(payload);
+        return true;
       }
     } catch (_) { /* Native journal retains uncertain dispatches; never replay to repair a lost event. */ }
+    return false;
   }
   function result(code, extras) {
     return Object.assign({ ok: code === 'ready', code, state: readState(), knownNotSent: false }, extras || {});
@@ -143,9 +157,17 @@
   function quotaBanner() {
     const candidates = all('[role="alert"], [data-testid="error-message"], [data-testid="toast"], [data-testid*="usage-limit"], [data-testid*="rate-limit"]');
     for (const element of candidates) {
-      if (element.closest('.markdown, [data-markdown-text-style], [data-user-message-bubble]')) continue;
+      if (element.closest(ANSWER + ', [data-user-message-bubble]')) continue;
       const text = textOf(element);
       if (/(?:usage limit|rate limit|limit reached|reached.{0,40}limit|too many requests|quota (?:exceeded|exhausted)|사용량.{0,20}한도|한도.{0,20}(?:소진|도달|초과)|요청.{0,20}너무.{0,10}많)/i.test(text)) return text.slice(0, 800);
+    }
+    return null;
+  }
+  function inputRequiredStatus() {
+    for (const element of all('[role="dialog"], [role="alert"], [role="status"]')) {
+      if (element.closest(ANSWER + ', [data-user-message-bubble]')) continue;
+      const text = textOf(element);
+      if (/(?:waiting for (?:your|user) (?:input|approval|confirmation)|(?:approval|confirmation|sign[- ]?in|login) required|needs? your (?:input|approval|confirmation)|take over (?:the )?browser|사용자.{0,15}(?:입력|승인).{0,15}(?:기다|필요)|(?:로그인|승인|확인).{0,15}필요|브라우저.{0,15}직접.{0,15}(?:조작|제어))/i.test(text)) return text.slice(0, 800);
     }
     return null;
   }
@@ -164,7 +186,10 @@
       workSelected: selectable.some(element => isWork(element) && selected(element)),
       temporary: selectable.some(element => isTemporary(element) && selected(element)) || temporaryBanner,
       busy: stopButtons().length > 0 || !!(composerScope(editor) && composerScope(editor).getAttribute('aria-busy') === 'true'),
-      quota: quotaLatched || !!quotaBanner()
+      quota: quotaLatched || !!quotaBanner(),
+      needsInput: !!inputRequiredStatus(),
+      steeringVerified: false,
+      pendingInputPolicy: 'queued'
     }, preferenceEvidence());
   }
   function readyCode(state, preferences) {
@@ -177,6 +202,7 @@
     if (state.effort !== (preferences || DEFAULTS).effort) return 'effort_unverified';
     if (state.speed !== (preferences || DEFAULTS).speed) return 'speed_unverified';
     if (state.quota) return 'quota_exhausted';
+    if (state.needsInput) return 'input_required';
     if (state.busy) return 'busy';
     if (!composer() || !composerScope(composer())) return 'composer_unverified';
     return 'ready';
@@ -240,32 +266,122 @@
     answers = answers.filter(element => !element.parentElement || !element.parentElement.closest(ANSWER)
       || !turn.content.contains(element.parentElement.closest(ANSWER)));
     const lastAnswer = answers[answers.length - 1];
-    if (!lastAnswer) return { text: '', complete: false };
+    if (!lastAnswer) return { text: '', complete: false, rawEnvelopeEligible: false };
     const footer = all(FOOTER, turn.root).find(element => !element.closest('[data-user-message-bubble], [data-message-author-role="user"], [data-conversation-role="user"]')
       && !lastAnswer.contains(element) && !!(lastAnswer.compareDocumentPosition(element) & Node.DOCUMENT_POSITION_FOLLOWING));
-    return { text: answers.map(element => (element.innerText || element.textContent || '').trim()).filter(Boolean).join('\n\n'), complete: !!footer };
+    const answer = { text: answers.map(element => element.innerText || element.textContent || '').filter(Boolean).join('\n\n'), complete: !!footer, rawEnvelopeEligible: false };
+    // Markdown rendering removes literal fences. Never turn a quoted example or
+    // one block inside a larger reply into a control message: only the whole
+    // response may supply a positively identified hoyoung-language block.
+    if (answers.length === 1) {
+      answer.rawEnvelopeEligible = bareProtocolEligible(answers[0]);
+      Object.assign(answer, wholeStructuredEnvelope(answers[0]));
+    }
+    return answer;
+  }
+  function bareProtocolEligible(answer) {
+    // innerText loses quote/code/Markdown syntax. A rendered quotation must not
+    // become a raw JSON command just because its visible characters form JSON.
+    // Runtime still requires the whole valid object + current protocol/requestId.
+    return all('pre, code, blockquote, q, li, details, strong, em, b, i, s, del, mark, sub, sup, a, h1, h2, h3, h4, h5, h6, table, img, video, audio, canvas, iframe, object, embed, hr, [role="img"], input, textarea, select, button', answer).length === 0;
+  }
+  function wholeStructuredEnvelope(answer) {
+    const blocks = all('pre', answer);
+    if (blocks.length !== 1) return {};
+    const pre = blocks[0];
+    const quotation = pre.closest('blockquote, q, li, details');
+    if (quotation && answer.contains(quotation)) return {};
+    const codes = all('code', pre);
+    if (codes.length !== 1) return {};
+    const code = codes[0];
+    const languages = [];
+    for (const element of [pre, code]) {
+      const language = element.getAttribute('data-language');
+      if (language !== null) languages.push(normalized(language).toLowerCase());
+      for (const token of element.classList) {
+        const match = /^(?:language|lang)-(.+)$/.exec(token);
+        if (match) languages.push(match[1].toLowerCase());
+      }
+    }
+    if (!languages.length || languages.some(language => language !== 'hoyoung')) return {};
+    // A code-only reply may contain its language label and copy controls inside
+    // the same pre. Unknown headers outside it, explanatory prose and non-text
+    // attachments prevent extraction. Ordinary raw text is still preserved.
+    for (const element of all('img, video, audio, canvas, iframe, object, embed, hr, table, [role="img"], input, textarea, select, button, a', answer)) {
+      if (!code.contains(element) && !(pre.contains(element) && element.closest('button'))) return {};
+    }
+    for (const element of code.querySelectorAll('*')) {
+      if (!visible(element) && normalized(element.textContent)) return {};
+    }
+    const walker = document.createTreeWalker(answer, NodeFilter.SHOW_TEXT);
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+      if (!visible(node.parentElement) || code.contains(node) || !normalized(node.textContent)) continue;
+      if (pre.contains(node) && (node.parentElement.closest('button') || normalized(node.textContent).toLowerCase() === 'hoyoung')) continue;
+      return {};
+    }
+    const text = code.textContent || '';
+    if (!text.trim()) return {};
+    if (text.length > MAX_STRUCTURED_ENVELOPE_CHARS) return { structuredEnvelopeUnavailable: 'structured_envelope_too_large', structuredEnvelopeObservedChars: text.length };
+    return { structuredEnvelope: text, structuredEnvelopeSource: 'whole-language-hoyoung-code-block' };
   }
   function remember(receipt) {
     seenRequestIds.add(receipt.requestId);
     receipts.set(receipt.requestId, receipt);
     while (receipts.size > 128) receipts.delete(receipts.keys().next().value);
   }
-  function uncertain(code) {
+  function uncertain(code, metadata) {
     if (!active || active.phase === 'uncertain') return;
     active.phase = 'uncertain';
     active.uncertaintyCode = code;
     remember({ requestId: active.requestId, text: active.text, phase: 'uncertain', code });
-    emitError(code, active.requestId, { mayHaveBeenAccepted: !!active.clicked, retryAllowed: false });
+    emitError(code, active.requestId, Object.assign({ mayHaveBeenAccepted: !!active.clicked, retryAllowed: false }, metadata || {}));
+  }
+  function responseParts(text) {
+    const pieces = [];
+    for (let start = 0; start < text.length;) {
+      let end = Math.min(text.length, start + CAPTURE_PART_CHARS);
+      // A UTF-8 native file must not replace an emoji split between surrogate halves.
+      if (end < text.length && /[\uD800-\uDBFF]/.test(text.charAt(end - 1)) && /[\uDC00-\uDFFF]/.test(text.charAt(end))) end++;
+      pieces.push(text.slice(start, end)); start = end;
+    }
+    return pieces;
+  }
+  function deliverCompletion(finished, answer, turnId, state) {
+    const event = { type: 'completed', requestId: finished.requestId, code: finished.cancelRequested ? 'completed_after_cancel_request' : 'completed', text: answer.text, turnId, state, captureComplete: true, observedChars: answer.text.length, sourceFormat: 'visible-dom-text', renderedOnly: true, rawEnvelopeEligible: answer.rawEnvelopeEligible === true };
+    for (const field of ['structuredEnvelope', 'structuredEnvelopeSource', 'structuredEnvelopeUnavailable', 'structuredEnvelopeObservedChars']) {
+      if (answer[field] !== undefined) event[field] = answer[field];
+    }
+    if (JSON.stringify(event).length <= MAX_INLINE_EVENT_CHARS) return notify(event);
+    if (answer.text.length > MAX_CAPTURE_CHARS) {
+      uncertain('response_capture_overflow', { captureComplete: false, observedChars: answer.text.length, maximumCaptureChars: MAX_CAPTURE_CHARS, rawTextAvailableInPage: true });
+      return false;
+    }
+    const parts = responseParts(answer.text);
+    const captureId = finished.requestId + ':reply:' + turnId;
+    for (let index = 0; index < parts.length; index++) {
+      if (!notify({ type: 'progress', code: 'response_capture_part', requestId: finished.requestId, captureId, index, totalParts: parts.length, observedChars: answer.text.length, text: parts[index] })) {
+        uncertain('response_capture_delivery_uncertain', { captureComplete: false, observedChars: answer.text.length, rawTextAvailableInPage: true });
+        return false;
+      }
+    }
+    delete event.text;
+    event.captureId = captureId; event.totalParts = parts.length; event.captureEncoding = 'utf-8';
+    if (!notify(event)) {
+      uncertain('response_capture_delivery_uncertain', { captureComplete: false, observedChars: answer.text.length, rawTextAvailableInPage: true });
+      return false;
+    }
+    finished.capture = { captureId, totalParts: parts.length, observedChars: answer.text.length, captureComplete: true };
+    return true;
   }
   function tick() {
     if (disposed) return;
-    if (document !== initialDocument || location.origin !== 'https://chatgpt.com' || location.href !== initialUrl) {
+    if (document !== initialDocument || location.origin !== 'https://chatgpt.com' || location.pathname !== initialPath) {
       dispose('navigation_uncertain'); return;
     }
     const quota = quotaBanner();
     if (quota) {
       quotaLatched = true;
-      const knownNotSent = !!(active && !active.clicked && (/^preparing(?:_attachments)?$/.test(active.phase) || active.knownNotSent === true));
+      const knownNotSent = !!(active && !active.clicked && (/^(?:preparing(?:_attachments)?|awaiting_authorization)$/.test(active.phase) || active.knownNotSent === true));
       if (quota !== lastQuotaKey) {
         lastQuotaKey = quota;
         notify({ type: 'quota', code: 'quota_exhausted', requestId: active ? active.requestId : undefined, text: quota, state: readState(), retryAllowed: false, knownNotSent });
@@ -277,7 +393,12 @@
       }
     }
     inspectAndEmit();
-    if (!active || quotaLatched || active.phase === 'uncertain' || active.phase === 'preparing' || active.phase === 'preparing_attachments') return;
+    const needsInput = inputRequiredStatus();
+    if (active && active.phase === 'accepted' && needsInput && needsInput !== lastInputRequiredKey) {
+      lastInputRequiredKey = needsInput;
+      notify({ type: 'progress', code: 'work_input_required', requestId: active.requestId, text: needsInput, state: readState(), queuedInputOnly: true });
+    } else if (!needsInput) lastInputRequiredKey = '';
+    if (!active || quotaLatched || active.phase === 'uncertain' || active.phase === 'preparing' || active.phase === 'preparing_attachments' || active.phase === 'awaiting_authorization') return;
     const snapshot = turnSnapshot();
     if (!snapshot.valid) { uncertain('turn_identity_unverified'); return; }
     const newUsers = snapshot.turns.filter(turn => turn.role === 'user' && !active.baseline.has(turn.id));
@@ -288,7 +409,7 @@
       active.acceptedUserKey = matches[0].key;
       active.phase = 'accepted';
       remember({ requestId: active.requestId, text: active.text, phase: 'accepted' });
-      notify({ type: 'accepted', requestId: active.requestId, code: 'user_turn_confirmed', turnId: active.acceptedUserId, state: readState() });
+      notify({ type: 'accepted', requestId: active.requestId, code: 'user_turn_confirmed', turnId: active.acceptedUserId, uploadObserved: active.uploadObserved === true, attachmentNames: active.attachmentNames, uploadObservationScope: 'composer_reports_uploaded_before_user_turn_confirmation', state: readState() });
     }
     if (!active.acceptedUserId) {
       if (Date.now() - active.clickedAt >= ACCEPT_TIMEOUT_MS) uncertain('dispatch_uncertain');
@@ -304,17 +425,20 @@
     if (answer.text !== active.lastText) {
       active.lastText = answer.text;
       active.settleKey = null;
-      if (answer.text) notify({ type: 'progress', requestId: active.requestId, text: answer.text, turnId: candidates[0].id, state: readState() });
+      if (answer.text) notify({ type: 'progress', requestId: active.requestId, text: answer.text.slice(0, MAX_PROGRESS_PREVIEW_CHARS), turnId: candidates[0].id, state: readState(), previewOnly: answer.text.length > MAX_PROGRESS_PREVIEW_CHARS, observedChars: answer.text.length, captureComplete: false });
     }
     const state = readState();
-    if (!answer.text || !answer.complete || state.busy) { active.settleKey = null; return; }
-    const settleKey = candidates[0].id + '\n' + answer.text;
+    if (!answer.text || !answer.complete || state.busy || state.needsInput) { active.settleKey = null; return; }
+    const settleKey = candidates[0].id + '\n' + answer.text + '\nrawEligible=' + answer.rawEnvelopeEligible + '\nstructured=' + (answer.structuredEnvelope || '') + '\nsource=' + (answer.structuredEnvelopeSource || answer.structuredEnvelopeUnavailable || '');
     if (active.settleKey !== settleKey) { active.settleKey = settleKey; active.settleAt = Date.now(); return; }
     if (Date.now() - active.settleAt < COMPLETION_SETTLE_MS) return;
     const finished = active;
+    if (!deliverCompletion(finished, answer, candidates[0].id, state)) {
+      if (active && active.phase !== 'uncertain') uncertain('response_capture_delivery_uncertain', { captureComplete: false, observedChars: answer.text.length, rawTextAvailableInPage: true });
+      return;
+    }
     active = null;
-    remember({ requestId: finished.requestId, text: finished.text, phase: 'completed', response: answer.text });
-    notify({ type: 'completed', requestId: finished.requestId, code: finished.cancelRequested ? 'completed_after_cancel_request' : 'completed', text: answer.text, turnId: candidates[0].id, state: readState() });
+    remember({ requestId: finished.requestId, text: finished.text, phase: 'completed', response: finished.capture ? undefined : answer.text, capture: finished.capture, rawEnvelopeEligible: answer.rawEnvelopeEligible === true, structuredEnvelope: answer.structuredEnvelope, structuredEnvelopeSource: answer.structuredEnvelopeSource, structuredEnvelopeUnavailable: answer.structuredEnvelopeUnavailable, structuredEnvelopeObservedChars: answer.structuredEnvelopeObservedChars });
   }
   function inspectAndEmit() {
     const inspection = inspect();
@@ -424,6 +548,60 @@
         || all('[role="status"]', cards[0]).some(status => /^(?:Uploaded|Upload complete|Ready|업로드 완료|첨부 완료)$/i.test(textOf(status))));
     });
   }
+  function submissionStillUnobserved(dispatch) {
+    if (dispatch.clicked) return false;
+    const snapshot = turnSnapshot();
+    return snapshot.valid && !snapshot.turns.some(turn => turn.role === 'user' && !dispatch.baseline.has(turn.id));
+  }
+  function rejectAuthorization(code) {
+    if (!active) return result(code, { retryAllowed: false });
+    const requestId = active.requestId;
+    if (!submissionStillUnobserved(active)) {
+      uncertain(code, { knownNotSent: false, mayHaveBeenAccepted: true });
+      return result(code, { requestId, retryAllowed: false });
+    }
+    if (active.authorizationTimer) clearTimeout(active.authorizationTimer);
+    active.authorizationNonce = null; active.authorizationGranted = false;
+    active.phase = 'uncertain'; active.knownNotSent = true; active.uncertaintyCode = code;
+    remember({ requestId, text: active.text, phase: 'uncertain', code, knownNotSent: true });
+    const metadata = { knownNotSent: true, mayHaveBeenAccepted: false, retryAllowed: false,
+      composerMayContainDraft: true, attachmentUploadMayHaveOccurred: active.attachmentNames.length > 0 };
+    emitError(code, requestId, metadata);
+    return result(code, Object.assign({ requestId }, metadata));
+  }
+  function requestDispatchAuthorization(dispatch) {
+    let nonce;
+    try {
+      const random = new Uint32Array(4); crypto.getRandomValues(random);
+      nonce = Array.from(random, value => value.toString(16).padStart(8, '0')).join('');
+    } catch (_) { rejectAuthorization('dispatch_authorization_nonce_unavailable'); return; }
+    dispatch.authorizationPhase = dispatch.phase;
+    dispatch.phase = 'awaiting_authorization'; dispatch.authorizationNonce = nonce;
+    dispatch.authorizationDeadline = performance.now() + DISPATCH_AUTHORIZATION_TTL_MS;
+    dispatch.authorizationTimer = setTimeout(() => {
+      if (active === dispatch && dispatch.phase === 'awaiting_authorization' && dispatch.authorizationNonce === nonce)
+        rejectAuthorization('dispatch_authorization_timeout');
+    }, DISPATCH_AUTHORIZATION_TTL_MS);
+    remember({ requestId: dispatch.requestId, text: dispatch.text, phase: 'awaiting_authorization' });
+    if (!notify({ type: 'progress', code: 'dispatch_authorization_requested', requestId: dispatch.requestId, nonce, authorizationTtlMs: DISPATCH_AUTHORIZATION_TTL_MS })) {
+      if (active === dispatch && !dispatch.clicked) rejectAuthorization('dispatch_authorization_delivery_failed');
+    }
+  }
+  function authorizeDispatch(requestId, nonce, allowed) {
+    if (disposed || document !== initialDocument || location.origin !== 'https://chatgpt.com' || location.pathname !== initialPath)
+      return result('bridge_stale', { retryAllowed: false });
+    if (!active || active.requestId !== requestId || active.phase !== 'awaiting_authorization'
+      || !active.requiresNativeAuthorization || active.authorizationNonce !== nonce || typeof allowed !== 'boolean')
+      return result('dispatch_authorization_mismatch', { retryAllowed: false });
+    if (performance.now() >= active.authorizationDeadline) return rejectAuthorization('dispatch_authorization_expired');
+    if (!allowed) return rejectAuthorization('dispatch_authorization_denied');
+    if (!submissionStillUnobserved(active)) return rejectAuthorization('dispatch_authorization_submission_unverified');
+    if (active.authorizationTimer) clearTimeout(active.authorizationTimer);
+    active.authorizationNonce = null; // Each nonce is consumed before any side effect.
+    active.authorizationGranted = true; active.phase = active.authorizationPhase;
+    clickWhenReady(requestId);
+    return { ok: true, code: 'dispatch_authorized', state: readState(), requestId, knownNotSent: false, retryAllowed: false };
+  }
   function clickWhenReady(requestId) {
     if (disposed || !active || active.requestId !== requestId || !/^preparing(?:_attachments)?$/.test(active.phase)) return;
     const state = readState();
@@ -442,7 +620,13 @@
       setTimeout(function () { clickWhenReady(requestId); }, 100);
       return;
     }
+    if (active.requiresNativeAuthorization) {
+      if (!active.authorizationGranted) { requestDispatchAuthorization(active); return; }
+      if (performance.now() >= active.authorizationDeadline) { rejectAuthorization('dispatch_authorization_expired'); return; }
+      active.authorizationGranted = false;
+    }
     // The guard precedes the side effect. Even a throwing click must never be replayed.
+    active.uploadObserved = active.attachmentNames.length > 0 && attachmentsReady(active);
     active.phase = 'awaiting_ack'; active.clicked = true; active.clickedAt = Date.now();
     remember({ requestId: active.requestId, text: active.text, phase: 'awaiting_ack' });
     try { buttons[0].click(); } catch (_) { uncertain('dispatch_uncertain'); return; }
@@ -454,12 +638,14 @@
     const alreadyKnown = requestId && (seenRequestIds.has(requestId) || active && active.requestId === requestId);
     if (!payload || typeof payload.requestId !== 'string' || !/^[A-Za-z0-9_.:-]{1,128}$/.test(payload.requestId)
       || typeof payload.text !== 'string' || !payload.text.trim()) return alreadyKnown ? result('invalid_request') : preflightFailure('invalid_request', requestId);
-    if (payload.text.length > 100_000) return alreadyKnown ? result('message_too_large') : preflightFailure('message_too_large', requestId);
+    if (payload.text.length > MAX_PROMPT_CHARS) return alreadyKnown ? result('message_too_large') : preflightFailure('message_too_large', requestId);
+    if (payload.requiresNativeAuthorization !== undefined && typeof payload.requiresNativeAuthorization !== 'boolean')
+      return alreadyKnown ? result('invalid_request') : preflightFailure('invalid_request', requestId);
     const receipt = receipts.get(payload.requestId);
     const ownerRetryAuthorized = !!(receipt && receipt.phase === 'known_not_sent' && receipt.ownerRetryAuthorized);
     if (receipt) {
       if (receipt.text !== payload.text) return result('request_id_conflict');
-      if (!ownerRetryAuthorized) return { ok: receipt.phase !== 'uncertain', code: receipt.phase === 'uncertain' ? 'dispatch_uncertain' : 'duplicate_request', state: readState(), requestId: payload.requestId, phase: receipt.phase, response: receipt.response, retryAllowed: false, knownNotSent: false };
+      if (!ownerRetryAuthorized) return { ok: receipt.phase !== 'uncertain', code: receipt.phase === 'uncertain' ? 'dispatch_uncertain' : 'duplicate_request', state: readState(), requestId: payload.requestId, phase: receipt.phase, response: receipt.response, capture: receipt.capture, rawEnvelopeEligible: receipt.rawEnvelopeEligible === true, structuredEnvelope: receipt.structuredEnvelope, structuredEnvelopeSource: receipt.structuredEnvelopeSource, structuredEnvelopeUnavailable: receipt.structuredEnvelopeUnavailable, structuredEnvelopeObservedChars: receipt.structuredEnvelopeObservedChars, retryAllowed: false, knownNotSent: false };
     }
     // Keep small ID tombstones after dropping older reply text. A long-running page
     // can accept new requests without making an old dispatched ID replayable.
@@ -484,7 +670,7 @@
     if (sendButtons(editor).length !== 1) return preflightFailure('send_control_unverified', payload.requestId);
     const snapshot = turnSnapshot();
     if (!snapshot.valid) return preflightFailure('turn_identity_unverified', payload.requestId);
-    active = { requestId: payload.requestId, text: payload.text, preferences, phase: files.length ? 'preparing_attachments' : 'preparing', preparingAt: Date.now(), editor, baseline: snapshot.known, clicked: false, lastText: '', attachmentNames: files.map(file => file.name) };
+    active = { requestId: payload.requestId, text: payload.text, preferences, phase: files.length ? 'preparing_attachments' : 'preparing', preparingAt: Date.now(), editor, baseline: snapshot.known, clicked: false, lastText: '', attachmentNames: files.map(file => file.name), requiresNativeAuthorization: payload.requiresNativeAuthorization === true, authorizationGranted: false };
     remember({ requestId: active.requestId, text: active.text, phase: 'preparing' });
     let filled = false;
     try { filled = fillEditor(editor, payload.text); } catch (_) { /* An editor implementation changed; do not guess another editing path. */ }
@@ -502,12 +688,15 @@
   function prepareOwnerRetry() {
     if (disposed || document !== initialDocument || location.origin !== 'https://chatgpt.com') return result('bridge_stale', { retryAllowed: false });
     if (quotaBanner()) return result('quota_exhausted', { retryAllowed: false });
-    if (active && (active.clicked || !(/^preparing(?:_attachments)?$/.test(active.phase) || active.knownNotSent === true))) {
+    if (active && (active.clicked || !(/^(?:preparing(?:_attachments)?|awaiting_authorization)$/.test(active.phase) || active.knownNotSent === true))) {
       return result('outcome_uncertain', { requestId: active.requestId, retryAllowed: false });
     }
+    if (active && !submissionStillUnobserved(active))
+      return result('outcome_uncertain', { requestId: active.requestId, retryAllowed: false });
     let releasedRequestId;
     if (active) {
       const pending = active;
+      if (pending.authorizationTimer) clearTimeout(pending.authorizationTimer);
       // Clear only our own staged draft. A different draft belongs to the owner.
       if (pending.editor.isConnected && editorText(pending.editor) === normalized(pending.text)) {
         let cleared = false;
@@ -528,8 +717,13 @@
   }
   function cancel() {
     if (!active) return result('nothing_to_cancel');
-    if (/^preparing(?:_attachments)?$/.test(active.phase) && !active.clicked) {
+    if (/^(?:preparing(?:_attachments)?|awaiting_authorization)$/.test(active.phase) && !active.clicked) {
+      if (!submissionStillUnobserved(active)) {
+        uncertain('cancellation_submission_unverified', { knownNotSent: false, mayHaveBeenAccepted: true });
+        return result('cancellation_submission_unverified', { requestId: active.requestId, retryAllowed: false });
+      }
       const cancelled = active; active = null;
+      if (cancelled.authorizationTimer) clearTimeout(cancelled.authorizationTimer);
       remember({ requestId: cancelled.requestId, text: cancelled.text, phase: 'cancelled' });
       emitError('cancelled_before_send', cancelled.requestId, { mayHaveBeenAccepted: false, retryAllowed: false });
       return { ok: true, code: 'cancelled_before_send', state: readState(), requestId: cancelled.requestId };
@@ -544,6 +738,7 @@
   }
   function dispose(code) {
     if (disposed) return;
+    if (active && active.authorizationTimer) clearTimeout(active.authorizationTimer);
     if (active) emitError(code || 'navigation_uncertain', active.requestId, { mayHaveBeenAccepted: !!active.clicked, retryAllowed: false });
     disposed = true;
     if (observer) observer.disconnect();
@@ -551,7 +746,7 @@
     window.removeEventListener('pagehide', onPageHide);
   }
   function onPageHide() { dispose('navigation_uncertain'); }
-  const api = { inspect, selectWork, send, cancel, inspectAndEmit, prepareOwnerRetry };
+  const api = { inspect, selectWork, send, cancel, inspectAndEmit, prepareOwnerRetry, authorizeDispatch };
   Object.defineProperty(api, '__document', { value: document });
   Object.defineProperty(api, '__dispose', { value: dispose });
   window.HoyoungWorkBridge = api;

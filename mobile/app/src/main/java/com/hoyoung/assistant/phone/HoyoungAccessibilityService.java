@@ -6,6 +6,8 @@ import android.graphics.Path;
 import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Bundle;
+import android.os.SystemClock;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import org.json.JSONArray;
@@ -19,6 +21,8 @@ public final class HoyoungAccessibilityService extends AccessibilityService {
     private static volatile HoyoungAccessibilityService instance;
     private final Map<String, AccessibilityNodeInfo> nodes = new LinkedHashMap<>();
     private long generation;
+    private long snapshotElapsed;
+    private AccessibilityNodeInfo syntheticRootForTests;
 
     public static HoyoungAccessibilityService getInstance() { return instance; }
     @Override protected void onServiceConnected() { instance = this; }
@@ -27,9 +31,9 @@ public final class HoyoungAccessibilityService extends AccessibilityService {
     @Override public void onDestroy() { if (instance == this) instance = null; clearNodes(); super.onDestroy(); }
 
     public synchronized JSONObject snapshot() {
-        clearNodes(); generation++;
+        clearNodes(); generation++; snapshotElapsed = SystemClock.elapsedRealtime();
         JSONArray list = new JSONArray();
-        AccessibilityNodeInfo root = getRootInActiveWindow();
+        AccessibilityNodeInfo root = activeRoot();
         if (root == null) return result(false, "no_active_window", "The device may be locked or the current app may protect its UI.");
         try {
             walk(root, list, 0);
@@ -72,11 +76,16 @@ public final class HoyoungAccessibilityService extends AccessibilityService {
             }
         }
         if (selected == null) return result(false, "target_not_found", "Take a new snapshot and select an existing node.");
+        if (ownAppPackage(selected.getPackageName())) return ownerInteractionRequired();
+        AccessibilityNodeInfo active = activeRoot();
+        try { if (active != null && ownAppPackage(active.getPackageName())) return ownerInteractionRequired(); }
+        finally { if (active != null) active.recycle(); }
         if (!selected.refresh() || selected.isPassword() || !selected.isVisibleToUser() || !selected.isEnabled()) return result(false, "stale_target", "The UI changed. Take a new snapshot.");
         if (protectedSettingsPackage(selected.getPackageName())) return result(false, "manual_permission_required", "Android permission, installation and administrative Settings controls must be operated by the user.");
         AccessibilityNodeInfo target = AccessibilityNodeInfo.obtain(selected);
         try {
             for (int depth = 0; depth < 5 && target != null; depth++) {
+                if (ownAppPackage(target.getPackageName())) return ownerInteractionRequired();
                 if (target.isClickable() && target.isEnabled() && target.isVisibleToUser()) {
                     boolean accepted = target.performAction(AccessibilityNodeInfo.ACTION_CLICK);
                     return result(accepted, accepted ? "click_requested" : "click_rejected", "Android reports whether the click action was accepted.");
@@ -85,6 +94,30 @@ public final class HoyoungAccessibilityService extends AccessibilityService {
             }
             return result(false, "not_clickable", "No clickable target or nearby parent was found.");
         } finally { if (target != null) target.recycle(); }
+    }
+
+    /** Explicit supplied text only; editable contents are never included in snapshots/events. */
+    public synchronized JSONObject type(String nodeId, String text) {
+        if (nodeId == null || nodeId.length() > 200 || !nodeId.matches("[0-9]+:[0-9]+") || text == null || text.length() > 20000 || !validUtf16(text)) return result(false, "invalid_arguments", "Use a fresh nodeId and at most20000 UTF-16 units of supplied text.");
+        long snapshotAge = SystemClock.elapsedRealtime() - snapshotElapsed;
+        if (!nodeId.startsWith(generation + ":") || snapshotAge < 0 || snapshotAge > 30000) return result(false, "stale_target", "Take a fresh UI snapshot before entering text.");
+        AccessibilityNodeInfo selected = nodes.get(nodeId); if (selected == null) return result(false, "target_not_found", "Select an editable node from the latest snapshot.");
+        AccessibilityNodeInfo active = activeRoot(); if (active == null) return result(false, "no_active_window", "The current app may protect its UI.");
+        try {
+            if (ownAppPackage(active.getPackageName()) || ownAppPackage(selected.getPackageName())) return ownerInteractionRequired();
+            if (protectedSettingsPackage(active.getPackageName()) || protectedSettingsPackage(selected.getPackageName())) return result(false, "manual_permission_required", "Android permission, installation and administrative Settings controls require manual operation.");
+            if (!selected.refresh() || !selected.isVisibleToUser() || !selected.isEnabled()) return result(false, "stale_target", "The UI changed. Take a new snapshot.");
+            if (selected.isPassword()) return result(false, "password_field_blocked", "Password fields are excluded from UI automation.");
+            if (!selected.isEditable()) return result(false, "not_editable", "This node does not accept editable text.");
+            String selectedPackage = selected.getPackageName() == null ? "" : selected.getPackageName().toString(), activePackage = active.getPackageName() == null ? "" : active.getPackageName().toString();
+            if (selectedPackage.isEmpty() || !selectedPackage.equals(activePackage) || selected.getWindowId() >= 0 && active.getWindowId() >= 0 && selected.getWindowId() != active.getWindowId()) return result(false, "stale_target", "The active app or window differs from the snapshot.");
+            if (protectedSettingsPackage(selected.getPackageName())) return result(false, "manual_permission_required", "Settings and permission controls require manual operation.");
+            Bundle arguments = new Bundle(); arguments.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, text);
+            boolean accepted = selected.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, arguments);
+            boolean confirmed = accepted && selected.refresh() && !selected.isPassword() && text.contentEquals(selected.getText() == null ? "" : selected.getText());
+            try { return result(accepted, accepted ? confirmed ? "text_set" : "text_requested" : "text_rejected", "Only accepted action and matching post-action state are reported; input contents are not returned.").put("accepted", accepted).put("completionConfirmed", confirmed).put("suppliedUtf16Units", text.length()); }
+            catch (JSONException impossible) { return result(false, "internal_error", "The text action result could not be represented."); }
+        } finally { active.recycle(); }
     }
 
     public JSONObject global(String action) {
@@ -103,9 +136,9 @@ public final class HoyoungAccessibilityService extends AccessibilityService {
     public JSONObject tap(float x, float y) { return gesture(x, y, x, y, 70); }
     public JSONObject swipe(float x1, float y1, float x2, float y2, long durationMs) { return gesture(x1, y1, x2, y2, durationMs); }
     private JSONObject gesture(float x1, float y1, float x2, float y2, long duration) {
-        AccessibilityNodeInfo active = getRootInActiveWindow();
+        AccessibilityNodeInfo active = activeRoot();
         if (active == null) return result(false, "no_active_window", "No active UI is available for a gesture.");
-        try { if (protectedSettingsPackage(active.getPackageName())) return result(false, "manual_permission_required", "Android permission, installation and administrative Settings controls must be operated by the user."); }
+        try { if (ownAppPackage(active.getPackageName())) return ownerInteractionRequired(); if (protectedSettingsPackage(active.getPackageName())) return result(false, "manual_permission_required", "Android permission, installation and administrative Settings controls must be operated by the user."); }
         finally { active.recycle(); }
         int width = getResources().getDisplayMetrics().widthPixels;
         int height = getResources().getDisplayMetrics().heightPixels;
@@ -117,6 +150,12 @@ public final class HoyoungAccessibilityService extends AccessibilityService {
     }
 
     private synchronized void clearNodes() { for (AccessibilityNodeInfo node : nodes.values()) node.recycle(); nodes.clear(); }
+    private AccessibilityNodeInfo activeRoot() { return syntheticRootForTests == null ? getRootInActiveWindow() : AccessibilityNodeInfo.obtain(syntheticRootForTests); }
+    /** Package-private synthetic Android node seam; never reachable from an application tool. */
+    void setSyntheticRootForTests(AccessibilityNodeInfo root) { syntheticRootForTests = root; }
+    private boolean ownAppPackage(CharSequence name) { return name != null && getPackageName().contentEquals(name); }
+    private static JSONObject ownerInteractionRequired() { return result(false, "owner_interaction_required", "The agent cannot operate its own chat or owner-confirmation UI. Use app.settings.update and native file APIs for agent actions; owner messages and confirmations come from the owner."); }
+    private static boolean validUtf16(String value) { for (int i = 0; i < value.length(); i++) { char character = value.charAt(i); if (Character.isHighSurrogate(character)) { if (++i >= value.length() || !Character.isLowSurrogate(value.charAt(i))) return false; } else if (Character.isLowSurrogate(character)) return false; } return true; }
     private static boolean finite(float value) { return !Float.isNaN(value) && !Float.isInfinite(value); }
     private static boolean protectedSettingsPackage(CharSequence packageName) {
         String name = packageName == null ? "" : packageName.toString();

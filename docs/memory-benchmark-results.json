@@ -1,0 +1,4031 @@
+{
+  "measuredAt": "2026-10-13",
+  "productionMeaning": "source retrieval/provenance checks only; not QA/extraction/real device/2-year user accuracy",
+  "publicDatasetLicense": "MIT, Di Wu 2024",
+  "publicSourceUrl": "https://huggingface.co/datasets/xiaowu0162/longmemeval-cleaned/resolve/98d7416/longmemeval_oracle.json",
+  "publicSourceSha256": "821a2034d219ab45846873dd14c14f12cfe7776e73527a483f9dac095d38620c",
+  "reports": {
+    "synthetic100k": {
+      "benchmark": "actual-sqlite-store-hybrid-retriever-synthetic-scaling-v1",
+      "messages": 100000,
+      "memories": 5989,
+      "smallCorpus": [
+        {
+          "type": "old_exact",
+          "query": "RARE-OLD-FACT-0-K831",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 36,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "korean_alias",
+          "query": "조식 slot0",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 13,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "entity_multihop",
+          "query": "Project-Zeta-0",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 21,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "old_exact",
+          "query": "RARE-OLD-FACT-1-K831",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 57,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "korean_alias",
+          "query": "조식 slot1",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 6,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "entity_multihop",
+          "query": "Project-Zeta-1",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 64,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "old_exact",
+          "query": "RARE-OLD-FACT-2-K831",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 32,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "korean_alias",
+          "query": "조식 slot2",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 4,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "entity_multihop",
+          "query": "Project-Zeta-2",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 37,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "old_exact",
+          "query": "RARE-OLD-FACT-3-K831",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 35,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "korean_alias",
+          "query": "조식 slot3",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 4,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "entity_multihop",
+          "query": "Project-Zeta-3",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 30,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "old_exact",
+          "query": "RARE-OLD-FACT-4-K831",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 28,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "korean_alias",
+          "query": "조식 slot4",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 4,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "entity_multihop",
+          "query": "Project-Zeta-4",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 27,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "old_exact",
+          "query": "RARE-OLD-FACT-5-K831",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 25,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "korean_alias",
+          "query": "조식 slot5",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 4,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "entity_multihop",
+          "query": "Project-Zeta-5",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 26,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "old_exact",
+          "query": "RARE-OLD-FACT-6-K831",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 24,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "korean_alias",
+          "query": "조식 slot6",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 3,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "entity_multihop",
+          "query": "Project-Zeta-6",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 24,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "old_exact",
+          "query": "RARE-OLD-FACT-7-K831",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 39,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "korean_alias",
+          "query": "조식 slot7",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 4,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "entity_multihop",
+          "query": "Project-Zeta-7",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 22,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "old_exact",
+          "query": "RARE-OLD-FACT-8-K831",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 21,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "korean_alias",
+          "query": "조식 slot8",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 3,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "entity_multihop",
+          "query": "Project-Zeta-8",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 22,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "old_exact",
+          "query": "RARE-OLD-FACT-9-K831",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 19,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "korean_alias",
+          "query": "조식 slot9",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 2,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "entity_multihop",
+          "query": "Project-Zeta-9",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 19,
+          "candidateLimitReached": false
+        }
+      ],
+      "largeCorpus": [
+        {
+          "type": "old_exact",
+          "query": "RARE-OLD-FACT-0-K831",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 679,
+          "candidateLimitReached": true
+        },
+        {
+          "type": "korean_alias",
+          "query": "조식 slot0",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 62,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "entity_multihop",
+          "query": "Project-Zeta-0",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 631,
+          "candidateLimitReached": true
+        },
+        {
+          "type": "old_exact",
+          "query": "RARE-OLD-FACT-1-K831",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 477,
+          "candidateLimitReached": true
+        },
+        {
+          "type": "korean_alias",
+          "query": "조식 slot1",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 62,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "entity_multihop",
+          "query": "Project-Zeta-1",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 479,
+          "candidateLimitReached": true
+        },
+        {
+          "type": "old_exact",
+          "query": "RARE-OLD-FACT-2-K831",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 829,
+          "candidateLimitReached": true
+        },
+        {
+          "type": "korean_alias",
+          "query": "조식 slot2",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 64,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "entity_multihop",
+          "query": "Project-Zeta-2",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 797,
+          "candidateLimitReached": true
+        },
+        {
+          "type": "old_exact",
+          "query": "RARE-OLD-FACT-3-K831",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 162,
+          "candidateLimitReached": true
+        },
+        {
+          "type": "korean_alias",
+          "query": "조식 slot3",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 60,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "entity_multihop",
+          "query": "Project-Zeta-3",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 157,
+          "candidateLimitReached": true
+        },
+        {
+          "type": "old_exact",
+          "query": "RARE-OLD-FACT-4-K831",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 110,
+          "candidateLimitReached": true
+        },
+        {
+          "type": "korean_alias",
+          "query": "조식 slot4",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 60,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "entity_multihop",
+          "query": "Project-Zeta-4",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 131,
+          "candidateLimitReached": true
+        },
+        {
+          "type": "old_exact",
+          "query": "RARE-OLD-FACT-5-K831",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 110,
+          "candidateLimitReached": true
+        },
+        {
+          "type": "korean_alias",
+          "query": "조식 slot5",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 60,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "entity_multihop",
+          "query": "Project-Zeta-5",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 109,
+          "candidateLimitReached": true
+        },
+        {
+          "type": "old_exact",
+          "query": "RARE-OLD-FACT-6-K831",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 110,
+          "candidateLimitReached": true
+        },
+        {
+          "type": "korean_alias",
+          "query": "조식 slot6",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 60,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "entity_multihop",
+          "query": "Project-Zeta-6",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 109,
+          "candidateLimitReached": true
+        },
+        {
+          "type": "old_exact",
+          "query": "RARE-OLD-FACT-7-K831",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 111,
+          "candidateLimitReached": true
+        },
+        {
+          "type": "korean_alias",
+          "query": "조식 slot7",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 61,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "entity_multihop",
+          "query": "Project-Zeta-7",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 134,
+          "candidateLimitReached": true
+        },
+        {
+          "type": "old_exact",
+          "query": "RARE-OLD-FACT-8-K831",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 111,
+          "candidateLimitReached": true
+        },
+        {
+          "type": "korean_alias",
+          "query": "조식 slot8",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 60,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "entity_multihop",
+          "query": "Project-Zeta-8",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 109,
+          "candidateLimitReached": true
+        },
+        {
+          "type": "old_exact",
+          "query": "RARE-OLD-FACT-9-K831",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 109,
+          "candidateLimitReached": true
+        },
+        {
+          "type": "korean_alias",
+          "query": "조식 slot9",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 60,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "entity_multihop",
+          "query": "Project-Zeta-9",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 109,
+          "candidateLimitReached": true
+        }
+      ],
+      "dateStateRecall": true,
+      "conflictDetected": true,
+      "absentEvidenceHandled": true,
+      "databaseAndWalBytes": 54981368,
+      "semantic": {
+        "semanticMode": "concept-fallback",
+        "encoderModel": null,
+        "actualLmMeasured": false,
+        "semanticIndexedCount": 0,
+        "sourceTotals": 100000,
+        "memoryTotals": 5989,
+        "semanticCompletedSources": 0,
+        "sourceCoverage": 0,
+        "semanticCoveredChars": 0,
+        "sourceChars": 10123923,
+        "characterCoverage": 0,
+        "semanticChunkCount": 0,
+        "vectorEncoding": "unit-f32-le-v1",
+        "derivedCacheRebuildable": true,
+        "semanticEnabled": true
+      },
+      "goldNotesManuallySeeded": true,
+      "extractionMeasured": false,
+      "actualLmMeasured": false,
+      "realDeviceLatencyMeasured": false,
+      "totalElapsedMillis": 22034,
+      "smallCorpusLatencySummary": {
+        "minimumMillis": 2,
+        "medianMillis": 22.0,
+        "maximumMillis": 64,
+        "meanMillis": 21.833333333333332
+      },
+      "largeCorpusLatencySummary": {
+        "minimumMillis": 60,
+        "medianMillis": 109.5,
+        "maximumMillis": 829,
+        "meanMillis": 206.06666666666666
+      },
+      "measurementEnvironment": "Linux x86_64 / JDK17 / actual Android SQLite via Robolectric SDK28 native backend; not Galaxy phone latency",
+      "sourceCodePeriod": "2026-10-13 development snapshot; exact results apply to measured source snapshots, subsequent changes require recheck",
+      "semanticScalingMeasured": false,
+      "productionCodeScope": "Earlier full-corpus OR-token FTS ranking before later compound-identifier performance optimization and RRF fusion change; scale/retention measured, later performance requires separate regression."
+    },
+    "synthetic1m": {
+      "benchmark": "actual-sqlite-store-hybrid-retriever-synthetic-scaling-v1",
+      "messages": 1000000,
+      "memories": 50989,
+      "smallCorpus": [
+        {
+          "type": "old_exact",
+          "query": "RARE-OLD-FACT-0-K831",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 55,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "korean_alias",
+          "query": "조식 slot0",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 19,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "entity_multihop",
+          "query": "Project-Zeta-0",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 30,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "old_exact",
+          "query": "RARE-OLD-FACT-1-K831",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 78,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "korean_alias",
+          "query": "조식 slot1",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 7,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "entity_multihop",
+          "query": "Project-Zeta-1",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 62,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "old_exact",
+          "query": "RARE-OLD-FACT-2-K831",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 33,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "korean_alias",
+          "query": "조식 slot2",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 5,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "entity_multihop",
+          "query": "Project-Zeta-2",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 31,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "old_exact",
+          "query": "RARE-OLD-FACT-3-K831",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 27,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "korean_alias",
+          "query": "조식 slot3",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 3,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "entity_multihop",
+          "query": "Project-Zeta-3",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 26,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "old_exact",
+          "query": "RARE-OLD-FACT-4-K831",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 24,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "korean_alias",
+          "query": "조식 slot4",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 4,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "entity_multihop",
+          "query": "Project-Zeta-4",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 32,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "old_exact",
+          "query": "RARE-OLD-FACT-5-K831",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 23,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "korean_alias",
+          "query": "조식 slot5",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 4,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "entity_multihop",
+          "query": "Project-Zeta-5",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 24,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "old_exact",
+          "query": "RARE-OLD-FACT-6-K831",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 22,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "korean_alias",
+          "query": "조식 slot6",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 3,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "entity_multihop",
+          "query": "Project-Zeta-6",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 23,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "old_exact",
+          "query": "RARE-OLD-FACT-7-K831",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 34,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "korean_alias",
+          "query": "조식 slot7",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 5,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "entity_multihop",
+          "query": "Project-Zeta-7",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 22,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "old_exact",
+          "query": "RARE-OLD-FACT-8-K831",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 20,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "korean_alias",
+          "query": "조식 slot8",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 3,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "entity_multihop",
+          "query": "Project-Zeta-8",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 23,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "old_exact",
+          "query": "RARE-OLD-FACT-9-K831",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 20,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "korean_alias",
+          "query": "조식 slot9",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 2,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "entity_multihop",
+          "query": "Project-Zeta-9",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 19,
+          "candidateLimitReached": false
+        }
+      ],
+      "largeCorpus": [
+        {
+          "type": "old_exact",
+          "query": "RARE-OLD-FACT-0-K831",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 10435,
+          "candidateLimitReached": true
+        },
+        {
+          "type": "korean_alias",
+          "query": "조식 slot0",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 1276,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "entity_multihop",
+          "query": "Project-Zeta-0",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 11058,
+          "candidateLimitReached": true
+        },
+        {
+          "type": "old_exact",
+          "query": "RARE-OLD-FACT-1-K831",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 4731,
+          "candidateLimitReached": true
+        },
+        {
+          "type": "korean_alias",
+          "query": "조식 slot1",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 658,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "entity_multihop",
+          "query": "Project-Zeta-1",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 4363,
+          "candidateLimitReached": true
+        },
+        {
+          "type": "old_exact",
+          "query": "RARE-OLD-FACT-2-K831",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 12908,
+          "candidateLimitReached": true
+        },
+        {
+          "type": "korean_alias",
+          "query": "조식 slot2",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 942,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "entity_multihop",
+          "query": "Project-Zeta-2",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 8240,
+          "candidateLimitReached": true
+        },
+        {
+          "type": "old_exact",
+          "query": "RARE-OLD-FACT-3-K831",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 1217,
+          "candidateLimitReached": true
+        },
+        {
+          "type": "korean_alias",
+          "query": "조식 slot3",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 657,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "entity_multihop",
+          "query": "Project-Zeta-3",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 1182,
+          "candidateLimitReached": true
+        },
+        {
+          "type": "old_exact",
+          "query": "RARE-OLD-FACT-4-K831",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 749,
+          "candidateLimitReached": true
+        },
+        {
+          "type": "korean_alias",
+          "query": "조식 slot4",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 667,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "entity_multihop",
+          "query": "Project-Zeta-4",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 776,
+          "candidateLimitReached": true
+        },
+        {
+          "type": "old_exact",
+          "query": "RARE-OLD-FACT-5-K831",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 789,
+          "candidateLimitReached": true
+        },
+        {
+          "type": "korean_alias",
+          "query": "조식 slot5",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 656,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "entity_multihop",
+          "query": "Project-Zeta-5",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 813,
+          "candidateLimitReached": true
+        },
+        {
+          "type": "old_exact",
+          "query": "RARE-OLD-FACT-6-K831",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 780,
+          "candidateLimitReached": true
+        },
+        {
+          "type": "korean_alias",
+          "query": "조식 slot6",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 664,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "entity_multihop",
+          "query": "Project-Zeta-6",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 737,
+          "candidateLimitReached": true
+        },
+        {
+          "type": "old_exact",
+          "query": "RARE-OLD-FACT-7-K831",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 779,
+          "candidateLimitReached": true
+        },
+        {
+          "type": "korean_alias",
+          "query": "조식 slot7",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 656,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "entity_multihop",
+          "query": "Project-Zeta-7",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 757,
+          "candidateLimitReached": true
+        },
+        {
+          "type": "old_exact",
+          "query": "RARE-OLD-FACT-8-K831",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 778,
+          "candidateLimitReached": true
+        },
+        {
+          "type": "korean_alias",
+          "query": "조식 slot8",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 726,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "entity_multihop",
+          "query": "Project-Zeta-8",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 876,
+          "candidateLimitReached": true
+        },
+        {
+          "type": "old_exact",
+          "query": "RARE-OLD-FACT-9-K831",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 824,
+          "candidateLimitReached": true
+        },
+        {
+          "type": "korean_alias",
+          "query": "조식 slot9",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 667,
+          "candidateLimitReached": false
+        },
+        {
+          "type": "entity_multihop",
+          "query": "Project-Zeta-9",
+          "goldRecallAt10": 1,
+          "elapsedMillis": 976,
+          "candidateLimitReached": true
+        }
+      ],
+      "dateStateRecall": true,
+      "conflictDetected": true,
+      "absentEvidenceHandled": true,
+      "databaseAndWalBytes": 535098824,
+      "semantic": {
+        "semanticMode": "concept-fallback",
+        "encoderModel": null,
+        "actualLmMeasured": false,
+        "semanticIndexedCount": 0,
+        "sourceTotals": 1000000,
+        "memoryTotals": 50989,
+        "semanticCompletedSources": 0,
+        "sourceCoverage": 0,
+        "semanticCoveredChars": 0,
+        "sourceChars": 102823923,
+        "characterCoverage": 0,
+        "semanticChunkCount": 0,
+        "vectorEncoding": "unit-f32-le-v1",
+        "derivedCacheRebuildable": true,
+        "semanticEnabled": true
+      },
+      "goldNotesManuallySeeded": true,
+      "extractionMeasured": false,
+      "actualLmMeasured": false,
+      "realDeviceLatencyMeasured": false,
+      "totalElapsedMillis": 519325,
+      "smallCorpusLatencySummary": {
+        "minimumMillis": 2,
+        "medianMillis": 22.5,
+        "maximumMillis": 78,
+        "meanMillis": 22.766666666666666
+      },
+      "largeCorpusLatencySummary": {
+        "minimumMillis": 656,
+        "medianMillis": 784.5,
+        "maximumMillis": 12908,
+        "meanMillis": 2377.9
+      },
+      "measurementEnvironment": "Linux x86_64 / JDK17 / actual Android SQLite via Robolectric SDK28 native backend; not Galaxy phone latency",
+      "sourceCodePeriod": "2026-10-13 development snapshot; exact results apply to measured source snapshots, subsequent changes require recheck",
+      "semanticScalingMeasured": false,
+      "productionCodeScope": "Earlier full-corpus OR-token FTS ranking before later compound-identifier performance optimization and RRF fusion change; scale/retention measured, later performance requires separate regression."
+    },
+    "publicInitial40": {
+      "dataset": "LongMemEval cleaned oracle, non-standard pooled raw-turn retrieval subset",
+      "standardBenchmark": false,
+      "questionCount": 40,
+      "sourceCount": 2131,
+      "rawSourceChunks": 6940,
+      "modelId": "sentence-transformers/distiluse-base-multilingual-cased-v2@bfe45d0732ca50787611c0fe107ba278c7f3f889",
+      "hostEmbeddingElapsedSeconds": 240.88336044199968,
+      "lexicalMacroSourceRecallAt20": 0.525,
+      "hybridMacroSourceRecallAt20": 0.7545833333333334,
+      "improvedQuestions": 13,
+      "worsenedQuestions": 0,
+      "goldNotesSeeded": false,
+      "actualLmMeasured": false,
+      "extractionMeasured": false,
+      "androidTokenizationParityMeasured": false,
+      "realDeviceLatencyMeasured": false,
+      "scope": "actual-app-retriever/real-host-ONNX-vectors/public-source-recall-only",
+      "metrics": [
+        {
+          "questionId": "gpt4_2655b836",
+          "type": "temporal-reasoning",
+          "lexicalRecallAt20": 0.5,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 618,
+          "hybridMillis": 415,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 108,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "0a995998",
+          "type": "multi-session",
+          "lexicalRecallAt20": 0.3333333333333333,
+          "hybridRecallAt20": 0.3333333333333333,
+          "lexicalMillis": 243,
+          "hybridMillis": 310,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 75,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "6a1eabeb",
+          "type": "knowledge-update",
+          "lexicalRecallAt20": 1,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 205,
+          "hybridMillis": 262,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 68,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "8a2466db",
+          "type": "single-session-preference",
+          "lexicalRecallAt20": 1,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 238,
+          "hybridMillis": 294,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 67,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "7161e7e2",
+          "type": "single-session-assistant",
+          "lexicalRecallAt20": 1,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 243,
+          "hybridMillis": 325,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 87,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "e47becba",
+          "type": "single-session-user",
+          "lexicalRecallAt20": 1,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 210,
+          "hybridMillis": 331,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 65,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "gpt4_2487a7cb",
+          "type": "temporal-reasoning",
+          "lexicalRecallAt20": 1,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 247,
+          "hybridMillis": 345,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 101,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "6d550036",
+          "type": "multi-session",
+          "lexicalRecallAt20": 0,
+          "hybridRecallAt20": 0,
+          "lexicalMillis": 324,
+          "hybridMillis": 338,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 91,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "6aeb4375",
+          "type": "knowledge-update",
+          "lexicalRecallAt20": 1,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 209,
+          "hybridMillis": 356,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 119,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "06878be2",
+          "type": "single-session-preference",
+          "lexicalRecallAt20": 0,
+          "hybridRecallAt20": 0.6666666666666666,
+          "lexicalMillis": 244,
+          "hybridMillis": 445,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 147,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "c4f10528",
+          "type": "single-session-assistant",
+          "lexicalRecallAt20": 0,
+          "hybridRecallAt20": 0,
+          "lexicalMillis": 280,
+          "hybridMillis": 484,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 101,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "118b2229",
+          "type": "single-session-user",
+          "lexicalRecallAt20": 0,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 186,
+          "hybridMillis": 260,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 69,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "gpt4_76048e76",
+          "type": "temporal-reasoning",
+          "lexicalRecallAt20": 0.5,
+          "hybridRecallAt20": 0.5,
+          "lexicalMillis": 352,
+          "hybridMillis": 362,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 104,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "gpt4_59c863d7",
+          "type": "multi-session",
+          "lexicalRecallAt20": 0,
+          "hybridRecallAt20": 0.6,
+          "lexicalMillis": 286,
+          "hybridMillis": 449,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 85,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "830ce83f",
+          "type": "knowledge-update",
+          "lexicalRecallAt20": 0.6666666666666666,
+          "hybridRecallAt20": 0.6666666666666666,
+          "lexicalMillis": 258,
+          "hybridMillis": 368,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 65,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "75832dbd",
+          "type": "single-session-preference",
+          "lexicalRecallAt20": 0,
+          "hybridRecallAt20": 0,
+          "lexicalMillis": 378,
+          "hybridMillis": 448,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 143,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "89527b6b",
+          "type": "single-session-assistant",
+          "lexicalRecallAt20": 1,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 267,
+          "hybridMillis": 470,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 118,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "51a45a95",
+          "type": "single-session-user",
+          "lexicalRecallAt20": 1,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 220,
+          "hybridMillis": 413,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 110,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "gpt4_2312f94c",
+          "type": "temporal-reasoning",
+          "lexicalRecallAt20": 1,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 226,
+          "hybridMillis": 291,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 67,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "b5ef892d",
+          "type": "multi-session",
+          "lexicalRecallAt20": 0,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 232,
+          "hybridMillis": 309,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 66,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "852ce960",
+          "type": "knowledge-update",
+          "lexicalRecallAt20": 1,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 232,
+          "hybridMillis": 299,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 63,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "0edc2aef",
+          "type": "single-session-preference",
+          "lexicalRecallAt20": 0,
+          "hybridRecallAt20": 0,
+          "lexicalMillis": 217,
+          "hybridMillis": 295,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 69,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "e9327a54",
+          "type": "single-session-assistant",
+          "lexicalRecallAt20": 1,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 254,
+          "hybridMillis": 363,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 76,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "58bf7951",
+          "type": "single-session-user",
+          "lexicalRecallAt20": 0,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 216,
+          "hybridMillis": 264,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 69,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "0bb5a684",
+          "type": "temporal-reasoning",
+          "lexicalRecallAt20": 1,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 256,
+          "hybridMillis": 325,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 62,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "e831120c",
+          "type": "multi-session",
+          "lexicalRecallAt20": 1,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 275,
+          "hybridMillis": 382,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 78,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "945e3d21",
+          "type": "knowledge-update",
+          "lexicalRecallAt20": 0,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 225,
+          "hybridMillis": 291,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 68,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "35a27287",
+          "type": "single-session-preference",
+          "lexicalRecallAt20": 0,
+          "hybridRecallAt20": 0.6666666666666666,
+          "lexicalMillis": 231,
+          "hybridMillis": 349,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 99,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "4c36ccef",
+          "type": "single-session-assistant",
+          "lexicalRecallAt20": 1,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 302,
+          "hybridMillis": 317,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 67,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "1e043500",
+          "type": "single-session-user",
+          "lexicalRecallAt20": 1,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 213,
+          "hybridMillis": 279,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 74,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "08f4fc43",
+          "type": "temporal-reasoning",
+          "lexicalRecallAt20": 0.5,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 288,
+          "hybridMillis": 367,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 76,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "3a704032",
+          "type": "multi-session",
+          "lexicalRecallAt20": 0,
+          "hybridRecallAt20": 0,
+          "lexicalMillis": 183,
+          "hybridMillis": 249,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 66,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "d7c942c3",
+          "type": "knowledge-update",
+          "lexicalRecallAt20": 0.5,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 221,
+          "hybridMillis": 321,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 62,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "32260d93",
+          "type": "single-session-preference",
+          "lexicalRecallAt20": 0,
+          "hybridRecallAt20": 0,
+          "lexicalMillis": 244,
+          "hybridMillis": 321,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 71,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "6ae235be",
+          "type": "single-session-assistant",
+          "lexicalRecallAt20": 1,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 333,
+          "hybridMillis": 332,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 63,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "c5e8278d",
+          "type": "single-session-user",
+          "lexicalRecallAt20": 1,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 197,
+          "hybridMillis": 268,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 71,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "2c63a862",
+          "type": "temporal-reasoning",
+          "lexicalRecallAt20": 0,
+          "hybridRecallAt20": 0.5,
+          "lexicalMillis": 262,
+          "hybridMillis": 361,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 73,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "gpt4_d84a3211",
+          "type": "multi-session",
+          "lexicalRecallAt20": 0,
+          "hybridRecallAt20": 0.25,
+          "lexicalMillis": 226,
+          "hybridMillis": 341,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 117,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "71315a70",
+          "type": "knowledge-update",
+          "lexicalRecallAt20": 1,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 220,
+          "hybridMillis": 305,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 103,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "195a1a1b",
+          "type": "single-session-preference",
+          "lexicalRecallAt20": 0,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 265,
+          "hybridMillis": 352,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 101,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        }
+      ],
+      "measurementEnvironment": "Linux x86_64 / JDK17 / actual Android SQLite via Robolectric SDK28 native backend; not Galaxy phone latency",
+      "sourceCodePeriod": "2026-10-13 development snapshot; exact results apply to measured source snapshots, subsequent changes require recheck"
+    },
+    "publicHoldout40": {
+      "dataset": "LongMemEval cleaned oracle, non-standard pooled raw-turn retrieval subset",
+      "standardBenchmark": false,
+      "questionCount": 40,
+      "sourceCount": 2131,
+      "rawSourceChunks": 6940,
+      "modelId": "sentence-transformers/distiluse-base-multilingual-cased-v2@bfe45d0732ca50787611c0fe107ba278c7f3f889",
+      "hostEmbeddingElapsedSeconds": 0.5414635720007936,
+      "lexicalMacroSourceRecallAt20": 0.4625,
+      "hybridMacroSourceRecallAt20": 0.76625,
+      "improvedQuestions": 19,
+      "worsenedQuestions": 1,
+      "goldNotesSeeded": false,
+      "actualLmMeasured": false,
+      "extractionMeasured": false,
+      "androidTokenizationParityMeasured": false,
+      "realDeviceLatencyMeasured": false,
+      "scope": "actual-app-retriever/real-host-ONNX-vectors/public-source-recall-only",
+      "metrics": [
+        {
+          "questionId": "7e00a6cb",
+          "type": "single-session-assistant",
+          "lexicalRecallAt20": 1,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 299,
+          "hybridMillis": 321,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 89,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "6ade9755",
+          "type": "single-session-user",
+          "lexicalRecallAt20": 0,
+          "hybridRecallAt20": 0,
+          "lexicalMillis": 186,
+          "hybridMillis": 302,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 88,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "gpt4_385a5000",
+          "type": "temporal-reasoning",
+          "lexicalRecallAt20": 0,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 252,
+          "hybridMillis": 273,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 66,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "aae3761f",
+          "type": "multi-session",
+          "lexicalRecallAt20": 0,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 182,
+          "hybridMillis": 246,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 64,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "89941a93",
+          "type": "knowledge-update",
+          "lexicalRecallAt20": 0,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 169,
+          "hybridMillis": 233,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 70,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "afdc33df",
+          "type": "single-session-preference",
+          "lexicalRecallAt20": 0,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 229,
+          "hybridMillis": 294,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 68,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "1903aded",
+          "type": "single-session-assistant",
+          "lexicalRecallAt20": 0,
+          "hybridRecallAt20": 0,
+          "lexicalMillis": 245,
+          "hybridMillis": 311,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 65,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "6f9b354f",
+          "type": "single-session-user",
+          "lexicalRecallAt20": 1,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 112,
+          "hybridMillis": 178,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 65,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "2a1811e2",
+          "type": "temporal-reasoning",
+          "lexicalRecallAt20": 1,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 201,
+          "hybridMillis": 266,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 65,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "gpt4_f2262a51",
+          "type": "multi-session",
+          "lexicalRecallAt20": 0,
+          "hybridRecallAt20": 0.4,
+          "lexicalMillis": 174,
+          "hybridMillis": 241,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 64,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "ce6d2d27",
+          "type": "knowledge-update",
+          "lexicalRecallAt20": 0,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 209,
+          "hybridMillis": 281,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 67,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "caf03d32",
+          "type": "single-session-preference",
+          "lexicalRecallAt20": 0.5,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 229,
+          "hybridMillis": 334,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 88,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "ceb54acb",
+          "type": "single-session-assistant",
+          "lexicalRecallAt20": 1,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 411,
+          "hybridMillis": 558,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 121,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "58ef2f1c",
+          "type": "single-session-user",
+          "lexicalRecallAt20": 1,
+          "hybridRecallAt20": 0,
+          "lexicalMillis": 338,
+          "hybridMillis": 319,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 62,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "bbf86515",
+          "type": "temporal-reasoning",
+          "lexicalRecallAt20": 0.5,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 199,
+          "hybridMillis": 261,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 62,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "dd2973ad",
+          "type": "multi-session",
+          "lexicalRecallAt20": 0.5,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 222,
+          "hybridMillis": 288,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 63,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "9ea5eabc",
+          "type": "knowledge-update",
+          "lexicalRecallAt20": 0,
+          "hybridRecallAt20": 0.5,
+          "lexicalMillis": 192,
+          "hybridMillis": 255,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 61,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "54026fce",
+          "type": "single-session-preference",
+          "lexicalRecallAt20": 0,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 185,
+          "hybridMillis": 243,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 61,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "f523d9fe",
+          "type": "single-session-assistant",
+          "lexicalRecallAt20": 1,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 254,
+          "hybridMillis": 323,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 66,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "f8c5f88b",
+          "type": "single-session-user",
+          "lexicalRecallAt20": 1,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 178,
+          "hybridMillis": 237,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 64,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "gpt4_5dcc0aab",
+          "type": "temporal-reasoning",
+          "lexicalRecallAt20": 1,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 164,
+          "hybridMillis": 227,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 65,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "c4a1ceb8",
+          "type": "multi-session",
+          "lexicalRecallAt20": 0,
+          "hybridRecallAt20": 0.25,
+          "lexicalMillis": 199,
+          "hybridMillis": 269,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 67,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "07741c44",
+          "type": "knowledge-update",
+          "lexicalRecallAt20": 0.5,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 158,
+          "hybridMillis": 221,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 61,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "06f04340",
+          "type": "single-session-preference",
+          "lexicalRecallAt20": 0,
+          "hybridRecallAt20": 0,
+          "lexicalMillis": 223,
+          "hybridMillis": 285,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 61,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "0e5e2d1a",
+          "type": "single-session-assistant",
+          "lexicalRecallAt20": 1,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 258,
+          "hybridMillis": 321,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 62,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "5d3d2817",
+          "type": "single-session-user",
+          "lexicalRecallAt20": 1,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 63,
+          "hybridMillis": 126,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 63,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "gpt4_0b2f1d21",
+          "type": "temporal-reasoning",
+          "lexicalRecallAt20": 0,
+          "hybridRecallAt20": 0.5,
+          "lexicalMillis": 214,
+          "hybridMillis": 280,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 65,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "gpt4_a56e767c",
+          "type": "multi-session",
+          "lexicalRecallAt20": 0,
+          "hybridRecallAt20": 0.16666666666666666,
+          "lexicalMillis": 196,
+          "hybridMillis": 252,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 61,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "a1eacc2a",
+          "type": "knowledge-update",
+          "lexicalRecallAt20": 1,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 199,
+          "hybridMillis": 264,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 67,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "6b7dfb22",
+          "type": "single-session-preference",
+          "lexicalRecallAt20": 0,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 204,
+          "hybridMillis": 271,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 69,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "fea54f57",
+          "type": "single-session-assistant",
+          "lexicalRecallAt20": 1,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 207,
+          "hybridMillis": 279,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 66,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "7527f7e2",
+          "type": "single-session-user",
+          "lexicalRecallAt20": 0,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 186,
+          "hybridMillis": 250,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 61,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "f0853d11",
+          "type": "temporal-reasoning",
+          "lexicalRecallAt20": 0.5,
+          "hybridRecallAt20": 0.5,
+          "lexicalMillis": 214,
+          "hybridMillis": 277,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 64,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "6cb6f249",
+          "type": "multi-session",
+          "lexicalRecallAt20": 0,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 197,
+          "hybridMillis": 263,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 64,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "184da446",
+          "type": "knowledge-update",
+          "lexicalRecallAt20": 1,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 220,
+          "hybridMillis": 288,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 68,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "1a1907b4",
+          "type": "single-session-preference",
+          "lexicalRecallAt20": 0,
+          "hybridRecallAt20": 0,
+          "lexicalMillis": 224,
+          "hybridMillis": 288,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 63,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "cc539528",
+          "type": "single-session-assistant",
+          "lexicalRecallAt20": 1,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 314,
+          "hybridMillis": 470,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 101,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "c960da58",
+          "type": "single-session-user",
+          "lexicalRecallAt20": 1,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 286,
+          "hybridMillis": 389,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 112,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "gpt4_6ed717ea",
+          "type": "temporal-reasoning",
+          "lexicalRecallAt20": 1,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 408,
+          "hybridMillis": 433,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 63,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        },
+        {
+          "questionId": "46a3abf7",
+          "type": "multi-session",
+          "lexicalRecallAt20": 0,
+          "hybridRecallAt20": 0.3333333333333333,
+          "lexicalMillis": 229,
+          "hybridMillis": 294,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 64,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          }
+        }
+      ],
+      "measurementEnvironment": "Linux x86_64 / JDK17 / actual Android SQLite via Robolectric SDK28 native backend; not Galaxy phone latency",
+      "sourceCodePeriod": "2026-10-13 development snapshot; exact results apply to measured source snapshots, subsequent changes require recheck"
+    },
+    "vector100k": {
+      "benchmark": "actual-app-cache-paged-cosine-synthetic-512d-storage-scaling",
+      "storedChunks": 100000,
+      "dimensions": 512,
+      "nominalVectorBytes": 204800000,
+      "databaseAndWalBytes": 478176280,
+      "populateMillis": 26913,
+      "searchWallMillis": 1543,
+      "scan": {
+        "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+        "scannedVectors": 28288,
+        "scannedVectorBytes": 57933824,
+        "elapsedMillis": 1541,
+        "limitReached": true,
+        "approximateNearestNeighbor": false
+      },
+      "neuralQualityMeasured": false,
+      "actualLmMeasured": false,
+      "realDeviceLatencyMeasured": false,
+      "modelVectorsSynthetic": true,
+      "measurementEnvironment": "Linux x86_64 / JDK17 / actual Android SQLite via Robolectric SDK28 native backend; not Galaxy phone latency",
+      "sourceCodePeriod": "2026-10-13 development snapshot; exact results apply to measured source snapshots, subsequent changes require recheck"
+    },
+    "publicHoldout40Ann": {
+      "dataset": "LongMemEval cleaned oracle, non-standard pooled raw-turn retrieval subset",
+      "standardBenchmark": false,
+      "questionCount": 40,
+      "sourceCount": 2131,
+      "rawSourceChunks": 6940,
+      "modelId": "sentence-transformers/distiluse-base-multilingual-cased-v2@bfe45d0732ca50787611c0fe107ba278c7f3f889",
+      "hostEmbeddingElapsedSeconds": 0.5414635720007936,
+      "lexicalMacroSourceRecallAt20": 0.4625,
+      "hybridMacroSourceRecallAt20": 0.76625,
+      "improvedQuestions": 19,
+      "worsenedQuestions": 1,
+      "goldNotesSeeded": false,
+      "actualLmMeasured": false,
+      "extractionMeasured": false,
+      "androidTokenizationParityMeasured": false,
+      "realDeviceLatencyMeasured": false,
+      "scope": "actual-app-retriever/real-host-ONNX-vectors/public-source-recall-only",
+      "annHybridMacroSourceRecallAt20": 0.76625,
+      "annImprovedOverExactQuestions": 0,
+      "annWorsenedOverExactQuestions": 0,
+      "annMethod": {
+        "method": "native_hnsw_int8_cosine_then_exact_f32_shortlist_rerank",
+        "profile": "hnswlib-0.8.0-int8-cosine-norm-v1-64bit",
+        "approximateNearestNeighbor": true,
+        "originalsAuthoritative": true,
+        "derivedCacheRebuildable": true,
+        "status": "ready",
+        "ready": true,
+        "canonicalChunkCount": 6940,
+        "indexedChunkCount": 6940,
+        "candidateCoverage": 1,
+        "fullCorpusGraphCoverage": true,
+        "topKRecallGuaranteed": false,
+        "canonicalFingerprintScope": "encoder_profile+mutation_generation+ordered_rowid_source_hash_range_dimension_encoding",
+        "canonicalFloat32CacheRetained": true,
+        "excludedBeforeTopK": 0,
+        "constraintsFilterMode": "full_device_record_predicate",
+        "candidateCount": 240,
+        "canonicalCandidateBytes": 491520,
+        "lastSearchMillis": 25,
+        "constraintCandidateLimitReached": false,
+        "realDeviceLatencyMeasured": false
+      },
+      "metrics": [
+        {
+          "questionId": "7e00a6cb",
+          "type": "single-session-assistant",
+          "lexicalRecallAt20": 1,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 700,
+          "hybridMillis": 369,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 110,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          },
+          "annHybridRecallAt20": 1,
+          "annHybridMillis": 263,
+          "semanticAnn": {
+            "method": "native_hnsw_int8_cosine_then_exact_f32_shortlist_rerank",
+            "profile": "hnswlib-0.8.0-int8-cosine-norm-v1-64bit",
+            "approximateNearestNeighbor": true,
+            "originalsAuthoritative": true,
+            "derivedCacheRebuildable": true,
+            "status": "ready",
+            "ready": true,
+            "canonicalChunkCount": 6940,
+            "indexedChunkCount": 6940,
+            "candidateCoverage": 1,
+            "fullCorpusGraphCoverage": true,
+            "topKRecallGuaranteed": false,
+            "canonicalFingerprintScope": "encoder_profile+mutation_generation+ordered_rowid_source_hash_range_dimension_encoding",
+            "canonicalFloat32CacheRetained": true,
+            "excludedBeforeTopK": 0,
+            "constraintsFilterMode": "full_device_record_predicate",
+            "candidateCount": 240,
+            "canonicalCandidateBytes": 491520,
+            "lastSearchMillis": 32,
+            "constraintCandidateLimitReached": false,
+            "realDeviceLatencyMeasured": false
+          }
+        },
+        {
+          "questionId": "6ade9755",
+          "type": "single-session-user",
+          "lexicalRecallAt20": 0,
+          "hybridRecallAt20": 0,
+          "lexicalMillis": 177,
+          "hybridMillis": 243,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 71,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          },
+          "annHybridRecallAt20": 0,
+          "annHybridMillis": 209,
+          "semanticAnn": {
+            "method": "native_hnsw_int8_cosine_then_exact_f32_shortlist_rerank",
+            "profile": "hnswlib-0.8.0-int8-cosine-norm-v1-64bit",
+            "approximateNearestNeighbor": true,
+            "originalsAuthoritative": true,
+            "derivedCacheRebuildable": true,
+            "status": "ready",
+            "ready": true,
+            "canonicalChunkCount": 6940,
+            "indexedChunkCount": 6940,
+            "candidateCoverage": 1,
+            "fullCorpusGraphCoverage": true,
+            "topKRecallGuaranteed": false,
+            "canonicalFingerprintScope": "encoder_profile+mutation_generation+ordered_rowid_source_hash_range_dimension_encoding",
+            "canonicalFloat32CacheRetained": true,
+            "excludedBeforeTopK": 0,
+            "constraintsFilterMode": "full_device_record_predicate",
+            "candidateCount": 240,
+            "canonicalCandidateBytes": 491520,
+            "lastSearchMillis": 34,
+            "constraintCandidateLimitReached": false,
+            "realDeviceLatencyMeasured": false
+          }
+        },
+        {
+          "questionId": "gpt4_385a5000",
+          "type": "temporal-reasoning",
+          "lexicalRecallAt20": 0,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 222,
+          "hybridMillis": 278,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 76,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          },
+          "annHybridRecallAt20": 1,
+          "annHybridMillis": 231,
+          "semanticAnn": {
+            "method": "native_hnsw_int8_cosine_then_exact_f32_shortlist_rerank",
+            "profile": "hnswlib-0.8.0-int8-cosine-norm-v1-64bit",
+            "approximateNearestNeighbor": true,
+            "originalsAuthoritative": true,
+            "derivedCacheRebuildable": true,
+            "status": "ready",
+            "ready": true,
+            "canonicalChunkCount": 6940,
+            "indexedChunkCount": 6940,
+            "candidateCoverage": 1,
+            "fullCorpusGraphCoverage": true,
+            "topKRecallGuaranteed": false,
+            "canonicalFingerprintScope": "encoder_profile+mutation_generation+ordered_rowid_source_hash_range_dimension_encoding",
+            "canonicalFloat32CacheRetained": true,
+            "excludedBeforeTopK": 0,
+            "constraintsFilterMode": "full_device_record_predicate",
+            "candidateCount": 240,
+            "canonicalCandidateBytes": 491520,
+            "lastSearchMillis": 31,
+            "constraintCandidateLimitReached": false,
+            "realDeviceLatencyMeasured": false
+          }
+        },
+        {
+          "questionId": "aae3761f",
+          "type": "multi-session",
+          "lexicalRecallAt20": 0,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 199,
+          "hybridMillis": 307,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 105,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          },
+          "annHybridRecallAt20": 1,
+          "annHybridMillis": 250,
+          "semanticAnn": {
+            "method": "native_hnsw_int8_cosine_then_exact_f32_shortlist_rerank",
+            "profile": "hnswlib-0.8.0-int8-cosine-norm-v1-64bit",
+            "approximateNearestNeighbor": true,
+            "originalsAuthoritative": true,
+            "derivedCacheRebuildable": true,
+            "status": "ready",
+            "ready": true,
+            "canonicalChunkCount": 6940,
+            "indexedChunkCount": 6940,
+            "candidateCoverage": 1,
+            "fullCorpusGraphCoverage": true,
+            "topKRecallGuaranteed": false,
+            "canonicalFingerprintScope": "encoder_profile+mutation_generation+ordered_rowid_source_hash_range_dimension_encoding",
+            "canonicalFloat32CacheRetained": true,
+            "excludedBeforeTopK": 0,
+            "constraintsFilterMode": "full_device_record_predicate",
+            "candidateCount": 240,
+            "canonicalCandidateBytes": 491520,
+            "lastSearchMillis": 35,
+            "constraintCandidateLimitReached": false,
+            "realDeviceLatencyMeasured": false
+          }
+        },
+        {
+          "questionId": "89941a93",
+          "type": "knowledge-update",
+          "lexicalRecallAt20": 0,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 182,
+          "hybridMillis": 245,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 81,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          },
+          "annHybridRecallAt20": 1,
+          "annHybridMillis": 192,
+          "semanticAnn": {
+            "method": "native_hnsw_int8_cosine_then_exact_f32_shortlist_rerank",
+            "profile": "hnswlib-0.8.0-int8-cosine-norm-v1-64bit",
+            "approximateNearestNeighbor": true,
+            "originalsAuthoritative": true,
+            "derivedCacheRebuildable": true,
+            "status": "ready",
+            "ready": true,
+            "canonicalChunkCount": 6940,
+            "indexedChunkCount": 6940,
+            "candidateCoverage": 1,
+            "fullCorpusGraphCoverage": true,
+            "topKRecallGuaranteed": false,
+            "canonicalFingerprintScope": "encoder_profile+mutation_generation+ordered_rowid_source_hash_range_dimension_encoding",
+            "canonicalFloat32CacheRetained": true,
+            "excludedBeforeTopK": 0,
+            "constraintsFilterMode": "full_device_record_predicate",
+            "candidateCount": 240,
+            "canonicalCandidateBytes": 491520,
+            "lastSearchMillis": 28,
+            "constraintCandidateLimitReached": false,
+            "realDeviceLatencyMeasured": false
+          }
+        },
+        {
+          "questionId": "afdc33df",
+          "type": "single-session-preference",
+          "lexicalRecallAt20": 0,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 226,
+          "hybridMillis": 308,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 85,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          },
+          "annHybridRecallAt20": 1,
+          "annHybridMillis": 279,
+          "semanticAnn": {
+            "method": "native_hnsw_int8_cosine_then_exact_f32_shortlist_rerank",
+            "profile": "hnswlib-0.8.0-int8-cosine-norm-v1-64bit",
+            "approximateNearestNeighbor": true,
+            "originalsAuthoritative": true,
+            "derivedCacheRebuildable": true,
+            "status": "ready",
+            "ready": true,
+            "canonicalChunkCount": 6940,
+            "indexedChunkCount": 6940,
+            "candidateCoverage": 1,
+            "fullCorpusGraphCoverage": true,
+            "topKRecallGuaranteed": false,
+            "canonicalFingerprintScope": "encoder_profile+mutation_generation+ordered_rowid_source_hash_range_dimension_encoding",
+            "canonicalFloat32CacheRetained": true,
+            "excludedBeforeTopK": 0,
+            "constraintsFilterMode": "full_device_record_predicate",
+            "candidateCount": 240,
+            "canonicalCandidateBytes": 491520,
+            "lastSearchMillis": 29,
+            "constraintCandidateLimitReached": false,
+            "realDeviceLatencyMeasured": false
+          }
+        },
+        {
+          "questionId": "1903aded",
+          "type": "single-session-assistant",
+          "lexicalRecallAt20": 0,
+          "hybridRecallAt20": 0,
+          "lexicalMillis": 291,
+          "hybridMillis": 316,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 72,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          },
+          "annHybridRecallAt20": 0,
+          "annHybridMillis": 298,
+          "semanticAnn": {
+            "method": "native_hnsw_int8_cosine_then_exact_f32_shortlist_rerank",
+            "profile": "hnswlib-0.8.0-int8-cosine-norm-v1-64bit",
+            "approximateNearestNeighbor": true,
+            "originalsAuthoritative": true,
+            "derivedCacheRebuildable": true,
+            "status": "ready",
+            "ready": true,
+            "canonicalChunkCount": 6940,
+            "indexedChunkCount": 6940,
+            "candidateCoverage": 1,
+            "fullCorpusGraphCoverage": true,
+            "topKRecallGuaranteed": false,
+            "canonicalFingerprintScope": "encoder_profile+mutation_generation+ordered_rowid_source_hash_range_dimension_encoding",
+            "canonicalFloat32CacheRetained": true,
+            "excludedBeforeTopK": 0,
+            "constraintsFilterMode": "full_device_record_predicate",
+            "candidateCount": 240,
+            "canonicalCandidateBytes": 491520,
+            "lastSearchMillis": 26,
+            "constraintCandidateLimitReached": false,
+            "realDeviceLatencyMeasured": false
+          }
+        },
+        {
+          "questionId": "6f9b354f",
+          "type": "single-session-user",
+          "lexicalRecallAt20": 1,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 110,
+          "hybridMillis": 194,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 85,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          },
+          "annHybridRecallAt20": 1,
+          "annHybridMillis": 137,
+          "semanticAnn": {
+            "method": "native_hnsw_int8_cosine_then_exact_f32_shortlist_rerank",
+            "profile": "hnswlib-0.8.0-int8-cosine-norm-v1-64bit",
+            "approximateNearestNeighbor": true,
+            "originalsAuthoritative": true,
+            "derivedCacheRebuildable": true,
+            "status": "ready",
+            "ready": true,
+            "canonicalChunkCount": 6940,
+            "indexedChunkCount": 6940,
+            "candidateCoverage": 1,
+            "fullCorpusGraphCoverage": true,
+            "topKRecallGuaranteed": false,
+            "canonicalFingerprintScope": "encoder_profile+mutation_generation+ordered_rowid_source_hash_range_dimension_encoding",
+            "canonicalFloat32CacheRetained": true,
+            "excludedBeforeTopK": 0,
+            "constraintsFilterMode": "full_device_record_predicate",
+            "candidateCount": 240,
+            "canonicalCandidateBytes": 491520,
+            "lastSearchMillis": 29,
+            "constraintCandidateLimitReached": false,
+            "realDeviceLatencyMeasured": false
+          }
+        },
+        {
+          "questionId": "2a1811e2",
+          "type": "temporal-reasoning",
+          "lexicalRecallAt20": 1,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 194,
+          "hybridMillis": 262,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 67,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          },
+          "annHybridRecallAt20": 1,
+          "annHybridMillis": 227,
+          "semanticAnn": {
+            "method": "native_hnsw_int8_cosine_then_exact_f32_shortlist_rerank",
+            "profile": "hnswlib-0.8.0-int8-cosine-norm-v1-64bit",
+            "approximateNearestNeighbor": true,
+            "originalsAuthoritative": true,
+            "derivedCacheRebuildable": true,
+            "status": "ready",
+            "ready": true,
+            "canonicalChunkCount": 6940,
+            "indexedChunkCount": 6940,
+            "candidateCoverage": 1,
+            "fullCorpusGraphCoverage": true,
+            "topKRecallGuaranteed": false,
+            "canonicalFingerprintScope": "encoder_profile+mutation_generation+ordered_rowid_source_hash_range_dimension_encoding",
+            "canonicalFloat32CacheRetained": true,
+            "excludedBeforeTopK": 0,
+            "constraintsFilterMode": "full_device_record_predicate",
+            "candidateCount": 240,
+            "canonicalCandidateBytes": 491520,
+            "lastSearchMillis": 25,
+            "constraintCandidateLimitReached": false,
+            "realDeviceLatencyMeasured": false
+          }
+        },
+        {
+          "questionId": "gpt4_f2262a51",
+          "type": "multi-session",
+          "lexicalRecallAt20": 0,
+          "hybridRecallAt20": 0.4,
+          "lexicalMillis": 171,
+          "hybridMillis": 234,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 64,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          },
+          "annHybridRecallAt20": 0.4,
+          "annHybridMillis": 221,
+          "semanticAnn": {
+            "method": "native_hnsw_int8_cosine_then_exact_f32_shortlist_rerank",
+            "profile": "hnswlib-0.8.0-int8-cosine-norm-v1-64bit",
+            "approximateNearestNeighbor": true,
+            "originalsAuthoritative": true,
+            "derivedCacheRebuildable": true,
+            "status": "ready",
+            "ready": true,
+            "canonicalChunkCount": 6940,
+            "indexedChunkCount": 6940,
+            "candidateCoverage": 1,
+            "fullCorpusGraphCoverage": true,
+            "topKRecallGuaranteed": false,
+            "canonicalFingerprintScope": "encoder_profile+mutation_generation+ordered_rowid_source_hash_range_dimension_encoding",
+            "canonicalFloat32CacheRetained": true,
+            "excludedBeforeTopK": 0,
+            "constraintsFilterMode": "full_device_record_predicate",
+            "candidateCount": 240,
+            "canonicalCandidateBytes": 491520,
+            "lastSearchMillis": 29,
+            "constraintCandidateLimitReached": false,
+            "realDeviceLatencyMeasured": false
+          }
+        },
+        {
+          "questionId": "ce6d2d27",
+          "type": "knowledge-update",
+          "lexicalRecallAt20": 0,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 207,
+          "hybridMillis": 261,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 65,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          },
+          "annHybridRecallAt20": 1,
+          "annHybridMillis": 226,
+          "semanticAnn": {
+            "method": "native_hnsw_int8_cosine_then_exact_f32_shortlist_rerank",
+            "profile": "hnswlib-0.8.0-int8-cosine-norm-v1-64bit",
+            "approximateNearestNeighbor": true,
+            "originalsAuthoritative": true,
+            "derivedCacheRebuildable": true,
+            "status": "ready",
+            "ready": true,
+            "canonicalChunkCount": 6940,
+            "indexedChunkCount": 6940,
+            "candidateCoverage": 1,
+            "fullCorpusGraphCoverage": true,
+            "topKRecallGuaranteed": false,
+            "canonicalFingerprintScope": "encoder_profile+mutation_generation+ordered_rowid_source_hash_range_dimension_encoding",
+            "canonicalFloat32CacheRetained": true,
+            "excludedBeforeTopK": 0,
+            "constraintsFilterMode": "full_device_record_predicate",
+            "candidateCount": 240,
+            "canonicalCandidateBytes": 491520,
+            "lastSearchMillis": 26,
+            "constraintCandidateLimitReached": false,
+            "realDeviceLatencyMeasured": false
+          }
+        },
+        {
+          "questionId": "caf03d32",
+          "type": "single-session-preference",
+          "lexicalRecallAt20": 0.5,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 186,
+          "hybridMillis": 251,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 62,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          },
+          "annHybridRecallAt20": 1,
+          "annHybridMillis": 228,
+          "semanticAnn": {
+            "method": "native_hnsw_int8_cosine_then_exact_f32_shortlist_rerank",
+            "profile": "hnswlib-0.8.0-int8-cosine-norm-v1-64bit",
+            "approximateNearestNeighbor": true,
+            "originalsAuthoritative": true,
+            "derivedCacheRebuildable": true,
+            "status": "ready",
+            "ready": true,
+            "canonicalChunkCount": 6940,
+            "indexedChunkCount": 6940,
+            "candidateCoverage": 1,
+            "fullCorpusGraphCoverage": true,
+            "topKRecallGuaranteed": false,
+            "canonicalFingerprintScope": "encoder_profile+mutation_generation+ordered_rowid_source_hash_range_dimension_encoding",
+            "canonicalFloat32CacheRetained": true,
+            "excludedBeforeTopK": 0,
+            "constraintsFilterMode": "full_device_record_predicate",
+            "candidateCount": 240,
+            "canonicalCandidateBytes": 491520,
+            "lastSearchMillis": 25,
+            "constraintCandidateLimitReached": false,
+            "realDeviceLatencyMeasured": false
+          }
+        },
+        {
+          "questionId": "ceb54acb",
+          "type": "single-session-assistant",
+          "lexicalRecallAt20": 1,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 249,
+          "hybridMillis": 311,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 65,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          },
+          "annHybridRecallAt20": 1,
+          "annHybridMillis": 273,
+          "semanticAnn": {
+            "method": "native_hnsw_int8_cosine_then_exact_f32_shortlist_rerank",
+            "profile": "hnswlib-0.8.0-int8-cosine-norm-v1-64bit",
+            "approximateNearestNeighbor": true,
+            "originalsAuthoritative": true,
+            "derivedCacheRebuildable": true,
+            "status": "ready",
+            "ready": true,
+            "canonicalChunkCount": 6940,
+            "indexedChunkCount": 6940,
+            "candidateCoverage": 1,
+            "fullCorpusGraphCoverage": true,
+            "topKRecallGuaranteed": false,
+            "canonicalFingerprintScope": "encoder_profile+mutation_generation+ordered_rowid_source_hash_range_dimension_encoding",
+            "canonicalFloat32CacheRetained": true,
+            "excludedBeforeTopK": 0,
+            "constraintsFilterMode": "full_device_record_predicate",
+            "candidateCount": 240,
+            "canonicalCandidateBytes": 491520,
+            "lastSearchMillis": 26,
+            "constraintCandidateLimitReached": false,
+            "realDeviceLatencyMeasured": false
+          }
+        },
+        {
+          "questionId": "58ef2f1c",
+          "type": "single-session-user",
+          "lexicalRecallAt20": 1,
+          "hybridRecallAt20": 0,
+          "lexicalMillis": 198,
+          "hybridMillis": 273,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 69,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          },
+          "annHybridRecallAt20": 0,
+          "annHybridMillis": 227,
+          "semanticAnn": {
+            "method": "native_hnsw_int8_cosine_then_exact_f32_shortlist_rerank",
+            "profile": "hnswlib-0.8.0-int8-cosine-norm-v1-64bit",
+            "approximateNearestNeighbor": true,
+            "originalsAuthoritative": true,
+            "derivedCacheRebuildable": true,
+            "status": "ready",
+            "ready": true,
+            "canonicalChunkCount": 6940,
+            "indexedChunkCount": 6940,
+            "candidateCoverage": 1,
+            "fullCorpusGraphCoverage": true,
+            "topKRecallGuaranteed": false,
+            "canonicalFingerprintScope": "encoder_profile+mutation_generation+ordered_rowid_source_hash_range_dimension_encoding",
+            "canonicalFloat32CacheRetained": true,
+            "excludedBeforeTopK": 0,
+            "constraintsFilterMode": "full_device_record_predicate",
+            "candidateCount": 240,
+            "canonicalCandidateBytes": 491520,
+            "lastSearchMillis": 26,
+            "constraintCandidateLimitReached": false,
+            "realDeviceLatencyMeasured": false
+          }
+        },
+        {
+          "questionId": "bbf86515",
+          "type": "temporal-reasoning",
+          "lexicalRecallAt20": 0.5,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 197,
+          "hybridMillis": 262,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 60,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          },
+          "annHybridRecallAt20": 1,
+          "annHybridMillis": 218,
+          "semanticAnn": {
+            "method": "native_hnsw_int8_cosine_then_exact_f32_shortlist_rerank",
+            "profile": "hnswlib-0.8.0-int8-cosine-norm-v1-64bit",
+            "approximateNearestNeighbor": true,
+            "originalsAuthoritative": true,
+            "derivedCacheRebuildable": true,
+            "status": "ready",
+            "ready": true,
+            "canonicalChunkCount": 6940,
+            "indexedChunkCount": 6940,
+            "candidateCoverage": 1,
+            "fullCorpusGraphCoverage": true,
+            "topKRecallGuaranteed": false,
+            "canonicalFingerprintScope": "encoder_profile+mutation_generation+ordered_rowid_source_hash_range_dimension_encoding",
+            "canonicalFloat32CacheRetained": true,
+            "excludedBeforeTopK": 0,
+            "constraintsFilterMode": "full_device_record_predicate",
+            "candidateCount": 240,
+            "canonicalCandidateBytes": 491520,
+            "lastSearchMillis": 25,
+            "constraintCandidateLimitReached": false,
+            "realDeviceLatencyMeasured": false
+          }
+        },
+        {
+          "questionId": "dd2973ad",
+          "type": "multi-session",
+          "lexicalRecallAt20": 0.5,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 215,
+          "hybridMillis": 285,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 60,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          },
+          "annHybridRecallAt20": 1,
+          "annHybridMillis": 242,
+          "semanticAnn": {
+            "method": "native_hnsw_int8_cosine_then_exact_f32_shortlist_rerank",
+            "profile": "hnswlib-0.8.0-int8-cosine-norm-v1-64bit",
+            "approximateNearestNeighbor": true,
+            "originalsAuthoritative": true,
+            "derivedCacheRebuildable": true,
+            "status": "ready",
+            "ready": true,
+            "canonicalChunkCount": 6940,
+            "indexedChunkCount": 6940,
+            "candidateCoverage": 1,
+            "fullCorpusGraphCoverage": true,
+            "topKRecallGuaranteed": false,
+            "canonicalFingerprintScope": "encoder_profile+mutation_generation+ordered_rowid_source_hash_range_dimension_encoding",
+            "canonicalFloat32CacheRetained": true,
+            "excludedBeforeTopK": 0,
+            "constraintsFilterMode": "full_device_record_predicate",
+            "candidateCount": 240,
+            "canonicalCandidateBytes": 491520,
+            "lastSearchMillis": 25,
+            "constraintCandidateLimitReached": false,
+            "realDeviceLatencyMeasured": false
+          }
+        },
+        {
+          "questionId": "9ea5eabc",
+          "type": "knowledge-update",
+          "lexicalRecallAt20": 0,
+          "hybridRecallAt20": 0.5,
+          "lexicalMillis": 193,
+          "hybridMillis": 250,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 61,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          },
+          "annHybridRecallAt20": 0.5,
+          "annHybridMillis": 216,
+          "semanticAnn": {
+            "method": "native_hnsw_int8_cosine_then_exact_f32_shortlist_rerank",
+            "profile": "hnswlib-0.8.0-int8-cosine-norm-v1-64bit",
+            "approximateNearestNeighbor": true,
+            "originalsAuthoritative": true,
+            "derivedCacheRebuildable": true,
+            "status": "ready",
+            "ready": true,
+            "canonicalChunkCount": 6940,
+            "indexedChunkCount": 6940,
+            "candidateCoverage": 1,
+            "fullCorpusGraphCoverage": true,
+            "topKRecallGuaranteed": false,
+            "canonicalFingerprintScope": "encoder_profile+mutation_generation+ordered_rowid_source_hash_range_dimension_encoding",
+            "canonicalFloat32CacheRetained": true,
+            "excludedBeforeTopK": 0,
+            "constraintsFilterMode": "full_device_record_predicate",
+            "candidateCount": 240,
+            "canonicalCandidateBytes": 491520,
+            "lastSearchMillis": 25,
+            "constraintCandidateLimitReached": false,
+            "realDeviceLatencyMeasured": false
+          }
+        },
+        {
+          "questionId": "54026fce",
+          "type": "single-session-preference",
+          "lexicalRecallAt20": 0,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 176,
+          "hybridMillis": 247,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 61,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          },
+          "annHybridRecallAt20": 1,
+          "annHybridMillis": 202,
+          "semanticAnn": {
+            "method": "native_hnsw_int8_cosine_then_exact_f32_shortlist_rerank",
+            "profile": "hnswlib-0.8.0-int8-cosine-norm-v1-64bit",
+            "approximateNearestNeighbor": true,
+            "originalsAuthoritative": true,
+            "derivedCacheRebuildable": true,
+            "status": "ready",
+            "ready": true,
+            "canonicalChunkCount": 6940,
+            "indexedChunkCount": 6940,
+            "candidateCoverage": 1,
+            "fullCorpusGraphCoverage": true,
+            "topKRecallGuaranteed": false,
+            "canonicalFingerprintScope": "encoder_profile+mutation_generation+ordered_rowid_source_hash_range_dimension_encoding",
+            "canonicalFloat32CacheRetained": true,
+            "excludedBeforeTopK": 0,
+            "constraintsFilterMode": "full_device_record_predicate",
+            "candidateCount": 240,
+            "canonicalCandidateBytes": 491520,
+            "lastSearchMillis": 24,
+            "constraintCandidateLimitReached": false,
+            "realDeviceLatencyMeasured": false
+          }
+        },
+        {
+          "questionId": "f523d9fe",
+          "type": "single-session-assistant",
+          "lexicalRecallAt20": 1,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 244,
+          "hybridMillis": 305,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 64,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          },
+          "annHybridRecallAt20": 1,
+          "annHybridMillis": 265,
+          "semanticAnn": {
+            "method": "native_hnsw_int8_cosine_then_exact_f32_shortlist_rerank",
+            "profile": "hnswlib-0.8.0-int8-cosine-norm-v1-64bit",
+            "approximateNearestNeighbor": true,
+            "originalsAuthoritative": true,
+            "derivedCacheRebuildable": true,
+            "status": "ready",
+            "ready": true,
+            "canonicalChunkCount": 6940,
+            "indexedChunkCount": 6940,
+            "candidateCoverage": 1,
+            "fullCorpusGraphCoverage": true,
+            "topKRecallGuaranteed": false,
+            "canonicalFingerprintScope": "encoder_profile+mutation_generation+ordered_rowid_source_hash_range_dimension_encoding",
+            "canonicalFloat32CacheRetained": true,
+            "excludedBeforeTopK": 0,
+            "constraintsFilterMode": "full_device_record_predicate",
+            "candidateCount": 240,
+            "canonicalCandidateBytes": 491520,
+            "lastSearchMillis": 25,
+            "constraintCandidateLimitReached": false,
+            "realDeviceLatencyMeasured": false
+          }
+        },
+        {
+          "questionId": "f8c5f88b",
+          "type": "single-session-user",
+          "lexicalRecallAt20": 1,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 178,
+          "hybridMillis": 239,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 69,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          },
+          "annHybridRecallAt20": 1,
+          "annHybridMillis": 192,
+          "semanticAnn": {
+            "method": "native_hnsw_int8_cosine_then_exact_f32_shortlist_rerank",
+            "profile": "hnswlib-0.8.0-int8-cosine-norm-v1-64bit",
+            "approximateNearestNeighbor": true,
+            "originalsAuthoritative": true,
+            "derivedCacheRebuildable": true,
+            "status": "ready",
+            "ready": true,
+            "canonicalChunkCount": 6940,
+            "indexedChunkCount": 6940,
+            "candidateCoverage": 1,
+            "fullCorpusGraphCoverage": true,
+            "topKRecallGuaranteed": false,
+            "canonicalFingerprintScope": "encoder_profile+mutation_generation+ordered_rowid_source_hash_range_dimension_encoding",
+            "canonicalFloat32CacheRetained": true,
+            "excludedBeforeTopK": 0,
+            "constraintsFilterMode": "full_device_record_predicate",
+            "candidateCount": 240,
+            "canonicalCandidateBytes": 491520,
+            "lastSearchMillis": 24,
+            "constraintCandidateLimitReached": false,
+            "realDeviceLatencyMeasured": false
+          }
+        },
+        {
+          "questionId": "gpt4_5dcc0aab",
+          "type": "temporal-reasoning",
+          "lexicalRecallAt20": 1,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 161,
+          "hybridMillis": 219,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 61,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          },
+          "annHybridRecallAt20": 1,
+          "annHybridMillis": 184,
+          "semanticAnn": {
+            "method": "native_hnsw_int8_cosine_then_exact_f32_shortlist_rerank",
+            "profile": "hnswlib-0.8.0-int8-cosine-norm-v1-64bit",
+            "approximateNearestNeighbor": true,
+            "originalsAuthoritative": true,
+            "derivedCacheRebuildable": true,
+            "status": "ready",
+            "ready": true,
+            "canonicalChunkCount": 6940,
+            "indexedChunkCount": 6940,
+            "candidateCoverage": 1,
+            "fullCorpusGraphCoverage": true,
+            "topKRecallGuaranteed": false,
+            "canonicalFingerprintScope": "encoder_profile+mutation_generation+ordered_rowid_source_hash_range_dimension_encoding",
+            "canonicalFloat32CacheRetained": true,
+            "excludedBeforeTopK": 0,
+            "constraintsFilterMode": "full_device_record_predicate",
+            "candidateCount": 240,
+            "canonicalCandidateBytes": 491520,
+            "lastSearchMillis": 25,
+            "constraintCandidateLimitReached": false,
+            "realDeviceLatencyMeasured": false
+          }
+        },
+        {
+          "questionId": "c4a1ceb8",
+          "type": "multi-session",
+          "lexicalRecallAt20": 0,
+          "hybridRecallAt20": 0.25,
+          "lexicalMillis": 199,
+          "hybridMillis": 257,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 61,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          },
+          "annHybridRecallAt20": 0.25,
+          "annHybridMillis": 223,
+          "semanticAnn": {
+            "method": "native_hnsw_int8_cosine_then_exact_f32_shortlist_rerank",
+            "profile": "hnswlib-0.8.0-int8-cosine-norm-v1-64bit",
+            "approximateNearestNeighbor": true,
+            "originalsAuthoritative": true,
+            "derivedCacheRebuildable": true,
+            "status": "ready",
+            "ready": true,
+            "canonicalChunkCount": 6940,
+            "indexedChunkCount": 6940,
+            "candidateCoverage": 1,
+            "fullCorpusGraphCoverage": true,
+            "topKRecallGuaranteed": false,
+            "canonicalFingerprintScope": "encoder_profile+mutation_generation+ordered_rowid_source_hash_range_dimension_encoding",
+            "canonicalFloat32CacheRetained": true,
+            "excludedBeforeTopK": 0,
+            "constraintsFilterMode": "full_device_record_predicate",
+            "candidateCount": 240,
+            "canonicalCandidateBytes": 491520,
+            "lastSearchMillis": 26,
+            "constraintCandidateLimitReached": false,
+            "realDeviceLatencyMeasured": false
+          }
+        },
+        {
+          "questionId": "07741c44",
+          "type": "knowledge-update",
+          "lexicalRecallAt20": 0.5,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 155,
+          "hybridMillis": 213,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 62,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          },
+          "annHybridRecallAt20": 1,
+          "annHybridMillis": 176,
+          "semanticAnn": {
+            "method": "native_hnsw_int8_cosine_then_exact_f32_shortlist_rerank",
+            "profile": "hnswlib-0.8.0-int8-cosine-norm-v1-64bit",
+            "approximateNearestNeighbor": true,
+            "originalsAuthoritative": true,
+            "derivedCacheRebuildable": true,
+            "status": "ready",
+            "ready": true,
+            "canonicalChunkCount": 6940,
+            "indexedChunkCount": 6940,
+            "candidateCoverage": 1,
+            "fullCorpusGraphCoverage": true,
+            "topKRecallGuaranteed": false,
+            "canonicalFingerprintScope": "encoder_profile+mutation_generation+ordered_rowid_source_hash_range_dimension_encoding",
+            "canonicalFloat32CacheRetained": true,
+            "excludedBeforeTopK": 0,
+            "constraintsFilterMode": "full_device_record_predicate",
+            "candidateCount": 240,
+            "canonicalCandidateBytes": 491520,
+            "lastSearchMillis": 25,
+            "constraintCandidateLimitReached": false,
+            "realDeviceLatencyMeasured": false
+          }
+        },
+        {
+          "questionId": "06f04340",
+          "type": "single-session-preference",
+          "lexicalRecallAt20": 0,
+          "hybridRecallAt20": 0,
+          "lexicalMillis": 215,
+          "hybridMillis": 297,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 72,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          },
+          "annHybridRecallAt20": 0,
+          "annHybridMillis": 242,
+          "semanticAnn": {
+            "method": "native_hnsw_int8_cosine_then_exact_f32_shortlist_rerank",
+            "profile": "hnswlib-0.8.0-int8-cosine-norm-v1-64bit",
+            "approximateNearestNeighbor": true,
+            "originalsAuthoritative": true,
+            "derivedCacheRebuildable": true,
+            "status": "ready",
+            "ready": true,
+            "canonicalChunkCount": 6940,
+            "indexedChunkCount": 6940,
+            "candidateCoverage": 1,
+            "fullCorpusGraphCoverage": true,
+            "topKRecallGuaranteed": false,
+            "canonicalFingerprintScope": "encoder_profile+mutation_generation+ordered_rowid_source_hash_range_dimension_encoding",
+            "canonicalFloat32CacheRetained": true,
+            "excludedBeforeTopK": 0,
+            "constraintsFilterMode": "full_device_record_predicate",
+            "candidateCount": 240,
+            "canonicalCandidateBytes": 491520,
+            "lastSearchMillis": 26,
+            "constraintCandidateLimitReached": false,
+            "realDeviceLatencyMeasured": false
+          }
+        },
+        {
+          "questionId": "0e5e2d1a",
+          "type": "single-session-assistant",
+          "lexicalRecallAt20": 1,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 249,
+          "hybridMillis": 310,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 62,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          },
+          "annHybridRecallAt20": 1,
+          "annHybridMillis": 280,
+          "semanticAnn": {
+            "method": "native_hnsw_int8_cosine_then_exact_f32_shortlist_rerank",
+            "profile": "hnswlib-0.8.0-int8-cosine-norm-v1-64bit",
+            "approximateNearestNeighbor": true,
+            "originalsAuthoritative": true,
+            "derivedCacheRebuildable": true,
+            "status": "ready",
+            "ready": true,
+            "canonicalChunkCount": 6940,
+            "indexedChunkCount": 6940,
+            "candidateCoverage": 1,
+            "fullCorpusGraphCoverage": true,
+            "topKRecallGuaranteed": false,
+            "canonicalFingerprintScope": "encoder_profile+mutation_generation+ordered_rowid_source_hash_range_dimension_encoding",
+            "canonicalFloat32CacheRetained": true,
+            "excludedBeforeTopK": 0,
+            "constraintsFilterMode": "full_device_record_predicate",
+            "candidateCount": 240,
+            "canonicalCandidateBytes": 491520,
+            "lastSearchMillis": 27,
+            "constraintCandidateLimitReached": false,
+            "realDeviceLatencyMeasured": false
+          }
+        },
+        {
+          "questionId": "5d3d2817",
+          "type": "single-session-user",
+          "lexicalRecallAt20": 1,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 64,
+          "hybridMillis": 131,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 68,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          },
+          "annHybridRecallAt20": 1,
+          "annHybridMillis": 88,
+          "semanticAnn": {
+            "method": "native_hnsw_int8_cosine_then_exact_f32_shortlist_rerank",
+            "profile": "hnswlib-0.8.0-int8-cosine-norm-v1-64bit",
+            "approximateNearestNeighbor": true,
+            "originalsAuthoritative": true,
+            "derivedCacheRebuildable": true,
+            "status": "ready",
+            "ready": true,
+            "canonicalChunkCount": 6940,
+            "indexedChunkCount": 6940,
+            "candidateCoverage": 1,
+            "fullCorpusGraphCoverage": true,
+            "topKRecallGuaranteed": false,
+            "canonicalFingerprintScope": "encoder_profile+mutation_generation+ordered_rowid_source_hash_range_dimension_encoding",
+            "canonicalFloat32CacheRetained": true,
+            "excludedBeforeTopK": 0,
+            "constraintsFilterMode": "full_device_record_predicate",
+            "candidateCount": 240,
+            "canonicalCandidateBytes": 491520,
+            "lastSearchMillis": 25,
+            "constraintCandidateLimitReached": false,
+            "realDeviceLatencyMeasured": false
+          }
+        },
+        {
+          "questionId": "gpt4_0b2f1d21",
+          "type": "temporal-reasoning",
+          "lexicalRecallAt20": 0,
+          "hybridRecallAt20": 0.5,
+          "lexicalMillis": 206,
+          "hybridMillis": 270,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 61,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          },
+          "annHybridRecallAt20": 0.5,
+          "annHybridMillis": 233,
+          "semanticAnn": {
+            "method": "native_hnsw_int8_cosine_then_exact_f32_shortlist_rerank",
+            "profile": "hnswlib-0.8.0-int8-cosine-norm-v1-64bit",
+            "approximateNearestNeighbor": true,
+            "originalsAuthoritative": true,
+            "derivedCacheRebuildable": true,
+            "status": "ready",
+            "ready": true,
+            "canonicalChunkCount": 6940,
+            "indexedChunkCount": 6940,
+            "candidateCoverage": 1,
+            "fullCorpusGraphCoverage": true,
+            "topKRecallGuaranteed": false,
+            "canonicalFingerprintScope": "encoder_profile+mutation_generation+ordered_rowid_source_hash_range_dimension_encoding",
+            "canonicalFloat32CacheRetained": true,
+            "excludedBeforeTopK": 0,
+            "constraintsFilterMode": "full_device_record_predicate",
+            "candidateCount": 240,
+            "canonicalCandidateBytes": 491520,
+            "lastSearchMillis": 25,
+            "constraintCandidateLimitReached": false,
+            "realDeviceLatencyMeasured": false
+          }
+        },
+        {
+          "questionId": "gpt4_a56e767c",
+          "type": "multi-session",
+          "lexicalRecallAt20": 0,
+          "hybridRecallAt20": 0.16666666666666666,
+          "lexicalMillis": 190,
+          "hybridMillis": 265,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 68,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          },
+          "annHybridRecallAt20": 0.16666666666666666,
+          "annHybridMillis": 211,
+          "semanticAnn": {
+            "method": "native_hnsw_int8_cosine_then_exact_f32_shortlist_rerank",
+            "profile": "hnswlib-0.8.0-int8-cosine-norm-v1-64bit",
+            "approximateNearestNeighbor": true,
+            "originalsAuthoritative": true,
+            "derivedCacheRebuildable": true,
+            "status": "ready",
+            "ready": true,
+            "canonicalChunkCount": 6940,
+            "indexedChunkCount": 6940,
+            "candidateCoverage": 1,
+            "fullCorpusGraphCoverage": true,
+            "topKRecallGuaranteed": false,
+            "canonicalFingerprintScope": "encoder_profile+mutation_generation+ordered_rowid_source_hash_range_dimension_encoding",
+            "canonicalFloat32CacheRetained": true,
+            "excludedBeforeTopK": 0,
+            "constraintsFilterMode": "full_device_record_predicate",
+            "candidateCount": 240,
+            "canonicalCandidateBytes": 491520,
+            "lastSearchMillis": 25,
+            "constraintCandidateLimitReached": false,
+            "realDeviceLatencyMeasured": false
+          }
+        },
+        {
+          "questionId": "a1eacc2a",
+          "type": "knowledge-update",
+          "lexicalRecallAt20": 1,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 191,
+          "hybridMillis": 251,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 61,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          },
+          "annHybridRecallAt20": 1,
+          "annHybridMillis": 216,
+          "semanticAnn": {
+            "method": "native_hnsw_int8_cosine_then_exact_f32_shortlist_rerank",
+            "profile": "hnswlib-0.8.0-int8-cosine-norm-v1-64bit",
+            "approximateNearestNeighbor": true,
+            "originalsAuthoritative": true,
+            "derivedCacheRebuildable": true,
+            "status": "ready",
+            "ready": true,
+            "canonicalChunkCount": 6940,
+            "indexedChunkCount": 6940,
+            "candidateCoverage": 1,
+            "fullCorpusGraphCoverage": true,
+            "topKRecallGuaranteed": false,
+            "canonicalFingerprintScope": "encoder_profile+mutation_generation+ordered_rowid_source_hash_range_dimension_encoding",
+            "canonicalFloat32CacheRetained": true,
+            "excludedBeforeTopK": 0,
+            "constraintsFilterMode": "full_device_record_predicate",
+            "candidateCount": 240,
+            "canonicalCandidateBytes": 491520,
+            "lastSearchMillis": 25,
+            "constraintCandidateLimitReached": false,
+            "realDeviceLatencyMeasured": false
+          }
+        },
+        {
+          "questionId": "6b7dfb22",
+          "type": "single-session-preference",
+          "lexicalRecallAt20": 0,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 197,
+          "hybridMillis": 271,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 70,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          },
+          "annHybridRecallAt20": 1,
+          "annHybridMillis": 220,
+          "semanticAnn": {
+            "method": "native_hnsw_int8_cosine_then_exact_f32_shortlist_rerank",
+            "profile": "hnswlib-0.8.0-int8-cosine-norm-v1-64bit",
+            "approximateNearestNeighbor": true,
+            "originalsAuthoritative": true,
+            "derivedCacheRebuildable": true,
+            "status": "ready",
+            "ready": true,
+            "canonicalChunkCount": 6940,
+            "indexedChunkCount": 6940,
+            "candidateCoverage": 1,
+            "fullCorpusGraphCoverage": true,
+            "topKRecallGuaranteed": false,
+            "canonicalFingerprintScope": "encoder_profile+mutation_generation+ordered_rowid_source_hash_range_dimension_encoding",
+            "canonicalFloat32CacheRetained": true,
+            "excludedBeforeTopK": 0,
+            "constraintsFilterMode": "full_device_record_predicate",
+            "candidateCount": 240,
+            "canonicalCandidateBytes": 491520,
+            "lastSearchMillis": 24,
+            "constraintCandidateLimitReached": false,
+            "realDeviceLatencyMeasured": false
+          }
+        },
+        {
+          "questionId": "fea54f57",
+          "type": "single-session-assistant",
+          "lexicalRecallAt20": 1,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 202,
+          "hybridMillis": 266,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 61,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          },
+          "annHybridRecallAt20": 1,
+          "annHybridMillis": 226,
+          "semanticAnn": {
+            "method": "native_hnsw_int8_cosine_then_exact_f32_shortlist_rerank",
+            "profile": "hnswlib-0.8.0-int8-cosine-norm-v1-64bit",
+            "approximateNearestNeighbor": true,
+            "originalsAuthoritative": true,
+            "derivedCacheRebuildable": true,
+            "status": "ready",
+            "ready": true,
+            "canonicalChunkCount": 6940,
+            "indexedChunkCount": 6940,
+            "candidateCoverage": 1,
+            "fullCorpusGraphCoverage": true,
+            "topKRecallGuaranteed": false,
+            "canonicalFingerprintScope": "encoder_profile+mutation_generation+ordered_rowid_source_hash_range_dimension_encoding",
+            "canonicalFloat32CacheRetained": true,
+            "excludedBeforeTopK": 0,
+            "constraintsFilterMode": "full_device_record_predicate",
+            "candidateCount": 240,
+            "canonicalCandidateBytes": 491520,
+            "lastSearchMillis": 25,
+            "constraintCandidateLimitReached": false,
+            "realDeviceLatencyMeasured": false
+          }
+        },
+        {
+          "questionId": "7527f7e2",
+          "type": "single-session-user",
+          "lexicalRecallAt20": 0,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 187,
+          "hybridMillis": 245,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 59,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          },
+          "annHybridRecallAt20": 1,
+          "annHybridMillis": 210,
+          "semanticAnn": {
+            "method": "native_hnsw_int8_cosine_then_exact_f32_shortlist_rerank",
+            "profile": "hnswlib-0.8.0-int8-cosine-norm-v1-64bit",
+            "approximateNearestNeighbor": true,
+            "originalsAuthoritative": true,
+            "derivedCacheRebuildable": true,
+            "status": "ready",
+            "ready": true,
+            "canonicalChunkCount": 6940,
+            "indexedChunkCount": 6940,
+            "candidateCoverage": 1,
+            "fullCorpusGraphCoverage": true,
+            "topKRecallGuaranteed": false,
+            "canonicalFingerprintScope": "encoder_profile+mutation_generation+ordered_rowid_source_hash_range_dimension_encoding",
+            "canonicalFloat32CacheRetained": true,
+            "excludedBeforeTopK": 0,
+            "constraintsFilterMode": "full_device_record_predicate",
+            "candidateCount": 240,
+            "canonicalCandidateBytes": 491520,
+            "lastSearchMillis": 25,
+            "constraintCandidateLimitReached": false,
+            "realDeviceLatencyMeasured": false
+          }
+        },
+        {
+          "questionId": "f0853d11",
+          "type": "temporal-reasoning",
+          "lexicalRecallAt20": 0.5,
+          "hybridRecallAt20": 0.5,
+          "lexicalMillis": 200,
+          "hybridMillis": 268,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 67,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          },
+          "annHybridRecallAt20": 0.5,
+          "annHybridMillis": 229,
+          "semanticAnn": {
+            "method": "native_hnsw_int8_cosine_then_exact_f32_shortlist_rerank",
+            "profile": "hnswlib-0.8.0-int8-cosine-norm-v1-64bit",
+            "approximateNearestNeighbor": true,
+            "originalsAuthoritative": true,
+            "derivedCacheRebuildable": true,
+            "status": "ready",
+            "ready": true,
+            "canonicalChunkCount": 6940,
+            "indexedChunkCount": 6940,
+            "candidateCoverage": 1,
+            "fullCorpusGraphCoverage": true,
+            "topKRecallGuaranteed": false,
+            "canonicalFingerprintScope": "encoder_profile+mutation_generation+ordered_rowid_source_hash_range_dimension_encoding",
+            "canonicalFloat32CacheRetained": true,
+            "excludedBeforeTopK": 0,
+            "constraintsFilterMode": "full_device_record_predicate",
+            "candidateCount": 240,
+            "canonicalCandidateBytes": 491520,
+            "lastSearchMillis": 25,
+            "constraintCandidateLimitReached": false,
+            "realDeviceLatencyMeasured": false
+          }
+        },
+        {
+          "questionId": "6cb6f249",
+          "type": "multi-session",
+          "lexicalRecallAt20": 0,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 190,
+          "hybridMillis": 268,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 74,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          },
+          "annHybridRecallAt20": 1,
+          "annHybridMillis": 213,
+          "semanticAnn": {
+            "method": "native_hnsw_int8_cosine_then_exact_f32_shortlist_rerank",
+            "profile": "hnswlib-0.8.0-int8-cosine-norm-v1-64bit",
+            "approximateNearestNeighbor": true,
+            "originalsAuthoritative": true,
+            "derivedCacheRebuildable": true,
+            "status": "ready",
+            "ready": true,
+            "canonicalChunkCount": 6940,
+            "indexedChunkCount": 6940,
+            "candidateCoverage": 1,
+            "fullCorpusGraphCoverage": true,
+            "topKRecallGuaranteed": false,
+            "canonicalFingerprintScope": "encoder_profile+mutation_generation+ordered_rowid_source_hash_range_dimension_encoding",
+            "canonicalFloat32CacheRetained": true,
+            "excludedBeforeTopK": 0,
+            "constraintsFilterMode": "full_device_record_predicate",
+            "candidateCount": 240,
+            "canonicalCandidateBytes": 491520,
+            "lastSearchMillis": 25,
+            "constraintCandidateLimitReached": false,
+            "realDeviceLatencyMeasured": false
+          }
+        },
+        {
+          "questionId": "184da446",
+          "type": "knowledge-update",
+          "lexicalRecallAt20": 1,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 215,
+          "hybridMillis": 277,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 63,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          },
+          "annHybridRecallAt20": 1,
+          "annHybridMillis": 243,
+          "semanticAnn": {
+            "method": "native_hnsw_int8_cosine_then_exact_f32_shortlist_rerank",
+            "profile": "hnswlib-0.8.0-int8-cosine-norm-v1-64bit",
+            "approximateNearestNeighbor": true,
+            "originalsAuthoritative": true,
+            "derivedCacheRebuildable": true,
+            "status": "ready",
+            "ready": true,
+            "canonicalChunkCount": 6940,
+            "indexedChunkCount": 6940,
+            "candidateCoverage": 1,
+            "fullCorpusGraphCoverage": true,
+            "topKRecallGuaranteed": false,
+            "canonicalFingerprintScope": "encoder_profile+mutation_generation+ordered_rowid_source_hash_range_dimension_encoding",
+            "canonicalFloat32CacheRetained": true,
+            "excludedBeforeTopK": 0,
+            "constraintsFilterMode": "full_device_record_predicate",
+            "candidateCount": 240,
+            "canonicalCandidateBytes": 491520,
+            "lastSearchMillis": 27,
+            "constraintCandidateLimitReached": false,
+            "realDeviceLatencyMeasured": false
+          }
+        },
+        {
+          "questionId": "1a1907b4",
+          "type": "single-session-preference",
+          "lexicalRecallAt20": 0,
+          "hybridRecallAt20": 0,
+          "lexicalMillis": 251,
+          "hybridMillis": 328,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 79,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          },
+          "annHybridRecallAt20": 0,
+          "annHybridMillis": 322,
+          "semanticAnn": {
+            "method": "native_hnsw_int8_cosine_then_exact_f32_shortlist_rerank",
+            "profile": "hnswlib-0.8.0-int8-cosine-norm-v1-64bit",
+            "approximateNearestNeighbor": true,
+            "originalsAuthoritative": true,
+            "derivedCacheRebuildable": true,
+            "status": "ready",
+            "ready": true,
+            "canonicalChunkCount": 6940,
+            "indexedChunkCount": 6940,
+            "candidateCoverage": 1,
+            "fullCorpusGraphCoverage": true,
+            "topKRecallGuaranteed": false,
+            "canonicalFingerprintScope": "encoder_profile+mutation_generation+ordered_rowid_source_hash_range_dimension_encoding",
+            "canonicalFloat32CacheRetained": true,
+            "excludedBeforeTopK": 0,
+            "constraintsFilterMode": "full_device_record_predicate",
+            "candidateCount": 240,
+            "canonicalCandidateBytes": 491520,
+            "lastSearchMillis": 26,
+            "constraintCandidateLimitReached": false,
+            "realDeviceLatencyMeasured": false
+          }
+        },
+        {
+          "questionId": "cc539528",
+          "type": "single-session-assistant",
+          "lexicalRecallAt20": 1,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 246,
+          "hybridMillis": 335,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 87,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          },
+          "annHybridRecallAt20": 1,
+          "annHybridMillis": 306,
+          "semanticAnn": {
+            "method": "native_hnsw_int8_cosine_then_exact_f32_shortlist_rerank",
+            "profile": "hnswlib-0.8.0-int8-cosine-norm-v1-64bit",
+            "approximateNearestNeighbor": true,
+            "originalsAuthoritative": true,
+            "derivedCacheRebuildable": true,
+            "status": "ready",
+            "ready": true,
+            "canonicalChunkCount": 6940,
+            "indexedChunkCount": 6940,
+            "candidateCoverage": 1,
+            "fullCorpusGraphCoverage": true,
+            "topKRecallGuaranteed": false,
+            "canonicalFingerprintScope": "encoder_profile+mutation_generation+ordered_rowid_source_hash_range_dimension_encoding",
+            "canonicalFloat32CacheRetained": true,
+            "excludedBeforeTopK": 0,
+            "constraintsFilterMode": "full_device_record_predicate",
+            "candidateCount": 240,
+            "canonicalCandidateBytes": 491520,
+            "lastSearchMillis": 25,
+            "constraintCandidateLimitReached": false,
+            "realDeviceLatencyMeasured": false
+          }
+        },
+        {
+          "questionId": "c960da58",
+          "type": "single-session-user",
+          "lexicalRecallAt20": 1,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 182,
+          "hybridMillis": 244,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 61,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          },
+          "annHybridRecallAt20": 1,
+          "annHybridMillis": 276,
+          "semanticAnn": {
+            "method": "native_hnsw_int8_cosine_then_exact_f32_shortlist_rerank",
+            "profile": "hnswlib-0.8.0-int8-cosine-norm-v1-64bit",
+            "approximateNearestNeighbor": true,
+            "originalsAuthoritative": true,
+            "derivedCacheRebuildable": true,
+            "status": "ready",
+            "ready": true,
+            "canonicalChunkCount": 6940,
+            "indexedChunkCount": 6940,
+            "candidateCoverage": 1,
+            "fullCorpusGraphCoverage": true,
+            "topKRecallGuaranteed": false,
+            "canonicalFingerprintScope": "encoder_profile+mutation_generation+ordered_rowid_source_hash_range_dimension_encoding",
+            "canonicalFloat32CacheRetained": true,
+            "excludedBeforeTopK": 0,
+            "constraintsFilterMode": "full_device_record_predicate",
+            "candidateCount": 240,
+            "canonicalCandidateBytes": 491520,
+            "lastSearchMillis": 31,
+            "constraintCandidateLimitReached": false,
+            "realDeviceLatencyMeasured": false
+          }
+        },
+        {
+          "questionId": "gpt4_6ed717ea",
+          "type": "temporal-reasoning",
+          "lexicalRecallAt20": 1,
+          "hybridRecallAt20": 1,
+          "lexicalMillis": 228,
+          "hybridMillis": 352,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 67,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          },
+          "annHybridRecallAt20": 1,
+          "annHybridMillis": 247,
+          "semanticAnn": {
+            "method": "native_hnsw_int8_cosine_then_exact_f32_shortlist_rerank",
+            "profile": "hnswlib-0.8.0-int8-cosine-norm-v1-64bit",
+            "approximateNearestNeighbor": true,
+            "originalsAuthoritative": true,
+            "derivedCacheRebuildable": true,
+            "status": "ready",
+            "ready": true,
+            "canonicalChunkCount": 6940,
+            "indexedChunkCount": 6940,
+            "candidateCoverage": 1,
+            "fullCorpusGraphCoverage": true,
+            "topKRecallGuaranteed": false,
+            "canonicalFingerprintScope": "encoder_profile+mutation_generation+ordered_rowid_source_hash_range_dimension_encoding",
+            "canonicalFloat32CacheRetained": true,
+            "excludedBeforeTopK": 0,
+            "constraintsFilterMode": "full_device_record_predicate",
+            "candidateCount": 240,
+            "canonicalCandidateBytes": 491520,
+            "lastSearchMillis": 26,
+            "constraintCandidateLimitReached": false,
+            "realDeviceLatencyMeasured": false
+          }
+        },
+        {
+          "questionId": "46a3abf7",
+          "type": "multi-session",
+          "lexicalRecallAt20": 0,
+          "hybridRecallAt20": 0.3333333333333333,
+          "lexicalMillis": 224,
+          "hybridMillis": 284,
+          "semanticScan": {
+            "method": "paged_exact_cosine_with_1500ms_per_index_budget",
+            "scannedVectors": 6940,
+            "scannedVectorBytes": 14213120,
+            "elapsedMillis": 62,
+            "limitReached": false,
+            "approximateNearestNeighbor": false
+          },
+          "annHybridRecallAt20": 0.3333333333333333,
+          "annHybridMillis": 245,
+          "semanticAnn": {
+            "method": "native_hnsw_int8_cosine_then_exact_f32_shortlist_rerank",
+            "profile": "hnswlib-0.8.0-int8-cosine-norm-v1-64bit",
+            "approximateNearestNeighbor": true,
+            "originalsAuthoritative": true,
+            "derivedCacheRebuildable": true,
+            "status": "ready",
+            "ready": true,
+            "canonicalChunkCount": 6940,
+            "indexedChunkCount": 6940,
+            "candidateCoverage": 1,
+            "fullCorpusGraphCoverage": true,
+            "topKRecallGuaranteed": false,
+            "canonicalFingerprintScope": "encoder_profile+mutation_generation+ordered_rowid_source_hash_range_dimension_encoding",
+            "canonicalFloat32CacheRetained": true,
+            "excludedBeforeTopK": 0,
+            "constraintsFilterMode": "full_device_record_predicate",
+            "candidateCount": 240,
+            "canonicalCandidateBytes": 491520,
+            "lastSearchMillis": 25,
+            "constraintCandidateLimitReached": false,
+            "realDeviceLatencyMeasured": false
+          }
+        }
+      ],
+      "productionCodeScope": "ANN adapter before later no-date owner-metadata scan optimization; frozen RRF ranking",
+      "interpretation": "Exact and ANN+canonical-f32 rerank source Recall is equal on these 40 heldout questions; this does not prove all-corpus topK equivalence, answer accuracy, extraction accuracy or phone speed."
+    },
+    "annSQLite100k": {
+      "benchmark": "actual-app-SQLite-JNI-HNSW-exact-f32-shortlist-rerank-512d",
+      "vectors": 100000,
+      "dimensions": 512,
+      "modelVectorsSynthetic": true,
+      "queryCount": 20,
+      "selfTop1RecallOldToNewest": 1,
+      "top20ExactNeighborRecallMeasured": false,
+      "populateMillis": 17035,
+      "buildNativeCacheMillis": 405661,
+      "actualSourceSearchMedianMillis": 37,
+      "actualSourceSearchP95Millis": 131,
+      "averageCanonicalF32BytesReadPerQuery": 409600,
+      "databaseAndWalBytes": 493951824,
+      "nativeCacheDirectoryBytes": 66444563,
+      "ann": {
+        "method": "native_hnsw_int8_cosine_then_exact_f32_shortlist_rerank",
+        "profile": "hnswlib-0.8.0-int8-cosine-norm-v1-64bit",
+        "approximateNearestNeighbor": true,
+        "originalsAuthoritative": true,
+        "derivedCacheRebuildable": true,
+        "status": "ready",
+        "ready": true,
+        "canonicalChunkCount": 100000,
+        "indexedChunkCount": 100000,
+        "candidateCoverage": 1,
+        "fullCorpusGraphCoverage": true,
+        "topKRecallGuaranteed": false,
+        "canonicalFingerprintScope": "encoder_profile+mutation_generation+ordered_rowid_source_hash_range_dimension_encoding",
+        "canonicalFloat32CacheRetained": true,
+        "excludedBeforeTopK": 0,
+        "constraintsFilterMode": "full_device_record_predicate",
+        "candidateCount": 200,
+        "canonicalCandidateBytes": 409600,
+        "lastSearchMillis": 21,
+        "constraintCandidateLimitReached": false,
+        "realDeviceLatencyMeasured": false
+      },
+      "realDeviceLatencyMeasured": false,
+      "actualLmMeasured": false,
+      "interpretation": "Actual production SQLite/JNI source search with synthetic Gaussian vectors and 20 identical-vector self probes. Natural-language/top20 exact-neighbor recall and Android device latency are not measured; real weights/public data quality are measured separately."
+    }
+  }
+}

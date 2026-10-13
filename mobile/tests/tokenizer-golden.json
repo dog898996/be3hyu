@@ -1,0 +1,65 @@
+[
+  {
+    "text": "호영아, 내 친구 민준이는 부산에 살아.",
+    "tokenIds": [
+      9985,
+      30858,
+      16985,
+      117,
+      8996,
+      9781,
+      17196,
+      9311,
+      54867,
+      31728,
+      9365,
+      21386,
+      10530,
+      9408,
+      16985,
+      119
+    ]
+  },
+  {
+    "text": "Unicode 🐱 테스트와 [CLS] literal.",
+    "tokenIds": [
+      56705,
+      100,
+      9866,
+      34994,
+      12638,
+      101,
+      103034,
+      119
+    ]
+  },
+  {
+    "text": "Hello, WORLD! café 中國",
+    "tokenIds": [
+      31178,
+      117,
+      67376,
+      106,
+      34551,
+      2104,
+      3020
+    ]
+  },
+  {
+    "text": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "tokenIds": [
+      100
+    ]
+  },
+  {
+    "text": "아침\t운동\n완료",
+    "tokenIds": [
+      9519,
+      119285,
+      9606,
+      18778,
+      9591,
+      38688
+    ]
+  }
+]
