@@ -372,11 +372,11 @@ public final class PhoneTools {
     /** External memory/model retrieval hook: invoke on its background retrieval thread. */
     public boolean canReadStoredSource(JSONObject row) { journal().refreshPolicyBlocking(); return row != null && mayExpose(row); }
     /** Permission-aware implicit retrieval; display of our own reply is not external input. */
-    public boolean canUseImplicitMemorySource(JSONObject row) { return canReadStoredSource(row) && !isOwnAssistantReply(row); }
-    private boolean isOwnAssistantReply(JSONObject row) {
+    public boolean canUseImplicitMemorySource(JSONObject row) { return canReadStoredSource(row) && !isOwnAssistantNotification(row); }
+    private boolean isOwnAssistantNotification(JSONObject row) {
         JSONObject payload = row == null ? null : row.optJSONObject("payload");
         return row != null && "notification".equals(row.optString("category")) && payload != null
-            && context.getPackageName().equals(payload.optString("package")) && "assistant_reply".equals(payload.optString("sourceKind"));
+            && context.getPackageName().equals(payload.optString("package"));
     }
     /** Historical receipt visibility; call on the background retrieval thread, never in an OS callback. */
     public boolean canReadArchivedToolResult(String name, JSONObject result) {
@@ -444,9 +444,9 @@ public final class PhoneTools {
         for (int i = events.length() - 1; i >= 0; i--) {
             JSONObject event = events.optJSONObject(i); if (event == null || !mayExpose(event)) continue;
             String category = event.optString("category");
-            // Reply-display events remain in the explicit archive, but cannot feed back into
+            // Assistant reply/service events remain in the explicit archive, but cannot feed back into
             // implicit external-input context as if the owner had sent/read a message.
-            if (isOwnAssistantReply(event)) continue;
+            if (isOwnAssistantNotification(event)) continue;
             boolean relevant = category.equals("collector_gap") || category.equals("collector_state") || category.equals("device_state")
                 || category.equals("activity_sample") && lower.matches("(?s).*(걸음|걷|운동|활동|step|activity|지금|상태|현재).*" )
                 || category.equals("location_sample") && lower.matches("(?s).*(위치|어디|근처|이동|location|where|지금|현재).*" )

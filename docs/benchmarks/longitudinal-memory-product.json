@@ -1,0 +1,2647 @@
+{
+  "benchmark": "synthetic-longitudinal-product-365-v1",
+  "ownerSessions": 365,
+  "distractorMessages": 30660,
+  "messages": 31025,
+  "memories": 1551,
+  "checkpointResults": [
+    {
+      "day": 1,
+      "ownerSessions": 1,
+      "distractors": 84,
+      "scenarios": 24,
+      "passed": 24,
+      "currentTaskConstraintsPassed": 19,
+      "currentTaskConstraintsTotal": 19,
+      "goldOriginalReferencesHit": 21,
+      "goldOriginalReferencesTotal": 21,
+      "sourceRecall": 1,
+      "rareEarlyRawSourceHits": 2,
+      "rareEarlyRawSourceProbes": 2,
+      "absentSourceAbstentionsPassed": 2,
+      "absentSourceAbstentionsTotal": 2,
+      "hypotheticalTaskPlansPassed": 9,
+      "hypotheticalTaskPlansTotal": 9,
+      "medianQueryMillis": 70,
+      "p95QueryMillis": 194,
+      "totalQueryMillis": 1964,
+      "maxContextChars": 11970,
+      "boundedContext": true,
+      "allOwnerOriginalsUnchanged": true,
+      "newAliasSupported": false
+    },
+    {
+      "day": 30,
+      "ownerSessions": 30,
+      "distractors": 2520,
+      "scenarios": 24,
+      "passed": 24,
+      "currentTaskConstraintsPassed": 19,
+      "currentTaskConstraintsTotal": 19,
+      "goldOriginalReferencesHit": 21,
+      "goldOriginalReferencesTotal": 21,
+      "sourceRecall": 1,
+      "rareEarlyRawSourceHits": 2,
+      "rareEarlyRawSourceProbes": 2,
+      "absentSourceAbstentionsPassed": 2,
+      "absentSourceAbstentionsTotal": 2,
+      "hypotheticalTaskPlansPassed": 9,
+      "hypotheticalTaskPlansTotal": 9,
+      "medianQueryMillis": 35,
+      "p95QueryMillis": 313,
+      "totalQueryMillis": 1728,
+      "maxContextChars": 11939,
+      "boundedContext": true,
+      "allOwnerOriginalsUnchanged": true,
+      "newAliasSupported": false
+    },
+    {
+      "day": 180,
+      "ownerSessions": 180,
+      "distractors": 15120,
+      "scenarios": 24,
+      "passed": 24,
+      "currentTaskConstraintsPassed": 19,
+      "currentTaskConstraintsTotal": 19,
+      "goldOriginalReferencesHit": 21,
+      "goldOriginalReferencesTotal": 21,
+      "sourceRecall": 1,
+      "rareEarlyRawSourceHits": 2,
+      "rareEarlyRawSourceProbes": 2,
+      "absentSourceAbstentionsPassed": 3,
+      "absentSourceAbstentionsTotal": 3,
+      "hypotheticalTaskPlansPassed": 9,
+      "hypotheticalTaskPlansTotal": 9,
+      "medianQueryMillis": 192,
+      "p95QueryMillis": 611,
+      "totalQueryMillis": 5905,
+      "maxContextChars": 12000,
+      "boundedContext": true,
+      "allOwnerOriginalsUnchanged": true,
+      "newAliasSupported": false
+    },
+    {
+      "day": 365,
+      "ownerSessions": 365,
+      "distractors": 30660,
+      "scenarios": 24,
+      "passed": 24,
+      "currentTaskConstraintsPassed": 21,
+      "currentTaskConstraintsTotal": 21,
+      "goldOriginalReferencesHit": 23,
+      "goldOriginalReferencesTotal": 23,
+      "sourceRecall": 1,
+      "rareEarlyRawSourceHits": 2,
+      "rareEarlyRawSourceProbes": 2,
+      "absentSourceAbstentionsPassed": 2,
+      "absentSourceAbstentionsTotal": 2,
+      "hypotheticalTaskPlansPassed": 9,
+      "hypotheticalTaskPlansTotal": 9,
+      "medianQueryMillis": 390,
+      "p95QueryMillis": 1725,
+      "totalQueryMillis": 13751,
+      "maxContextChars": 12000,
+      "boundedContext": true,
+      "allOwnerOriginalsUnchanged": true,
+      "newAliasSupported": true
+    }
+  ],
+  "reviewBatches": 365,
+  "explicitSecondPasses": 0,
+  "reviewWatermark": 30941,
+  "allOwnerOriginalsUnchanged": true,
+  "rawOriginalCount": 365,
+  "databaseAndWalBytes": 22589440,
+  "elapsedMillis": 37629,
+  "notesHandAuthored": true,
+  "aliasesHandAuthored": true,
+  "reviewAcknowledgementsHandAuthored": true,
+  "actualYearElapsed": false,
+  "actualLmExtractionMeasured": false,
+  "neuralEncodingMeasured": false,
+  "lmAnswerQualityMeasured": false,
+  "physicalPhoneMeasured": false,
+  "scoring": "schema-aware oracle checks task constraints, current values, dated history, exact original references and context availability; not LM comprehension",
+  "cases": [
+    {
+      "day": 1,
+      "question": "간식 선물 주문에서 내가 피해야 할 알레르기 음식?",
+      "scenario": "snack_avoid",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.allergy",
+          "expected": "땅콩",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        },
+        {
+          "check": "hypothetical_task_plan",
+          "oracleType": "handwritten_schema_rules_not_LM",
+          "actual": "exclude_peanut_dessert",
+          "expected": "exclude_peanut_dessert",
+          "pass": true,
+          "executed": false
+        }
+      ],
+      "contextChars": 11805,
+      "latencyMillis": 219,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 1,
+      "question": "디저트 주문을 내 알레르기에 맞춰줘",
+      "scenario": "dessert_constraint",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.allergy",
+          "expected": "땅콩",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        },
+        {
+          "check": "hypothetical_task_plan",
+          "oracleType": "handwritten_schema_rules_not_LM",
+          "actual": "exclude_peanut_dessert",
+          "expected": "exclude_peanut_dessert",
+          "pass": true,
+          "executed": false
+        }
+      ],
+      "contextChars": 4941,
+      "latencyMillis": 40,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 1,
+      "question": "카페 음료는 내 선호로 주문해",
+      "scenario": "current_drink",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.drink",
+          "expected": "디카페인 라떼",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        }
+      ],
+      "contextChars": 11327,
+      "latencyMillis": 76,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 1,
+      "question": "내 집 배송 주소는 어디야?",
+      "scenario": "current_delivery",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.home",
+          "expected": "성수",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        },
+        {
+          "check": "hypothetical_task_plan",
+          "oracleType": "handwritten_schema_rules_not_LM",
+          "actual": "ship_to_fixture_address_성수",
+          "expected": "ship_to_fixture_address_성수",
+          "pass": true,
+          "executed": false
+        }
+      ],
+      "contextChars": 11350,
+      "latencyMillis": 91,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 1,
+      "question": "2024년 처음 배송 주소가 어디였지?",
+      "scenario": "old_delivery",
+      "passed": true,
+      "checks": [
+        {
+          "check": "as_of_old_state",
+          "expected": "성수",
+          "pass": true
+        }
+      ],
+      "contextChars": 11350,
+      "latencyMillis": 194,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 1,
+      "question": "내 배송 주소가 강남이었나? 현재 주소 알려줘",
+      "scenario": "wrong_home_premise",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.home",
+          "expected": "성수",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        }
+      ],
+      "contextChars": 11814,
+      "latencyMillis": 95,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 1,
+      "question": "회의 보고서는 무슨 언어로 써야 해?",
+      "scenario": "report_language",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.language",
+          "expected": "한국어",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        }
+      ],
+      "contextChars": 11961,
+      "latencyMillis": 74,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 1,
+      "question": "교수님 이메일 말투를 내 업무 문서 선호에 맞춰줘",
+      "scenario": "professional_tone",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.tone",
+          "expected": "정중한 존댓말",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        },
+        {
+          "check": "hypothetical_task_plan",
+          "oracleType": "handwritten_schema_rules_not_LM",
+          "actual": "use_professional_polite_email_tone",
+          "expected": "use_professional_polite_email_tone",
+          "pass": true,
+          "executed": false
+        }
+      ],
+      "contextChars": 6118,
+      "latencyMillis": 46,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 1,
+      "question": "밤 두 시에 먼저 연락해도 돼? 조용한 시간 확인해",
+      "scenario": "quiet_hours",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.quiet",
+          "expected": "23:00~07:00",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        },
+        {
+          "check": "hypothetical_task_plan",
+          "oracleType": "handwritten_schema_rules_not_LM",
+          "actual": "defer_02h_contact_until_07:00",
+          "expected": "defer_02h_contact_until_07:00",
+          "pass": true,
+          "executed": false
+        }
+      ],
+      "contextChars": 4948,
+      "latencyMillis": 58,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 1,
+      "question": "월 12000원 유료 구독 가입이 내 추가 비용 예산 안이야?",
+      "scenario": "paid_subscription_limit",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.budget",
+          "expected": "0원",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        },
+        {
+          "check": "hypothetical_task_plan",
+          "oracleType": "handwritten_schema_rules_not_LM",
+          "actual": "over_fixture_cap_do_not_subscribe",
+          "expected": "over_fixture_cap_do_not_subscribe",
+          "pass": true,
+          "executed": false
+        }
+      ],
+      "contextChars": 11350,
+      "latencyMillis": 107,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 1,
+      "question": "친구한테 내 연락처 주소록을 전송할까?",
+      "scenario": "contacts_privacy",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.privacy",
+          "expected": "주소록 외부 전송 금지",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        },
+        {
+          "check": "hypothetical_task_plan",
+          "oracleType": "handwritten_schema_rules_not_LM",
+          "actual": "do_not_export_contacts",
+          "expected": "do_not_export_contacts",
+          "pass": true,
+          "executed": false
+        }
+      ],
+      "contextChars": 11350,
+      "latencyMillis": 70,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 1,
+      "question": "급한 일을 어느 알림 채널로 알려줘야 돼?",
+      "scenario": "urgent_channel",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.channel",
+          "expected": "앱 알림",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        }
+      ],
+      "contextChars": 4923,
+      "latencyMillis": 46,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 1,
+      "question": "아버지 생일 선물 취미는 뭐였지?",
+      "scenario": "early_family_gift",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.familygift",
+          "expected": "서예 붓",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        }
+      ],
+      "contextChars": 11943,
+      "latencyMillis": 52,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 1,
+      "question": "어릴 때 사진 앨범 보관한 오래된 상자는 어디?",
+      "scenario": "early_keepsake",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.keepsake",
+          "expected": "다락방 파란 상자",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        }
+      ],
+      "contextChars": 4948,
+      "latencyMillis": 27,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 1,
+      "question": "전에 말한 분실물 접수번호 알려줘",
+      "scenario": "early_raw_identifier",
+      "passed": true,
+      "checks": [
+        {
+          "check": "rare_early_raw_source",
+          "expected": "HJ-2024-K7319",
+          "sourceId": 1,
+          "pass": true
+        }
+      ],
+      "contextChars": 4923,
+      "latencyMillis": 30,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 1,
+      "question": "처음 말한 운동화 치수는 얼마?",
+      "scenario": "early_raw_size",
+      "passed": true,
+      "checks": [
+        {
+          "check": "rare_early_raw_source",
+          "expected": "275mm",
+          "sourceId": 1,
+          "pass": true
+        }
+      ],
+      "contextChars": 4328,
+      "latencyMillis": 26,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 1,
+      "question": "오로라 프로젝트 상태 보고 다시 실행해도 되는지 확인해",
+      "scenario": "project_do_not_restart",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "project.aurora.status",
+          "expected": "진행 중",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        },
+        {
+          "check": "hypothetical_task_plan",
+          "oracleType": "handwritten_schema_rules_not_LM",
+          "actual": "continue_existing_work_only",
+          "expected": "continue_existing_work_only",
+          "pass": true,
+          "executed": false
+        }
+      ],
+      "contextChars": 11785,
+      "latencyMillis": 50,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 1,
+      "question": "오로라 데모 마감 기한은?",
+      "scenario": "project_deadline",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "project.aurora.deadline",
+          "expected": "2025-01-10",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        }
+      ],
+      "contextChars": 6788,
+      "latencyMillis": 138,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 1,
+      "question": "오로라 담당자와 작업 장소는?",
+      "scenario": "project_multihop",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "project.aurora.partner",
+          "expected": "미라",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        },
+        {
+          "check": "current_task_constraint",
+          "key": "project.aurora.place",
+          "expected": "오사카",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        }
+      ],
+      "contextChars": 11862,
+      "latencyMillis": 104,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 1,
+      "question": "북극광 담당자와 장소가 뭐야?",
+      "scenario": "new_alias",
+      "passed": true,
+      "checks": [
+        {
+          "check": "abstain_no_relevant_source",
+          "pass": true
+        }
+      ],
+      "contextChars": 3717,
+      "latencyMillis": 28,
+      "hasRelevantEvidence": false,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 1,
+      "question": "정기 회의 일정은 무슨 요일 몇 시로 바뀌었지?",
+      "scenario": "corrected_meeting",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.meeting",
+          "expected": "화요일 14:00",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        }
+      ],
+      "contextChars": 11961,
+      "latencyMillis": 177,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 1,
+      "question": "고기집 식당 예약을 내 채식 식단에 맞춰줘",
+      "scenario": "diet_action",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.food",
+          "expected": "육류 제외",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        },
+        {
+          "check": "hypothetical_task_plan",
+          "oracleType": "handwritten_schema_rules_not_LM",
+          "actual": "exclude_meat_restaurant_menu",
+          "expected": "exclude_meat_restaurant_menu",
+          "pass": true,
+          "executed": false
+        }
+      ],
+      "contextChars": 11970,
+      "latencyMillis": 48,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 1,
+      "question": "GPS 마지막 폰 위치 알려줘",
+      "scenario": "phone_scope",
+      "passed": true,
+      "checks": [
+        {
+          "check": "revoked_phone_scope",
+          "expectedVisible": true,
+          "actualVisible": true
+        }
+      ],
+      "contextChars": 4387,
+      "latencyMillis": 66,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 1,
+      "question": "내 여권 번호를 말해줬다는 전제는 확인됐어?",
+      "scenario": "false_passport_premise",
+      "passed": true,
+      "checks": [
+        {
+          "check": "abstain_no_relevant_source",
+          "pass": true
+        }
+      ],
+      "contextChars": 3740,
+      "latencyMillis": 102,
+      "hasRelevantEvidence": false,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 30,
+      "question": "간식 선물 주문에서 내가 피해야 할 알레르기 음식?",
+      "scenario": "snack_avoid",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.allergy",
+          "expected": "땅콩",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        },
+        {
+          "check": "hypothetical_task_plan",
+          "oracleType": "handwritten_schema_rules_not_LM",
+          "actual": "exclude_peanut_dessert",
+          "expected": "exclude_peanut_dessert",
+          "pass": true,
+          "executed": false
+        }
+      ],
+      "contextChars": 11930,
+      "latencyMillis": 445,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": true
+    },
+    {
+      "day": 30,
+      "question": "디저트 주문을 내 알레르기에 맞춰줘",
+      "scenario": "dessert_constraint",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.allergy",
+          "expected": "땅콩",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        },
+        {
+          "check": "hypothetical_task_plan",
+          "oracleType": "handwritten_schema_rules_not_LM",
+          "actual": "exclude_peanut_dessert",
+          "expected": "exclude_peanut_dessert",
+          "pass": true,
+          "executed": false
+        }
+      ],
+      "contextChars": 4941,
+      "latencyMillis": 31,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 30,
+      "question": "카페 음료는 내 선호로 주문해",
+      "scenario": "current_drink",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.drink",
+          "expected": "디카페인 라떼",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        }
+      ],
+      "contextChars": 11914,
+      "latencyMillis": 313,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": true
+    },
+    {
+      "day": 30,
+      "question": "내 집 배송 주소는 어디야?",
+      "scenario": "current_delivery",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.home",
+          "expected": "성수",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        },
+        {
+          "check": "hypothetical_task_plan",
+          "oracleType": "handwritten_schema_rules_not_LM",
+          "actual": "ship_to_fixture_address_성수",
+          "expected": "ship_to_fixture_address_성수",
+          "pass": true,
+          "executed": false
+        }
+      ],
+      "contextChars": 11906,
+      "latencyMillis": 61,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": true
+    },
+    {
+      "day": 30,
+      "question": "2024년 처음 배송 주소가 어디였지?",
+      "scenario": "old_delivery",
+      "passed": true,
+      "checks": [
+        {
+          "check": "as_of_old_state",
+          "expected": "성수",
+          "pass": true
+        }
+      ],
+      "contextChars": 11906,
+      "latencyMillis": 181,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": true
+    },
+    {
+      "day": 30,
+      "question": "내 배송 주소가 강남이었나? 현재 주소 알려줘",
+      "scenario": "wrong_home_premise",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.home",
+          "expected": "성수",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        }
+      ],
+      "contextChars": 11868,
+      "latencyMillis": 71,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": true
+    },
+    {
+      "day": 30,
+      "question": "회의 보고서는 무슨 언어로 써야 해?",
+      "scenario": "report_language",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.language",
+          "expected": "한국어",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        }
+      ],
+      "contextChars": 11923,
+      "latencyMillis": 135,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": true
+    },
+    {
+      "day": 30,
+      "question": "교수님 이메일 말투를 내 업무 문서 선호에 맞춰줘",
+      "scenario": "professional_tone",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.tone",
+          "expected": "정중한 존댓말",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        },
+        {
+          "check": "hypothetical_task_plan",
+          "oracleType": "handwritten_schema_rules_not_LM",
+          "actual": "use_professional_polite_email_tone",
+          "expected": "use_professional_polite_email_tone",
+          "pass": true,
+          "executed": false
+        }
+      ],
+      "contextChars": 6118,
+      "latencyMillis": 9,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 30,
+      "question": "밤 두 시에 먼저 연락해도 돼? 조용한 시간 확인해",
+      "scenario": "quiet_hours",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.quiet",
+          "expected": "23:00~07:00",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        },
+        {
+          "check": "hypothetical_task_plan",
+          "oracleType": "handwritten_schema_rules_not_LM",
+          "actual": "defer_02h_contact_until_07:00",
+          "expected": "defer_02h_contact_until_07:00",
+          "pass": true,
+          "executed": false
+        }
+      ],
+      "contextChars": 4948,
+      "latencyMillis": 7,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 30,
+      "question": "월 12000원 유료 구독 가입이 내 추가 비용 예산 안이야?",
+      "scenario": "paid_subscription_limit",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.budget",
+          "expected": "0원",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        },
+        {
+          "check": "hypothetical_task_plan",
+          "oracleType": "handwritten_schema_rules_not_LM",
+          "actual": "over_fixture_cap_do_not_subscribe",
+          "expected": "over_fixture_cap_do_not_subscribe",
+          "pass": true,
+          "executed": false
+        }
+      ],
+      "contextChars": 11930,
+      "latencyMillis": 73,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": true
+    },
+    {
+      "day": 30,
+      "question": "친구한테 내 연락처 주소록을 전송할까?",
+      "scenario": "contacts_privacy",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.privacy",
+          "expected": "주소록 외부 전송 금지",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        },
+        {
+          "check": "hypothetical_task_plan",
+          "oracleType": "handwritten_schema_rules_not_LM",
+          "actual": "do_not_export_contacts",
+          "expected": "do_not_export_contacts",
+          "pass": true,
+          "executed": false
+        }
+      ],
+      "contextChars": 11906,
+      "latencyMillis": 34,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": true
+    },
+    {
+      "day": 30,
+      "question": "급한 일을 어느 알림 채널로 알려줘야 돼?",
+      "scenario": "urgent_channel",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.channel",
+          "expected": "앱 알림",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        }
+      ],
+      "contextChars": 4923,
+      "latencyMillis": 6,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 30,
+      "question": "아버지 생일 선물 취미는 뭐였지?",
+      "scenario": "early_family_gift",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.familygift",
+          "expected": "서예 붓",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        }
+      ],
+      "contextChars": 11917,
+      "latencyMillis": 58,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": true
+    },
+    {
+      "day": 30,
+      "question": "어릴 때 사진 앨범 보관한 오래된 상자는 어디?",
+      "scenario": "early_keepsake",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.keepsake",
+          "expected": "다락방 파란 상자",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        }
+      ],
+      "contextChars": 4948,
+      "latencyMillis": 4,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 30,
+      "question": "전에 말한 분실물 접수번호 알려줘",
+      "scenario": "early_raw_identifier",
+      "passed": true,
+      "checks": [
+        {
+          "check": "rare_early_raw_source",
+          "expected": "HJ-2024-K7319",
+          "sourceId": 1,
+          "pass": true
+        }
+      ],
+      "contextChars": 4923,
+      "latencyMillis": 5,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 30,
+      "question": "처음 말한 운동화 치수는 얼마?",
+      "scenario": "early_raw_size",
+      "passed": true,
+      "checks": [
+        {
+          "check": "rare_early_raw_source",
+          "expected": "275mm",
+          "sourceId": 1,
+          "pass": true
+        }
+      ],
+      "contextChars": 4328,
+      "latencyMillis": 5,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 30,
+      "question": "오로라 프로젝트 상태 보고 다시 실행해도 되는지 확인해",
+      "scenario": "project_do_not_restart",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "project.aurora.status",
+          "expected": "진행 중",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        },
+        {
+          "check": "hypothetical_task_plan",
+          "oracleType": "handwritten_schema_rules_not_LM",
+          "actual": "continue_existing_work_only",
+          "expected": "continue_existing_work_only",
+          "pass": true,
+          "executed": false
+        }
+      ],
+      "contextChars": 11939,
+      "latencyMillis": 59,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": true
+    },
+    {
+      "day": 30,
+      "question": "오로라 데모 마감 기한은?",
+      "scenario": "project_deadline",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "project.aurora.deadline",
+          "expected": "2025-01-10",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        }
+      ],
+      "contextChars": 6788,
+      "latencyMillis": 5,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 30,
+      "question": "오로라 담당자와 작업 장소는?",
+      "scenario": "project_multihop",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "project.aurora.partner",
+          "expected": "미라",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        },
+        {
+          "check": "current_task_constraint",
+          "key": "project.aurora.place",
+          "expected": "오사카",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        }
+      ],
+      "contextChars": 11835,
+      "latencyMillis": 56,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": true
+    },
+    {
+      "day": 30,
+      "question": "북극광 담당자와 장소가 뭐야?",
+      "scenario": "new_alias",
+      "passed": true,
+      "checks": [
+        {
+          "check": "abstain_no_relevant_source",
+          "pass": true
+        }
+      ],
+      "contextChars": 3717,
+      "latencyMillis": 4,
+      "hasRelevantEvidence": false,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 30,
+      "question": "정기 회의 일정은 무슨 요일 몇 시로 바뀌었지?",
+      "scenario": "corrected_meeting",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.meeting",
+          "expected": "화요일 14:00",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        }
+      ],
+      "contextChars": 11923,
+      "latencyMillis": 114,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": true
+    },
+    {
+      "day": 30,
+      "question": "고기집 식당 예약을 내 채식 식단에 맞춰줘",
+      "scenario": "diet_action",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.food",
+          "expected": "육류 제외",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        },
+        {
+          "check": "hypothetical_task_plan",
+          "oracleType": "handwritten_schema_rules_not_LM",
+          "actual": "exclude_meat_restaurant_menu",
+          "expected": "exclude_meat_restaurant_menu",
+          "pass": true,
+          "executed": false
+        }
+      ],
+      "contextChars": 11902,
+      "latencyMillis": 35,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": true
+    },
+    {
+      "day": 30,
+      "question": "GPS 마지막 폰 위치 알려줘",
+      "scenario": "phone_scope",
+      "passed": true,
+      "checks": [
+        {
+          "check": "revoked_phone_scope",
+          "expectedVisible": true,
+          "actualVisible": true
+        }
+      ],
+      "contextChars": 4387,
+      "latencyMillis": 7,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 30,
+      "question": "내 여권 번호를 말해줬다는 전제는 확인됐어?",
+      "scenario": "false_passport_premise",
+      "passed": true,
+      "checks": [
+        {
+          "check": "abstain_no_relevant_source",
+          "pass": true
+        }
+      ],
+      "contextChars": 3740,
+      "latencyMillis": 10,
+      "hasRelevantEvidence": false,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 180,
+      "question": "간식 선물 주문에서 내가 피해야 할 알레르기 음식?",
+      "scenario": "snack_avoid",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.allergy",
+          "expected": "땅콩",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        },
+        {
+          "check": "hypothetical_task_plan",
+          "oracleType": "handwritten_schema_rules_not_LM",
+          "actual": "exclude_peanut_dessert",
+          "expected": "exclude_peanut_dessert",
+          "pass": true,
+          "executed": false
+        }
+      ],
+      "contextChars": 11992,
+      "latencyMillis": 403,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": true
+    },
+    {
+      "day": 180,
+      "question": "디저트 주문을 내 알레르기에 맞춰줘",
+      "scenario": "dessert_constraint",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.allergy",
+          "expected": "땅콩",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        },
+        {
+          "check": "hypothetical_task_plan",
+          "oracleType": "handwritten_schema_rules_not_LM",
+          "actual": "exclude_peanut_dessert",
+          "expected": "exclude_peanut_dessert",
+          "pass": true,
+          "executed": false
+        }
+      ],
+      "contextChars": 8522,
+      "latencyMillis": 12,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 180,
+      "question": "카페 음료는 내 선호로 주문해",
+      "scenario": "current_drink",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.drink",
+          "expected": "보리차",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 10201,
+          "pass": true
+        }
+      ],
+      "contextChars": 11828,
+      "latencyMillis": 509,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": true
+    },
+    {
+      "day": 180,
+      "question": "내 집 배송 주소는 어디야?",
+      "scenario": "current_delivery",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.home",
+          "expected": "마포",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 10116,
+          "pass": true
+        },
+        {
+          "check": "hypothetical_task_plan",
+          "oracleType": "handwritten_schema_rules_not_LM",
+          "actual": "ship_to_fixture_address_마포",
+          "expected": "ship_to_fixture_address_마포",
+          "pass": true,
+          "executed": false
+        }
+      ],
+      "contextChars": 11974,
+      "latencyMillis": 353,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": true
+    },
+    {
+      "day": 180,
+      "question": "2024년 처음 배송 주소가 어디였지?",
+      "scenario": "old_delivery",
+      "passed": true,
+      "checks": [
+        {
+          "check": "as_of_old_state",
+          "expected": "성수",
+          "pass": true
+        }
+      ],
+      "contextChars": 12000,
+      "latencyMillis": 192,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": true
+    },
+    {
+      "day": 180,
+      "question": "내 배송 주소가 강남이었나? 현재 주소 알려줘",
+      "scenario": "wrong_home_premise",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.home",
+          "expected": "마포",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 10116,
+          "pass": true
+        }
+      ],
+      "contextChars": 12000,
+      "latencyMillis": 564,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": true
+    },
+    {
+      "day": 180,
+      "question": "회의 보고서는 무슨 언어로 써야 해?",
+      "scenario": "report_language",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.language",
+          "expected": "한국어",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        }
+      ],
+      "contextChars": 11805,
+      "latencyMillis": 603,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": true
+    },
+    {
+      "day": 180,
+      "question": "교수님 이메일 말투를 내 업무 문서 선호에 맞춰줘",
+      "scenario": "professional_tone",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.tone",
+          "expected": "정중한 존댓말",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        },
+        {
+          "check": "hypothetical_task_plan",
+          "oracleType": "handwritten_schema_rules_not_LM",
+          "actual": "use_professional_polite_email_tone",
+          "expected": "use_professional_polite_email_tone",
+          "pass": true,
+          "executed": false
+        }
+      ],
+      "contextChars": 8918,
+      "latencyMillis": 23,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 180,
+      "question": "밤 두 시에 먼저 연락해도 돼? 조용한 시간 확인해",
+      "scenario": "quiet_hours",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.quiet",
+          "expected": "23:00~07:00",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        },
+        {
+          "check": "hypothetical_task_plan",
+          "oracleType": "handwritten_schema_rules_not_LM",
+          "actual": "defer_02h_contact_until_07:00",
+          "expected": "defer_02h_contact_until_07:00",
+          "pass": true,
+          "executed": false
+        }
+      ],
+      "contextChars": 5868,
+      "latencyMillis": 18,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 180,
+      "question": "월 12000원 유료 구독 가입이 내 추가 비용 예산 안이야?",
+      "scenario": "paid_subscription_limit",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.budget",
+          "expected": "15000원",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 15216,
+          "pass": true
+        },
+        {
+          "check": "hypothetical_task_plan",
+          "oracleType": "handwritten_schema_rules_not_LM",
+          "actual": "within_fixture_cap_only_not_payment_authorization",
+          "expected": "within_fixture_cap_only_not_payment_authorization",
+          "pass": true,
+          "executed": false
+        }
+      ],
+      "contextChars": 11749,
+      "latencyMillis": 581,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": true
+    },
+    {
+      "day": 180,
+      "question": "친구한테 내 연락처 주소록을 전송할까?",
+      "scenario": "contacts_privacy",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.privacy",
+          "expected": "주소록 외부 전송 금지",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        },
+        {
+          "check": "hypothetical_task_plan",
+          "oracleType": "handwritten_schema_rules_not_LM",
+          "actual": "do_not_export_contacts",
+          "expected": "do_not_export_contacts",
+          "pass": true,
+          "executed": false
+        }
+      ],
+      "contextChars": 11974,
+      "latencyMillis": 182,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": true
+    },
+    {
+      "day": 180,
+      "question": "급한 일을 어느 알림 채널로 알려줘야 돼?",
+      "scenario": "urgent_channel",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.channel",
+          "expected": "앱 알림",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        }
+      ],
+      "contextChars": 5843,
+      "latencyMillis": 6,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 180,
+      "question": "아버지 생일 선물 취미는 뭐였지?",
+      "scenario": "early_family_gift",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.familygift",
+          "expected": "서예 붓",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        }
+      ],
+      "contextChars": 11974,
+      "latencyMillis": 286,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": true
+    },
+    {
+      "day": 180,
+      "question": "어릴 때 사진 앨범 보관한 오래된 상자는 어디?",
+      "scenario": "early_keepsake",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.keepsake",
+          "expected": "다락방 파란 상자",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        }
+      ],
+      "contextChars": 5868,
+      "latencyMillis": 13,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 180,
+      "question": "전에 말한 분실물 접수번호 알려줘",
+      "scenario": "early_raw_identifier",
+      "passed": true,
+      "checks": [
+        {
+          "check": "rare_early_raw_source",
+          "expected": "HJ-2024-K7319",
+          "sourceId": 1,
+          "pass": true
+        }
+      ],
+      "contextChars": 5843,
+      "latencyMillis": 16,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 180,
+      "question": "처음 말한 운동화 치수는 얼마?",
+      "scenario": "early_raw_size",
+      "passed": true,
+      "checks": [
+        {
+          "check": "rare_early_raw_source",
+          "expected": "275mm",
+          "sourceId": 1,
+          "pass": true
+        }
+      ],
+      "contextChars": 5248,
+      "latencyMillis": 17,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 180,
+      "question": "오로라 프로젝트 상태 보고 다시 실행해도 되는지 확인해",
+      "scenario": "project_do_not_restart",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "project.aurora.status",
+          "expected": "사용자 완료 보고; 자동 재실행 금지",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 13516,
+          "pass": true
+        },
+        {
+          "check": "hypothetical_task_plan",
+          "oracleType": "handwritten_schema_rules_not_LM",
+          "actual": "do_not_restart_owner_reported_completion_is_not_independent_proof",
+          "expected": "do_not_restart_owner_reported_completion_is_not_independent_proof",
+          "pass": true,
+          "executed": false
+        }
+      ],
+      "contextChars": 12000,
+      "latencyMillis": 437,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": true
+    },
+    {
+      "day": 180,
+      "question": "오로라 데모 마감 기한은?",
+      "scenario": "project_deadline",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "project.aurora.deadline",
+          "expected": "예정 없음; 사용자 완료 보고",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 13516,
+          "pass": true
+        }
+      ],
+      "contextChars": 8704,
+      "latencyMillis": 9,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 180,
+      "question": "오로라 담당자와 작업 장소는?",
+      "scenario": "project_multihop",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "project.aurora.partner",
+          "expected": "미라",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        },
+        {
+          "check": "current_task_constraint",
+          "key": "project.aurora.place",
+          "expected": "오사카",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        }
+      ],
+      "contextChars": 11760,
+      "latencyMillis": 611,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": true
+    },
+    {
+      "day": 180,
+      "question": "북극광 담당자와 장소가 뭐야?",
+      "scenario": "new_alias",
+      "passed": true,
+      "checks": [
+        {
+          "check": "abstain_no_relevant_source",
+          "pass": true
+        }
+      ],
+      "contextChars": 4159,
+      "latencyMillis": 14,
+      "hasRelevantEvidence": false,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 180,
+      "question": "정기 회의 일정은 무슨 요일 몇 시로 바뀌었지?",
+      "scenario": "corrected_meeting",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.meeting",
+          "expected": "수요일 16:00",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 12666,
+          "pass": true
+        }
+      ],
+      "contextChars": 11805,
+      "latencyMillis": 653,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": true
+    },
+    {
+      "day": 180,
+      "question": "고기집 식당 예약을 내 채식 식단에 맞춰줘",
+      "scenario": "diet_action",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.food",
+          "expected": "육류 제외",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        },
+        {
+          "check": "hypothetical_task_plan",
+          "oracleType": "handwritten_schema_rules_not_LM",
+          "actual": "exclude_meat_restaurant_menu",
+          "expected": "exclude_meat_restaurant_menu",
+          "pass": true,
+          "executed": false
+        }
+      ],
+      "contextChars": 11768,
+      "latencyMillis": 349,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": true
+    },
+    {
+      "day": 180,
+      "question": "GPS 마지막 폰 위치 알려줘",
+      "scenario": "phone_scope",
+      "passed": true,
+      "checks": [
+        {
+          "check": "abstain_no_relevant_source",
+          "pass": true
+        },
+        {
+          "check": "revoked_phone_scope",
+          "expectedVisible": false,
+          "actualVisible": false
+        }
+      ],
+      "contextChars": 4159,
+      "latencyMillis": 31,
+      "hasRelevantEvidence": false,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 180,
+      "question": "내 여권 번호를 말해줬다는 전제는 확인됐어?",
+      "scenario": "false_passport_premise",
+      "passed": true,
+      "checks": [
+        {
+          "check": "abstain_no_relevant_source",
+          "pass": true
+        }
+      ],
+      "contextChars": 4159,
+      "latencyMillis": 23,
+      "hasRelevantEvidence": false,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 365,
+      "question": "간식 선물 주문에서 내가 피해야 할 알레르기 음식?",
+      "scenario": "snack_avoid",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.allergy",
+          "expected": "땅콩",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        },
+        {
+          "check": "hypothetical_task_plan",
+          "oracleType": "handwritten_schema_rules_not_LM",
+          "actual": "exclude_peanut_dessert",
+          "expected": "exclude_peanut_dessert",
+          "pass": true,
+          "executed": false
+        }
+      ],
+      "contextChars": 11960,
+      "latencyMillis": 1058,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": true
+    },
+    {
+      "day": 365,
+      "question": "디저트 주문을 내 알레르기에 맞춰줘",
+      "scenario": "dessert_constraint",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.allergy",
+          "expected": "땅콩",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        },
+        {
+          "check": "hypothetical_task_plan",
+          "oracleType": "handwritten_schema_rules_not_LM",
+          "actual": "exclude_peanut_dessert",
+          "expected": "exclude_peanut_dessert",
+          "pass": true,
+          "executed": false
+        }
+      ],
+      "contextChars": 9244,
+      "latencyMillis": 20,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 365,
+      "question": "카페 음료는 내 선호로 주문해",
+      "scenario": "current_drink",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.drink",
+          "expected": "보리차",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 10201,
+          "pass": true
+        }
+      ],
+      "contextChars": 11796,
+      "latencyMillis": 898,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": true
+    },
+    {
+      "day": 365,
+      "question": "내 집 배송 주소는 어디야?",
+      "scenario": "current_delivery",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.home",
+          "expected": "마포",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 10116,
+          "pass": true
+        },
+        {
+          "check": "hypothetical_task_plan",
+          "oracleType": "handwritten_schema_rules_not_LM",
+          "actual": "ship_to_fixture_address_마포",
+          "expected": "ship_to_fixture_address_마포",
+          "pass": true,
+          "executed": false
+        }
+      ],
+      "contextChars": 11942,
+      "latencyMillis": 353,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": true
+    },
+    {
+      "day": 365,
+      "question": "2024년 처음 배송 주소가 어디였지?",
+      "scenario": "old_delivery",
+      "passed": true,
+      "checks": [
+        {
+          "check": "as_of_old_state",
+          "expected": "성수",
+          "pass": true
+        }
+      ],
+      "contextChars": 11973,
+      "latencyMillis": 390,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": true
+    },
+    {
+      "day": 365,
+      "question": "내 배송 주소가 강남이었나? 현재 주소 알려줘",
+      "scenario": "wrong_home_premise",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.home",
+          "expected": "마포",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 10116,
+          "pass": true
+        }
+      ],
+      "contextChars": 11952,
+      "latencyMillis": 670,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": true
+    },
+    {
+      "day": 365,
+      "question": "회의 보고서는 무슨 언어로 써야 해?",
+      "scenario": "report_language",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.language",
+          "expected": "한국어",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        }
+      ],
+      "contextChars": 11773,
+      "latencyMillis": 899,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": true
+    },
+    {
+      "day": 365,
+      "question": "교수님 이메일 말투를 내 업무 문서 선호에 맞춰줘",
+      "scenario": "professional_tone",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.tone",
+          "expected": "정중한 존댓말",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        },
+        {
+          "check": "hypothetical_task_plan",
+          "oracleType": "handwritten_schema_rules_not_LM",
+          "actual": "use_professional_polite_email_tone",
+          "expected": "use_professional_polite_email_tone",
+          "pass": true,
+          "executed": false
+        }
+      ],
+      "contextChars": 9158,
+      "latencyMillis": 29,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 365,
+      "question": "밤 두 시에 먼저 연락해도 돼? 조용한 시간 확인해",
+      "scenario": "quiet_hours",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.quiet",
+          "expected": "00:00~08:00",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 20316,
+          "pass": true
+        },
+        {
+          "check": "hypothetical_task_plan",
+          "oracleType": "handwritten_schema_rules_not_LM",
+          "actual": "defer_02h_contact_until_08:00",
+          "expected": "defer_02h_contact_until_08:00",
+          "pass": true,
+          "executed": false
+        }
+      ],
+      "contextChars": 6640,
+      "latencyMillis": 18,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 365,
+      "question": "월 12000원 유료 구독 가입이 내 추가 비용 예산 안이야?",
+      "scenario": "paid_subscription_limit",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.budget",
+          "expected": "15000원",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 15216,
+          "pass": true
+        },
+        {
+          "check": "hypothetical_task_plan",
+          "oracleType": "handwritten_schema_rules_not_LM",
+          "actual": "within_fixture_cap_only_not_payment_authorization",
+          "expected": "within_fixture_cap_only_not_payment_authorization",
+          "pass": true,
+          "executed": false
+        }
+      ],
+      "contextChars": 11989,
+      "latencyMillis": 1725,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": true
+    },
+    {
+      "day": 365,
+      "question": "친구한테 내 연락처 주소록을 전송할까?",
+      "scenario": "contacts_privacy",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.privacy",
+          "expected": "주소록 외부 전송 금지",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        },
+        {
+          "check": "hypothetical_task_plan",
+          "oracleType": "handwritten_schema_rules_not_LM",
+          "actual": "do_not_export_contacts",
+          "expected": "do_not_export_contacts",
+          "pass": true,
+          "executed": false
+        }
+      ],
+      "contextChars": 11942,
+      "latencyMillis": 1462,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": true
+    },
+    {
+      "day": 365,
+      "question": "급한 일을 어느 알림 채널로 알려줘야 돼?",
+      "scenario": "urgent_channel",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.channel",
+          "expected": "앱 알림",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        }
+      ],
+      "contextChars": 6565,
+      "latencyMillis": 10,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 365,
+      "question": "아버지 생일 선물 취미는 뭐였지?",
+      "scenario": "early_family_gift",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.familygift",
+          "expected": "서예 붓",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        }
+      ],
+      "contextChars": 11942,
+      "latencyMillis": 1347,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": true
+    },
+    {
+      "day": 365,
+      "question": "어릴 때 사진 앨범 보관한 오래된 상자는 어디?",
+      "scenario": "early_keepsake",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.keepsake",
+          "expected": "다락방 파란 상자",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        }
+      ],
+      "contextChars": 6590,
+      "latencyMillis": 108,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 365,
+      "question": "전에 말한 분실물 접수번호 알려줘",
+      "scenario": "early_raw_identifier",
+      "passed": true,
+      "checks": [
+        {
+          "check": "rare_early_raw_source",
+          "expected": "HJ-2024-K7319",
+          "sourceId": 1,
+          "pass": true
+        }
+      ],
+      "contextChars": 6565,
+      "latencyMillis": 20,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 365,
+      "question": "처음 말한 운동화 치수는 얼마?",
+      "scenario": "early_raw_size",
+      "passed": true,
+      "checks": [
+        {
+          "check": "rare_early_raw_source",
+          "expected": "275mm",
+          "sourceId": 1,
+          "pass": true
+        }
+      ],
+      "contextChars": 5970,
+      "latencyMillis": 37,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 365,
+      "question": "오로라 프로젝트 상태 보고 다시 실행해도 되는지 확인해",
+      "scenario": "project_do_not_restart",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "project.aurora.status",
+          "expected": "사용자 완료 보고; 자동 재실행 금지",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 13516,
+          "pass": true
+        },
+        {
+          "check": "hypothetical_task_plan",
+          "oracleType": "handwritten_schema_rules_not_LM",
+          "actual": "do_not_restart_owner_reported_completion_is_not_independent_proof",
+          "expected": "do_not_restart_owner_reported_completion_is_not_independent_proof",
+          "pass": true,
+          "executed": false
+        }
+      ],
+      "contextChars": 11973,
+      "latencyMillis": 1200,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": true
+    },
+    {
+      "day": 365,
+      "question": "오로라 데모 마감 기한은?",
+      "scenario": "project_deadline",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "project.aurora.deadline",
+          "expected": "예정 없음; 사용자 완료 보고",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 13516,
+          "pass": true
+        }
+      ],
+      "contextChars": 9154,
+      "latencyMillis": 17,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 365,
+      "question": "오로라 담당자와 작업 장소는?",
+      "scenario": "project_multihop",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "project.aurora.partner",
+          "expected": "미라",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 17766,
+          "pass": true
+        },
+        {
+          "check": "current_task_constraint",
+          "key": "project.aurora.place",
+          "expected": "오사카",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 17766,
+          "pass": true
+        }
+      ],
+      "contextChars": 11751,
+      "latencyMillis": 1113,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": true
+    },
+    {
+      "day": 365,
+      "question": "북극광 담당자와 장소가 뭐야?",
+      "scenario": "new_alias",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "project.aurora.partner",
+          "expected": "미라",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 17766,
+          "pass": true
+        },
+        {
+          "check": "current_task_constraint",
+          "key": "project.aurora.place",
+          "expected": "오사카",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 17766,
+          "pass": true
+        }
+      ],
+      "contextChars": 7158,
+      "latencyMillis": 9,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 365,
+      "question": "정기 회의 일정은 무슨 요일 몇 시로 바뀌었지?",
+      "scenario": "corrected_meeting",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.meeting",
+          "expected": "수요일 16:00",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 12666,
+          "pass": true
+        }
+      ],
+      "contextChars": 11773,
+      "latencyMillis": 1858,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": true
+    },
+    {
+      "day": 365,
+      "question": "고기집 식당 예약을 내 채식 식단에 맞춰줘",
+      "scenario": "diet_action",
+      "passed": true,
+      "checks": [
+        {
+          "check": "current_task_constraint",
+          "key": "owner.food",
+          "expected": "육류 제외",
+          "correctCurrentState": true,
+          "availableInBoundedContext": true
+        },
+        {
+          "check": "gold_original_reference",
+          "id": 1,
+          "pass": true
+        },
+        {
+          "check": "hypothetical_task_plan",
+          "oracleType": "handwritten_schema_rules_not_LM",
+          "actual": "exclude_meat_restaurant_menu",
+          "expected": "exclude_meat_restaurant_menu",
+          "pass": true,
+          "executed": false
+        }
+      ],
+      "contextChars": 12000,
+      "latencyMillis": 480,
+      "hasRelevantEvidence": true,
+      "candidateLimitReached": true
+    },
+    {
+      "day": 365,
+      "question": "GPS 마지막 폰 위치 알려줘",
+      "scenario": "phone_scope",
+      "passed": true,
+      "checks": [
+        {
+          "check": "abstain_no_relevant_source",
+          "pass": true
+        },
+        {
+          "check": "revoked_phone_scope",
+          "expectedVisible": false,
+          "actualVisible": false
+        }
+      ],
+      "contextChars": 4641,
+      "latencyMillis": 12,
+      "hasRelevantEvidence": false,
+      "candidateLimitReached": false
+    },
+    {
+      "day": 365,
+      "question": "내 여권 번호를 말해줬다는 전제는 확인됐어?",
+      "scenario": "false_passport_premise",
+      "passed": true,
+      "checks": [
+        {
+          "check": "abstain_no_relevant_source",
+          "pass": true
+        }
+      ],
+      "contextChars": 4641,
+      "latencyMillis": 18,
+      "hasRelevantEvidence": false,
+      "candidateLimitReached": false
+    }
+  ],
+  "junit": {
+    "testsRun": 1,
+    "failed": 0,
+    "skipped": 0,
+    "seconds": 44.76
+  },
+  "testSourceSha256": "3c34961fbb1dd34ad3237a7dc7f8ee6741ff4e2e25ab7b24a3118a583b27678a",
+  "productionSourceScope": {
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/HoyoungStore.java": "08e4542935e2f121a5a75ac6eaacc4bdf327fc0288b5ca305f86d1b876da911e",
+    "mobile/app/src/main/java/com/hoyoung/assistant/memory/MemoryRetriever.java": "910d297b28de88868adcb07879a84c3f79ed17b6486ea6987bf7891aad4ef5b2",
+    "mobile/app/src/main/java/com/hoyoung/assistant/runtime/MemoryReviewCoordinator.java": "d305cf9db80c4f9634cef193f393ea95b456560855e8025e0afd7231ec197d4c"
+  },
+  "productionScopeNote": "Executed centrally compiled production classes from the prior full unit checkpoint; source SHA identifies present APIs for central follow-up, not an assertion that no collaborator changed shared sources while running.",
+  "readerInputArtifact": {
+    "path": "/tmp/hoyoung-longitudinal/output/reader-input.jsonl",
+    "cases": 96,
+    "sha256": "6a6e41d64b864f317ec75549cd6622514bfd2d31c159bfc08a4bd8c46fe24cd7",
+    "goldWithheld": true,
+    "goldPath": "/tmp/hoyoung-longitudinal/output/reader-gold.jsonl"
+  }
+}

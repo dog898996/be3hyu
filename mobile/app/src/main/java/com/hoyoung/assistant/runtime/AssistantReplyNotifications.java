@@ -34,13 +34,16 @@ public final class AssistantReplyNotifications implements AutoCloseable {
     public static final int NOTIFICATION_ID = 2411, MAX_ACTIVE = 32;
     private static final String TAG_PREFIX = "hoyoung_reply:", STATE_PREFIX = "replyNotification:";
     private static final Object[] SOURCE_LOCKS = new Object[128];
-    static { for(int i=0;i<SOURCE_LOCKS.length;i++)SOURCE_LOCKS[i]=new Object(); }
+    private static final Lifecycle[] LIFECYCLES = new Lifecycle[16];
+    private static final class Lifecycle { volatile long epoch; volatile int restoreDepth; }
+    static { for(int i=0;i<SOURCE_LOCKS.length;i++)SOURCE_LOCKS[i]=new Object(); for(int i=0;i<LIFECYCLES.length;i++)LIFECYCLES[i]=new Lifecycle(); }
     private final Context context;
     private final HoyoungStore store;
     private final NotificationManager manager;
     private final Executor executor;
     private final boolean ownsExecutor;
     private final String processScope;
+    private final Lifecycle lifecycle;
     private volatile boolean conversationVisible;
     private volatile boolean closed;
     private volatile JSONObject lastState = object("lastCode","not_started","readConfirmed",false);
@@ -56,6 +59,7 @@ public final class AssistantReplyNotifications implements AutoCloseable {
         this.ownsExecutor = ownsExecutor;
         manager = (NotificationManager) this.context.getSystemService(Context.NOTIFICATION_SERVICE);
         processScope = this.context.getDatabasePath(HoyoungStore.DATABASE_NAME).getAbsolutePath();
+        lifecycle = LIFECYCLES[processScope.hashCode()&(LIFECYCLES.length-1)];
         try { ensureChannel(); }
         catch (RuntimeException unavailable) { lastState = object("lastCode","notification_channel_unavailable","readConfirmed",false); }
         executor.execute(() -> {
@@ -74,10 +78,13 @@ public final class AssistantReplyNotifications implements AutoCloseable {
         String kind = stage == null ? "" : stage;
         if (closed) return object("queued",false,"code","notification_worker_closed","notificationPosted",false,"readConfirmed",false);
         if (!eligible(kind)) return object("queued",false,"code","silent_stage","notificationPosted",false,"readConfirmed",false);
-        executor.execute(() -> {
-            try { synchronized (sourceLock(id)) { publishOne(id, sourceHash, kind); } }
-            catch (RuntimeException failure) { report("notification_processing_failed",id,false); }
-        });
+        long queuedEpoch = lifecycle.epoch;
+        try { executor.execute(() -> {
+            try { synchronized (lifecycle) {
+                if (lifecycle.restoreDepth>0 || queuedEpoch!=lifecycle.epoch) { report("notification_restore_epoch_changed",id,false); return; }
+                synchronized (sourceLock(id)) { publishOne(id, sourceHash, kind); }
+            }} catch (RuntimeException failure) { report("notification_processing_failed",id,false); }
+        }); }catch(java.util.concurrent.RejectedExecutionException stopped){return object("queued",false,"code","notification_worker_closed","notificationPosted",false,"readConfirmed",false);}
         return object("queued",true,"sourceMessageId",id,"notificationPosted",false,"readConfirmed",false);
     }
 
@@ -87,24 +94,52 @@ public final class AssistantReplyNotifications implements AutoCloseable {
     /** Stops accepting new work and drains already accepted work without blocking the caller. */
     @Override public void close(){closed=true;if(ownsExecutor)((ExecutorService)executor).shutdown();}
 
-    /** The caller must have actually displayed the source message; opening another tab is not a read receipt. */
+    /** Call outside Runtime/Store locks, before the first database/file restore mutation. */
+    public void beginRestore() {
+        synchronized(lifecycle) {
+            if(lifecycle.restoreDepth++==0) {
+                lifecycle.epoch++;
+                try{if(manager!=null)for(StatusBarNotification item:manager.getActiveNotifications())
+                    if(item.getId()==NOTIFICATION_ID && item.getTag()!=null && item.getTag().startsWith(TAG_PREFIX))manager.cancel(item.getTag(),NOTIFICATION_ID);}
+                catch(RuntimeException unknown){lastState=object("lastCode","notification_restore_cancel_unverified","notificationPosted",false,"readConfirmed",false);}
+            }
+        }
+    }
+    /** Pair in the restore caller's finally block; old queued work never joins the new epoch. */
+    public void endRestore(){synchronized(lifecycle){if(lifecycle.restoreDepth<=0)throw new IllegalStateException("Notification restore barrier was not entered");lifecycle.restoreDepth--;}}
+
+    /** ID alone cannot prove which snapshot identity was displayed. No read/cancel promotion. */
     public void markSeen(long sourceId) {
-        if (sourceId <= 0) throw new IllegalArgumentException("Positive source message id required");
-        if (closed) return;
-        executor.execute(() -> {
-            try { synchronized (sourceLock(sourceId)) {
-                if (manager != null) manager.cancel(tag(sourceId),NOTIFICATION_ID);
-                store.withTransaction(db -> {
-                    JSONObject source = store.getMessage(sourceId);
-                    if (source == null || !("assistant".equals(source.optString("role")) || "system".equals(source.optString("role")))) return null;
-                    JSONObject record = parse(store.getSetting(STATE_PREFIX + sourceId,"{}"));
-                    put(record,"sourceMessageId",sourceId); put(record,"sourceHash",source.optString("content_hash"));
-                    put(record,"status","seen"); put(record,"seenAt",System.currentTimeMillis()); put(record,"readConfirmedByUi",true);
-                    store.putSetting(STATE_PREFIX + sourceId,record.toString());
-                    store.recordEvent("assistant_reply_seen_in_conversation",object("sourceMessageId",sourceId,"notificationCancelled",true)); return null;
-                });
-            }} catch (RuntimeException failure) { report("notification_seen_record_failed",sourceId,false); }
-        });
+        if(sourceId<=0)throw new IllegalArgumentException("Positive source message id required");
+        if(!closed)try{executor.execute(()->report("seen_source_identity_required",sourceId,false));}catch(java.util.concurrent.RejectedExecutionException stopped){/* No claim or effect. */}
+    }
+    /** Supply the hash from the actually displayed source, without a new UI-thread database read. */
+    public void markSeen(long sourceId,String displayedSourceHash) {
+        if(sourceId<=0 || displayedSourceHash==null || !displayedSourceHash.matches("[0-9a-f]{64}"))throw new IllegalArgumentException("Displayed source id and hash required");
+        if(closed)return;
+        long queuedEpoch=lifecycle.epoch;
+        try {executor.execute(()->{
+            try{synchronized(lifecycle){
+                if(lifecycle.restoreDepth>0 || queuedEpoch!=lifecycle.epoch){report("seen_restore_epoch_changed",sourceId,false);return;}
+                synchronized(sourceLock(sourceId)){
+                    boolean matched=store.withTransaction(db->{
+                        JSONObject source=store.getMessage(sourceId);
+                        if(source==null || !displayedSourceHash.equals(source.optString("content_hash"))
+                                || !("assistant".equals(source.optString("role"))||"system".equals(source.optString("role"))))return false;
+                        String raw=store.getSetting(STATE_PREFIX+sourceId,null);JSONObject record;
+                        try{record=raw==null?new JSONObject():dispatchState(raw,sourceId);}catch(IllegalArgumentException corrupt){store.putSetting("replyNotificationCorrupt:"+sourceId,raw);record=new JSONObject();}
+                        if(displayedSourceHash.equals(record.optString("sourceHash")) && "seen".equals(record.optString("status")))return true;
+                        if(!displayedSourceHash.equals(record.optString("sourceHash")))record=new JSONObject();
+                        put(record,"sourceMessageId",sourceId);put(record,"sourceHash",displayedSourceHash);put(record,"status","seen");put(record,"seenAt",System.currentTimeMillis());put(record,"readConfirmedByUi",true);
+                        store.putSetting(STATE_PREFIX+sourceId,record.toString());
+                        store.recordEvent("assistant_reply_seen_in_conversation",object("sourceMessageId",sourceId,"sourceHash",displayedSourceHash,"displayedInUi",true,"ownerReadConfirmed",false));return true;
+                    });
+                    if(!matched){report("seen_source_changed",sourceId,false);return;}
+                    if(active(sourceId,displayedSourceHash)!=null)manager.cancel(tag(sourceId),NOTIFICATION_ID);
+                    report("message_displayed_in_conversation",sourceId,false);
+                }
+            }}catch(RuntimeException failure){report("notification_seen_record_failed",sourceId,false);}
+        });}catch(java.util.concurrent.RejectedExecutionException stopped){/* No claim or effect. */}
     }
 
     public JSONObject state() {
@@ -115,7 +150,7 @@ public final class AssistantReplyNotifications implements AutoCloseable {
             NotificationChannel channel = manager == null ? null : manager.getNotificationChannel(CHANNEL);
             put(state,"channelBlocked",channel != null && channel.getImportance() == NotificationManager.IMPORTANCE_NONE);
         }catch(RuntimeException unavailable){put(state,"appNotificationsEnabled",false);put(state,"osNotificationStateUnavailable",true);}
-        put(state,"channelId",CHANNEL); put(state,"postingDoesNotMeanRead",true); return state;
+        put(state,"restoreInProgress",lifecycle.restoreDepth>0); put(state,"workerClosed",closed); put(state,"channelId",CHANNEL); put(state,"postingDoesNotMeanRead",true); return state;
     }
 
     private void publishOne(long id,String expectedHash,String stage) {

@@ -1,0 +1,211 @@
+{
+  "benchmark": "synthetic-longitudinal-selected-blind-reader-24-v1",
+  "requestedReaderModel": "gpt-6.1-sol",
+  "requestedReasoningEffort": "medium",
+  "actualBackendTelemetryVerified": false,
+  "readerHasGold": false,
+  "readerHasOtherAgentHistory": false,
+  "actualWorkAppTransportUsed": false,
+  "actualPhoneMeasured": false,
+  "actualYearElapsed": false,
+  "fixtureNotesHandAuthored": true,
+  "selectedScenarios": 12,
+  "checkpoints": [
+    1,
+    365
+  ],
+  "cases": 24,
+  "allExternalActionPerformedFlagsFalse": true,
+  "quotedCitations": 23,
+  "quotedCitationsExactlyPresentInCaseContext": 23,
+  "manualSemanticRubricPassed": 24,
+  "manualRubric": "Parent read each answer for current versus historical values, dietary/quiet-hours/budget constraints, source-limited uncertainty, project completion as owner report, old raw identifier, late alias, location revocation and absent passport premise; no automated semantic judge or broad real-world memory score.",
+  "scope": "Selected synthetic contexts retrieved by real production SQLite/MemoryRetriever; blind model reads provided bounded contexts, not actual year-long extraction or unconstrained retrieval.",
+  "sourceFiles": [
+    {
+      "path": "docs/benchmarks/longitudinal-blind-reader/reader-inputs.jsonl",
+      "sha256": "66ceb18e714e75977bc66a5e81fa8f1f0b0dd3ce4d3517ff4dfc11c9f58e8e93",
+      "bytes": 272273
+    },
+    {
+      "path": "docs/benchmarks/longitudinal-blind-reader/reader-output.json",
+      "sha256": "fff0353035122e85192c571c219eb7eec771f1e607c4738b5005915265e73a52",
+      "bytes": 12553
+    },
+    {
+      "path": "mobile/app/src/test/java/com/hoyoung/assistant/memory/LongitudinalMemoryProductBenchmarkTest.java",
+      "sha256": "3c34961fbb1dd34ad3237a7dc7f8ee6741ff4e2e25ab7b24a3118a583b27678a",
+      "bytes": 29505
+    }
+  ],
+  "checks": [
+    {
+      "day": 1,
+      "scenario": "snack_avoid",
+      "quotedSourceAvailable": true,
+      "quotedCitations": 1,
+      "manualSemanticRubricPassed": true
+    },
+    {
+      "day": 1,
+      "scenario": "current_drink",
+      "quotedSourceAvailable": true,
+      "quotedCitations": 2,
+      "manualSemanticRubricPassed": true
+    },
+    {
+      "day": 1,
+      "scenario": "current_delivery",
+      "quotedSourceAvailable": true,
+      "quotedCitations": 1,
+      "manualSemanticRubricPassed": true
+    },
+    {
+      "day": 1,
+      "scenario": "old_delivery",
+      "quotedSourceAvailable": true,
+      "quotedCitations": 1,
+      "manualSemanticRubricPassed": true
+    },
+    {
+      "day": 1,
+      "scenario": "quiet_hours",
+      "quotedSourceAvailable": true,
+      "quotedCitations": 1,
+      "manualSemanticRubricPassed": true
+    },
+    {
+      "day": 1,
+      "scenario": "early_family_gift",
+      "quotedSourceAvailable": true,
+      "quotedCitations": 1,
+      "manualSemanticRubricPassed": true
+    },
+    {
+      "day": 1,
+      "scenario": "early_raw_identifier",
+      "quotedSourceAvailable": true,
+      "quotedCitations": 1,
+      "manualSemanticRubricPassed": true
+    },
+    {
+      "day": 1,
+      "scenario": "project_do_not_restart",
+      "quotedSourceAvailable": true,
+      "quotedCitations": 1,
+      "manualSemanticRubricPassed": true
+    },
+    {
+      "day": 1,
+      "scenario": "project_multihop",
+      "quotedSourceAvailable": true,
+      "quotedCitations": 1,
+      "manualSemanticRubricPassed": true
+    },
+    {
+      "day": 1,
+      "scenario": "new_alias",
+      "quotedSourceAvailable": true,
+      "quotedCitations": 0,
+      "manualSemanticRubricPassed": true
+    },
+    {
+      "day": 1,
+      "scenario": "phone_scope",
+      "quotedSourceAvailable": true,
+      "quotedCitations": 1,
+      "manualSemanticRubricPassed": true
+    },
+    {
+      "day": 1,
+      "scenario": "false_passport_premise",
+      "quotedSourceAvailable": true,
+      "quotedCitations": 0,
+      "manualSemanticRubricPassed": true
+    },
+    {
+      "day": 365,
+      "scenario": "snack_avoid",
+      "quotedSourceAvailable": true,
+      "quotedCitations": 1,
+      "manualSemanticRubricPassed": true
+    },
+    {
+      "day": 365,
+      "scenario": "current_drink",
+      "quotedSourceAvailable": true,
+      "quotedCitations": 2,
+      "manualSemanticRubricPassed": true
+    },
+    {
+      "day": 365,
+      "scenario": "current_delivery",
+      "quotedSourceAvailable": true,
+      "quotedCitations": 1,
+      "manualSemanticRubricPassed": true
+    },
+    {
+      "day": 365,
+      "scenario": "old_delivery",
+      "quotedSourceAvailable": true,
+      "quotedCitations": 2,
+      "manualSemanticRubricPassed": true
+    },
+    {
+      "day": 365,
+      "scenario": "quiet_hours",
+      "quotedSourceAvailable": true,
+      "quotedCitations": 1,
+      "manualSemanticRubricPassed": true
+    },
+    {
+      "day": 365,
+      "scenario": "early_family_gift",
+      "quotedSourceAvailable": true,
+      "quotedCitations": 1,
+      "manualSemanticRubricPassed": true
+    },
+    {
+      "day": 365,
+      "scenario": "early_raw_identifier",
+      "quotedSourceAvailable": true,
+      "quotedCitations": 1,
+      "manualSemanticRubricPassed": true
+    },
+    {
+      "day": 365,
+      "scenario": "project_do_not_restart",
+      "quotedSourceAvailable": true,
+      "quotedCitations": 1,
+      "manualSemanticRubricPassed": true
+    },
+    {
+      "day": 365,
+      "scenario": "project_multihop",
+      "quotedSourceAvailable": true,
+      "quotedCitations": 1,
+      "manualSemanticRubricPassed": true
+    },
+    {
+      "day": 365,
+      "scenario": "new_alias",
+      "quotedSourceAvailable": true,
+      "quotedCitations": 1,
+      "manualSemanticRubricPassed": true
+    },
+    {
+      "day": 365,
+      "scenario": "phone_scope",
+      "quotedSourceAvailable": true,
+      "quotedCitations": 0,
+      "manualSemanticRubricPassed": true
+    },
+    {
+      "day": 365,
+      "scenario": "false_passport_premise",
+      "quotedSourceAvailable": true,
+      "quotedCitations": 0,
+      "manualSemanticRubricPassed": true
+    }
+  ]
+}

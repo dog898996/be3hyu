@@ -22,6 +22,7 @@ public final class HoyoungApplication extends Application {
     private PhoneContextCollector phoneContext;
     private LocalSemanticEncoder semanticEncoder;
     private MemoryRetriever memoryRetriever;
+    private AssistantReplyNotifications replyNotifications;
     private final java.util.concurrent.ExecutorService maintenance = java.util.concurrent.Executors.newSingleThreadExecutor();
     private final java.util.concurrent.atomic.AtomicBoolean indexing = new java.util.concurrent.atomic.AtomicBoolean();
 
@@ -35,15 +36,20 @@ public final class HoyoungApplication extends Application {
             @Override public void capture(java.io.File destination) throws java.io.IOException {
                 PhoneEventJournal.captureBackupSnapshot(HoyoungApplication.this, destination);
             }
+            @Override public void capture(java.io.File destination, com.hoyoung.assistant.store.BackupPolicy.SpaceMonitor monitor) throws java.io.IOException {
+                PhoneEventJournal.captureBackupSnapshot(HoyoungApplication.this, destination, monitor);
+            }
             @Override public void validate(java.io.File stagedJournal) throws java.io.IOException {
                 PhoneEventJournal.validateBackupSnapshot(stagedJournal);
             }
         });
         semanticEncoder = new LocalSemanticEncoder(this);
         memoryRetriever = new MemoryRetriever(store, semanticEncoder);
-        memoryRetriever.setDeviceSourceVisibility(phoneTools::canReadStoredSource);
+        memoryRetriever.setDeviceSourceVisibility(phoneTools::canUseImplicitMemorySource);
         memoryRetriever.setSemanticCandidateProvider(new SemanticAnnCache(store, semanticEncoder, new java.io.File(getNoBackupFilesDir(), "derived-indexes/semantic-ann"), true));
         runtime = new AssistantRuntime(this, store, files, phoneTools);
+        replyNotifications = new AssistantReplyNotifications(this, store);
+        runtime.setReplyNotifications(replyNotifications);
         runtime.setMemoryRetriever(memoryRetriever);
         runtime.setPhoneContextCollector(phoneContext);
         webController = new WorkWebController(this, runtime, files);
@@ -59,6 +65,7 @@ public final class HoyoungApplication extends Application {
     public PhoneContextCollector getPhoneContext() { return phoneContext; }
     public MemoryRetriever getMemoryRetriever() { return memoryRetriever; }
     public LocalSemanticEncoder getSemanticEncoder() { return semanticEncoder; }
+    public AssistantReplyNotifications getReplyNotifications() { return replyNotifications; }
 
     public void maintainMemory() {
         boolean enabled = "true".equals(store.getSetting("semanticSearchEnabled", "true"));

@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "scope": "Host Robolectric Android 28 actual SQLite; no remote dispatch, physical Activity rotation, external effect, or model call",
+  "result": {
+    "testsRun": 24,
+    "failed": 0,
+    "skipped": 0,
+    "junitSeconds": 4.08
+  },
+  "contract": {
+    "authoritativeState": "ui.draftState",
+    "legacyMirrors": [
+      "ui.draft",
+      "ui.attachments"
+    ],
+    "identity": "stable clientInputId + monotonic revision; new identity after real edit or consume",
+    "consume": "full tuple CAS inside caller enqueue transaction; recovery/stale cohorts unchanged",
+    "attachments": "ordered relative string IDs and metadata JSONObject; caller receives independent copies",
+    "integrityEncoding": "exact UTF-16BE code units, including unpaired surrogates; profile-separated SHA-256",
+    "recovery": "exact original chunks stored as app.owner_draft.recovery system sources; explicit blocked-for-review snapshot",
+    "largeLegacyState": "bounded 240000-character payload parts, atomically written with manifest and mirrors"
+  },
+  "cases": [
+    "legacyRawTupleMigratesOnceAndIdentitySurvivesDatabaseReopen",
+    "concurrentActivityReadsUseOneDurableMigratedIdentity",
+    "sameTupleIsStableButAToBToAIsANewInputCohort",
+    "snapshotsAndAttachmentCopiesCannotBeMutatedByCaller",
+    "consumeClearsFullTupleAndDuplicateCallbackCannotClearNextCohort",
+    "textEditDuringAttachmentPreparationKeepsBothCurrentFields",
+    "fileEditDuringSendKeepsTextAndNewAttachmentTogether",
+    "twoCompetingConsumesAdvanceRevisionOnlyOnce",
+    "enqueueTransactionFailureRollsBackConsumedDraftAndOwnerRecord",
+    "committedSendSurvivesRecreationBeforeUiCallback",
+    "failureOnSecondLegacyMirrorRollsBackAllDraftFields",
+    "malformedLegacyAttachmentsArePreservedAsExactSystemSourcesAndCannotBeConsumed",
+    "malformedWholeStateIsArchivedBeforeUsingLegacyTuple",
+    "changedEncodedTextWithoutMatchingHashRequiresRecovery",
+    "largeLegacyDraftUsesBoundedPartsAndSurvivesReopen",
+    "lostLargeDraftPartIsArchivedAndHeldForReview",
+    "rawUtf16IncludingUnpairedSurrogatesHasNoEncodingReplacement",
+    "malformedAttachmentElementsDoNotReplaceExistingDraft",
+    "trailingGarbageIsPreservedRatherThanSilentlyIgnoredByJsonParser",
+    "recoveryEvidenceFailureLeavesAllBrokenOriginalStateUntouched",
+    "consumeRequiresBothCorrectClientAndRevision",
+    "mainStringIdAttachmentsMigrateEditReopenAndConsumeAsOneTuple",
+    "mixedStringIdsAndMetadataKeepOrderAndCopies",
+    "malformedStringIdCannotReplaceValidInputAndLegacyIsRecoverable"
+  ],
+  "log": "/tmp/hoyoung-owner-draft/tests.log",
+  "productionAndTestSha256": {
+    "mobile/app/src/main/java/com/hoyoung/assistant/runtime/OwnerDraftStore.java": "33d66d25512bf7e96e514a4c1b32d382937899b8b78034039b7d4cc5f28e05e0",
+    "mobile/app/src/test/java/com/hoyoung/assistant/runtime/OwnerDraftStoreTest.java": "ff09626f3059b7db27eef0faeb4bb3f3c04eb9f7b664645ffdee681e83ebd663"
+  }
+}

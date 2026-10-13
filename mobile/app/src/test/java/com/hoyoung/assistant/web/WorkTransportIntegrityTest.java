@@ -74,6 +74,48 @@ public class WorkTransportIntegrityTest {
         assertEquals(2, complete.read(new byte[8], 0, 8)); assertEquals(-1, complete.read());
     }
 
+    @Test public void attachmentBudgetsPreserveExactDocumentsAndSmallImagesWhileBoundingLargeImages() throws Exception {
+        long mib = 1024L * 1024;
+        assertArrayEquals(new long[]{6 * mib, mib / 4, mib / 2}, WorkWebController.allocateAttachmentBudgets(
+            new long[]{6 * mib, mib / 4, mib / 2}, new boolean[]{true, true, true}));
+        assertArrayEquals(new long[]{10 * mib, mib / 4, 10 * mib - mib / 4}, WorkWebController.allocateAttachmentBudgets(
+            new long[]{10 * mib, mib / 4, 64 * mib}, new boolean[]{false, true, true}));
+        assertArrayEquals(new long[]{4 * mib, 4 * mib, 4 * mib, 4 * mib, 4 * mib}, WorkWebController.allocateAttachmentBudgets(
+            new long[]{64 * mib, 64 * mib, 64 * mib, 64 * mib, 64 * mib}, new boolean[]{true, true, true, true, true}));
+        assertArrayEquals(new long[]{10 * mib, 10 * mib}, WorkWebController.allocateAttachmentBudgets(
+            new long[]{10 * mib, 10 * mib}, new boolean[]{false, false}));
+        assertArrayEquals(new long[]{10 * mib}, WorkWebController.allocateAttachmentBudgets(new long[]{64 * mib}, new boolean[]{true}));
+        assertArrayEquals(new long[0], WorkWebController.allocateAttachmentBudgets(new long[0], new boolean[0]));
+    }
+
+    @Test public void attachmentBudgetsNeverDropOversizedDocumentsOrPromiseAnEmptyImageSlot() throws Exception {
+        long mib = 1024L * 1024;
+        assertEquals("attachment_non_image_too_large", assertThrows(WorkWebController.AttachmentPreparationFailure.class,
+            () -> WorkWebController.allocateAttachmentBudgets(new long[]{10 * mib + 1}, new boolean[]{false})).code);
+        assertEquals("attachment_wire_budget", assertThrows(WorkWebController.AttachmentPreparationFailure.class,
+            () -> WorkWebController.allocateAttachmentBudgets(new long[]{10 * mib, 10 * mib, 1}, new boolean[]{false, false, true})).code);
+        assertEquals("attachment_wire_budget", assertThrows(WorkWebController.AttachmentPreparationFailure.class,
+            () -> WorkWebController.allocateAttachmentBudgets(new long[]{10 * mib, 10 * mib, 1}, new boolean[]{false, false, false})).code);
+        assertEquals("attachment_source_too_large", assertThrows(WorkWebController.AttachmentPreparationFailure.class,
+            () -> WorkWebController.allocateAttachmentBudgets(new long[]{64 * mib + 1}, new boolean[]{true})).code);
+        assertThrows(WorkWebController.AttachmentPreparationFailure.class, () -> WorkWebController.allocateAttachmentBudgets(new long[]{0}, new boolean[]{true}));
+        assertThrows(WorkWebController.AttachmentPreparationFailure.class, () -> WorkWebController.allocateAttachmentBudgets(new long[9], new boolean[9]));
+        assertThrows(WorkWebController.AttachmentPreparationFailure.class, () -> WorkWebController.allocateAttachmentBudgets(new long[]{1}, new boolean[0]));
+    }
+
+    @Test public void actualAttachmentPromptCarriesTheCompleteRepresentationTableWithoutTruncation() throws Exception {
+        String table = "[{\"id\":\"original\",\"sha256\":\"original-sha\",\"providerRepresentationSha256\":\"wire-sha\",\"wireBytes\":123,\"lossy\":true}]";
+        String prefix = "원래 지침과 요청 **그대로**\n";
+        String appended = WorkWebController.attachmentPrompt(prefix, table);
+        assertTrue(appended.startsWith(prefix)); assertTrue(appended.contains(table));
+        assertTrue(appended.contains("원본 전체를 받은 것이 아니다"));
+        int overhead = WorkWebController.attachmentPrompt("", table).length();
+        String atBoundary = WorkWebController.attachmentPrompt("x".repeat(250_000 - overhead), table);
+        assertEquals(250_000, atBoundary.length()); assertTrue(atBoundary.contains(table));
+        assertEquals("MESSAGE_TOO_LARGE_WITH_ATTACHMENT_PLAN", assertThrows(WorkWebController.AttachmentPreparationFailure.class,
+            () -> WorkWebController.attachmentPrompt("x".repeat(250_001 - overhead), table)).code);
+    }
+
     private static String hex(byte[] value) {
         StringBuilder result = new StringBuilder();
         for (byte item : value) result.append("0123456789abcdef".charAt((item & 255) >>> 4)).append("0123456789abcdef".charAt(item & 15));

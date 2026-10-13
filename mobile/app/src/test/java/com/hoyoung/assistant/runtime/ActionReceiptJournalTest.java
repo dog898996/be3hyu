@@ -85,6 +85,32 @@ public final class ActionReceiptJournalTest {
         store.putSetting("actionReceipt:root:deep",raw);assertEquals(1,journal.ensureIndex().getLong("corruptReceipts"));assertTrue(journal.hasUnresolved());
         assertThrows(IllegalStateException.class,()->journal.get("actionReceipt:root:deep"));assertEquals(raw,store.getSetting("actionReceipt:root:deep",""));
     }
+    @Test public void completedNativeReceiptStillNeedsActualMutationConfirmation()throws Exception{
+        journal.put("actionReceipt:root:write",nativeReceipt("files.write",true,false));JSONObject before=summary("root");assertFalse(before.getBoolean("ready"));assertEquals(1,before.getLong("unconfirmedMutationCount"));
+        journal.put("actionReceipt:root:write",nativeReceipt("files.write",true,true));JSONObject after=summary("root");assertTrue(after.getBoolean("ready"));assertEquals(1,after.getLong("confirmedMutationCount"));assertNotEquals(before.getString("snapshotHash"),after.getString("snapshotHash"));assertEquals(journal.snapshotHash("root"),after.getString("snapshotHash"));assertFalse(after.getBoolean("overallOutcomeVerified"));
+    }
+    @Test public void readOnlyFailureCanRemainDiagnosticButFailedMutationBlocksArchive()throws Exception{
+        journal.put("actionReceipt:root:read",nativeReceipt("memory.search",false,false));JSONObject read=summary("root");assertTrue(read.getBoolean("ready"));assertEquals(1,read.getLong("failedReadOnlyCount"));assertEquals(0,read.getLong("failedMutationCount"));
+        journal.put("actionReceipt:root:write",nativeReceipt("files.write",false,false));JSONObject mixed=summary("root");assertFalse(mixed.getBoolean("ready"));assertEquals(1,mixed.getLong("failedMutationCount"));assertEquals(2,mixed.getLong("failedCount"));
+        journal.put("actionReceipt:root:retry",nativeReceipt("files.write",true,true));assertFalse(summary("root").getBoolean("ready"));
+    }
+    @Test public void unfinishedMissingResultCorruptAndClassifierErrorsFailSummaryConservative()throws Exception{
+        journal.put("actionReceipt:root:a",receipt("dispatching"));assertFalse(summary("root").getBoolean("ready"));assertEquals(1,summary("root").getLong("unfinishedCount"));
+        journal.put("actionReceipt:root:a",receipt("completed"));assertEquals(1,summary("root").getLong("corruptCount"));store.putSetting("actionReceipt:root:a","broken");assertFalse(summary("root").getBoolean("ready"));assertEquals("broken",store.getSetting("actionReceipt:root:a",null));
+        journal.put("actionReceipt:root:a",nativeReceipt("files.write",true,true));JSONObject errors=journal.completionSummary("root",name->{throw new IllegalStateException("unknown classifier");},row->true);assertFalse(errors.getBoolean("ready"));assertEquals(1,errors.getLong("corruptCount"));
+    }
+    @Test public void rootSummaryDoesNotLoadOtherArchiveRootsOrPrefixCollidingRoot()throws Exception{
+        store.withTransaction(db->{for(int i=0;i<2500;i++)store.putSetting("actionReceipt:other:a-"+i,nativeReceiptUnchecked("files.write").toString());return null;});
+        journal.put("actionReceipt:root:actual",nativeReceipt("memory.search",true,false));journal.put("actionReceipt:root:foreign:action",nativeReceipt("files.write",true,false));
+        JSONObject own=summary("root");assertTrue(own.getBoolean("ready"));assertEquals(1,own.getLong("receiptCount"));assertEquals(1,summary("root:foreign").getLong("receiptCount"));assertFalse(summary("root:foreign").getBoolean("ready"));
+    }
+    @Test public void orderedSnapshotIsStableAcrossRestartAndChangesForActualSameStatusPayload()throws Exception{
+        journal.put("actionReceipt:root:z",nativeReceipt("files.write",true,true));journal.put("actionReceipt:root:a",nativeReceipt("memory.search",true,false));String snapshot=journal.snapshotHash("root");store.close();store=new HoyoungStore(context);journal=new ActionReceiptJournal(store);assertEquals(snapshot,journal.snapshotHash("root"));
+        journal.put("actionReceipt:unrelated:a",nativeReceipt("files.write",false,false));assertEquals(snapshot,journal.snapshotHash("root"));journal.put("actionReceipt:root:a",nativeReceipt("memory.search",true,false).put("observedValue","changed"));assertNotEquals(snapshot,journal.snapshotHash("root"));
+    }
+    private JSONObject summary(String root){return journal.completionSummary(root,name->!"memory.search".equals(name),row->row.optJSONObject("result")!=null&&row.optJSONObject("result").optBoolean("completionConfirmed"));}
+    private static JSONObject nativeReceipt(String name,boolean ok,boolean confirmed)throws Exception{return receipt("completed").put("name",name).put("result",new JSONObject().put("ok",ok).put("completionConfirmed",confirmed));}
+    private static JSONObject nativeReceiptUnchecked(String name){try{return nativeReceipt(name,true,true);}catch(Exception impossible){throw new IllegalStateException(impossible);}}
     private long settingsCount(String begin,String end){try(android.database.Cursor cursor=store.getReadableDatabase().rawQuery("SELECT COUNT(*) FROM settings WHERE setting_key >= ? AND setting_key < ?",new String[]{begin,end})){cursor.moveToFirst();return cursor.getLong(0);}}
     private static JSONObject receipt(String status){try{return new JSONObject().put("status",status).put("name","phone_app_launch").put("fingerprint","f".repeat(64)).put("startedAt",100);}catch(Exception impossible){throw new IllegalStateException(impossible);}}
 }

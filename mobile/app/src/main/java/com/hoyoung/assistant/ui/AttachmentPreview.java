@@ -9,20 +9,15 @@ import android.os.Looper;
 import com.hoyoung.assistant.store.InternalFiles;
 import org.json.JSONObject;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Locale;
 
 /** Local verified image previews. Run on an IO worker; returned bitmaps belong to the UI. */
 public final class AttachmentPreview {
     public static final int THUMBNAIL_SIZE = 512;
     public static final int EXPANDED_SIZE = 1536;
-    public static final int MAX_ENCODED_BYTES = 10 * 1024 * 1024;
-    private static final long MAX_SOURCE_PIXELS = 100_000_000L;
+    public static final int MAX_ENCODED_BYTES = 64 * 1024 * 1024;
+    private static final long MAX_SOURCE_PIXELS = 256_000_000L;
     private static final long MAX_DECODED_PIXELS = 2_000_000L;
     private AttachmentPreview() { }
 
@@ -54,14 +49,13 @@ public final class AttachmentPreview {
                 || (metadata.has("id") && !id.equals(metadata.optString("id")))) return failed("original_missing", "고정된 첨부 원본을 찾을 수 없어.");
         String expectedHash = metadata.optString("sha256", "");
         if (!expectedHash.matches("[a-f0-9]{64}")) return failed("invalid_identity", "첨부 원본의 hash가 없어.");
-        if (metadata.optLong("size", -1) > MAX_ENCODED_BYTES) return failed("encoded_too_large", "10 MiB를 넘는 이미지는 미리보기에서 제외해.");
+        if (metadata.optLong("size", -1) > MAX_ENCODED_BYTES) return failed("encoded_too_large", "64 MiB를 넘는 이미지는 미리보기 한도를 넘어.");
         Bitmap decoded = null;
         try {
-            BoundedBytes output = new BoundedBytes(); files.exportFile(id, output);
-            byte[] bytes = output.bytes();
-            if (!expectedHash.equals(sha256(bytes))) return failed("integrity_failed", "첨부 원본이 저장 당시와 달라졌어.");
+            Result result;
+            try(InternalFiles.VerifiedImageSource source=files.openVerifiedImage(metadata)){
             BitmapFactory.Options bounds = new BitmapFactory.Options(); bounds.inJustDecodeBounds = true;
-            BitmapFactory.decodeByteArray(bytes, 0, bytes.length, bounds);
+            BitmapFactory.decodeStream(source.stream(), null, bounds);source.rewind();
             if (bounds.outWidth <= 0 || bounds.outHeight <= 0) return failed("corrupt_image", "이미지 내용을 읽을 수 없어.");
             if ((long) bounds.outWidth * bounds.outHeight > MAX_SOURCE_PIXELS
                     || bounds.outWidth > 32_768 || bounds.outHeight > 32_768) return failed("dimensions_too_large", "이미지 크기가 미리보기 한도를 넘어.");
@@ -71,7 +65,7 @@ public final class AttachmentPreview {
                     || ((bounds.outWidth + (long) sample - 1) / sample) * ((bounds.outHeight + (long) sample - 1) / sample) > MAX_DECODED_PIXELS) sample *= 2;
             BitmapFactory.Options options = new BitmapFactory.Options(); options.inSampleSize = sample;
             options.inPreferredConfig = Bitmap.Config.ARGB_8888; options.inScaled = false;
-            decoded = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, options);
+            decoded = BitmapFactory.decodeStream(source.stream(), null, options);source.rewind();
             if (decoded == null) return failed("corrupt_image", "이미지 내용을 읽을 수 없어.");
             if ((long) decoded.getWidth() * decoded.getHeight() > MAX_DECODED_PIXELS
                     || decoded.getWidth() > edge || decoded.getHeight() > edge) {
@@ -79,7 +73,7 @@ public final class AttachmentPreview {
             }
             int orientation = ExifInterface.ORIENTATION_NORMAL; boolean exifKnown = true;
             try {
-                ExifInterface exif = new ExifInterface(new ByteArrayInputStream(bytes));
+                ExifInterface exif = new ExifInterface(source.stream());
                 orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
             } catch (IOException | RuntimeException unavailable) { exifKnown = false; }
             Matrix transform = orientationMatrix(orientation);
@@ -87,9 +81,13 @@ public final class AttachmentPreview {
                 Bitmap oriented = Bitmap.createBitmap(decoded, 0, 0, decoded.getWidth(), decoded.getHeight(), transform, true);
                 if (oriented != decoded) { decoded.recycle(); decoded = oriented; }
             }
-            Result result = new Result(decoded, exifKnown ? "ready" : "ready_orientation_unknown", exifKnown ? "" : "회전 정보를 확인하지 못했어.");
-            decoded = null; return result;
-        } catch (LimitExceeded tooLarge) { return failed("encoded_too_large", "10 MiB를 넘는 이미지는 미리보기에서 제외해."); }
+            source.verifyUnchanged();
+            result = new Result(decoded, exifKnown ? "ready" : "ready_orientation_unknown", exifKnown ? "" : "회전 정보를 확인하지 못했어.");
+            }
+            decoded = null;return result;
+        } catch(InternalFiles.ImageSourceFailure invalid){
+            return failed(invalid.code,invalid.code.equals("integrity_failed")?"첨부 원본의 크기나 해시가 메타데이터와 일치하지 않아.":"첨부 이미지 원본을 확인하지 못했어.");
+        }
         catch (IOException unreadable) { return failed("source_unavailable", "첨부 원본을 확인하지 못했어."); }
         catch (RuntimeException corrupt) { return failed("corrupt_image", "이미지 내용을 읽을 수 없어."); }
         catch (OutOfMemoryError exhausted) { return failed("memory_unavailable", "이미지 미리보기에 사용할 메모리가 부족해."); }
@@ -111,17 +109,4 @@ public final class AttachmentPreview {
         return matrix;
     }
     private static Result failed(String status, String detail) { return new Result(null, status, detail); }
-    private static String sha256(byte[] bytes) {
-        try {
-            byte[] digest = MessageDigest.getInstance("SHA-256").digest(bytes); StringBuilder text = new StringBuilder();
-            for (byte value : digest) text.append(String.format(Locale.ROOT, "%02x", value & 255)); return text.toString();
-        } catch (NoSuchAlgorithmException impossible) { throw new IllegalStateException(impossible); }
-    }
-    private static final class LimitExceeded extends IOException { private static final long serialVersionUID = 1; }
-    private static final class BoundedBytes extends OutputStream {
-        final ByteArrayOutputStream output = new ByteArrayOutputStream();
-        @Override public void write(int value) throws IOException { if (output.size() >= MAX_ENCODED_BYTES) throw new LimitExceeded(); output.write(value); }
-        @Override public void write(byte[] bytes, int offset, int count) throws IOException { if ((long) output.size() + count > MAX_ENCODED_BYTES) throw new LimitExceeded(); output.write(bytes, offset, count); }
-        byte[] bytes() { return output.toByteArray(); }
-    }
 }

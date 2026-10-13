@@ -271,32 +271,44 @@ public final class MemoryReviewCoordinator {
             JSONArray uploaded = parseArray(store.getSetting("attachmentMetadata:" + requestId, "[]"));
             JSONObject uploadedAsset = findAsset(uploaded, assetId);
             if (uploadedAsset == null || !sha256.equals(uploadedAsset.optString("sha256"))) return assetReject("asset_not_bound_to_uploaded_request");
+            JSONObject delivery = observedDelivery(messageId, assetId, sha256, receipt);
+            if (delivery == null) return assetReject("asset_representation_receipt_mismatch");
+            // Preserve true legacy receipts as legacy; losing a modern native plan must never enable fallback.
+            if (!store.getSetting("workAttachmentRepresentations:" + requestId, "").isEmpty()) copyDelivery(delivery, receipt);
             String analysisHash = digest(providerAnalysis);
             if (analysisHash.equals(asset.optString("analysisHash")) && ("provider_analyzed".equals(asset.optString("coverageStage"))
-                    || "user_confirmed".equals(asset.optString("coverageStage"))))
-                return object("ok", true, "cached", true, "stage", asset.optString("coverageStage"), "analysisVerified", false,
+                    || "user_confirmed".equals(asset.optString("coverageStage"))) && sameDelivery(asset, delivery)) {
+                JSONObject cached = object("ok", true, "cached", true, "stage", asset.optString("coverageStage"), "analysisVerified", false,
                         "analysisSourceMessageId", asset.optLong("analysisSourceMessageId"));
+                copyDelivery(delivery, cached); return cached;
+            }
             JSONObject originalAnalysis = store.addMessage("assistant", providerAnalysis, requestId);
             long analysisSource = originalAnalysis.optLong("id");
             String memoryKey = assetMemoryKey(messageId, sha256, assetId);
             store.upsertMemoryWithSources(memoryKey, safePrefix(providerAnalysis, 24_000), "observation",
                     new JSONArray().put(object("type", "message", "id", messageId)).put(object("type", "message", "id", analysisSource)));
-            store.putMemoryMetadata(memoryKey, object("provenance", "provider_asset_analysis", "evidenceState", "generated_observation",
+            JSONObject assetRef = object("messageId", messageId, "assetId", assetId, "sha256", sha256);
+            copyDelivery(delivery, assetRef);
+            JSONObject memoryMetadata = object("provenance", "provider_asset_analysis", "evidenceState", "generated_observation",
                     "analysisVerified", false, "meaningIndependentlyVerified", false, "userConfirmed", false,
-                    "assetRefs", new JSONArray().put(object("messageId", messageId, "assetId", assetId, "sha256", sha256)),
-                    "analysisSourceMessageId", analysisSource, "analysisHash", analysisHash, "providerRequestId", requestId));
+                    "assetRefs", new JSONArray().put(assetRef),
+                    "analysisSourceMessageId", analysisSource, "analysisHash", analysisHash, "providerRequestId", requestId);
+            copyDelivery(delivery, memoryMetadata); store.putMemoryMetadata(memoryKey, memoryMetadata);
             put(asset, "coverageStage", "provider_analyzed"); put(asset, "analysisSourceMessageId", analysisSource);
             put(asset, "analysisHash", analysisHash); put(asset, "providerRequestId", requestId);
+            copyDelivery(delivery, asset);
             put(asset, "analysisVerified", false); put(asset, "userConfirmed", false); put(asset, "analyzedAt", System.currentTimeMillis());
             put(asset, "analysisReceiptKey", assetReceiptKey(messageId, sha256, assetId));
             put(coverage, "stage", anyPendingAsset(coverage) ? "partially_analyzed" : "provider_analyzed");
             put(coverage, "analysisVerified", false); store.putSetting("assetCoverage:" + messageId, coverage.toString());
             store.putSetting(assetReceiptKey(messageId, sha256, assetId), receipt.toString()); registerAssetSource(db, messageId);
-            store.recordEvent("asset_provider_analysis_observed", object("messageId", messageId, "assetId", assetId, "sha256", sha256,
+            JSONObject observedEvent = object("messageId", messageId, "assetId", assetId, "sha256", sha256,
                     "providerRequestId", requestId, "analysisSourceMessageId", analysisSource, "analysisHash", analysisHash,
-                    "analysisIndependentlyVerified", false, "originalImageFullyUnderstood", false));
-            return object("ok", true, "stage", "provider_analyzed", "analysisVerified", false,
+                    "analysisIndependentlyVerified", false, "originalImageFullyUnderstood", false);
+            copyDelivery(delivery, observedEvent); store.recordEvent("asset_provider_analysis_observed", observedEvent);
+            JSONObject result = object("ok", true, "stage", "provider_analyzed", "analysisVerified", false,
                     "analysisSourceMessageId", analysisSource, "memoryKey", memoryKey, "assetsPending", assetPendingCount(db));
+            copyDelivery(delivery, result); return result;
         });
     }
 
@@ -443,6 +455,8 @@ public final class MemoryReviewCoordinator {
             JSONObject asset = recovered.optJSONObject(i); if (asset == null) { immutableIdentity = false; continue; }
             JSONObject raw = parse(asset.toString()); put(raw, "coverageStage", "raw_saved"); put(raw, "analysisVerified", false); put(raw, "userConfirmed", false);
             raw.remove("analysisSourceMessageId"); raw.remove("analysisHash"); raw.remove("providerRequestId"); raw.remove("confirmationMessageId"); raw.remove("analysisReceiptKey");
+            for (String key : new String[]{"analysisScope", "providerRepresentationSha256", "representationAssetId", "originalBytesIncludedInWire",
+                    "originalBytesFullyUploaded", "originalContentFullyInspected", "serverBytesIndependentlyVerified"}) raw.remove(key);
             String identity = raw.optString("originalAssetId", raw.optString("id")), sha = raw.optString("sha256");
             immutableIdentity &= Boolean.TRUE.equals(raw.opt("immutable")) && sha.matches("[a-f0-9]{64}")
                     && identity.startsWith(".attachment-originals/" + sha + "."); safe.put(raw);
@@ -467,12 +481,92 @@ public final class MemoryReviewCoordinator {
         if (analysis == null || !"assistant".equals(analysis.optString("role")) || hash.isEmpty()
                 || !hash.equals(analysis.optString("raw_content_hash"))) return false;
         JSONObject receipt = strictCoverage(readAssetReceipt(messageId, assetId, sha));
-        return receipt != null && Boolean.TRUE.equals(receipt.opt("uploadObserved")) && Boolean.TRUE.equals(receipt.opt("responseObserved"))
+        JSONObject delivery = receipt == null ? null : observedDelivery(messageId, assetId, sha, receipt);
+        return delivery != null && sameDelivery(asset, delivery) && providerReceiptStillBound(assetId, sha, receipt)
+                && Boolean.TRUE.equals(receipt.opt("uploadObserved")) && Boolean.TRUE.equals(receipt.opt("responseObserved"))
                 && receipt.optLong("sourceMessageId") == messageId && assetId.equals(receipt.optString("assetId"))
                 && sha.equals(receipt.optString("sha256")) && hash.equals(receipt.optString("analysisHash"))
                 && asset.optString("providerRequestId").equals(receipt.optString("providerRequestId"))
                 && asset.optString("providerRequestId").equals(analysis.optString("request_id"))
                 && receipt.optString("providerResponseHash").matches("[a-f0-9]{64}");
+    }
+
+    private boolean providerReceiptStillBound(String assetId, String sha, JSONObject receipt) {
+        String requestId = receipt.optString("providerRequestId"); JSONObject request = null;
+        try (Cursor row = store.getReadableDatabase().rawQuery("SELECT id FROM requests WHERE external_id = ?", new String[]{requestId})) {
+            if (row.moveToFirst()) request = store.getRequest(row.getLong(0));
+        }
+        if (request == null || !("accepted".equals(request.optString("status")) || "completed".equals(request.optString("status")))
+                || !receipt.optString("providerResponseHash").equals(request.optString("raw_result_hash"))) return false;
+        JSONObject uploaded = findAsset(strictAssetArray(store.getSetting("attachmentMetadata:" + requestId, "")), assetId);
+        return uploaded != null && sha.equals(uploaded.optString("sha256"));
+    }
+
+    /** Native preparation and DOM observation prove a delivery attempt, never the server's decoded image bytes. */
+    private JSONObject observedDelivery(long messageId, String assetId, String sha, JSONObject receipt) {
+        String requestId = receipt.optString("providerRequestId");
+        String planText = store.getSetting("workAttachmentRepresentations:" + requestId, "");
+        if (planText.isEmpty()) {
+            // Earlier versions uploaded canonical originals. A representation claim requires its native plan.
+            for (String key : new String[]{"analysisScope", "providerRepresentationSha256", "representationAssetId", "originalBytesIncludedInWire",
+                    "originalBytesFullyUploaded", "originalContentFullyInspected", "serverBytesIndependentlyVerified"}) if (receipt.has(key)) return null;
+            return object("analysisScope", "original_bytes", "providerRepresentationSha256", sha, "representationAssetId", assetId,
+                    "originalBytesIncludedInWire", true, "originalBytesFullyUploaded", false,
+                    "originalContentFullyInspected", false, "serverBytesIndependentlyVerified", false, "nativePlanObserved", false);
+        }
+        JSONArray plans = strictAssetArray(planText), uploads = strictAssetArray(store.getSetting("uploadedAssetsObserved:" + requestId, ""));
+        JSONObject plan = findAsset(plans, assetId), upload = findAsset(uploads, assetId);
+        if (plan == null || upload == null || !sha.equals(plan.optString("sha256")) || !sha.equals(upload.optString("sha256"))
+                || !exactLong(plan, "sourceMessageId", messageId) || !exactLong(upload, "sourceMessageId", messageId)) return null;
+        String scope = plan.optString("analysisScope"), wireSha = plan.optString("providerRepresentationSha256"), wireId = plan.optString("representationAssetId");
+        boolean original = "original_bytes".equals(scope);
+        if (!(original || "delivered_representation".equals(scope)) || !wireSha.matches("[a-f0-9]{64}")
+                || !(original ? assetId.equals(wireId) && sha.equals(wireSha) : ("derived-sha256:" + wireSha).equals(wireId))
+                || !scope.equals(receipt.optString("analysisScope")) || !wireSha.equals(receipt.optString("providerRepresentationSha256"))
+                || !wireId.equals(receipt.optString("representationAssetId"))
+                || !scope.equals(upload.optString("analysisScope")) || !wireSha.equals(upload.optString("providerRepresentationSha256"))
+                || !wireId.equals(upload.optString("representationAssetId"))) return null;
+        if (!typedFalseFlags(plan) || !typedFalseFlags(upload) || !typedFalseFlags(receipt)
+                || !Boolean.valueOf(original).equals(plan.opt("originalBytesIncludedInWire"))
+                || !Boolean.valueOf(original).equals(upload.opt("originalBytesIncludedInWire"))
+                || !Boolean.valueOf(original).equals(receipt.opt("originalBytesIncludedInWire"))
+                || !exactLong(plan, "wireBytes", plan.optLong("wireBytes")) || plan.optLong("wireBytes") <= 0
+                || !exactLong(upload, "wireBytes", plan.optLong("wireBytes"))
+                || plan.optString("wireName").isEmpty() || !plan.optString("wireName").equals(upload.optString("wireName"))
+                || plan.optString("wireMime").isEmpty() || !plan.optString("wireMime").equals(upload.optString("wireMime"))) return null;
+        return object("analysisScope", scope, "providerRepresentationSha256", wireSha, "representationAssetId", wireId,
+                "originalBytesIncludedInWire", original, "originalBytesFullyUploaded", false,
+                "originalContentFullyInspected", false, "serverBytesIndependentlyVerified", false, "nativePlanObserved", true);
+    }
+
+    private static boolean falseClaim(JSONObject value, String key) {
+        return value.has(key) && !Boolean.FALSE.equals(value.opt(key));
+    }
+    private static boolean typedFalseFlags(JSONObject value) {
+        return Boolean.FALSE.equals(value.opt("originalBytesFullyUploaded")) && Boolean.FALSE.equals(value.opt("originalContentFullyInspected"))
+                && Boolean.FALSE.equals(value.opt("serverBytesIndependentlyVerified"));
+    }
+    private static void copyDelivery(JSONObject from, JSONObject to) {
+        for (String key : new String[]{"analysisScope", "providerRepresentationSha256", "representationAssetId", "originalBytesIncludedInWire",
+                "originalBytesFullyUploaded", "originalContentFullyInspected", "serverBytesIndependentlyVerified"}) put(to, key, from.opt(key));
+    }
+    private static boolean sameDelivery(JSONObject asset, JSONObject delivery) {
+        // Old original-byte coverage remains readable; new representation coverage must retain its exact wire identity.
+        if (delivery.optBoolean("nativePlanObserved") || asset.has("analysisScope")) {
+            if (!typedFalseFlags(asset) || !delivery.optString("analysisScope").equals(asset.optString("analysisScope"))
+                    || !delivery.optString("providerRepresentationSha256").equals(asset.optString("providerRepresentationSha256"))
+                    || !delivery.optString("representationAssetId").equals(asset.optString("representationAssetId"))
+                    || !delivery.opt("originalBytesIncludedInWire").equals(asset.opt("originalBytesIncludedInWire"))) return false;
+        }
+        return delivery.optString("analysisScope").equals(asset.optString("analysisScope", "original_bytes"))
+                && delivery.optString("providerRepresentationSha256").equals(asset.optString("providerRepresentationSha256", asset.optString("sha256")))
+                && delivery.optString("representationAssetId").equals(asset.optString("representationAssetId", asset.optString("originalAssetId", asset.optString("id"))))
+                && (!asset.has("originalBytesIncludedInWire")
+                    || delivery.opt("originalBytesIncludedInWire").equals(asset.opt("originalBytesIncludedInWire")))
+                && (!"delivered_representation".equals(delivery.optString("analysisScope"))
+                    || (typedFalseFlags(asset) && Boolean.FALSE.equals(asset.opt("originalBytesIncludedInWire"))))
+                && !falseClaim(asset, "originalBytesFullyUploaded") && !falseClaim(asset, "originalContentFullyInspected")
+                && !falseClaim(asset, "serverBytesIndependentlyVerified");
     }
     private static JSONObject strictCoverage(String serialized) {
         if (serialized == null || serialized.isEmpty() || !boundedJsonDepth(serialized)) return null;
@@ -536,6 +630,7 @@ public final class MemoryReviewCoordinator {
             JSONObject asset = assets.optJSONObject(i); if (asset == null) continue;
             JSONObject ref = object("assetId", asset.optString("originalAssetId", asset.optString("id")), "sha256", asset.optString("sha256"),
                     "coverageStage", asset.optString("coverageStage", "raw_saved"), "analysisVerified", false);
+            if (asset.has("analysisScope")) copyDelivery(asset, ref);
             if (asset.has("analysisSourceMessageId")) put(ref, "analysisSourceMessageId", asset.optLong("analysisSourceMessageId"));
             put(ref, "name", safePrefix(asset.optString("displayName", asset.optString("name")), 120)); refs.put(ref);
         }

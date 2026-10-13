@@ -1,0 +1,55 @@
+{
+  "schema": "hoyoung-regression-evidence-v1",
+  "recordedAtUtc": "2026-10-13T22:25:08.331739+00:00",
+  "scope": "Host SDK28 Robolectric, actual private files and native SQLite; snapshot sources independently compiled with JDK17; no Gradle, browser login, model/network calls, phone outbound effects, or physical-device performance proof. FakeTransport records request IDs only.",
+  "results": {
+    "tests": 20,
+    "passed": 20,
+    "failed": 0,
+    "skipped": 0,
+    "junitElapsedSeconds": 5.306,
+    "exitCode": 0
+  },
+  "classes": {
+    "com.hoyoung.assistant.store.FileListingResponsivenessTest": 3,
+    "com.hoyoung.assistant.store.InternalFilesTest": 9,
+    "com.hoyoung.assistant.store.VerifiedImageSourceTest": 3,
+    "com.hoyoung.assistant.runtime.RuntimeReadFailureTest": 5
+  },
+  "sourceSha256": {
+    "mobile/app/src/main/java/com/hoyoung/assistant/runtime/AssistantRuntime.java": "228847aea81f0888bee0be74f4ee904201db669399c26b5d821857289d7d5d04",
+    "mobile/app/src/main/java/com/hoyoung/assistant/runtime/OwnerDraftStore.java": "33d66d25512bf7e96e514a4c1b32d382937899b8b78034039b7d4cc5f28e05e0",
+    "mobile/app/src/main/java/com/hoyoung/assistant/runtime/ActionReceiptJournal.java": "28dca681712820ae783fea4ac7d467d2e4d2273edd2042bc0aa418417b23481a",
+    "mobile/app/src/main/java/com/hoyoung/assistant/runtime/GoalLedger.java": "efd562bf0e70c79b18f219ac5b0bbe4107020353f8cd3c63238d3e1c60001a09",
+    "mobile/app/src/main/java/com/hoyoung/assistant/runtime/MemoryReviewCoordinator.java": "d305cf9db80c4f9634cef193f393ea95b456560855e8025e0afd7231ec197d4c",
+    "mobile/app/src/main/java/com/hoyoung/assistant/runtime/AssistantReplyNotifications.java": "9c3c69472f9de74aad8781e15124e9b078589274d55493d9b1283203dff9ce69",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/HoyoungStore.java": "08e4542935e2f121a5a75ac6eaacc4bdf327fc0288b5ca305f86d1b876da911e",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/OriginalTextFiles.java": "ba9d667c885e662c9fe25f74329d8ece631fc407976e5908aa769c00f3d5c39b",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/DeviceEventSearch.java": "66b9ed4e6e65264072685d68bd1115e958736283ef4ff24e4744e3cd4641657d",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/InternalFiles.java": "791b07107c034aa29c092e7db9bca62f9a932acfc7e82a17df53bd5e5c971129",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/AttachmentOriginals.java": "0fecf6d8c710b10ba9dc242dabdd4d1883cc66d68e9148265aef542deebf1a11",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/StreamingBackup.java": "f35fe79f8a48543a8c6bc275deff5bcd4e9cb429c820900ec00c66f69c8b226c",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/BackupPolicy.java": "dd6772e05f9b6bcd358a4a55e64a583cc5f49f05d149d9ee837adf998a1ab927",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/BackupFailure.java": "66c8680b95fbb8e37c5432415b2a8aee40610f13f6c7e79a92fffa3a7d87e632",
+    "mobile/app/src/test/java/com/hoyoung/assistant/store/FileListingResponsivenessTest.java": "0f66de018b3ec62e2b5b9be44d878035aa81df4689b5d906a28b6799d15cbe15",
+    "mobile/app/src/test/java/com/hoyoung/assistant/store/InternalFilesTest.java": "4c599638c2fa6424ae0e7588b823dc5a32b8d3325f9152db6aba5cbd65646e50",
+    "mobile/app/src/test/java/com/hoyoung/assistant/store/VerifiedImageSourceTest.java": "c6372c0ef3c2904bba143bab10ed61a01276b81d63755dc40ca45f0c87ad5ad5",
+    "mobile/app/src/test/java/com/hoyoung/assistant/runtime/RuntimeReadFailureTest.java": "ff18f11b97da7e0b8fdefb888d19596d40c7f740cfaa77f10a50852a75da8b4d"
+  },
+  "logSha256": "efb5e4d9b12ed211d766af2efd2d5d28e4170fc8bf06d12f914b763ad1a62c8c",
+  "logLocalPath": "/tmp/hoyoung-read-failure/tests.log",
+  "assertions": [
+    "350 private files return latest bounded100 and searchable old filename; listing does not block on attachment monitor; broken unrelated original and symlink do not invalidate direct selected identity",
+    "Existing9 backup/private-file tests and3 pinned-FD image-identity tests pass against latest snapshot",
+    "Missing file read throws actual IOException then typed tool_read_failed completed receipt, later reads continue, continuation dispatched, uncertaintyBlocked false",
+    "New owner request queues while read continuation runs and dispatches after continuation final report",
+    "Reserved immutable-original write throws actual IOException; uncertain receipt/request/goal, requiresOwnerReconciliation, no subsequent action or replay, protected path remains absent and existing file unchanged",
+    "Known read failure permits provider-reported goal archival while completionVerified/overallOutcomeVerified remain false",
+    "Unknown legacy native tool failed receipt blocks reported-goal archival; unfinished goal remains awaiting_result without automatic replay"
+  ],
+  "limitations": [
+    "Protected-path write fails before changing a file in this fixture; production deliberately treats exceptions from mutating tools conservatively because other write failures can happen after partial/committed effects.",
+    "Unknown legacy tool test uses an actual persisted receipt to exercise production goal-closure classifier; it does not add a hypothetical tool to the production catalog.",
+    "No wall-clock S24 UI latency, Android Auto Blocker, background OEM policy, network, or real cloud completion was tested."
+  ]
+}

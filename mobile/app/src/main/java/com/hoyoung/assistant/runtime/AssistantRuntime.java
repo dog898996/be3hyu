@@ -60,6 +60,7 @@ public final class AssistantRuntime {
     private final Executor promptExecutor;
     private MemoryRetriever memoryRetriever;
     private PhoneContextCollector phoneContext;
+    private volatile AssistantReplyNotifications replyNotifications;
     private final Handler main = new Handler(Looper.getMainLooper());
     private Transport transport;
     private Runnable listener;
@@ -73,6 +74,7 @@ public final class AssistantRuntime {
     private boolean completing;
     private volatile String completingRequestId = "";
     private volatile boolean restoringBackup;
+    private volatile boolean storageRecoveryBlocked;
     public boolean isRestoringBackup() { return restoringBackup; }
 
     public AssistantRuntime(Context context, HoyoungStore store, InternalFiles files, PhoneTools phoneTools) {
@@ -99,6 +101,7 @@ public final class AssistantRuntime {
 
     public synchronized void setMemoryRetriever(MemoryRetriever retriever) { this.memoryRetriever = retriever; }
     public synchronized void setPhoneContextCollector(PhoneContextCollector collector) { this.phoneContext = collector; }
+    public void setReplyNotifications(AssistantReplyNotifications notifications) { replyNotifications = notifications; }
     public GoalLedger getGoalLedger() { return goals; }
     public synchronized boolean hasActiveWorkForWakeLock() { return active != null || completing || incomingPreparations > 0; }
     public MemoryReviewCoordinator getMemoryReview() { return memoryReview; }
@@ -109,6 +112,7 @@ public final class AssistantRuntime {
     }
 
     public synchronized void setListener(Runnable listener) { this.listener = listener; }
+    public synchronized void clearListener(Runnable expected) { if (listener == expected) listener = null; }
 
     public synchronized void attachTransport(Transport transport) {
         if (transport == null) throw new IllegalArgumentException("transport is required");
@@ -126,7 +130,15 @@ public final class AssistantRuntime {
     }
 
     public JSONObject receive(String text, JSONArray attachments) {
+        return receive(text, attachments, UUID.randomUUID().toString(), -1);
+    }
+
+    /** A durable client cohort makes process recreation and repeated taps one owner intent. */
+    public JSONObject receive(String text, JSONArray attachments, String clientInputId, long draftRevision) {
+        if (clientInputId == null || !clientInputId.matches("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}") || draftRevision < -1)
+            throw new IllegalArgumentException("Invalid owner input identity");
         synchronized (this) {
+            if (storageRecoveryBlocked) throw new IllegalStateException("복원 파일 정리가 남아 있어. 앱을 다시 열어 저장소 복구를 완료해 줘. 입력은 유지했어.");
             if (restoringBackup) throw new IllegalStateException("백업 복원 중이야. 입력은 그대로 두고 완료 후 보내 줘.");
             incomingPreparations++;
         }
@@ -138,9 +150,24 @@ public final class AssistantRuntime {
             catch (IOException failure) { throw new IllegalStateException("첨부 원본을 보존하지 못했어. 입력을 유지했어.", failure); }
             JSONArray safeAttachments = validateAttachments(frozen);
             if (text.trim().isEmpty() && safeAttachments.length() == 0) throw new IllegalArgumentException("Message is empty");
-            String externalId = UUID.randomUUID().toString();
+            String externalId = clientInputId;
+            String inputHash = ownerInputFingerprint(text, safeAttachments);
+            String rawInputText = text, rawInputAttachments = attachments == null ? "[]" : attachments.toString();
             String requestText = text.trim().isEmpty() ? "첨부 파일을 확인해 줘." : text;
             JSONObject request = store.withTransaction(db -> {
+                try (Cursor previous = db.rawQuery("SELECT id FROM requests WHERE external_id=?", new String[]{externalId})) {
+                    if (previous.moveToFirst()) {
+                        if (!inputHash.equals(store.getSetting("inputFingerprint:" + externalId, "")))
+                            throw new IllegalArgumentException("This input identity was already used for different text or attachments");
+                        return store.getRequest(previous.getLong(0));
+                    }
+                }
+                if (draftRevision >= 0 || store.getSetting(OwnerDraftStore.STATE_KEY, null) != null) {
+                    OwnerDraftStore.Snapshot currentDraft = new OwnerDraftStore(store).read();
+                    if (currentDraft.clientInputId.equals(externalId)
+                            && (currentDraft.revision != draftRevision || currentDraft.recoveryRequired || !currentDraft.text.equals(rawInputText) || !currentDraft.attachmentsJson.equals(rawInputAttachments)))
+                        throw new IllegalArgumentException("The durable input cohort does not match this message");
+                }
                 JSONObject queued = store.enqueueRequest(requestText, "user", externalId);
                 JSONObject message = store.addMessage("user", requestText, externalId);
                 store.putSetting("ownerInputRevision", String.valueOf(message.optLong("id")));
@@ -153,13 +180,35 @@ public final class AssistantRuntime {
                     store.putSetting("assetCoverage:" + message.optLong("id"), object("stage", "raw_saved", "assets", safeAttachments, "analysisVerified", false).toString());
                     store.recordEvent("message_attachments", object("requestId", externalId, "messageId", message.optLong("id"), "attachments", safeAttachments));
                 }
+                db.execSQL("INSERT OR REPLACE INTO settings(setting_key,value) VALUES (?,?)", new Object[]{"inputFingerprint:" + externalId, inputHash});
+                if (draftRevision >= 0) new OwnerDraftStore(store).consume(externalId, draftRevision);
                 return queued;
             });
             long sourceId = parseLong(store.getSetting("requestSource:" + externalId, "0"));
             if (safeAttachments.length() > 0) { try { memoryReview.registerAssetSource(sourceId); } catch (RuntimeException deferred) { /* Original and queue already committed; discovery retries the derived index. */ } }
-            synchronized (this) { changed(); tick(); }
+            synchronized (this) { changed(); }
             return request;
-        } finally { synchronized (this) { incomingPreparations--; changed(); } }
+        } finally { synchronized (this) { incomingPreparations--; changed(); tick(); } }
+    }
+
+    private static String ownerInputFingerprint(String text, JSONArray assets) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            updateInputField(digest, "hoyoung-owner-input-utf16-v1"); updateInputField(digest, text);
+            updateInputField(digest, String.valueOf(assets.length()));
+            for (int i = 0; i < assets.length(); i++) {
+                JSONObject asset = assets.optJSONObject(i);
+                for (String key : new String[]{"id", "sha256", "size", "sourceName", "mime"}) updateInputField(digest, String.valueOf(asset.opt(key)));
+            }
+            StringBuilder result = new StringBuilder(64);
+            for (byte value : digest.digest()) result.append(String.format(Locale.ROOT, "%02x", value & 255));
+            return result.toString();
+        } catch (java.security.NoSuchAlgorithmException impossible) { throw new IllegalStateException(impossible); }
+    }
+    private static void updateInputField(MessageDigest digest, String value) {
+        String prefix = value.length() + ":";
+        digest.update(prefix.getBytes(StandardCharsets.US_ASCII));
+        for (int i = 0; i < value.length(); i++) { char c = value.charAt(i); digest.update((byte)(c >>> 8)); digest.update((byte)c); }
     }
 
     public synchronized void onWebEvent(JSONObject event) {
@@ -195,9 +244,25 @@ public final class AssistantRuntime {
             store.putSetting("runtime.lastCode", "accepted");
             if (event.optBoolean("uploadObserved")) {
                 JSONArray names = event.optJSONArray("attachmentNames"), metadata = parseArray(store.getSetting("attachmentMetadata:" + requestId, "[]"));
+                JSONArray delivery = parseArray(store.getSetting("workAttachmentRepresentations:" + requestId, "[]"));
+                boolean planned = delivery.length() > 0;
                 boolean matching = names != null && names.length() == metadata.length() && names.length() > 0;
-                for (int i = 0; matching && i < metadata.length(); i++) matching &= metadata.optJSONObject(i).optString("name", metadata.optJSONObject(i).optString("sourceName")).equals(names.optString(i));
-                if (matching) store.putSetting("uploadedAssetsObserved:" + requestId, metadata.toString());
+                if (planned && delivery.length() != metadata.length()) matching = false;
+                for (int i = 0; matching && i < metadata.length(); i++) {
+                    JSONObject source = metadata.optJSONObject(i), representation = planned ? delivery.optJSONObject(i) : source;
+                    matching &= representation != null && source.optString("id").equals(representation.optString("id")) && source.optString("sha256").equals(representation.optString("sha256"));
+                    if (!matching) break;
+                    matching &= (planned ? representation.optString("wireName") : source.optString("name", source.optString("sourceName"))).equals(names.optString(i));
+                    if (planned) {
+                        long sourceId = source.optLong("sourceMessageId", parseLong(store.getSetting("requestSource:" + requestId, "0")));
+                        if (representation.has("sourceMessageId") && representation.optLong("sourceMessageId") != sourceId) matching = false;
+                        put(representation, "sourceMessageId", sourceId);
+                    }
+                }
+                if (matching) {
+                    if (planned) store.putSetting("workAttachmentRepresentations:" + requestId, delivery.toString());
+                    store.putSetting("uploadedAssetsObserved:" + requestId, (planned ? delivery : metadata).toString());
+                }
                 store.recordEvent("work_attachment_upload_observed", object("requestId", requestId, "namesMatched", matching, "scope", event.optString("uploadObservationScope"), "serverBytesIndependentlyVerified", false));
             }
             store.recordEvent("work_accepted", object("requestId", requestId));
@@ -221,9 +286,10 @@ public final class AssistantRuntime {
     }
 
     public synchronized void tick() {
-        if (restoringBackup) return;
+        if (restoringBackup || storageRecoveryBlocked) return;
         long now = System.currentTimeMillis();
         if (transport != null && now - lastInspectionAt >= 15_000L) inspectTransport();
+        if (incomingPreparations > 0) return;
         if (active != null) {
             if ("dispatching".equals(active.optString("status")) && now - dispatchStartedAt >= ACCEPTANCE_TIMEOUT_MS) {
                 makeUncertain("Work의 접수 여부를 확인하지 못했어. 이전 작업을 확인할 때까지 자동 재전송을 멈췄어.");
@@ -262,6 +328,8 @@ public final class AssistantRuntime {
         if (request == null) return;
         JSONObject reserved = copy(request);
         active = copy(request); put(active, "status", "preparing");
+        put(reserved, "preparationStartedAt", System.currentTimeMillis());
+        put(active, "preparationStartedAt", reserved.optLong("preparationStartedAt"));
         store.putSetting("runtime.progress", "관련 기억과 원문을 확인하는 중");
         store.putSetting("runtime.lastCode", "preparing"); changed();
         promptExecutor.execute(() -> {
@@ -287,7 +355,7 @@ public final class AssistantRuntime {
             localNotice(oversized ? "prompt_too_large" : "prompt_unavailable", oversized ? "요청과 지침이 너무 길어서 전송 전에 멈췄어. 원문은 저장돼 있어." : "기억이나 지침을 준비하지 못해서 전송 전에 멈췄어. 원문은 저장돼 있어.");
             changed(); return;
         }
-        if (transport == null || quotaBlocked() || uncertaintyBlocked() || !ready(System.currentTimeMillis())) {
+        if (transport == null || quotaBlocked() || uncertaintyBlocked() || incomingPreparations > 0 || !ready(System.currentTimeMillis())) {
             active = null; store.putSetting("runtime.lastCode", "preparation_waiting_for_connection"); changed(); return;
         }
         if (!reserved.optString("preparationPolicy").equals(preparationPolicy())) {
@@ -296,6 +364,8 @@ public final class AssistantRuntime {
             changed(); tick(); return;
         }
         put(active, "preparationPolicy", reserved.optString("preparationPolicy"));
+        store.recordEvent("prompt_prepared", object("requestId", reserved.optString("external_id"), "purpose", store.getSetting("requestPurpose:" + reserved.optString("external_id"), reserved.optString("kind")),
+                "promptChars", prompt.length(), "localPreparationMillis", Math.max(0, System.currentTimeMillis() - reserved.optLong("preparationStartedAt")), "providerResponseLatencyMeasured", false));
         store.putSetting("dispatchOwnerRevision:" + reserved.optString("external_id"), reserved.optString("ownerInputRevision", "0"));
         store.markRequest(reserved.optLong("id"), "dispatching", null);
         put(active, "status", "dispatching"); dispatchStartedAt = System.currentTimeMillis();
@@ -309,7 +379,7 @@ public final class AssistantRuntime {
 
     /** Last native guard immediately before the WebView wire send, after attachment preparation. */
     public synchronized boolean preparedDispatchStillAllowed(String requestId) {
-        return !restoringBackup && active != null && requestId.equals(active.optString("external_id"))
+        return !restoringBackup && !storageRecoveryBlocked && incomingPreparations == 0 && active != null && requestId.equals(active.optString("external_id"))
                 && "dispatching".equals(active.optString("status")) && !quotaBlocked() && !uncertaintyBlocked()
                 && !requestPaused(active.optString("external_id"))
                 && transport != null && ready(System.currentTimeMillis())
@@ -416,10 +486,13 @@ public final class AssistantRuntime {
             if (uncertaintyBlocked()) throw new IllegalStateException("결과가 확인되지 않은 기존 작업을 먼저 확인하거나 제외해야 백업을 복원할 수 있어.");
             restoringBackup = true;
         }
-        changed();
-        context.stopService(new Intent(context, AutonomyService.class));
+        AssistantReplyNotifications notifications = replyNotifications;
+        boolean notificationBarrier = false;
         Exception primaryFailure = null;
         try {
+        if (notifications != null) { notifications.beginRestore(); notificationBarrier = true; }
+        changed();
+        context.stopService(new Intent(context, AutonomyService.class));
         if (phoneContext != null) phoneContext.stop("backup_restore");
         phoneTools.pauseForBackupRestore();
         files.importBackup(input, store);
@@ -451,10 +524,22 @@ public final class AssistantRuntime {
                 serviceRunning = false;
                 store.putSetting("runtime.progress", "백업 후 휴대폰 관찰 저장소를 준비하지 못했어. 관찰을 중지했으니 앱을 다시 열고 복원 상태를 확인해 줘.");
                 store.putSetting("runtime.lastCode", "phone_context_restore_incomplete");
-                if (primaryFailure != null) primaryFailure.addSuppressed(cleanupFailure); else throw cleanupFailure;
+                if (primaryFailure != null) primaryFailure.addSuppressed(cleanupFailure); else { primaryFailure = cleanupFailure; throw cleanupFailure; }
             } finally {
-                synchronized (this) { restoringBackup = false; }
-                changed();
+                try {
+                    if (notificationBarrier) notifications.endRestore();
+                } catch (RuntimeException cleanupFailure) {
+                    if (primaryFailure != null) primaryFailure.addSuppressed(cleanupFailure); else throw cleanupFailure;
+                } finally {
+                    boolean pendingRecovery = files.restoreRecoveryPending();
+                    synchronized (this) { restoringBackup = false; storageRecoveryBlocked = pendingRecovery; }
+                    if (pendingRecovery) {
+                        store.putSetting("autonomy.enabled", "false");
+                        store.putSetting("runtime.lastCode", "backup_storage_recovery_required");
+                        store.putSetting("runtime.progress", "복원 파일 정리가 남아 있어 자동 실행을 멈췄어. 앱을 다시 열어 복구를 완료해 줘.");
+                    }
+                    changed();
+                }
             }
         }
     }
@@ -484,6 +569,8 @@ public final class AssistantRuntime {
     }
 
     public synchronized JSONObject state() {
+        if (storageRecoveryBlocked) return object("storageRecoveryBlocked", true, "lastCode", "backup_storage_recovery_required", "ready", false,
+                "progress", "복원 파일 정리가 남아 있어. 앱을 다시 열어 저장소 복구를 완료해 줘.", "activeRequestId", JSONObject.NULL);
         if (restoringBackup) return object("restoringBackup", true, "lastCode", "backup_restoring", "ready", false,
                 "progress", "백업을 검증·복원 중이야. 원문을 읽는 동안 자동 실행은 멈춰 있어.", "activeRequestId", JSONObject.NULL);
         JSONObject result = object("engine", "chatgpt-work-web", "transportAttached", transport != null,
@@ -496,12 +583,16 @@ public final class AssistantRuntime {
                 "activeRequestId", active == null ? JSONObject.NULL : active.optString("external_id"),
                 "activeStoreId", active == null ? JSONObject.NULL : active.optLong("id"),
                 "steeringVerified", false, "cloudPermanent", false, "receiptIndexReady", receiptsReady, "resources", AutonomyService.resourceState(),
-                "model", "gpt-6.1-sol", "effort", "medium", "speed", "fast");
+                "model", store.getSetting("requiredModel", "gpt-6.1-sol"), "effort", store.getSetting("requiredEffort", "medium"), "speed", store.getSetting("requiredSpeed", "fast"),
+                "selectionFieldsAreRequiredChoices", true, "activePhase", active == null ? completing ? "saving_result" : "idle" : active.optString("status"),
+                "activeWaitingMillis", active == null ? 0 : Math.max(0, System.currentTimeMillis() - ("preparing".equals(active.optString("status")) ? active.optLong("preparationStartedAt", System.currentTimeMillis()) : dispatchStartedAt)));
+        if (replyNotifications != null) put(result, "replyNotifications", replyNotifications.state());
         return result;
     }
 
     public synchronized void localNotice(String code, String text) {
-        store.addMessage("system", text, null);
+        JSONObject message = store.addMessage("system", text, null);
+        publishReply(message, code.contains("quota") ? "quota" : code.contains("uncertain") ? "uncertain" : "blocked");
         store.recordEvent(code, object("text", text));
         store.putSetting("runtime.progress", text);
         store.putSetting("runtime.lastCode", bounded(code, 128));
@@ -509,6 +600,7 @@ public final class AssistantRuntime {
     }
 
     private boolean ready(long now) {
+        if (storageRecoveryBlocked || restoringBackup) return false;
         if (transport == null || webStateAt == 0 || now - webStateAt > STATE_FRESH_MS) return false;
         if (!readinessCode.isEmpty() && !"ready".equals(readinessCode)) return false;
         if (!Boolean.TRUE.equals(webState.opt("authenticated")) || !Boolean.TRUE.equals(webState.opt("workSelected"))
@@ -517,9 +609,24 @@ public final class AssistantRuntime {
         String model = normalize(webState.optString("model"));
         String effort = normalize(webState.optString("effort"));
         String speed = normalize(webState.optString("speed"));
-        return (model.equals("gpt6.1sol") || model.equals("6.1sol"))
-                && (effort.equals("medium") || effort.equals("미디엄"))
-                && (speed.equals("fast") || speed.equals("빠름"));
+        try {
+            JSONObject required = requiredModelPreferences();
+            String expected = normalize(required.optString("model"));
+            return (model.equals(expected) || (expected.startsWith("gpt") && model.equals(expected.substring(3))))
+                    && effort.equals(normalize(required.optString("effort"))) && speed.equals(normalize(required.optString("speed")));
+        } catch (IllegalArgumentException invalid) { return false; }
+    }
+
+    /** Persisted explicit choices survive future model replacement without weakening the observed-selection gate. */
+    public JSONObject requiredModelPreferences() {
+        String model = store.getSetting("requiredModel", "gpt-6.1-sol"), effort = store.getSetting("requiredEffort", "medium"), speed = store.getSetting("requiredSpeed", "fast");
+        validateModelPreferences(model, effort, speed);
+        return object("model", model, "effort", effort, "speed", speed);
+    }
+    public static void validateModelPreferences(String model, String effort, String speed) {
+        if (model == null || model.length() > 80 || !model.matches("gpt-[a-z0-9]+(?:[.-][a-z0-9]+)*")
+                || !matchesOne(effort, "low", "medium", "high", "xhigh", "max", "ultra") || !matchesOne(speed, "fast", "standard"))
+            throw new IllegalArgumentException("Invalid explicit model preferences");
     }
 
     private void inspectTransport() {
@@ -558,7 +665,7 @@ public final class AssistantRuntime {
     /** Fingerprints settings and actual grants both before preparation and before dispatch. */
     private String preparationPolicy() {
         StringBuilder policy = new StringBuilder();
-        for (String key : new String[]{"customInstructions", "personalizedInstructions", "standingGoals", "toolPermissions", "memoryReviewEnabled", "phoneContextEnabled", "semanticSearchEnabled", "goalLedgerRevision", "wakeMode", "ownerInputRevision"})
+        for (String key : new String[]{"customInstructions", "personalizedInstructions", "standingGoals", "toolPermissions", "memoryReviewEnabled", "phoneContextEnabled", "semanticSearchEnabled", "replyNotificationsEnabled", "backupMaxGiB", "goalLedgerRevision", "wakeMode", "ownerInputRevision", "requiredModel", "requiredEffort", "requiredSpeed"})
             policy.append(key).append('\n').append(store.getSetting(key, "<unset>")).append('\n');
         JSONArray grants = new PermissionCatalog(context).snapshot();
         policy.append(grants);
@@ -595,8 +702,11 @@ public final class AssistantRuntime {
                 .append("\"sourceRefs\":[{\"type\":\"message|device_event\",\"id\":123,\"quote\":\"실제 원문의 짧은 정확한 인용\",\"offsetChars\":0}],")
                 .append("\"metadata\":{\"factKey\":\"안정적 사실 키\",\"aliases\":[],\"entities\":[],\"pinned\":false,\"confidence\":0.9,\"validFrom\":0,\"validTo\":null,\"evidenceState\":\"owner_report|observation|inference|uncertain\"}}]}\n")
                 .append("첨부를 실제 읽었으면 assetAnalyses:[{messageId,assetId,sha256,status:analyzed|cannot_analyze,content,reason}]에 분석을 반환한다. 추측은 분석으로 기록하지 않는다. 이미지 분석은 생성 관찰이며 독립 확인 사실과 구분하고 원본 SHA를 그대로 붙인다.\n")
+                .append("실제 첨부 전달표가 추가되면 source id/sha256는 보관된 원본, providerRepresentationSha256는 실제 전송할 표현의 hash다. delivered_representation은 축소·JPEG 변환본이므로 원본 전체를 읽었다고 만들지 마. 분석에는 제공된 providerRepresentationSha256도 정확히 반환하고 볼 수 없는 세부사항은 불확실하다고 남긴다.\n")
                 .append("확인된 fact/preference에는 원문 quote를 붙여. sourceMessageIds만 존재하는 것은 의미 일치 검증을 통과한 게 아니다. 날짜는 epochMillis, 실제 시작·종료를 모르면 생략한다. 중요한 알레르기·금기·개인 선호·진행 중 맡긴 일은 pinned를 검토한다.\n")
                 .append("후속 확인이 필요한 목표는 status=working/awaiting_result와 nextCheckAt(epochMillis)을 반환한다. 요청 턴이 끝나도 목표는 별도 장부에 남는다. 다음 자율 판단은 tasks.list/update로 확인하며 blocked/uncertain 목표는 자동 재실행하지 않는다.\n")
+                .append("tasks.report_completed는 관찰된 완료 보고를 진행 목록에서 보관함으로 옮기는 도구다. 알려진 폰·앱 실행 영수증이 미확정이면 보관하지 않는다. reported_archive 기록과 overallOutcomeVerified:false는 전체 작업 성공의 독립 증거가 아니다. 자신의 root를 아직 실행 중이면 최종 completed 응답 후 앱이 보관 여부를 판단한다.\n")
+                .append("도구 영수증의 nativeOutcomeSource가 있으면 실제 반환 상태만 담은 system 원문이다. 반복에 도움이 되는 실행 교훈을 memory.source.read로 검증해 inference/summary로 저장할 수 있다. 그 요약에는 개인 결과값과 사용자 승인이 없고, requested/accepted와 완료를 구분한다. 교훈을 사용자 사실로 만들거나 모든 로그를 무조건 중요한 선호로 pin하지 마.\n")
                 .append("도구 catalog:\n").append(catalog()).append("\n")
                 .append("현재 시각 epochMillis=").append(System.currentTimeMillis()).append(" 휴대폰 시간대=").append(java.util.TimeZone.getDefault().getID()).append("\n");
         long originalId = parseLong(store.getSetting("requestSource:" + externalId, "0"));
@@ -629,8 +739,9 @@ public final class AssistantRuntime {
             prompt.append("저장된 관련 기억과 원문 근거:\n").append(memories).append("\n"); remaining -= memories.length() + 100;
         }
         String expectedText = store.getSetting("memoryReview:" + externalId, "");
-        if (expectedText.isEmpty() && permissionAllowed("memory.save") && "true".equals(store.getSetting("memoryReviewEnabled", "true")) && remaining > 30_000) {
-            JSONObject review = memoryReview.prepareBatch(Math.min(60_000, remaining - 800));
+        // Interactive replies must not carry a year's pending extraction work. It has its own durable turns.
+        if (expectedText.isEmpty() && "memory-review".equals(purpose) && permissionAllowed("memory.save") && "true".equals(store.getSetting("memoryReviewEnabled", "true")) && remaining > 14_000) {
+            JSONObject review = memoryReview.prepareBatch(Math.min(12_000, remaining - 800));
             if (review.optJSONArray("sourceRanges").length() > 0) {
                 expectedText = review.toString(); store.putSetting("memoryReview:" + externalId, expectedText);
             }
@@ -674,11 +785,12 @@ public final class AssistantRuntime {
         catalog.put(object("name", "memory.history", "arguments", "key:string,limit?:1..100"));
         catalog.put(object("name", "memory.review", "arguments", "fromMessageId?:integer,throughMessageId?:integer,reason?:string"));
         catalog.put(object("name", "actions.receipt.read", "arguments", "rootRequestId:string,actionId:string,offsetChars?:integer,maxChars?:1..24000"));
-        catalog.put(object("name", "tasks.list", "arguments", "afterRootRequestId?:string,limit?:1..100,stage?:string,dueBefore?:epochMillis"));
+        catalog.put(object("name", "tasks.list", "arguments", "scope?:active|reported_archive,afterRootRequestId?:string,limit?:1..100,stage?:string,dueBefore?:epochMillis"));
         catalog.put(object("name", "tasks.update", "arguments", "rootRequestId:string,stage:working|awaiting_result|blocked,progress:string,nextCheckAt?:epochMillis"));
+        catalog.put(object("name", "tasks.report_completed", "arguments", "rootRequestId:string,progress:string; archive an observed completion report only after native effects reconcile; overall success stays unverified"));
         catalog.put(object("name", "app.settings.get", "arguments", "{}"));
         catalog.put(object("name", "app.work.pause", "arguments", "reason:string; hold current root's new local effects and request remote cancellation without claiming it stopped"));
-        catalog.put(object("name", "app.settings.update", "arguments", "customInstructions?:string,standingGoals?:string,toolPermissions?:{catalogTool:boolean},autonomyEnabled?:boolean,heartbeatSeconds?:60..86400,memoryReviewEnabled?:boolean,phoneContextEnabled?:boolean,semanticSearchEnabled?:boolean,wakeMode?:continuous|while_working|charging"));
+        catalog.put(object("name", "app.settings.update", "arguments", "customInstructions?:string,standingGoals?:string,toolPermissions?:{catalogTool:boolean},autonomyEnabled?:boolean,heartbeatSeconds?:60..86400,memoryReviewEnabled?:boolean,phoneContextEnabled?:boolean,semanticSearchEnabled?:boolean,replyNotificationsEnabled?:boolean,backupMaxGiB?:1..64,wakeMode?:continuous|while_working|charging,requiredModel?:gpt-model-id,requiredEffort?:low|medium|high|xhigh|max|ultra,requiredSpeed?:fast|standard"));
         append(catalog, files.catalog());
         append(catalog, phoneTools.catalog());
         return catalog;
@@ -713,6 +825,7 @@ public final class AssistantRuntime {
             if (automatic && "idle".equals(stage)) visible = "";
             if (hasActions && !reviewOnly) visible = requestPaused(externalId) ? "중지 요청 후 도착한 도구 제안은 실행하지 않고 보관했어." : "요청한 도구를 실행하고 결과를 확인하는 중이야.";
             JSONObject saved = reviewOnly || visible.trim().isEmpty() ? null : store.addMessage("assistant", visible, externalId);
+            if (!hasActions && saved != null) publishReply(saved, automatic && "completed".equals(stage) ? "proactive" : stage);
             long resultSource = saved == null ? 0 : saved.optLong("id");
             // A provider turn ending is separate from the requested goal finishing.
             store.markRequest(completed.optLong("id"), "accepted", text);
@@ -779,10 +892,20 @@ public final class AssistantRuntime {
             } else {
                 memoryReview.acknowledge(parseObject(store.getSetting("memoryReview:" + externalId, "{}")), null, false, 0);
             }
-            if (!reviewOnly && (!"idle".equals(stage)) && (hasActions || matchesOne(stage, "working", "awaiting_result", "blocked") || goals.get(rootId) != null)) {
+            boolean inspectionOnlyNewGoal = automatic && parseLong(store.getSetting("requestSource:" + externalId, "0")) == 0
+                    && hasActions && inspectionOnlyActions(actions) && goals.get(rootId) == null;
+            if (!reviewOnly && !inspectionOnlyNewGoal && (!"idle".equals(stage)) && (hasActions || matchesOne(stage, "working", "awaiting_result", "blocked") || goals.get(rootId) != null)) {
                 long nextCheck = envelope == null ? 0 : longInteger(envelope, "nextCheckAt", 0, Long.MAX_VALUE, 0);
-                JSONObject goalResult = goals.update(rootId, uncertaintyBlocked() ? "uncertain" : stage,
-                        parseLong(store.getSetting("requestSource:" + externalId, "0")), externalId, bounded(visible, 2000), nextCheck);
+                JSONObject goalResult = !hasActions && envelope != null && "completed".equals(envelope.opt("status")) && "completed".equals(stage) && !uncertaintyBlocked()
+                        ? archiveReportedGoal(rootId, externalId, bounded(visible, 2000)) : null;
+                if (goalResult == null || !goalResult.optBoolean("archived")) {
+                    JSONObject previousGoal = goals.get(rootId);
+                    String reportedGoalStage = !matchesOne(stage, "blocked", "uncertain") && (envelope == null || !envelope.has("status")) ? "awaiting_result" : stage;
+                    String effectiveStage = previousGoal != null && matchesOne(previousGoal.optString("stage"), "blocked", "uncertain")
+                            ? previousGoal.optString("stage") : uncertaintyBlocked() ? "uncertain" : reportedGoalStage;
+                    goalResult = goals.update(rootId, effectiveStage,
+                            parseLong(store.getSetting("requestSource:" + externalId, "0")), externalId, bounded(visible, 2000), nextCheck);
+                }
                 if (!goalResult.optBoolean("ok")) localNotice("goal_capacity_reached", goalResult.optString("message"));
             }
             store.markRequest(completed.optLong("id"), uncertaintyBlocked() ? "uncertain" : "completed", text);
@@ -808,6 +931,9 @@ public final class AssistantRuntime {
         Matcher match = ENVELOPE.matcher(value);
         if (match.matches()) value = match.group(1).trim();
         if (!value.startsWith("{") || value.length() > 250_000) return null;
+        if (!boundedJsonDepth(value, 64)) {
+            store.recordEvent("invalid_tool_envelope", object("reason", "nesting_limit_or_incomplete_structure")); return null;
+        }
         try {
             JSONTokener tokener = new JSONTokener(value);
             Object parsed = tokener.nextValue();
@@ -827,6 +953,26 @@ public final class AssistantRuntime {
         }
     }
 
+    /** Bound parser stack use before JSONTokener receives provider-controlled nested input. */
+    private static boolean boundedJsonDepth(String value, int maximum) {
+        int depth = 0; boolean quoted = false, escaped = false;
+        for (int i = 0; i < value.length(); i++) {
+            char c = value.charAt(i);
+            if (quoted) { if (escaped) escaped = false; else if (c == '\\') escaped = true; else if (c == '"') quoted = false; }
+            else if (c == '"') quoted = true;
+            else if (c == '{' || c == '[') { if (++depth > maximum) return false; }
+            else if (c == '}' || c == ']') { if (--depth < 0) return false; }
+        }
+        return depth == 0 && !quoted;
+    }
+
+    private void publishReply(JSONObject message, String stage) {
+        AssistantReplyNotifications notifications = replyNotifications;
+        if (notifications == null || message == null) return;
+        try { notifications.publish(message, stage); }
+        catch (RuntimeException unavailable) { store.recordEvent("assistant_reply_notification_deferred", object("sourceMessageId", message.optLong("id"))); }
+    }
+
     private void recordAssetAnalyses(JSONObject completed, JSONObject envelope) {
         JSONArray analyses = envelope.optJSONArray("assetAnalyses");
         if (analyses == null || analyses.length() == 0 || !permissionAllowed("memory.save") || !permissionAllowed("memory.asset.analyze")) return;
@@ -839,11 +985,18 @@ public final class AssistantRuntime {
                 long messageId = longInteger(analysis, "messageId", 1, Long.MAX_VALUE, 0);
                 String assetId = requiredString(analysis, "assetId", 512), sha = requiredString(analysis, "sha256", 64);
                 if (!"analyzed".equals(analysis.optString("status"))) { memoryReview.markAssetNeedsReanalysis(messageId, assetId, analysis.optString("reason", "provider_could_not_analyze")); continue; }
-                String content = requiredString(analysis, "content", 30_000); boolean uploaded = false;
-                for (int j = 0; j < observed.length(); j++) { JSONObject asset = observed.optJSONObject(j); uploaded |= assetId.equals(asset.optString("id")) && sha.equals(asset.optString("sha256")); }
-                if (!uploaded) throw new IllegalArgumentException("Asset upload was not observed for this response");
+                String content = requiredString(analysis, "content", 30_000); JSONObject uploaded = null;
+                for (int j = 0; j < observed.length(); j++) { JSONObject asset = observed.optJSONObject(j); if (asset != null && assetId.equals(asset.optString("id")) && sha.equals(asset.optString("sha256"))) uploaded = asset; }
+                if (uploaded == null) throw new IllegalArgumentException("Asset upload was not observed for this response");
                 JSONObject receipt = object("providerRequestId", id, "sourceMessageId", messageId, "assetId", assetId, "sha256", sha,
                         "uploadObserved", true, "responseObserved", true, "analysisHash", fingerprint(content), "providerResponseHash", request.optString("raw_result_hash"));
+                if (uploaded.has("providerRepresentationSha256")) {
+                    String wireSha = uploaded.optString("providerRepresentationSha256");
+                    if ("delivered_representation".equals(uploaded.optString("analysisScope")) && !wireSha.equals(analysis.optString("providerRepresentationSha256")))
+                        throw new IllegalArgumentException("Analysis did not identify the delivered representation");
+                    for (String field : new String[]{"analysisScope", "providerRepresentationSha256", "representationAssetId", "originalBytesIncludedInWire", "originalBytesFullyUploaded", "originalContentFullyInspected", "serverBytesIndependentlyVerified"})
+                        put(receipt, field, uploaded.opt(field));
+                }
                 memoryReview.acceptAssetAnalysis(messageId, assetId, sha, content, receipt);
             } catch (RuntimeException invalid) { store.recordEvent("asset_analysis_rejected", object("requestId", id, "index", i, "reason", "invalid_or_unobserved_source")); }
         }
@@ -896,14 +1049,15 @@ public final class AssistantRuntime {
             String raw = row.toString();
             if (raw.length() <= 3500) summaries.put(row);
             else summaries.put(object("id", row.optString("id"), "name", row.optString("name"), "cached", row.optBoolean("cached"),
+                    "nativeOutcomeSource", row.optJSONObject("nativeOutcomeSource"),
                     "resultPreview", bounded(raw, 2000), "truncated", true, "receiptChars", raw.length(),
                     "readCompleteReceipt", object("name", "actions.receipt.read", "arguments", object("rootRequestId", rootId, "actionId", row.optString("id"), "offsetChars", 0, "maxChars", 24000))));
         }
         return object("rootRequestId", rootId, "results", summaries, "completeResultsStored", true, "previewIsNotCompleteResult", true);
     }
 
-    private boolean ownerInputChanged(String requestId) {
-        return !store.getSetting("dispatchOwnerRevision:" + requestId, "0").equals(store.getSetting("ownerInputRevision", "0"));
+    private synchronized boolean ownerInputChanged(String requestId) {
+        return incomingPreparations > 0 || !store.getSetting("dispatchOwnerRevision:" + requestId, "0").equals(store.getSetting("ownerInputRevision", "0"));
     }
 
     private boolean requestPaused(String requestId) {
@@ -946,18 +1100,27 @@ public final class AssistantRuntime {
                     results.put(object("id", actionId, "ok", false, "code", "action_outcome_uncertain", "replayed", false));
                     break;
                 } else if (!fingerprint.equals(previous.optString("fingerprint"))) results.put(object("id", actionId, "ok", false, "code", "action_id_conflict"));
-                else results.put(object("id", actionId, "name", name, "cached", true, "result", previous.optJSONObject("result")));
+                else results.put(object("id", actionId, "name", name, "cached", true, "result", previous.optJSONObject("result"), "nativeOutcomeSource", nativeOutcomeReference(previous)));
                 continue;
             }
             JSONObject receipt = object("status", "dispatching", "name", name, "fingerprint", fingerprint, "startedAt", System.currentTimeMillis());
-            receipts.put(key, receipt);
+            // This durable claim and receive's preparation counter share one linearization point.
+            // The actual OS call can be slow, so it runs after releasing the runtime monitor.
+            synchronized (this) {
+                if (requestPaused(requestId) || ownerInputChanged(requestId)) {
+                    results.put(object("id", actionId, "name", name, "ok", false, "code", requestPaused(requestId) ? "current_work_paused" : "owner_steering_pending", "started", false, "replayed", false));
+                    continue;
+                }
+                receipts.put(key, receipt);
+            }
             try {
                 JSONObject result = executeTool(name, arguments);
                 if (!result.optBoolean("ok", true) && "operation_failed".equals(result.optString("code")) && mutatesPhone(name)) {
                     put(receipt, "status", "uncertain"); put(receipt, "result", result);
+                    archiveNativeOutcome(rootId, requestId, actionId, name, receipt);
                     receipts.put(key, receipt);
                     store.putSetting("runtime.uncertaintyBlocked", "true");
-                    results.put(object("id", actionId, "name", name, "result", result, "outcomeUncertain", true, "replayed", false));
+                    results.put(object("id", actionId, "name", name, "result", result, "nativeOutcomeSource", nativeOutcomeReference(receipt), "outcomeUncertain", true, "replayed", false));
                     break;
                 }
                 String rawResult = result.toString();
@@ -965,19 +1128,29 @@ public final class AssistantRuntime {
                     JSONObject archived = files.archiveToolResult(rootId, actionId, rawResult);
                     JSONObject pointer = object("ok", result.optBoolean("ok", true), "code", result.optString("code", "ok"), "fullResultArchived", true, "artifact", archived,
                             "originalChars", rawResult.length(), "resultPreview", bounded(rawResult, 2000), "previewIncomplete", true);
-                    if (result.has("completionConfirmed")) put(pointer, "completionConfirmed", result.opt("completionConfirmed"));
+                    for (String field : new String[]{"completionConfirmed", "initiated", "requested", "accepted", "started", "browserLoaded"})
+                        if (result.opt(field) instanceof Boolean) put(pointer, field, result.opt(field));
                     result = pointer;
                 }
                 put(receipt, "status", "completed"); put(receipt, "result", result); put(receipt, "completedAt", System.currentTimeMillis());
+                archiveNativeOutcome(rootId, requestId, actionId, name, receipt);
                 receipts.put(key, receipt);
-                results.put(object("id", actionId, "name", name, "result", result));
+                results.put(object("id", actionId, "name", name, "result", result, "nativeOutcomeSource", nativeOutcomeReference(receipt)));
             } catch (IllegalArgumentException invalid) {
                 JSONObject result = object("ok", false, "code", "invalid_arguments", "message", "도구 인자를 확인해 줘.");
                 put(receipt, "status", "completed"); put(receipt, "result", result);
+                archiveNativeOutcome(rootId, requestId, actionId, name, receipt);
                 receipts.put(key, receipt);
-                results.put(object("id", actionId, "name", name, "result", result));
+                results.put(object("id", actionId, "name", name, "result", result, "nativeOutcomeSource", nativeOutcomeReference(receipt)));
             } catch (Exception uncertain) {
-                put(receipt, "status", "uncertain"); receipts.put(key, receipt);
+                if (!mutatesNativeState(name)) {
+                    JSONObject result = object("ok", false, "code", "tool_read_failed", "completionConfirmed", false, "message", "해당 정보 조회를 완료하지 못했어. 다른 출처나 조회 범위를 확인해 줘.");
+                    put(receipt, "status", "completed"); put(receipt, "result", result); archiveNativeOutcome(rootId, requestId, actionId, name, receipt); receipts.put(key, receipt);
+                    results.put(object("id", actionId, "name", name, "result", result, "nativeOutcomeSource", nativeOutcomeReference(receipt)));
+                    continue;
+                }
+                put(receipt, "status", "uncertain"); put(receipt, "nativeExceptionType", bounded(uncertain.getClass().getSimpleName(), 100));
+                archiveNativeOutcome(rootId, requestId, actionId, name, receipt); receipts.put(key, receipt);
                 store.putSetting("runtime.uncertaintyBlocked", "true");
                 results.put(object("id", actionId, "name", name, "ok", false, "code", "action_outcome_uncertain", "replayed", false));
                 break;
@@ -987,10 +1160,31 @@ public final class AssistantRuntime {
         return results;
     }
 
+    /** Small non-private native outcome evidence lets useful execution lessons cite a real source. */
+    private void archiveNativeOutcome(String rootId, String requestId, String actionId, String tool, JSONObject receipt) {
+        JSONObject result = receipt.optJSONObject("result");
+        JSONObject summary = object("type", "native_tool_outcome", "rootRequestId", rootId, "actionId", actionId, "tool", tool,
+                "receiptStage", receipt.optString("status"), "observedAt", System.currentTimeMillis(), "isOwnerInstruction", false,
+                "argsIncluded", false, "privateResultValuesIncluded", false, "overallTaskSuccessVerified", false);
+        if (receipt.has("nativeExceptionType")) put(summary, "exceptionType", receipt.optString("nativeExceptionType"));
+        if (result != null) {
+            put(summary, "code", bounded(result.optString("code", result.optBoolean("ok") ? "ok" : "unknown"), 100));
+            for (String field : new String[]{"ok", "completionConfirmed", "initiated", "requested", "accepted", "started", "browserLoaded"})
+                if (result.opt(field) instanceof Boolean) put(summary, field, result.opt(field));
+        }
+        JSONObject source = store.addMessage("system", summary.toString(), requestId);
+        put(receipt, "nativeOutcomeSourceMessageId", source.optLong("id")); put(receipt, "nativeOutcomeSourceHash", source.optString("content_hash"));
+    }
+    private static JSONObject nativeOutcomeReference(JSONObject receipt) {
+        if (receipt.optLong("nativeOutcomeSourceMessageId") <= 0 || !receipt.optString("nativeOutcomeSourceHash").matches("[0-9a-f]{64}")) return null;
+        return object("messageId", receipt.optLong("nativeOutcomeSourceMessageId"), "recordHash", receipt.optString("nativeOutcomeSourceHash"),
+                "scope", "native_return_flags_without_private_result_values", "isOwnerInstruction", false);
+    }
+
     private JSONObject executeTool(String name, JSONObject args) throws Exception {
         JSONObject permissions;
-        try { permissions = new JSONObject(store.getSetting("toolPermissions", "{}")); }
-        catch (JSONException invalid) { return object("ok", false, "code", "configuration_invalid", "message", "앱 도구 권한 설정을 읽지 못해서 실행을 멈췄어."); }
+        try { permissions = strictPermissions(store.getSetting("toolPermissions", "{}")); }
+        catch (IllegalArgumentException invalid) { return object("ok", false, "code", "configuration_invalid", "message", "앱 도구 권한 설정을 읽지 못해서 실행을 멈췄어."); }
         if (permissions.has(name) && !(permissions.opt(name) instanceof Boolean)) return object("ok", false, "code", "configuration_invalid", "message", "도구 권한 설정 값이 잘못되어 실행을 멈췄어.");
         if (permissions.has(name) && !permissions.optBoolean(name, true)) return object("ok", false, "code", "permission_disabled", "message", "앱 설정에서 이 도구가 꺼져 있어.");
         if (name.startsWith("phone_")) return phoneTools.execute(name, args);
@@ -1013,11 +1207,19 @@ public final class AssistantRuntime {
             return object("ok", true, "original", object("text", slice, "offsetChars", start, "nextOffsetChars", start + slice.length(), "totalChars", raw.length(), "complete", start + slice.length() == raw.length(), "contentHash", fingerprint(raw)));
         }
         if ("tasks.list".equals(name)) return goals.list(args);
+        if ("tasks.report_completed".equals(name)) {
+            rejectUnknown(args, "rootRequestId", "progress");
+            String rootId = requiredString(args, "rootRequestId", 450);
+            if (uncertaintyBlocked() || completingRequestId.isEmpty()) return object("ok", false, "code", "observed_report_required");
+            return archiveReportedGoal(rootId, completingRequestId, requiredString(args, "progress", 2000));
+        }
         if ("tasks.update".equals(name)) {
             rejectUnknown(args, "rootRequestId", "stage", "progress", "nextCheckAt");
             String rootId = requiredString(args, "rootRequestId", 450), stage = requiredString(args, "stage", 40);
             if (!matchesOne(stage, "working", "awaiting_result", "blocked")) throw new IllegalArgumentException("Only pending goal stages may be updated by an agent");
             JSONObject previous = goals.get(rootId); if (previous == null) return object("ok", false, "code", "goal_not_active");
+            if (matchesOne(previous.optString("stage"), "blocked", "uncertain") && !previous.optString("stage").equals(stage))
+                return object("ok", false, "code", "goal_requires_owner_reconciliation");
             return goals.update(rootId, stage, previous.optLong("sourceMessageId"), previous.optString("lastRequestId"),
                     requiredString(args, "progress", 2000), longInteger(args, "nextCheckAt", 0, Long.MAX_VALUE, previous.optLong("nextCheckAt")));
         }
@@ -1070,13 +1272,20 @@ public final class AssistantRuntime {
             return object("ok", true, "customInstructions", store.getSetting("customInstructions", ""), "standingGoals", store.getSetting("standingGoals", ""),
                     "toolPermissions", permissions, "autonomyEnabled", autonomyEnabled(), "heartbeatSeconds", parseLong(store.getSetting("heartbeatSeconds", "300")),
                     "memoryReviewEnabled", "true".equals(store.getSetting("memoryReviewEnabled", "true")), "phoneContextEnabled", "true".equals(store.getSetting("phoneContextEnabled", "true")),
-                    "semanticSearchEnabled", "true".equals(store.getSetting("semanticSearchEnabled", "true")), "wakeMode", store.getSetting("wakeMode", "continuous"), "resources", AutonomyService.resourceState());
+                    "semanticSearchEnabled", "true".equals(store.getSetting("semanticSearchEnabled", "true")), "replyNotificationsEnabled", "true".equals(store.getSetting("replyNotificationsEnabled", "true")),
+                    "backupMaxGiB", parseLong(store.getSetting("backupMaxGiB", "64")), "wakeMode", store.getSetting("wakeMode", "continuous"),
+                    "requiredModel", store.getSetting("requiredModel", "gpt-6.1-sol"), "requiredEffort", store.getSetting("requiredEffort", "medium"), "requiredSpeed", store.getSetting("requiredSpeed", "fast"), "resources", AutonomyService.resourceState());
         }
         if ("app.settings.update".equals(name)) {
-            rejectUnknown(args, "customInstructions", "standingGoals", "toolPermissions", "autonomyEnabled", "heartbeatSeconds", "memoryReviewEnabled", "phoneContextEnabled", "semanticSearchEnabled", "wakeMode");
+            rejectUnknown(args, "customInstructions", "standingGoals", "toolPermissions", "autonomyEnabled", "heartbeatSeconds", "memoryReviewEnabled", "phoneContextEnabled", "semanticSearchEnabled", "replyNotificationsEnabled", "backupMaxGiB", "wakeMode", "requiredModel", "requiredEffort", "requiredSpeed");
+            String desiredModel = args.has("requiredModel") ? requiredString(args, "requiredModel", 80) : store.getSetting("requiredModel", "gpt-6.1-sol");
+            String desiredEffort = args.has("requiredEffort") ? requiredString(args, "requiredEffort", 20) : store.getSetting("requiredEffort", "medium");
+            String desiredSpeed = args.has("requiredSpeed") ? requiredString(args, "requiredSpeed", 20) : store.getSetting("requiredSpeed", "fast");
+            validateModelPreferences(desiredModel, desiredEffort, desiredSpeed);
             String instructions = args.has("customInstructions") ? stringIncludingEmpty(args, "customInstructions", 50_000) : null;
             String goals = args.has("standingGoals") ? stringIncludingEmpty(args, "standingGoals", 50_000) : null;
             String wakeMode = args.has("wakeMode") ? requiredString(args, "wakeMode", 40) : null;
+            Integer backupMaxGiB = args.has("backupMaxGiB") ? integer(args, "backupMaxGiB", 1, 64, 64) : null;
             if (wakeMode != null && !AutonomyService.validWakeMode(wakeMode)) throw new IllegalArgumentException("Invalid wakeMode");
             Integer seconds = args.has("heartbeatSeconds") ? integer(args, "heartbeatSeconds", 60, 86_400, 60) : null;
             if (args.has("autonomyEnabled") && !(args.opt("autonomyEnabled") instanceof Boolean)) throw new IllegalArgumentException("autonomyEnabled must be a boolean");
@@ -1092,7 +1301,7 @@ public final class AssistantRuntime {
                 }
                 if (keys != null) for (int i = 0; i < keys.length(); i++) { String key = keys.optString(i); put(permissions, key, updates.optBoolean(key)); }
             }
-            for (String key : new String[]{"memoryReviewEnabled", "phoneContextEnabled", "semanticSearchEnabled"})
+            for (String key : new String[]{"memoryReviewEnabled", "phoneContextEnabled", "semanticSearchEnabled", "replyNotificationsEnabled"})
                 if (args.has(key) && !(args.opt(key) instanceof Boolean)) throw new IllegalArgumentException("Invalid " + key);
             // Validate the complete settings contract before any persisted mutation.
             store.withTransaction(db -> {
@@ -1100,14 +1309,18 @@ public final class AssistantRuntime {
             if (goals != null) store.putSetting("standingGoals", goals);
             if (seconds != null) store.putSetting("heartbeatSeconds", String.valueOf(seconds));
             if (wakeMode != null) store.putSetting("wakeMode", wakeMode);
+            if (backupMaxGiB != null) store.putSetting("backupMaxGiB", String.valueOf(backupMaxGiB));
+            if (args.has("requiredModel")) store.putSetting("requiredModel", desiredModel);
+            if (args.has("requiredEffort")) store.putSetting("requiredEffort", desiredEffort);
+            if (args.has("requiredSpeed")) store.putSetting("requiredSpeed", desiredSpeed);
             if (args.has("toolPermissions")) {
                 JSONObject current;
-                try { current = new JSONObject(store.getSetting("toolPermissions", "{}")); } catch (JSONException invalid) { throw new IllegalArgumentException("Invalid current tool permissions"); }
+                current = strictPermissions(store.getSetting("toolPermissions", "{}"));
                 JSONObject updates = args.optJSONObject("toolPermissions"); JSONArray keys = updates.names();
                 if (keys != null) for (int i = 0; i < keys.length(); i++) { String key = keys.optString(i); put(current, key, updates.optBoolean(key)); }
                 store.putSetting("toolPermissions", current.toString());
             }
-            for (String key : new String[]{"memoryReviewEnabled", "phoneContextEnabled", "semanticSearchEnabled"})
+            for (String key : new String[]{"memoryReviewEnabled", "phoneContextEnabled", "semanticSearchEnabled", "replyNotificationsEnabled"})
                 if (args.has(key)) store.putSetting(key, String.valueOf(args.optBoolean(key)));
             return null;
             });
@@ -1241,19 +1454,21 @@ public final class AssistantRuntime {
         JSONArray result = new JSONArray();
         if (attachments == null) return result;
         if (attachments.length() > 8) throw new IllegalArgumentException("Too many attachments");
-        JSONArray known;
-        try { known = files.listFiles(); }
-        catch (java.io.IOException failure) { throw new IllegalStateException("첨부 파일을 확인하지 못했어.", failure); }
         Set<String> seen = new HashSet<>();
         long total = 0;
         for (int i = 0; i < attachments.length(); i++) {
             Object raw = attachments.opt(i);
             String id = raw instanceof JSONObject ? ((JSONObject) raw).optString("id", ((JSONObject) raw).optString("fileId")) : raw instanceof String ? (String) raw : "";
-            JSONObject metadata = null;
-            for (int j = 0; j < known.length(); j++) if (id.equals(known.optJSONObject(j).optString("id"))) { metadata = known.optJSONObject(j); break; }
-            if (metadata == null || !seen.add(id)) throw new IllegalArgumentException("Unknown or duplicate attachment");
-            long size = metadata.optLong("size", -1); total += size;
-            if (size < 0 || size > 10L * 1024 * 1024 || total > 20L * 1024 * 1024) throw new IllegalArgumentException("Attachment is too large");
+            JSONObject metadata;
+            try { metadata = files.describeStoredFile(id); }
+            catch (IOException unavailable) { throw new IllegalArgumentException("Unknown attachment", unavailable); }
+            if (!seen.add(id)) throw new IllegalArgumentException("Unknown or duplicate attachment");
+            if (raw instanceof JSONObject && (!metadata.optString("sha256").equals(((JSONObject)raw).optString("sha256")) || metadata.optLong("size") != ((JSONObject)raw).optLong("size", -1)))
+                throw new IllegalArgumentException("Attachment identity changed");
+            long size = metadata.optLong("size", -1);
+            boolean image = metadata.optString("mime", metadata.optString("mimeType")).startsWith("image/");
+            if (!image) total += size;
+            if (size < 0 || size > (image ? 64L : 10L) * 1024 * 1024 || total > 20L * 1024 * 1024) throw new IllegalArgumentException("Attachment is too large");
             JSONObject safe = copy(metadata); safe.remove("path"); result.put(safe);
         }
         return result;
@@ -1273,9 +1488,19 @@ public final class AssistantRuntime {
 
     private boolean permissionAllowed(String name) {
         try {
-            JSONObject permissions = new JSONObject(store.getSetting("toolPermissions", "{}"));
+            JSONObject permissions = strictPermissions(store.getSetting("toolPermissions", "{}"));
             return !permissions.has(name) || Boolean.TRUE.equals(permissions.opt(name));
-        } catch (JSONException invalid) { return false; }
+        } catch (IllegalArgumentException invalid) { return false; }
+    }
+    private static JSONObject strictPermissions(String raw) {
+        if (raw == null || raw.length() > 500_000 || !boundedJsonDepth(raw, 64)) throw new IllegalArgumentException("Invalid permissions");
+        try {
+            JSONTokener parser = new JSONTokener(raw); Object parsed = parser.nextValue();
+            if (!(parsed instanceof JSONObject) || parser.nextClean() != 0) throw new IllegalArgumentException("Invalid permissions");
+            JSONObject result = (JSONObject)parsed; java.util.Iterator<String> keys = result.keys();
+            while (keys.hasNext()) if (!(result.opt(keys.next()) instanceof Boolean)) throw new IllegalArgumentException("Invalid permission flag");
+            return result;
+        } catch (JSONException invalid) { throw new IllegalArgumentException("Invalid permissions", invalid); }
     }
 
     private void changed() { AutonomyService.reevaluateActiveService(); Runnable current = listener; if (current != null) main.post(current); }
@@ -1286,6 +1511,32 @@ public final class AssistantRuntime {
     private static boolean mutatesPhone(String name) {
         for (String mutation : new String[]{"phone_contacts_create", "phone_calendar_create", "phone_contact_update", "phone_calendar_update", "phone_voice_record", "phone_camera_open", "phone_location_refresh", "phone_app_launch", "phone_volume_set", "phone_flashlight_set", "phone_ui_click", "phone_ui_global", "phone_ui_tap", "phone_ui_swipe", "phone_ui_type", "phone_url_open", "phone_brightness_set", "phone_dial_open", "phone_files_write"}) if (mutation.equals(name)) return true;
         return false;
+    }
+    private JSONObject archiveReportedGoal(String rootId, String actor, String progress) {
+        JSONObject summary = receipts.completionSummary(rootId, AssistantRuntime::mutatesNativeState, AssistantRuntime::confirmedNativeReceipt);
+        return goals.archiveReportedCompletion(rootId, actor, progress, summary);
+    }
+    private static boolean mutatesNativeState(String name) {
+return !matchesOne(name, "phone_device_info", "phone_apps_list", "phone_contacts_read", "phone_calendar_read", "phone_notifications_read", "phone_location_last", "phone_clipboard_read", "phone_ui_snapshot", "phone_files_list", "phone_files_read", "phone_activity_read", "phone_usage_read", "phone_usage_events", "phone_app_state", "phone_contact_get", "phone_bluetooth_bonded", "phone_network_state", "phone_call_state", "phone_media_list", "phone_context_search", "phone_context_read", "phone_location_refresh_read", "phone_voice_record_read", "files.list", "files.read", "memory.search", "memory.source.read", "memory.history", "memory.review", "memory.asset.analyze", "app.settings.get", "tasks.list", "tasks.report_completed", "actions.receipt.read");
+    }
+    private static boolean inspectionOnlyActions(JSONArray actions) {
+        for (int i = 0; i < actions.length(); i++) {
+            JSONObject action = actions.optJSONObject(i); if (action == null) return false;
+            String name = action.optString("name");
+            if ("phone_location_refresh".equals(name) || (name.startsWith("phone_") && !mutatesNativeState(name))) continue;
+            if (matchesOne(name, "files.list", "files.read", "memory.search", "memory.history", "memory.source.read", "memory.save", "memory.asset.analyze", "actions.receipt.read", "app.settings.get", "tasks.list", "tasks.update", "tasks.report_completed")) continue;
+            return false;
+        }
+        return true;
+    }
+    private static boolean confirmedNativeReceipt(JSONObject receipt) {
+        JSONObject result = receipt.optJSONObject("result");
+        if (result == null || !Boolean.TRUE.equals(result.opt("ok"))) return false;
+        if (Boolean.TRUE.equals(result.opt("completionConfirmed"))) return true;
+        String name = receipt.optString("name");
+        if ("files.write".equals(name)) return result.optJSONObject("file") != null && !result.optJSONObject("file").optString("id").isEmpty();
+        if ("memory.save".equals(name)) return result.optJSONObject("memory") != null && !result.optJSONObject("memory").optString("key").isEmpty();
+        return "app.settings.update".equals(name) || "tasks.update".equals(name);
     }
     private static String requiredString(JSONObject object, String key, int maximum) {
         Object raw = object.opt(key);
@@ -1320,8 +1571,8 @@ public final class AssistantRuntime {
     private static String normalize(String value) { return value.toLowerCase(Locale.ROOT).replace(" ", "").replace("_", "").replace("-", ""); }
     private static String bounded(String value, int max) { if (value == null) return ""; int end = Math.min(value.length(), Math.max(0, max)); if (end > 0 && end < value.length() && Character.isHighSurrogate(value.charAt(end - 1)) && Character.isLowSurrogate(value.charAt(end))) end--; return value.substring(0, end); }
     private static long parseLong(String value) { try { return Long.parseLong(value); } catch (NumberFormatException bad) { return 0; } }
-    private static JSONArray parseArray(String value) { try { return new JSONArray(value); } catch (JSONException invalid) { return new JSONArray(); } }
-    private static JSONObject parseObject(String value) { try { return new JSONObject(value); } catch (JSONException bad) { return new JSONObject(); } }
+    private static JSONArray parseArray(String value) { if (value == null || !boundedJsonDepth(value, 64)) return new JSONArray(); try { return new JSONArray(value); } catch (JSONException invalid) { return new JSONArray(); } }
+    private static JSONObject parseObject(String value) { if (value == null || !boundedJsonDepth(value, 64)) return new JSONObject(); try { return new JSONObject(value); } catch (JSONException bad) { return new JSONObject(); } }
     private static JSONObject copy(JSONObject value) { return parseObject(value.toString()); }
     private static String fingerprint(String text) {
         try {

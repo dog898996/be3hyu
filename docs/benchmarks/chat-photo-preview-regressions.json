@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "scope": "Host Robolectric Android 28 native graphics, real PNG and attached/clipped Android view trees; not a physical-device or long-duration result",
+  "result": {
+    "testsRun": 10,
+    "failed": 0,
+    "skipped": 0,
+    "junitSeconds": 8.197
+  },
+  "contract": {
+    "workerCount": 1,
+    "maxQueuedDecodes": 4,
+    "maxSelectedThumbnailBindings": 8,
+    "maxOwnedThumbnailAllocationBytes": 12582912,
+    "thumbnailLongestSide": 512,
+    "expandedOwnership": "transferred to callback caller"
+  },
+  "cases": [
+    "offscreenArchiveDoesNotDecodeAndScrollingReleasesOwnedBitmap",
+    "saturatedViewportRetriesWithEightBindingsAndFourQueuedJobs",
+    "detachedTreeWithRemainingParentCannotReceiveLateBitmap",
+    "replacementBindingDiscardsOldResultAndDisplaysOnlyNewOne",
+    "clearAndCloseCancelQueuedDecodesAndRecycleActiveLateResult",
+    "closeInterruptingStreamingDecoderSettlesWithoutWaitingForBitmapThatMayNotExist",
+    "allocationBudgetRejectsOversizedBitmapWithoutKeepingIt",
+    "clearRecyclesFinishedResultBeforeItsUiCallbackRuns",
+    "aggregateAllocationBudgetIsEnforcedAcrossVisibleBindings",
+    "expandedOnlyDeliversLatestAndClearInvalidatesLateCallback"
+  ],
+  "log": "/tmp/hoyoung-chat-previews/tests.log",
+  "productionAndTestSha256": {
+    "mobile/app/src/main/java/com/hoyoung/assistant/ui/ChatAttachmentPreviews.java": "37ad2bbf1d73eba3ef029b80e12ae5f9d35d6c8420410dcac5cded5429cb89cd",
+    "mobile/app/src/test/java/com/hoyoung/assistant/ui/ChatAttachmentPreviewsTest.java": "f1f15c6df18151f07f20d7df32e61b737f34ccd1a7eafd25ad16e642332677fc"
+  },
+  "decoderDependencySha256": {
+    "mobile/app/src/main/java/com/hoyoung/assistant/ui/AttachmentPreview.java": "21f40cce44736560acdd085c471fd9bb29a0258189b8002533669b74e1e98bfb",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/InternalFiles.java": "ce734fdb6a8b3d3e5d1a10abfa29549da13f7213bf1c0946972163f1f8b2faa2"
+  },
+  "streamingCloseRegression": "Old fixture restored shutdown interrupt before reading then wrongly awaited a decoded bitmap; new tests separately verify a real PNG ready before late handoff, and a streaming decoder which may abort without a bitmap. Production helper and timeout were unchanged."
+}

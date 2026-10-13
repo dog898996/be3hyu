@@ -22,6 +22,7 @@ import java.util.Map;
 
 /** Exact large originals are independent of summaries and the disposable search index. */
 final class OriginalTextFiles {
+    static final long MAX_BYTES=40L*1024*1024;
     static final int MAX_ORIGINAL_CHARS = 10_000_000;
     private final File root;
     private final Map<String, String> verified = new HashMap<>();
@@ -69,7 +70,7 @@ final class OriginalTextFiles {
 
     synchronized void verify(String id,String expectedHash,long expectedBytes) throws IOException {
         File file=file(id);
-        if(!file.isFile()||file.length()!=expectedBytes||file.length()>InternalFiles.MAX_FILE_BYTES)throw new IOException("Original bytes are missing or changed");
+        if(!file.isFile()||file.length()!=expectedBytes||file.length()>MAX_BYTES)throw new IOException("Original bytes are missing or changed");
         String fingerprint=file.length()+":"+file.lastModified()+":"+expectedHash;
         if(fingerprint.equals(verified.get(id)))return;
         MessageDigest digest=digest();
@@ -113,7 +114,7 @@ final class OriginalTextFiles {
 
     String readEntire(String id) throws IOException {
         File file = file(id);
-        if (file.length() > InternalFiles.MAX_FILE_BYTES) throw new IOException("Original file exceeds its storage bound");
+        if (file.length() > MAX_BYTES) throw new IOException("Original file exceeds its storage bound");
         StringBuilder result = new StringBuilder();
         try (InputStreamReader reader = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8)) {
             char[] buffer = new char[16_384]; int read;

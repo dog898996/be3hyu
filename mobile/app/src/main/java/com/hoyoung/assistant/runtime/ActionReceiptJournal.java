@@ -11,6 +11,8 @@ import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.function.Predicate;
+import java.util.function.BiConsumer;
 
 /** Durable action intent and a pending-only index; never loads the archived receipt history into an array. */
 public final class ActionReceiptJournal {
@@ -100,6 +102,55 @@ public final class ActionReceiptJournal {
             }
         }
     }
+
+    /** Actual stored native receipts only. A provider's overall goal claim is not verified here. */
+    public JSONObject completionSummary(String rootId,Predicate<String> mutatingTool,Predicate<JSONObject> confirmedNativeReceipt) {
+        validateRoot(rootId);
+        if(mutatingTool==null||confirmedNativeReceipt==null)throw new IllegalArgumentException("Trusted native receipt classifiers required");
+        return store.withTransaction(db->{
+            long[] counts=new long[12];MessageDigest snapshot=newDigest();snapshot.update(("native-receipts-v1:"+rootId).getBytes(StandardCharsets.UTF_8));
+            forRoot(db,rootId,(key,raw)->{
+                counts[0]++;hashReceipt(snapshot,key,raw);
+                try{
+                    JSONObject receipt=strict(raw);String name=receipt.optString("name");
+                    if(name.isEmpty())throw new IllegalArgumentException("Native receipt name missing");
+                    boolean mutation=mutatingTool.test(name);
+                    if(mutation)counts[4]++;else counts[8]++;
+                    if(!"completed".equals(receipt.optString("status"))){counts[3]++;return;}
+                    JSONObject result=receipt.optJSONObject("result");
+                    if(result==null||!(result.opt("ok") instanceof Boolean)){counts[10]++;return;}
+                    if(Boolean.TRUE.equals(result.opt("ok"))){
+                        counts[1]++;
+                        if(mutation){if(confirmedNativeReceipt.test(receipt))counts[5]++;else counts[6]++;}
+                    }else{counts[2]++;if(mutation)counts[7]++;else counts[9]++;}
+                }catch(RuntimeException corruptOrClassifierFailed){counts[10]++;}
+            });
+            boolean ready=counts[3]==0&&counts[6]==0&&counts[7]==0&&counts[10]==0;
+            return object("ready",ready,"rootRequestId",rootId,"receiptCount",counts[0],"successfulCount",counts[1],"failedCount",counts[2],
+                    "unfinishedCount",counts[3],"mutationCount",counts[4],"confirmedMutationCount",counts[5],"unconfirmedMutationCount",counts[6],
+                    "failedMutationCount",counts[7],"readOnlyCount",counts[8],"failedReadOnlyCount",counts[9],"corruptCount",counts[10],
+                    "snapshotHash",hex(snapshot.digest()),"proofScope","native_receipts_only","overallOutcomeVerified",false,"automaticReplay",false);
+        });
+    }
+
+    /** Recheck inside a goal closure transaction so a changed native receipt cannot use an old summary. */
+    public String snapshotHash(String rootId) {
+        validateRoot(rootId);
+        return store.withTransaction(db->{MessageDigest hash=newDigest();hash.update(("native-receipts-v1:"+rootId).getBytes(StandardCharsets.UTF_8));forRoot(db,rootId,(key,raw)->hashReceipt(hash,key,raw));return hex(hash.digest());});
+    }
+    private void forRoot(SQLiteDatabase db,String rootId,BiConsumer<String,String> visitor) {
+        String prefix=RECEIPTS+rootId+":",end=RECEIPTS+rootId+";",after="";
+        while(true){List<String> page=keys(prefix,end,after,PAGE_SIZE);if(page.isEmpty())return;
+            for(String key:page){after=key;String actionId=key.substring(prefix.length());
+                // A colon in another root's suffix is not an action id belonging to this root.
+                if(actionId.matches("[A-Za-z0-9_.-]{1,100}"))visitor.accept(key,value(db,key));
+            }
+        }
+    }
+    private static void validateRoot(String rootId){if(rootId==null||!rootId.matches("[A-Za-z0-9_.:-]{1,450}"))throw new IllegalArgumentException("Invalid root request id");}
+    private static MessageDigest newDigest(){try{return MessageDigest.getInstance("SHA-256");}catch(Exception unavailable){throw new IllegalStateException(unavailable);}}
+    private static void hashReceipt(MessageDigest hash,String key,String raw){hash.update((byte)0);hash.update(key.getBytes(StandardCharsets.UTF_8));hash.update((byte)0);hash.update(digest(raw==null?"<missing>":raw).getBytes(StandardCharsets.UTF_8));}
+    private static String hex(byte[] value){StringBuilder result=new StringBuilder();for(byte item:value)result.append(String.format(Locale.ROOT,"%02x",item&255));return result.toString();}
 
     /** Explicit owner reconciliation for one root. A closure never replays an action or verifies its external outcome. */
     public JSONObject resolveFor(String rootRequestId, boolean abandoned) {

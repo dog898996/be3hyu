@@ -310,6 +310,146 @@ public class MemoryReviewCoordinatorTest {
         assertFalse(coordinator.hasPending());assertTrue(coordinator.acknowledge(expected,null,false,0));
         JSONArray covered=coordinator.assetCoverage(id).getJSONArray("assets");assertNotEquals(covered.getJSONObject(0).getString("analysisReceiptKey"),covered.getJSONObject(1).getString("analysisReceiptKey"));
     }
+    @Test public void deliveredRepresentationKeepsBothHashesAndNeverClaimsTheWholeOriginalWasInspected() throws Exception {
+        JSONObject fixture=assetOwner(1),asset=fixture.getJSONArray("assets").getJSONObject(0);long id=fixture.getLong("messageId");
+        JSONObject text=coordinator.prepareBatch();assertTrue(coordinator.acknowledge(text,ack(text,true),true,0));JSONObject batch=coordinator.prepareBatch();
+        String analysis="줄인 전달 이미지는 고양이처럼 보인다. 원본의 작은 글씨까지 확인한 것은 아니다.";
+        JSONObject receipt=representationReceipt(id,asset,"derived-provider",analysis,false);
+        JSONObject result=coordinator.acceptAssetAnalysis(id,asset.getString("id"),asset.getString("sha256"),analysis,receipt);
+        assertTrue(result.getBoolean("ok"));assertEquals("delivered_representation",result.getString("analysisScope"));assertFalse(result.getBoolean("analysisVerified"));
+        assertNotEquals(asset.getString("sha256"),result.getString("providerRepresentationSha256"));
+        JSONObject covered=coordinator.assetCoverage(id).getJSONArray("assets").getJSONObject(0),metadata=store.getMemory(result.getString("memoryKey")).getJSONObject("metadata");
+        for(JSONObject value:new JSONObject[]{result,covered,metadata,metadata.getJSONArray("assetRefs").getJSONObject(0)}){
+            assertEquals(receipt.getString("providerRepresentationSha256"),value.getString("providerRepresentationSha256"));
+            assertEquals(receipt.getString("representationAssetId"),value.getString("representationAssetId"));
+            for(String key:new String[]{"originalBytesIncludedInWire","originalBytesFullyUploaded","originalContentFullyInspected","serverBytesIndependentlyVerified"}) assertEquals(Boolean.FALSE,value.get(key));
+        }
+        assertEquals(asset.getString("sha256"),metadata.getJSONArray("assetRefs").getJSONObject(0).getString("sha256"));
+        assertEquals(analysis,store.readOriginalText(result.getLong("analysisSourceMessageId"),0,1000).getString("text"));
+        assertTrue(coordinator.acknowledge(batch,null,false,0));assertFalse(coordinator.hasPending());assertEquals(id,store.getWatermark(MemoryReviewCoordinator.WATERMARK));
+        // Runtime observes the response while accepted, then persists completed after processing.
+        // A settled snapshot must represent that final state, not an in-flight accepted request.
+        JSONObject provider=providerRequest("derived-provider");String responseHash=provider.getString("raw_result_hash");
+        store.markRequest(provider.getLong("id"),"completed",provider.getString("result"));
+        assertEquals(responseHash,providerRequest("derived-provider").getString("raw_result_hash"));
+        JSONObject backup=store.exportSnapshot();store.close();store=new HoyoungStore(context);coordinator=new MemoryReviewCoordinator(store);store.importSnapshot(backup);
+        assertEquals("completed",providerRequest("derived-provider").getString("status"));
+        assertEquals(responseHash,providerRequest("derived-provider").getString("raw_result_hash"));
+        assertFalse(coordinator.hasPending());JSONObject restored=coordinator.assetCoverage(id).getJSONArray("assets").getJSONObject(0);
+        assertEquals("delivered_representation",restored.getString("analysisScope"));assertEquals(asset.getString("sha256"),restored.getString("sha256"));
+        assertEquals(receipt.getString("providerRepresentationSha256"),restored.getString("providerRepresentationSha256"));
+        for(String key:new String[]{"originalBytesIncludedInWire","originalBytesFullyUploaded","originalContentFullyInspected","serverBytesIndependentlyVerified"})assertEquals(Boolean.FALSE,restored.get(key));
+        assertTrue(coordinator.markAssetNeedsReanalysis(id,asset.getString("id"),"원본의 작은 글씨를 재확인해야 함"));assertTrue(coordinator.hasPending());
+    }
+    @Test public void restoredInflightRepresentationReceiptBecomesPendingWithoutReplayingOrDeletingAnalysis() throws Exception {
+        JSONObject fixture=assetOwner(1),asset=fixture.getJSONArray("assets").getJSONObject(0);long id=fixture.getLong("messageId");
+        JSONObject text=coordinator.prepareBatch();assertTrue(coordinator.acknowledge(text,ack(text,true),true,0));JSONObject batch=coordinator.prepareBatch();
+        String analysis="축소된 전달 이미지의 관찰이며 원본 전체 확인은 아니다.";
+        JSONObject receipt=representationReceipt(id,asset,"inflight-derived-provider",analysis,false);
+        JSONObject result=coordinator.acceptAssetAnalysis(id,asset.getString("id"),asset.getString("sha256"),analysis,receipt);assertTrue(result.getBoolean("ok"));
+        assertTrue(coordinator.acknowledge(batch,null,false,0));assertFalse(coordinator.hasPending());
+        long analysisId=result.getLong("analysisSourceMessageId");JSONObject original=store.getMessage(analysisId);
+        String recordHash=original.getString("content_hash"),bodyHash=original.getString("raw_content_hash"),memoryKey=result.getString("memoryKey");
+        JSONObject provider=providerRequest("inflight-derived-provider");assertEquals("accepted",provider.getString("status"));String responseHash=provider.getString("raw_result_hash");
+        JSONObject backup=store.exportSnapshot();store.close();store=new HoyoungStore(context);coordinator=new MemoryReviewCoordinator(store);store.importSnapshot(backup);
+        assertEquals("uncertain",providerRequest("inflight-derived-provider").getString("status"));
+        assertEquals(responseHash,providerRequest("inflight-derived-provider").getString("raw_result_hash"));
+        assertTrue(coordinator.hasPending());assertEquals(id,store.getWatermark(MemoryReviewCoordinator.WATERMARK));
+        assertEquals(1,coordinator.status().getLong("assetsPending"));JSONObject coverage=coordinator.assetCoverage(id);
+        assertEquals("provider_analysis_proof_missing",coverage.getString("sourceIntegrity"));assertEquals("raw_saved",coverage.getJSONArray("assets").getJSONObject(0).getString("coverageStage"));
+        assertEquals(analysis,store.readOriginalText(analysisId,0,1000).getString("text"));assertEquals(recordHash,store.getMessage(analysisId).getString("content_hash"));
+        assertEquals(bodyHash,store.getMessage(analysisId).getString("raw_content_hash"));JSONObject preserved=store.getMemory(memoryKey);assertNotNull(preserved);
+        assertEquals("observation",preserved.getString("kind"));assertEquals(receipt.getString("providerRepresentationSha256"),preserved.getJSONObject("metadata").getString("providerRepresentationSha256"));
+        assertEquals(Boolean.FALSE,preserved.getJSONObject("metadata").get("originalContentFullyInspected"));
+        JSONObject archivedCoverage=store.getMessage(coverage.getLong("previousCoverageSourceMessageId"));assertEquals("system",archivedCoverage.getString("role"));
+        assertTrue(archivedCoverage.getString("text").contains("provider_analyzed"));assertTrue(archivedCoverage.getString("text").contains(receipt.getString("providerRepresentationSha256")));
+        JSONArray requests=store.listRequests(100);for(int i=0;i<requests.length();i++)assertNotEquals("queued",requests.getJSONObject(i).getString("status"));
+        assertTrue(store.events(100).toString().contains("backup_restore_quarantine"));
+    }
+    @Test public void representationReceiptRequiresNativeWireIdentityAndTypedFalseFullOriginalClaims() throws Exception {
+        JSONObject fixture=assetOwner(1),asset=fixture.getJSONArray("assets").getJSONObject(0);long id=fixture.getLong("messageId");String analysis="전달 이미지 관찰";
+        JSONObject valid=representationReceipt(id,asset,"derived-provider",analysis,false);
+        for(JSONObject invalid:new JSONObject[]{new JSONObject(valid.toString()).put("providerRepresentationSha256","f".repeat(64)),
+                new JSONObject(valid.toString()).put("representationAssetId",asset.getString("id")),
+                new JSONObject(valid.toString()).put("analysisScope","original_bytes"),
+                new JSONObject(valid.toString()).put("originalBytesIncludedInWire",true),
+                new JSONObject(valid.toString()).put("originalContentFullyInspected",true),
+                new JSONObject(valid.toString()).put("originalBytesFullyUploaded","false"),
+                new JSONObject(valid.toString()).put("serverBytesIndependentlyVerified",true)}){
+            assertFalse(coordinator.acceptAssetAnalysis(id,asset.getString("id"),asset.getString("sha256"),analysis,invalid).getBoolean("ok"));
+        }
+        JSONObject missing=new JSONObject(valid.toString());missing.remove("providerRepresentationSha256");
+        assertFalse(coordinator.acceptAssetAnalysis(id,asset.getString("id"),asset.getString("sha256"),analysis,missing).getBoolean("ok"));
+        assertEquals(0,store.memoryCount());assertEquals(1,coordinator.status().getLong("assetsPending"));
+        assertTrue(coordinator.acceptAssetAnalysis(id,asset.getString("id"),asset.getString("sha256"),analysis,valid).getBoolean("ok"));
+    }
+    @Test public void preparedRepresentationWithoutObservedUploadAndBareAssetAcknowledgementRemainPending() throws Exception {
+        JSONObject fixture=assetOwner(1),asset=fixture.getJSONArray("assets").getJSONObject(0);long id=fixture.getLong("messageId");String analysis="미관찰 전송의 주장";
+        JSONObject text=coordinator.prepareBatch();assertTrue(coordinator.acknowledge(text,ack(text,true),true,0));JSONObject batch=coordinator.prepareBatch();
+        JSONObject receipt=representationReceipt(id,asset,"derived-provider",analysis,false);
+        String observed=store.getSetting("uploadedAssetsObserved:derived-provider","");store.putSetting("uploadedAssetsObserved:derived-provider","[]");
+        assertFalse(coordinator.acceptAssetAnalysis(id,asset.getString("id"),asset.getString("sha256"),analysis,receipt).getBoolean("ok"));
+        assertFalse(coordinator.acknowledge(batch,ack(batch,true),true,0));assertEquals(0,store.memoryCount());assertEquals(1,coordinator.status().getLong("assetsPending"));
+        store.putSetting("uploadedAssetsObserved:derived-provider",observed);
+        JSONArray wrongPlan=new JSONArray(store.getSetting("workAttachmentRepresentations:derived-provider","[]"));wrongPlan.getJSONObject(0).put("sourceMessageId",id+999);
+        store.putSetting("workAttachmentRepresentations:derived-provider",wrongPlan.toString());
+        assertFalse(coordinator.acceptAssetAnalysis(id,asset.getString("id"),asset.getString("sha256"),analysis,receipt).getBoolean("ok"));assertEquals(id,store.getWatermark(MemoryReviewCoordinator.WATERMARK));
+    }
+    @Test public void corruptRepresentationProofAfterRestartDoesNotKeepTerminalCoverage() throws Exception {
+        JSONObject fixture=assetOwner(1),asset=fixture.getJSONArray("assets").getJSONObject(0);long id=fixture.getLong("messageId");String analysis="관찰 응답";
+        JSONObject text=coordinator.prepareBatch();assertTrue(coordinator.acknowledge(text,ack(text,true),true,0));
+        JSONObject receipt=representationReceipt(id,asset,"derived-provider",analysis,false);
+        assertTrue(coordinator.acceptAssetAnalysis(id,asset.getString("id"),asset.getString("sha256"),analysis,receipt).getBoolean("ok"));assertFalse(coordinator.hasPending());
+        store.putSetting("workAttachmentRepresentations:derived-provider","[{broken native plan");store.close();store=new HoyoungStore(context);coordinator=new MemoryReviewCoordinator(store);
+        assertTrue(coordinator.hasPending());assertEquals(1,coordinator.status().getLong("assetsPending"));assertEquals("provider_analysis_proof_missing",coordinator.assetCoverage(id).getString("sourceIntegrity"));
+        assertEquals("raw_saved",coordinator.assetCoverage(id).getJSONArray("assets").getJSONObject(0).getString("coverageStage"));assertEquals(1,store.memoryCount());
+    }
+    @Test public void originalBytesInNativeWireStillDoNotProveServerBytesOrCompleteInspection() throws Exception {
+        JSONObject fixture=assetOwner(1),asset=fixture.getJSONArray("assets").getJSONObject(0);long id=fixture.getLong("messageId");String analysis="원본 전달 관찰";
+        JSONObject receipt=representationReceipt(id,asset,"original-provider",analysis,true);
+        JSONObject result=coordinator.acceptAssetAnalysis(id,asset.getString("id"),asset.getString("sha256"),analysis,receipt);
+        assertTrue(result.getBoolean("ok"));assertEquals("original_bytes",result.getString("analysisScope"));assertTrue(result.getBoolean("originalBytesIncludedInWire"));
+        assertEquals(asset.getString("sha256"),result.getString("providerRepresentationSha256"));
+        for(String key:new String[]{"originalBytesFullyUploaded","originalContentFullyInspected","serverBytesIndependentlyVerified"})assertEquals(Boolean.FALSE,result.get(key));
+    }
+    @Test public void storedAnalysisReceiptCannotSubstituteAnotherWellFormedProviderResponseHash() throws Exception {
+        JSONObject fixture=assetOwner(1),asset=fixture.getJSONArray("assets").getJSONObject(0);long id=fixture.getLong("messageId");String analysis="원 응답에 연결된 관찰";
+        JSONObject receipt=representationReceipt(id,asset,"derived-provider",analysis,false);assertTrue(coordinator.acceptAssetAnalysis(id,asset.getString("id"),asset.getString("sha256"),analysis,receipt).getBoolean("ok"));
+        JSONObject covered=coordinator.assetCoverage(id).getJSONArray("assets").getJSONObject(0);String key=covered.getString("analysisReceiptKey");
+        store.putSetting(key,new JSONObject(store.getSetting(key,"")).put("providerResponseHash",hash("some unrelated response")).toString());
+        store.close();store=new HoyoungStore(context);coordinator=new MemoryReviewCoordinator(store);
+        assertEquals("provider_analysis_proof_missing",coordinator.assetCoverage(id).getString("sourceIntegrity"));assertEquals(1,coordinator.status().getLong("assetsPending"));assertEquals(1,store.memoryCount());
+    }
+    @Test public void nativeOriginalCoverageMustKeepItsIncludedBytesFlagTypedAndMatchingTheReceipt() throws Exception {
+        JSONObject fixture=assetOwner(1),asset=fixture.getJSONArray("assets").getJSONObject(0);long id=fixture.getLong("messageId");String analysis="원본 바이트 전달 관찰";
+        JSONObject receipt=representationReceipt(id,asset,"original-provider",analysis,true);assertTrue(coordinator.acceptAssetAnalysis(id,asset.getString("id"),asset.getString("sha256"),analysis,receipt).getBoolean("ok"));
+        JSONObject good=coordinator.assetCoverage(id);
+        for(Object invalid:new Object[]{Boolean.FALSE,"true"}){
+            JSONObject corrupted=new JSONObject(good.toString());corrupted.getJSONArray("assets").getJSONObject(0).put("originalBytesIncludedInWire",invalid);store.putSetting("assetCoverage:"+id,corrupted.toString());
+            assertEquals("raw_saved",coordinator.assetCoverage(id).getString("stage"));assertEquals(1,coordinator.status().getLong("assetsPending"));
+        }
+        for(String omitted:new String[]{"analysisScope","providerRepresentationSha256","representationAssetId","originalBytesIncludedInWire","originalBytesFullyUploaded","originalContentFullyInspected","serverBytesIndependentlyVerified"}){
+            JSONObject corrupted=new JSONObject(good.toString());corrupted.getJSONArray("assets").getJSONObject(0).remove(omitted);store.putSetting("assetCoverage:"+id,corrupted.toString());
+            assertEquals("raw_saved",coordinator.assetCoverage(id).getString("stage"));assertEquals(1,coordinator.status().getLong("assetsPending"));
+        }
+    }
+    @Test public void losingModernOriginalDeliveryProofCannotDowngradeItToLegacyCoverage() throws Exception {
+        JSONObject fixture=assetOwner(1),asset=fixture.getJSONArray("assets").getJSONObject(0);long id=fixture.getLong("messageId");String analysis="네이티브 원본 관찰";
+        JSONObject receipt=representationReceipt(id,asset,"original-provider",analysis,true);assertTrue(coordinator.acceptAssetAnalysis(id,asset.getString("id"),asset.getString("sha256"),analysis,receipt).getBoolean("ok"));
+        store.putSetting("workAttachmentRepresentations:original-provider","");store.putSetting("uploadedAssetsObserved:original-provider","");
+        store.close();store=new HoyoungStore(context);coordinator=new MemoryReviewCoordinator(store);assertEquals("raw_saved",coordinator.assetCoverage(id).getString("stage"));assertEquals(1,coordinator.status().getLong("assetsPending"));
+        assertFalse(coordinator.acceptAssetAnalysis(id,asset.getString("id"),asset.getString("sha256"),analysis,receipt).getBoolean("ok"));assertEquals(1,store.memoryCount());
+    }
+    private JSONObject representationReceipt(long sourceId,JSONObject asset,String requestId,String analysis,boolean original)throws Exception {
+        JSONObject receipt=providerReceipt(sourceId,asset,requestId,analysis);String wireSha=original?asset.getString("sha256"):hash("resized representation for "+asset.getString("id"));
+        JSONObject plan=new JSONObject(asset.toString()).put("sourceMessageId",sourceId).put("wireName",original?"original.txt":"resized.jpg").put("wireMime",original?"text/plain":"image/jpeg")
+                .put("wireBytes",original?asset.getLong("size"):512).put("providerRepresentationSha256",wireSha).put("representationAssetId",original?asset.getString("id"):"derived-sha256:"+wireSha)
+                .put("analysisScope",original?"original_bytes":"delivered_representation").put("originalBytesIncludedInWire",original).put("originalBytesFullyUploaded",false)
+                .put("originalContentFullyInspected",false).put("serverBytesIndependentlyVerified",false);
+        store.putSetting("workAttachmentRepresentations:"+requestId,new JSONArray().put(plan).toString());store.putSetting("uploadedAssetsObserved:"+requestId,new JSONArray().put(plan).toString());
+        for(String key:new String[]{"analysisScope","providerRepresentationSha256","representationAssetId","originalBytesIncludedInWire","originalBytesFullyUploaded","originalContentFullyInspected","serverBytesIndependentlyVerified"})receipt.put(key,plan.get(key));
+        return receipt;
+    }
     private JSONObject assetOwner(int count)throws Exception {
         InternalFiles files=new InternalFiles(context);JSONArray ids=new JSONArray();
         for(int i=0;i<count;i++){String id="asset-fixture-"+i+".txt";files.writeFile(id,"테스트 첨부 원문 "+i);ids.put(id);}
@@ -324,6 +464,10 @@ public class MemoryReviewCoordinatorTest {
         String raw=new JSONObject().put("protocol","hoyoung.v1").put("requestId",requestId).put("assetAnalysis",analysis).toString();store.markRequest(request.getLong("id"),"accepted",raw);
         return new JSONObject().put("providerRequestId",requestId).put("sourceMessageId",sourceId).put("assetId",asset.getString("id")).put("sha256",asset.getString("sha256"))
                 .put("uploadObserved",true).put("responseObserved",true).put("analysisHash",hash(analysis)).put("providerResponseHash",store.getRequest(request.getLong("id")).getString("raw_result_hash"));
+    }
+    private JSONObject providerRequest(String requestId)throws Exception {
+        JSONArray requests=store.listRequests(100);for(int i=0;i<requests.length();i++)if(requestId.equals(requests.getJSONObject(i).getString("external_id")))return requests.getJSONObject(i);
+        throw new AssertionError("Missing fixture provider request "+requestId);
     }
     private static String hash(String text)throws Exception {
         StringBuilder result=new StringBuilder();for(byte b:MessageDigest.getInstance("SHA-256").digest(text.getBytes(StandardCharsets.UTF_8)))result.append(String.format(java.util.Locale.ROOT,"%02x",b&255));return result.toString();

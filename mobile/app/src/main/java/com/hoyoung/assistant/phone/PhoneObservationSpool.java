@@ -2,6 +2,7 @@ package com.hoyoung.assistant.phone;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import com.hoyoung.assistant.store.BackupPolicy;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -186,16 +187,19 @@ final class PhoneObservationSpool {
         return output;
     }
     /** Capture immutable files before opening the corresponding SQLite backup snapshot. */
-    void captureSnapshot(File destination) throws IOException { captureSnapshot(destination, null); }
+    void captureSnapshot(File destination) throws IOException { captureSnapshot(destination, null,null); }
     void captureSnapshot(File destination, Runnable beforeRawCapture) throws IOException {
+        captureSnapshot(destination,beforeRawCapture,null);
+    }
+    void captureSnapshot(File destination,Runnable beforeRawCapture,BackupPolicy.SpaceMonitor monitor)throws IOException {
         synchronized (this) { activeSnapshots++; }
         try {
             directory(destination);
             String[] existing = destination.list(); if (existing == null || existing.length != 0) throw new IOException("Private journal snapshot destination must be empty");
-            for (File parent : new File[]{pending, state, quarantine}) captureDirectory(parent, new File(destination, parent.getName()));
+            for (File parent : new File[]{pending, state, quarantine}) captureDirectory(parent, new File(destination, parent.getName()),monitor);
             File copiedArchive = new File(destination, "archive"), copiedSegments = new File(copiedArchive, "segments"); directory(copiedArchive);
             if (segments.exists()) {
-                captureDirectory(segments, copiedSegments);
+                captureDirectory(segments, copiedSegments,monitor);
                 File[] copied = copiedSegments.listFiles(file -> file.getName().endsWith(".hja")); if (copied == null) throw new IOException("Cannot enumerate copied archive segments");
                 for (File segment : copied) PhoneArchiveSegments.verify(segment, true, null);
             }
@@ -210,13 +214,13 @@ final class PhoneObservationSpool {
                     try (DirectoryStream<java.nio.file.Path> files = Files.newDirectoryStream(path)) {
                         for (java.nio.file.Path raw : files) {
                             PhoneArchiveSegments.Source source = new PhoneArchiveSegments.Source(bucket.getName() + "/" + raw.getFileName(), raw.toFile()); long length = source.framedLength();
-                            if (!batch.isEmpty() && (size + length > segmentLimit || batch.size() >= PhoneArchiveSegments.DEFAULT_RECORDS)) { PhoneArchiveSegments.write(copiedSegments, batch, segmentLimit); batch.clear(); size = 28; }
+                            if (!batch.isEmpty() && (size + length > segmentLimit || batch.size() >= PhoneArchiveSegments.DEFAULT_RECORDS)) { PhoneArchiveSegments.write(copiedSegments, batch, segmentLimit,monitor); batch.clear(); size = 28; }
                             batch.add(source); size += length;
                         }
                     }
                 }
             }
-            if (!batch.isEmpty()) PhoneArchiveSegments.write(copiedSegments, batch, segmentLimit);
+            if (!batch.isEmpty()) PhoneArchiveSegments.write(copiedSegments, batch, segmentLimit,monitor);
         } catch (IOException validationFailure) {
             requireArchiveAudit(); throw validationFailure;
         } finally { synchronized (this) { activeSnapshots--; if (activeSnapshots == 0) archiveRecoveryRequired = true; } }
@@ -244,13 +248,14 @@ final class PhoneObservationSpool {
             }
         }
     }
-    private void captureDirectory(File parent, File copiedParent) throws IOException {
+    private void captureDirectory(File parent, File copiedParent,BackupPolicy.SpaceMonitor monitor) throws IOException {
             File[] files; synchronized (this) { files = parent.listFiles(file -> !file.getName().startsWith(".partial-")); }
             if (files == null) throw new IOException("Cannot enumerate private journal snapshot"); directory(copiedParent);
             for (File source : files) {
                 File target = new File(copiedParent, source.getName()); FileInputStream fallback = null;
                 if (Files.isSymbolicLink(source.toPath()) || !source.getCanonicalPath().startsWith(root.getPath() + File.separator)) throw new IOException("Private journal snapshot contains an unsafe source path");
-                if (source.isDirectory()) { captureDirectory(source, target); continue; }
+                if (source.isDirectory()) { captureDirectory(source, target,monitor); continue; }
+                if(monitor!=null)monitor.checkpoint("export_snapshot","device-journal/"+root.toPath().relativize(source.toPath()).toString().replace(File.separatorChar,'/'),0);
                 synchronized (this) {
                     if (!source.exists()) continue; // Ingestion already committed it; later SQL snapshot includes it.
                     try { Files.createLink(target.toPath(), source.toPath()); continue; }
@@ -261,7 +266,8 @@ final class PhoneObservationSpool {
                 }
                 // Open descriptor keeps the immutable inode alive if ingestion removes its name.
                 try (FileInputStream input = fallback; FileOutputStream output = new FileOutputStream(target)) {
-                    byte[] buffer = new byte[8192]; int count; while ((count = input.read(buffer)) != -1) output.write(buffer, 0, count); output.getFD().sync();
+                    java.io.OutputStream guarded=PhoneArchiveSegments.monitored(output,monitor);
+                    byte[] buffer = new byte[8192]; int count; while ((count = input.read(buffer)) != -1) guarded.write(buffer, 0, count); guarded.flush();output.getFD().sync();
                 }
             }
     }

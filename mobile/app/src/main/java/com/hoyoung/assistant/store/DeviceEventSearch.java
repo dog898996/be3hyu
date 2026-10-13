@@ -4,6 +4,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import org.json.JSONObject;
 import org.json.JSONException;
+import java.io.IOException;
 
 /** Disposable full-history index. Bootstrap progress never removes the historical query lane. */
 final class DeviceEventSearch {
@@ -23,8 +24,24 @@ final class DeviceEventSearch {
         }
     }
     static void rebuild(SQLiteDatabase db) {
+        try{rebuild(db,null);}catch(IOException failure){throw new IllegalStateException("Device search rebuild failed",failure);}
+    }
+    static void rebuild(SQLiteDatabase db,BackupPolicy.Session space)throws IOException {
         db.delete("device_event_search", null, null);
-        db.execSQL("INSERT INTO device_event_search(docid,payload,category,source) SELECT id,payload,category,source FROM device_events");
+        if(space==null)db.execSQL("INSERT INTO device_event_search(docid,payload,category,source) SELECT id,payload,category,source FROM device_events");
+        else{
+            long after=0;
+            while(true){
+                long upper;
+                try(Cursor row=db.rawQuery("SELECT MAX(id) FROM (SELECT id FROM device_events WHERE id>? ORDER BY id LIMIT 512)",new String[]{String.valueOf(after)})){
+                    upper=row.moveToFirst()&&!row.isNull(0)?row.getLong(0):0;
+                }
+                if(upper<=after)break;
+                space.checkpoint("restore_index_rebuild","device_event_search",64L*1024);
+                db.execSQL("INSERT INTO device_event_search(docid,payload,category,source) SELECT id,payload,category,source FROM device_events WHERE id>? AND id<=?",new Object[]{after,upper});
+                after=upper;
+            }
+        }
         db.execSQL("UPDATE device_search_state SET indexed_through=(SELECT COALESCE(MAX(id),0) FROM device_events),target_id=(SELECT COALESCE(MAX(id),0) FROM device_events),complete=1 WHERE singleton=1");
     }
     static JSONObject batch(SQLiteDatabase db, int limit) {

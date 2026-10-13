@@ -38,7 +38,8 @@ import java.util.zip.ZipOutputStream;
 
 /** Working files belong in private filesDir/projects, not external storage or cacheDir. */
 public final class InternalFiles {
-    public static final long MAX_FILE_BYTES = 64L * 1024 * 1024;
+    public static final long MAX_FILE_BYTES = 512L * 1024 * 1024;
+    public static final long MAX_ATTACHMENT_BYTES = AttachmentOriginals.MAX_BYTES;
     public static final long MAX_BACKUP_BYTES = StreamingBackup.MAX_BYTES;
     private static final long MAX_SNAPSHOT_BYTES = 16L * 1024 * 1024;
     private static final int MAX_BACKUP_ENTRIES = StreamingBackup.MAX_ENTRIES;
@@ -51,10 +52,37 @@ public final class InternalFiles {
     private volatile BackupParticipant backupParticipant;
     public interface BackupParticipant {
         void capture(File destination) throws IOException;
+        default void capture(File destination,BackupPolicy.SpaceMonitor monitor) throws IOException { capture(destination); }
         /** Validate the staged namespace before any live file or database replacement. */
         default void validate(File stagedJournal) throws IOException { }
     }
     public void setBackupParticipant(BackupParticipant participant) { backupParticipant = participant; }
+    public boolean restoreRecoveryPending(){return new File(privateRoot,RESTORE_JOURNAL).exists();}
+
+    /** Run on an IO worker: filesystem sizes are a conservative estimate, not remote-provider capacity. */
+    public JSONObject backupPreflight(HoyoungStore store)throws IOException {
+        return backupPreflight(store,BackupPolicy.fromStore(store));
+    }
+    public JSONObject backupPreflight(HoyoungStore store,BackupPolicy policy)throws IOException {
+        if(store==null||policy==null)throw new IllegalArgumentException("A store and backup policy are required");
+        BackupPolicy.Session space=policy.session(privateRoot);space.phase("backup_preflight","");
+        long sourceFiles=saturatedAdd(treeBytes(projects,0),treeBytes(new File(privateRoot,"originals"),0));
+        sourceFiles=saturatedAdd(sourceFiles,treeBytes(new File(privateRoot,"device-journal"),0));
+        File database=context.getDatabasePath(HoyoungStore.DATABASE_NAME);
+        long databaseBytes=saturatedAdd(database.length(),new File(database.getPath()+"-wal").length());
+        long estimate=saturatedAdd(sourceFiles,saturatedMultiply(databaseBytes,6));
+        JSONObject result=new JSONObject();
+        put(result,"archiveLimitBytes",policy.maxArchiveBytes);put(result,"expandedLimitBytes",policy.maxArchiveBytes);
+        put(result,"reserveBytes",policy.reserveBytes);put(result,"privateAvailableBytes",space.availableBytes());
+        put(result,"workingFileLimitBytes",MAX_FILE_BYTES);put(result,"attachmentLimitBytes",MAX_ATTACHMENT_BYTES);
+        put(result,"textOriginalLimitBytes",OriginalTextFiles.MAX_BYTES);put(result,"maxEntries",MAX_BACKUP_ENTRIES);
+        put(result,"sourceFileBytes",sourceFiles);put(result,"databaseAndWalBytes",databaseBytes);
+        put(result,"expandedBytesEstimate",estimate);put(result,"expandedEstimateExact",false);
+        put(result,"estimateMayExceedConfiguredLimit",estimate>policy.maxArchiveBytes);
+        put(result,"estimateMethod","Current file lengths plus six times database and WAL lengths; concurrent changes and metadata differ");
+        put(result,"providerCapacityKnown",false);put(result,"requiresRestoreStagingSpace",true);
+        return result;
+    }
 
     public InternalFiles(Context context) {
         this.context = context.getApplicationContext();
@@ -134,6 +162,69 @@ public final class InternalFiles {
         }
     }
 
+    /** Verified immutable image handle. Run on an IO worker; no raw host path is exposed. */
+    public VerifiedImageSource openVerifiedImage(JSONObject metadata)throws IOException {
+        if(metadata==null)throw new ImageSourceFailure("invalid_identity","Image metadata is missing",null);
+        String id=metadata.optString("originalAssetId",metadata.optString("id",""));
+        if(!id.matches("\\.attachment-originals/[a-f0-9]{64}\\.[a-z0-9]{1,12}")
+                ||metadata.has("id")&&!id.equals(metadata.optString("id")))
+            throw new ImageSourceFailure("original_missing","An immutable image ID is required",null);
+        String expected=metadata.optString("sha256","");
+        if(!expected.matches("[a-f0-9]{64}"))throw new ImageSourceFailure("invalid_identity","Image SHA-256 is missing",null);
+        if(!id.substring(AttachmentOriginals.PREFIX.length()+1,AttachmentOriginals.PREFIX.length()+65).equals(expected))
+            throw new ImageSourceFailure("integrity_failed","Image ID and SHA-256 disagree",null);
+        Object suppliedSize=metadata.opt("size");
+        if(!(suppliedSize instanceof Number))throw new ImageSourceFailure("invalid_identity","Image byte size is missing",null);
+        long size=((Number)suppliedSize).longValue();double number=((Number)suppliedSize).doubleValue();
+        if(!Double.isFinite(number)||number!=(double)size||size<0)throw new ImageSourceFailure("invalid_identity","Image byte size is invalid",null);
+        if(size>MAX_ATTACHMENT_BYTES)throw new ImageSourceFailure("encoded_too_large","Image exceeds its 64 MiB original limit",null);
+        String mime=metadata.optString("mime",metadata.optString("mimeType","")).toLowerCase(java.util.Locale.ROOT);
+        if(!mime.startsWith("image/"))throw new ImageSourceFailure("not_image","Image MIME metadata is required",null);
+        FileInputStream opened;
+        synchronized(this){
+            JSONObject actual;
+            try{actual=attachmentOriginals.describe(id,false);}
+            catch(IOException missing){throw new ImageSourceFailure("source_unavailable","Image original metadata is unavailable",missing);}
+            if(!expected.equals(actual.optString("sha256"))||size!=actual.optLong("size",-1))
+                throw new ImageSourceFailure("integrity_failed","Image byte identity differs from its stored metadata",null);
+            if(!actual.optString("mime",actual.optString("mimeType","")).toLowerCase(java.util.Locale.ROOT).startsWith("image/"))
+                throw new ImageSourceFailure("not_image","The stored original is not marked as an image",null);
+            opened=new FileInputStream(resolve(projects,id));
+        }
+        VerifiedImageSource source=new VerifiedImageSource(opened,id,expected,size);
+        try{source.verifyUnchanged();return source;}
+        catch(IOException|RuntimeException|Error failure){try{source.close();}catch(IOException cleanup){failure.addSuppressed(cleanup);}throw failure;}
+    }
+
+    public static final class ImageSourceFailure extends IOException {
+        private static final long serialVersionUID=1L;
+        public final String code;
+        ImageSourceFailure(String code,String message,Throwable cause){super(message,cause);this.code=code;}
+    }
+
+    /** SHA validation, all decoder passes and rewinds use one pinned FileInputStream/inode. */
+    public static final class VerifiedImageSource implements java.io.Closeable {
+        public final String originalAssetId,sha256;public final long size;
+        private final FileInputStream input;private boolean closed;
+        private VerifiedImageSource(FileInputStream input,String id,String hash,long size){this.input=input;originalAssetId=id;sha256=hash;this.size=size;}
+        private void ensureOpen()throws IOException{if(closed)throw new IOException("Verified image source is closed");}
+        public synchronized InputStream stream()throws IOException{ensureOpen();return input;}
+        public synchronized java.io.FileDescriptor descriptor()throws IOException{ensureOpen();return input.getFD();}
+        public synchronized void rewind()throws IOException{ensureOpen();input.getChannel().position(0);}
+        /** Recheck after decoding too: mutations to the same open inode must not be rendered as verified. */
+        public synchronized void verifyUnchanged()throws IOException{
+            ensureOpen();rewind();
+            long actualSize=input.getChannel().size();
+            if(actualSize>MAX_ATTACHMENT_BYTES)throw new ImageSourceFailure("encoded_too_large","Image exceeds its 64 MiB original limit",null);
+            if(actualSize!=size)throw new ImageSourceFailure("integrity_failed","Image original size changed",null);
+            java.security.MessageDigest digest=OriginalTextFiles.digest();byte[]buffer=new byte[16_384];long readBytes=0;int count;
+            while((count=input.read(buffer))!=-1){readBytes+=count;if(readBytes>size)throw new ImageSourceFailure("integrity_failed","Image grew during verification",null);digest.update(buffer,0,count);}
+            if(readBytes!=size||!sha256.equals(OriginalTextFiles.hex(digest.digest())))throw new ImageSourceFailure("integrity_failed","Image original SHA-256 changed",null);
+            rewind();
+        }
+        @Override public synchronized void close()throws IOException{if(!closed){closed=true;input.close();}}
+    }
+
     /** A bounded UTF-8 text view. Binary identity is the SHA-256 of the exact saved bytes. */
     public synchronized JSONObject readTextRange(String fileId, long offsetChars, int maxChars) throws IOException {
         if (offsetChars < 0) throw new IOException("Text offset cannot be negative");
@@ -177,9 +268,52 @@ public final class InternalFiles {
         return result;
     }
 
+    /** Direct identity lookup: attaching one photo must not enumerate every old project file. */
+    public synchronized JSONObject describeStoredFile(String id) throws IOException {
+        File file = resolve(projects, id);
+        if (!file.isFile() || Files.isSymbolicLink(file.toPath()) || AttachmentOriginals.sidecar(file)) throw new IOException("No such saved file");
+        return metadata(file);
+    }
+
+    /** Bounded listing for interactive use; directory walking never holds the attachment/restore monitor. */
+    public JSONObject listFilesPage(int limit, String query) throws IOException {
+        if (limit < 1 || limit > 1000 || query == null || query.length() > 1000) throw new IllegalArgumentException("Invalid listing query");
+        Comparator<JSONObject> order = Comparator.comparingLong((JSONObject item) -> item.optLong("updatedAt")).thenComparing(item -> item.optString("id"));
+        java.util.PriorityQueue<JSONObject> recent = new java.util.PriorityQueue<>(limit, order);
+        long[] counts = new long[3];
+        collectListing(projects, 0, limit, query.toLowerCase(java.util.Locale.ROOT), recent, order, counts);
+        List<JSONObject> selected = new ArrayList<>(recent); selected.sort(order.reversed()); JSONArray result = new JSONArray();
+        for (JSONObject item : selected) result.put(item);
+        JSONObject page = new JSONObject(); put(page, "files", result); put(page, "ok", true); put(page, "matchedCount", counts[1]);
+        put(page, "scannedEntries", counts[0]); put(page, "skippedUnsupportedOrUnavailableEntries", counts[2]);
+        put(page, "truncated", counts[1] > result.length()); put(page, "limit", limit); put(page, "query", query);
+        put(page, "selectionOrder", "recent_modified"); put(page, "fileContentsRead", false); return page;
+    }
+    private void collectListing(File folder, int depth, int limit, String query, java.util.PriorityQueue<JSONObject> recent, Comparator<JSONObject> order, long[] counts) throws IOException {
+        if (depth > 64 || Files.isSymbolicLink(folder.toPath())) { counts[2]++; return; }
+        try (java.nio.file.DirectoryStream<java.nio.file.Path> children = Files.newDirectoryStream(folder.toPath())) {
+            for (java.nio.file.Path path : children) {
+                if (Thread.currentThread().isInterrupted()) throw new IOException("Listing interrupted");
+                counts[0]++; File file = path.toFile();
+                if (Files.isSymbolicLink(path)) { counts[2]++; continue; }
+                if (file.isDirectory()) { collectListing(file, depth + 1, limit, query, recent, order, counts); continue; }
+                if (!file.isFile() || AttachmentOriginals.sidecar(file) || file.getName().endsWith(".part")) continue;
+                JSONObject item;
+                try { item = metadata(file); item.remove("path"); put(item, "updatedAt", file.lastModified()); put(item, "contentBytesVerifiedByListing", false); }
+                catch (IOException unavailable) { counts[2]++; continue; }
+                String searchable = item.optString("id") + "\n" + item.optString("displayName") + "\n" + item.optString("sourceName", item.optString("name"));
+                if (!query.isEmpty() && !searchable.toLowerCase(java.util.Locale.ROOT).contains(query)) continue;
+                counts[1]++;
+                if (recent.size() < limit) recent.add(item);
+                else if (order.compare(item, recent.peek()) > 0) { recent.poll(); recent.add(item); }
+            }
+        }
+    }
+
     public synchronized JSONArray catalog() {
         JSONArray result = new JSONArray();
-        result.put(tool("files.list", "List the owner's private saved working files.", new JSONObject(), new JSONArray()));
+        JSONObject listing = new JSONObject(); put(listing, "limit", property("integer", "1–1000 recent files; default100")); put(listing, "query", property("string", "Optional filename/path substring; incomplete lists report truncated"));
+        result.put(tool("files.list", "Search a bounded listing of the owner's saved working files without reading their contents.", listing, new JSONArray()));
         JSONObject read = new JSONObject();
         put(read, "fileId", property("string", "Relative id from files.list; not a host path."));
         put(read, "offsetChars", property("integer", "UTF-16 offset returned by the previous read; default zero."));
@@ -192,11 +326,13 @@ public final class InternalFiles {
         return result;
     }
 
-    public synchronized JSONObject execute(String name, JSONObject arguments) throws IOException {
+    public JSONObject execute(String name, JSONObject arguments) throws IOException {
         if (arguments == null) arguments = new JSONObject();
         JSONObject result = new JSONObject();
         switch (name == null ? "" : name) {
-            case "files.list": put(result, "files", listFiles()); break;
+            case "files.list":
+                if (arguments.has("query") && !(arguments.opt("query") instanceof String)) throw new IllegalArgumentException("Invalid file query");
+                result = listFilesPage((int)strictInteger(arguments, "limit", 100, 1, 1000), arguments.optString("query", "")); break;
             case "files.read":
                 if (!(arguments.opt("fileId") instanceof String)) throw new IOException("fileId must be a string");
                 String fileId = arguments.optString("fileId");
@@ -210,6 +346,8 @@ public final class InternalFiles {
                 break;
             default: throw new IOException("Unknown private-files tool");
         }
+        put(result, "ok", true);
+        if ("files.write".equals(name)) put(result, "completionConfirmed", true);
         return result;
     }
 
@@ -218,7 +356,7 @@ public final class InternalFiles {
         File file = resolve(projects, fileId);
         if (AttachmentOriginals.reserved(fileId)) attachmentOriginals.describe(fileId, true);
         if (!file.isFile()) throw new IOException("No such working file");
-        if (file.length() > MAX_FILE_BYTES) throw new IOException("Working file exceeds the 64 MiB limit");
+        if (file.length() > MAX_FILE_BYTES) throw new IOException("Working file exceeds the 512 MiB limit");
         StringBuilder text = new StringBuilder(Math.min(limit, 8192));
         try (InputStreamReader reader = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8)) {
             char[] buffer = new char[4096];
@@ -233,13 +371,19 @@ public final class InternalFiles {
 
     public synchronized JSONObject writeFile(String relativePath, String content) throws IOException {
         if (content == null) throw new IllegalArgumentException("File content is required");
-        if (content.length() > MAX_FILE_BYTES) throw new IOException("Working file exceeds the 64 MiB limit");
-        return writeFile(relativePath, new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)));
+        if (content.length() > MAX_FILE_BYTES) throw new IOException("Working file exceeds the 512 MiB limit");
+        return writeFile(relativePath, new Utf8StringInput(content));
     }
 
     /** The caller owns the input stream. A failed/oversized write leaves the old file intact. */
     public synchronized JSONObject writeFile(String relativePath, InputStream source) throws IOException {
+        return writeFile(relativePath,source,MAX_FILE_BYTES);
+    }
+
+    /** An explicit smaller test/operation limit never raises the production binary limit. */
+    public synchronized JSONObject writeFile(String relativePath,InputStream source,long maxBytes)throws IOException {
         if (source == null) throw new IllegalArgumentException("File content is required");
+        if(maxBytes<=0||maxBytes>MAX_FILE_BYTES)throw new IllegalArgumentException("Invalid working-file byte limit");
         if (AttachmentOriginals.reserved(relativePath)) throw new IOException("Attachment originals are immutable; use a separate working path");
         File target = resolve(projects, relativePath);
         if (AttachmentOriginals.reserved(relativeId(target))) throw new IOException("Attachment originals cannot be replaced through an alias");
@@ -249,7 +393,7 @@ public final class InternalFiles {
         File temporary = new File(target.getParentFile(), ".partial-" + UUID.randomUUID());
         try {
             try (FileOutputStream raw = new FileOutputStream(temporary); OutputStream output = new BufferedOutputStream(raw)) {
-                copy(source, output, MAX_FILE_BYTES);
+                copy(source, output, maxBytes);
                 output.flush();
                 raw.getFD().sync();
             }
@@ -277,30 +421,53 @@ public final class InternalFiles {
      * OutputStream ownership stays with the caller. Export this outside the app before uninstall.
      */
     public void exportBackup(OutputStream destination, HoyoungStore store) throws IOException {
+        if(destination==null||store==null)throw new IllegalArgumentException("A destination and store are required");
+        exportBackup(destination,store,BackupPolicy.fromStore(store));
+    }
+
+    public void exportBackup(OutputStream destination, HoyoungStore store,BackupPolicy policy) throws IOException {
         if (destination == null || store == null) throw new IllegalArgumentException("A destination and store are required");
+        if(policy==null)throw new IllegalArgumentException("A backup policy is required");
+        BackupPolicy.Session space=policy.session(privateRoot);
         synchronized (backupLock) {
             File journalSnapshot = new File(privateRoot, ".backup-snapshot-" + UUID.randomUUID());
+            IOException primaryFailure=null;
             try {
+                space.phase("export_snapshot","");
                 BackupParticipant participant = backupParticipant;
                 File deviceJournal = null;
                 if (participant != null) {
                     deviceJournal = new File(journalSnapshot, "device-journal");
                     ensureDirectory(deviceJournal);
-                    participant.capture(deviceJournal);
+                    participant.capture(deviceJournal,space);
+                    space.checkpoint("export_snapshot","device-journal",0);
                 }
                 // The journal snapshot precedes the SQLite cut: duplication can be deduped,
                 // but an observation committed/deleted between the cuts must not disappear.
-                StreamingBackup.exportArchive(destination, store, privateRoot, deviceJournal);
-                destination.flush();
-            } finally { deleteTree(journalSnapshot); }
+                StreamingBackup.exportArchive(destination, store, privateRoot, deviceJournal,policy,space);
+                try{destination.flush();}catch(IOException failure){throw space.failure("backup_destination_io","Backup destination flush failed; the selected document may be incomplete",failure);}
+            } catch(BackupFailure failure){primaryFailure=failure;throw failure;}
+            catch(IOException failure){primaryFailure=space.failure("backup_export_io","Backup export did not finish; the external document may be incomplete",failure);throw primaryFailure;}
+            finally {
+                try{deleteTree(journalSnapshot);}
+                catch(IOException cleanup){if(primaryFailure!=null)primaryFailure.addSuppressed(cleanup);else throw space.failure("backup_cleanup_io","Backup temporary files could not be removed",cleanup);}
+            }
         }
     }
 
     public void importBackup(InputStream source, HoyoungStore store) throws IOException {
+        if(source==null||store==null)throw new IllegalArgumentException("A backup and store are required");
+        importBackup(source,store,BackupPolicy.fromStore(store));
+    }
+
+    public void importBackup(InputStream source, HoyoungStore store,BackupPolicy policy) throws IOException {
         if (source == null || store == null) throw new IllegalArgumentException("A backup and store are required");
+        if(policy==null)throw new IllegalArgumentException("A backup policy is required");
+        BackupPolicy.Session space=policy.session(privateRoot);
         synchronized (backupLock) {
             synchronized (this) {
                 recoverRestore(); cleanupAbandonedStaging();
+                space.phase("restore_preflight","");
                 File staging = new File(privateRoot, ".restore-" + UUID.randomUUID());
                 ensureDirectory(staging);
                 String token = UUID.randomUUID().toString();
@@ -308,8 +475,10 @@ public final class InternalFiles {
                 File oldOriginals = new File(privateRoot, ".previous-originals-" + UUID.randomUUID());
                 File oldDeviceJournal = new File(privateRoot, ".previous-device-journal-" + UUID.randomUUID());
                 boolean journalWritten = false;
+                IOException primaryFailure=null;
                 try {
-                    StreamingBackup.PreparedBackup prepared = StreamingBackup.prepare(source, store, staging);
+                    StreamingBackup.PreparedBackup prepared = StreamingBackup.prepare(source, store, staging,policy,space);
+                    space.phase("restore_validate","");
                     store.validateOriginalFiles(prepared.databaseFile, staging);
                     AttachmentOriginals.validateForRestore(prepared.projectsDirectory, prepared.databaseFile);
                     File deviceJournal = new File(privateRoot, "device-journal");
@@ -318,6 +487,16 @@ public final class InternalFiles {
                     ensureDirectory(stagedDeviceJournal);
                     BackupParticipant participant = backupParticipant;
                     if (participant != null) participant.validate(stagedDeviceJournal);
+                    // This is a conservative commit/WAL estimate, not a promise that SQLite's
+                    // derived indexes have a fixed size. Rechecks continue inside the transaction.
+                    long originalsBytes=treeBytes(prepared.originalsDirectory,0);
+                    long commitEstimate=saturatedAdd(saturatedMultiply(prepared.databaseFile.length(),2),saturatedMultiply(originalsBytes,2));
+                    File liveDatabase=context.getDatabasePath(HoyoungStore.DATABASE_NAME);
+                    long liveBytes=saturatedAdd(liveDatabase.length(),new File(liveDatabase.getPath()+"-wal").length());
+                    // Removing a large old generation can write its pages into WAL even when
+                    // the incoming snapshot is small; include that existing footprint too.
+                    commitEstimate=saturatedAdd(commitEstimate,saturatedMultiply(liveBytes,2));
+                    space.checkpoint("restore_precommit","",saturatedAdd(commitEstimate,64L*1024));
                     writeRestoreJournal(token, staging, oldProjects, oldOriginals, oldDeviceJournal);
                     journalWritten = true;
                     atomicMove(projects, oldProjects);
@@ -326,15 +505,23 @@ public final class InternalFiles {
                     atomicMove(prepared.projectsDirectory, projects);
                     atomicMove(prepared.originalsDirectory, new File(privateRoot, "originals"));
                     atomicMove(stagedDeviceJournal, deviceJournal);
-                    store.importStagedDatabase(prepared.databaseFile, token);
+                    store.importStagedDatabase(prepared.databaseFile, token,space);
                     // Recovery uses the transaction token to finish cleanup after either a
                     // successful commit or a process death in the directory-swap window.
                     recoverRestore();
-                } catch (RuntimeException invalid) {
-                    throw new IOException("Backup restore failed", invalid);
+                } catch(BackupFailure failure){primaryFailure=failure;throw failure;}
+                catch (RuntimeException invalid) {
+                    primaryFailure=space.failure("backup_restore_database","Backup restore did not finish; the transaction journal identifies the recoverable generation",invalid);throw primaryFailure;
+                } catch(IOException failure){primaryFailure=space.failure(space.phase().equals("restore_validate")?"backup_invalid_archive":"backup_restore_io","Backup restore did not finish; the transaction journal identifies the recoverable generation",failure);throw primaryFailure;
                 } finally {
-                    if (journalWritten) recoverRestore();
-                    deleteTree(staging);
+                    boolean recovered=true;IOException cleanupFailure=null;
+                    Boolean committed=journalWritten?null:Boolean.FALSE;
+                    if(journalWritten)try{committed=restoreTokenCommitted(token);}catch(IOException inspection){if(primaryFailure!=null)primaryFailure.addSuppressed(inspection);}
+                    try{if(journalWritten)recoverRestore();}
+                    catch(IOException recovery){recovered=false;cleanupFailure=space.failure("backup_restore_recovery","Restore recovery remains pending; recoverable files and its journal are retained",recovery);}
+                    if(recovered)try{deleteTree(staging);}catch(IOException cleanup){cleanupFailure=space.failure("backup_cleanup_io","Restore staging files could not be removed",cleanup);}
+                    if(committed!=null){if(primaryFailure instanceof BackupFailure)((BackupFailure)primaryFailure).markRestoreCommitted(committed);if(cleanupFailure instanceof BackupFailure)((BackupFailure)cleanupFailure).markRestoreCommitted(committed);}
+                    if(cleanupFailure!=null){if(primaryFailure!=null)primaryFailure.addSuppressed(cleanupFailure);else throw cleanupFailure;}
                 }
             }
         }
@@ -359,14 +546,7 @@ public final class InternalFiles {
             moves = new JSONArray();
             JSONObject legacy = new JSONObject(); put(legacy, "current", "projects"); put(legacy, "previous", record.optString("previous")); moves.put(legacy);
         }
-        boolean committed = false;
-        File databaseFile = context.getDatabasePath(HoyoungStore.DATABASE_NAME);
-        if (databaseFile.isFile()) {
-            try (SQLiteDatabase database = SQLiteDatabase.openDatabase(databaseFile.getPath(), null, SQLiteDatabase.OPEN_READONLY);
-                 Cursor cursor = database.rawQuery("SELECT value FROM settings WHERE setting_key = ?", new String[]{HoyoungStore.FILE_RESTORE_TOKEN_KEY})) {
-                committed = cursor.moveToFirst() && token.equals(cursor.getString(0));
-            } catch (RuntimeException e) { throw new IOException("Cannot inspect interrupted restore commit", e); }
-        }
+        boolean committed = restoreTokenCommitted(token);
         for (int i = 0; i < moves.length(); i++) {
             JSONObject move = moves.optJSONObject(i); if (move == null) throw new IOException("Invalid namespace move");
             String namespace = move.optString("current");
@@ -381,6 +561,14 @@ public final class InternalFiles {
             } else if (!current.isDirectory()) throw new IOException("Original namespace is missing during rollback");
         }
         deleteTree(staging); removeRestoreJournal();
+    }
+
+    private boolean restoreTokenCommitted(String token)throws IOException {
+        File databaseFile=context.getDatabasePath(HoyoungStore.DATABASE_NAME);if(!databaseFile.isFile())return false;
+        try(SQLiteDatabase database=SQLiteDatabase.openDatabase(databaseFile.getPath(),null,SQLiteDatabase.OPEN_READONLY);
+            Cursor cursor=database.rawQuery("SELECT value FROM settings WHERE setting_key = ?",new String[]{HoyoungStore.FILE_RESTORE_TOKEN_KEY})){
+            return cursor.moveToFirst()&&token.equals(cursor.getString(0));
+        }catch(RuntimeException unavailable){throw new IOException("Cannot inspect interrupted restore commit",unavailable);}
     }
 
     private File journalDirectory(String name, String prefix) throws IOException {
@@ -420,6 +608,37 @@ public final class InternalFiles {
                 try { UUID.fromString(name.substring(prefix.length())); deleteTree(file); }
                 catch (IllegalArgumentException ignored) { /* Unknown owner files are never removed. */ }
             }
+        }
+    }
+
+    private static long treeBytes(File directory,int depth)throws IOException {
+        if(depth>32||Files.isSymbolicLink(directory.toPath()))throw new IOException("Unsafe restore sizing path");
+        if(!directory.exists())return 0;
+        File[] entries=directory.listFiles();if(entries==null)throw new IOException("Restore sizing directory cannot be listed");
+        long total=0;
+        for(File entry:entries){
+            if(Files.isSymbolicLink(entry.toPath()))throw new IOException("Restore sizing does not follow symbolic links");
+            total=saturatedAdd(total,entry.isDirectory()?treeBytes(entry,depth+1):entry.length());
+        }
+        return total;
+    }
+    private static long saturatedAdd(long left,long right){return left>Long.MAX_VALUE-right?Long.MAX_VALUE:left+right;}
+    private static long saturatedMultiply(long value,int factor){return value>Long.MAX_VALUE/factor?Long.MAX_VALUE:value*factor;}
+
+    /** Encode the caller's existing String in small windows rather than allocating its entire UTF-8 copy. */
+    private static final class Utf8StringInput extends InputStream {
+        final String source;int position,offset;byte[]window=new byte[0];
+        Utf8StringInput(String source){this.source=source;}
+        private boolean refill(){
+            if(offset<window.length)return true;if(position>=source.length())return false;
+            int end=Math.min(source.length(),position+8192);
+            if(end<source.length()&&Character.isHighSurrogate(source.charAt(end-1))&&Character.isLowSurrogate(source.charAt(end)))end--;
+            window=source.substring(position,end).getBytes(StandardCharsets.UTF_8);position=end;offset=0;return true;
+        }
+        @Override public int read(){return refill()?window[offset++]&255:-1;}
+        @Override public int read(byte[]bytes,int target,int length){
+            if(bytes==null)throw new NullPointerException();if(target<0||length<0||target>bytes.length-length)throw new IndexOutOfBoundsException();
+            if(length==0)return 0;if(!refill())return-1;int count=Math.min(length,window.length-offset);System.arraycopy(window,offset,bytes,target,count);offset+=count;return count;
         }
     }
 

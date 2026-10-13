@@ -27,6 +27,11 @@
   const CONTROL = 'button, [role="button"], [role="tab"], [role="switch"], [role="menuitemradio"], [role="radio"], a[aria-current]';
   const STOP_ICON_PATH = 'M4.5 5.75C4.5 5.05964 5.05964 4.5 5.75 4.5H14.25C14.9404 4.5 15.5 5.05964 15.5 5.75V14.25C15.5 14.9404 14.9404 15.5 14.25 15.5H5.75C5.05964 15.5 4.5 14.9404 4.5 14.25V5.75Z';
   const DEFAULTS = { model: 'gpt-6.1-sol', effort: 'medium', speed: 'fast' };
+  const MODEL_ID = /^gpt-[a-z0-9]+(?:[.-][a-z0-9]+)*$/;
+  const EFFORTS = ['low', 'medium', 'high', 'xhigh', 'max', 'ultra'];
+  const SPEEDS = ['fast', 'standard'];
+  let configuredPreferences = Object.assign({}, DEFAULTS);
+  let preferenceConfigurationValid = true;
   const ACCEPT_TIMEOUT_MS = 30_000;
   const SEND_ENABLE_TIMEOUT_MS = 5_000;
   const ATTACHMENT_READY_TIMEOUT_MS = 60_000;
@@ -124,8 +129,33 @@
     return result(code, Object.assign({ requestId }, metadata));
   }
   function parseModel(label) {
-    const match = /(?:^|\b)(?:GPT[-\s]?)?(\d+(?:\.\d+)?)\s*[- ]\s*(Sol|Astra|Luna)(?:\b|$)/i.exec(label);
-    return match ? 'gpt-' + match[1] + '-' + match[2].toLowerCase() : null;
+    // Match the entire observable label, not promotional text, a menu offer or
+    // a model name embedded in an assistant answer. Known compact family labels
+    // remain compatible; other future names require an explicit GPT prefix.
+    const family = /^(?:GPT[-\s]?)?(\d+(?:\.\d+)?)\s*[- ]?\s*(Sol|Astra|Luna)$/i.exec(label);
+    if (family) return 'gpt-' + family[1] + '-' + family[2].toLowerCase();
+    const canonical = label.toLowerCase().replace(/^gpt(?:\s*-\s*|\s+)/, 'gpt-').replace(/\s+/g, '-');
+    return canonical.length <= 80 && MODEL_ID.test(canonical) ? canonical : null;
+  }
+  function requiredPreferences(payload, defaults) {
+    const preferences = {
+      model: payload.requiredModel === undefined ? defaults.model : payload.requiredModel,
+      effort: payload.requiredEffort === undefined ? defaults.effort : payload.requiredEffort,
+      speed: payload.requiredSpeed === undefined ? defaults.speed : payload.requiredSpeed
+    };
+    if (typeof preferences.model !== 'string' || preferences.model.length > 80 || !MODEL_ID.test(preferences.model)
+      || !EFFORTS.includes(preferences.effort) || !SPEEDS.includes(preferences.speed)) return null;
+    return preferences;
+  }
+  function configurePreferences(payload) {
+    const validObject = payload && typeof payload === 'object' && !Array.isArray(payload)
+      && Object.keys(payload).length === 3 && ['requiredModel', 'requiredEffort', 'requiredSpeed'].every(key => Object.prototype.hasOwnProperty.call(payload, key));
+    const preferences = validObject && requiredPreferences(payload, {});
+    preferenceConfigurationValid = !!preferences;
+    if (preferences) configuredPreferences = preferences;
+    // A malformed explicit setting does not restore old/default requirements.
+    // Active requests keep their immutable per-dispatch preferences.
+    return inspectAndEmit();
   }
   function uniqueValue(values) {
     const unique = Array.from(new Set(values.filter(Boolean)));
@@ -134,13 +164,15 @@
   function preferenceEvidence() {
     const chosen = controls().filter(selected);
     const modelControls = all('button[data-testid="model-switcher-dropdown-button"], button[data-codex-intelligence-trigger="true"], [data-model-picker-view-toggle="true"]')
-      .filter(element => !element.closest(TRANSCRIPT));
+      .filter(element => !element.closest(TRANSCRIPT + ', [role="menu"], [role="listbox"]')
+        && (!['aria-pressed', 'aria-selected', 'aria-checked', 'aria-current', 'data-selected'].some(name => element.hasAttribute(name)) || selected(element))
+        && !/^(?:off|unchecked|inactive)$/.test(element.getAttribute('data-state') || ''));
     const model = uniqueValue(modelControls.concat(chosen).map(element => parseModel(labelOf(element))));
     const effort = uniqueValue(chosen.concat(modelControls).map(element => {
       const label = labelOf(element);
-      const effortLabels = { low: 'low', medium: 'medium', high: 'high', ultra: 'ultra', 미디엄: 'medium', 중간: 'medium' };
+      const effortLabels = { low: 'low', medium: 'medium', high: 'high', xhigh: 'xhigh', 'extra high': 'xhigh', max: 'max', ultra: 'ultra', 미디엄: 'medium', 중간: 'medium' };
       if (selected(element) && effortLabels[label.toLowerCase()]) return effortLabels[label.toLowerCase()];
-      const description = /^(?:Reasoning effort|Thinking effort|추론 강도|생각 강도)\s*[:：]\s*(Low|Medium|High|Ultra|미디엄|중간)$/i.exec(label);
+      const description = /^(?:Reasoning effort|Thinking effort|추론 강도|생각 강도)\s*[:：]\s*(Low|Medium|High|XHigh|Extra high|Max|Ultra|미디엄|중간)$/i.exec(label);
       if (description) return effortLabels[description[1].toLowerCase()] || null;
       return null;
     }));
@@ -194,13 +226,14 @@
   }
   function readyCode(state, preferences) {
     if (disposed || document !== initialDocument || location.origin !== 'https://chatgpt.com') return 'unsupported_origin';
+    if (!preferenceConfigurationValid) return 'unsupported_preferences';
     if (state.authenticated === false) return 'authentication_required';
     if (state.authenticated !== true) return 'authentication_unverified';
     if (!state.workSelected) return 'work_unverified';
     if (!state.temporary) return 'temporary_unverified';
-    if (state.model !== (preferences || DEFAULTS).model) return 'model_unverified';
-    if (state.effort !== (preferences || DEFAULTS).effort) return 'effort_unverified';
-    if (state.speed !== (preferences || DEFAULTS).speed) return 'speed_unverified';
+    if (state.model !== (preferences || configuredPreferences).model) return 'model_unverified';
+    if (state.effort !== (preferences || configuredPreferences).effort) return 'effort_unverified';
+    if (state.speed !== (preferences || configuredPreferences).speed) return 'speed_unverified';
     if (state.quota) return 'quota_exhausted';
     if (state.needsInput) return 'input_required';
     if (state.busy) return 'busy';
@@ -210,7 +243,7 @@
   function inspect() {
     const state = readState();
     const code = readyCode(state);
-    return { ok: code === 'ready', code, state, activeRequestId: active ? active.requestId : null, phase: active ? active.phase : null };
+    return { ok: code === 'ready', code, state, requiredPreferences: Object.assign({}, configuredPreferences), activeRequestId: active ? active.requestId : null, phase: active ? active.phase : null };
   }
 
   function turnSnapshot() {
@@ -489,7 +522,7 @@
   }
   function validateAttachments(value) {
     if (value === undefined) return { ok: true, files: [] };
-    if (!Array.isArray(value) || value.length > 10) return { ok: false, code: 'invalid_attachments' };
+    if (!Array.isArray(value) || value.length > 8) return { ok: false, code: 'invalid_attachments' };
     const names = new Set();
     let total = 0;
     for (const item of value) {
@@ -655,8 +688,8 @@
       : preflightFailure('busy', payload.requestId, { activeRequestId: active.requestId, retryAllowed: false });
     const attachmentValidation = validateAttachments(payload.attachments);
     if (!attachmentValidation.ok) return preflightFailure(attachmentValidation.code, payload.requestId);
-    const preferences = { model: payload.requiredModel || DEFAULTS.model, effort: payload.requiredEffort || DEFAULTS.effort, speed: payload.requiredSpeed || DEFAULTS.speed };
-    if (preferences.model !== DEFAULTS.model || preferences.effort !== DEFAULTS.effort || preferences.speed !== DEFAULTS.speed) return preflightFailure('unsupported_preferences', payload.requestId);
+    const preferences = requiredPreferences(payload, configuredPreferences);
+    if (!preferences) return preflightFailure('unsupported_preferences', payload.requestId);
     const state = readState();
     const code = readyCode(state, preferences);
     if (code !== 'ready') return preflightFailure(code, payload.requestId);
@@ -746,7 +779,7 @@
     window.removeEventListener('pagehide', onPageHide);
   }
   function onPageHide() { dispose('navigation_uncertain'); }
-  const api = { inspect, selectWork, send, cancel, inspectAndEmit, prepareOwnerRetry, authorizeDispatch };
+  const api = { inspect, selectWork, send, cancel, inspectAndEmit, prepareOwnerRetry, authorizeDispatch, configurePreferences };
   Object.defineProperty(api, '__document', { value: document });
   Object.defineProperty(api, '__dispose', { value: dispose });
   window.HoyoungWorkBridge = api;

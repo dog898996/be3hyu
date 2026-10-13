@@ -1,6 +1,14 @@
 # Android Work 연결: 현재 구현과 검증 범위
 
-호영이는 폰에 원문·기억·작업 큐를 보관하고 Android WebView에서 ChatGPT Work에 작업을 보낸다. 사설 VM이나 데스크톱 Codex 실행기를 사용하지 않는다. 이 연결은 웹 UI를 관찰하는 자체 어댑터이며 공식 Work API가 아니다. 실제 계정에서 Work·임시채팅·GPT-6.1 Sol·Medium·Fast가 모두 선택됐다는 DOM 증거를 확인하기 전에는 전송하지 않는다.
+호영이는 폰에 원문·기억·작업 큐를 보관하고 Android WebView에서 ChatGPT Work에 작업을 보낸다. 사설 VM이나 데스크톱 Codex 실행기를 사용하지 않는다. 이 연결은 웹 UI를 관찰하는 자체 어댑터이며 공식 Work API가 아니다. 실제 계정에서 Work·임시채팅과 사용자가 지정한 모델·추론 수준·속도가 모두 선택됐다는 DOM 증거를 확인하기 전에는 전송하지 않는다. 기본 설정은 GPT-6.1 Sol·Medium·Fast다.
+
+## 모델 설정과 선택 증거
+
+설정의 `requiredModel`, `requiredEffort`, `requiredSpeed`를 native가 매번 검사하고 JS `configurePreferences`에 전달한다. 모델 ID는 최대 80자의 `gpt-` 접두 소문자 영숫자 이름이며 점·하이픈 구분을 허용한다. 추론 수준은 `low|medium|high|xhigh|max|ultra`, 속도는 `fast|standard`만 허용한다. 잘못된 명시적 값은 이전 값이나 기본값으로 대체하지 않고 차단한다.
+
+미래의 `gpt-6.2-sol` 같은 유효한 이름도 지정할 수 있지만, 이 문법이 해당 모델의 실제 출시·계정 이용 가능성을 보장하지 않는다. 관찰한 현재 선택과 지정값이 정확히 일치해야 한다. 선택되지 않은 메뉴의 제공 목록, assistant 답변에 나온 모델 이름, 홍보 문구는 선택 증거가 아니다. 선택 증거를 확인할 수 없는 UI 변경에서는 전송을 보류한다.
+
+설정 변경은 다음 준비 요청에 반영한다. 준비 중인 요청은 당시 요구값을 유지하고 정책 변경 검사를 통과해야 전송된다. 업로드 대기 중에 설정이 바뀌어도 클릭 직전 native 재검사가 이전 요청의 전송을 막는다. 모델 선택을 자동으로 낮추거나 다른 모델·속도로 전환하지 않는다. `normal`·`flex` 같은 미지원 속도 이름을 `standard`로 추정하지 않는다.
 
 ## 원문과 실행 봉투
 
@@ -38,13 +46,23 @@
 
 Android는 조각을 private 파일에 fsync하며 모으고 순서·개수·길이·SHA-256을 확인한 뒤 원문 작업 파일과 완료 결과를 저장한다. 부분 캡처는 완료로 표시하지 않는다. 이 원문은 관찰한 DOM 텍스트이며 생성 파일 자체와는 다르다.
 
-사진·파일은 실제 composer 파일 입력에 넣고 업로드 준비 증거를 확인한 뒤 프롬프트를 제출한다. 앱은 최대 8개, 파일당 10 MiB·합계 20 MiB를 허용한다. 업로드 입력·활성화·준비를 확인할 수 없으면 첨부 없는 텍스트 요청으로 바꾸지 않는다. 실제 계정 업로드는 아직 검증하지 않았다.
+사진·파일은 실제 composer 파일 입력에 넣고 업로드 준비 증거를 확인한 뒤 프롬프트를 제출한다. 원본 사진은 최대 64 MiB를 폰의 불변 원본 파일로 보존한다. 실제 Work 전송은 최대 8개·파일당 10 MiB·합계 20 MiB다. 문서는 원본 바이트를 정확히 전달할 공간을 먼저 확보하며, 큰 문서를 자르거나 일부 첨부를 빼지 않는다. 사진은 남은 예산을 배분하고 예산을 넘을 때만 별도 JPEG 전송 사본을 만든다. 작은 원본은 배분 예산에 들어가면 그대로 전달한다.
 
-접수 이벤트의 `uploadObserved`, `attachmentNames`, `uploadObservationScope`는 composer가 업로드 완료 상태를 표시한 관찰이다. 서버에 저장된 바이너리의 크기·해시를 별도로 대조했다는 증거가 아니다. 작업 후 그 첨부를 처리한 실제 모델 결과도 별도 확인해야 한다.
+native는 모든 항목을 준비·검증한 뒤 `workAttachmentRepresentations:<requestId>`에 전체 전달표를 저장하고, 프롬프트에 실제 전송 표현과 분석 범위를 추가한다. 원본 `id/sha256/size`를 전송 사본의 값으로 덮지 않는다. `wireName`, `wireMime`, `wireBytes`, `providerRepresentationSha256`, `representationAssetId`는 실제 전달하는 바이트를 식별한다. `originalBytesIncludedInWire`는 원본과 해시·크기가 동일한 경우만 true이며, 준비표의 `originalBytesFullyUploaded`, `originalContentFullyInspected`, `serverBytesIndependentlyVerified`는 항상 false다. 전송 사본의 작은 글씨·세부 정보를 확인하지 못했다면 원본 전체를 분석했다고 할 수 없다.
+
+전달표까지 포함한 프롬프트가 250,000자를 넘거나 원본 무결성·사진 디코딩·전송 예산·파일 입력·업로드 준비를 확인할 수 없으면 원문과 첨부를 줄이지 않고 명시적으로 멈춘다. 첨부 없는 텍스트 요청으로 바꾸지 않는다. 실제 계정 업로드는 아직 검증하지 않았다.
+
+접수 이벤트의 `uploadObserved`, `attachmentNames`, `uploadObservationScope`는 composer가 업로드 완료 상태를 표시한 관찰이다. `attachmentNames`는 원본 파일명 대신 전달표의 `wireName`과 대조한다. 서버에 저장된 바이너리의 크기·해시를 별도로 대조했다는 증거가 아니다. 작업 후 그 첨부를 처리한 실제 모델 결과도 별도 확인해야 한다.
 
 HTTPS 다운로드는 허용된 ChatGPT 파일 출처·리다이렉트·실제 서버 응답을 검사한다. 로그인 오류 HTML이나 중간에서 끊긴 파일을 완성된 작업 파일로 게시하지 않는다. `blob:` 파일은 현재 자동 회수하지 못하며 사용자의 수동 가져오기가 필요하다.
 
 ## 실제 운영에서 남은 조건
+
+WebView provider의 생성·설정·첫 URL 로딩에서 `RuntimeException` 또는 `LinkageError`가 발생하면 부분 화면을 정리하고 `startup_failed`·인증 미확인·`busy: true`·준비 미완료 상태를 알린다. 앱의 채팅·원문 보관 기능을 시작 실패와 함께 종료하지 않는다. 최초 실패의 자동 재시도 간격은 1초·5초·30초·60초이며, 이후 60초를 유지한다. 반복 `start()`나 화면 전환은 같은 타이머를 늘리거나 재시도를 앞당기지 않는다. 이 동작은 웹 화면의 초기화이며 모델 작업을 자동 재전송하는 동작이 아니다.
+
+새 화면을 만들거나 임시 URL을 열기 직전에 영수증 인덱스 준비·현재 요청 없음·결과 저장 중 아님·불확실 작업 없음·복원 중 아님을 다시 확인한다. `getExistingView()`는 현재 화면이 없으면 null을 반환하고 WebView를 만들지 않는다. UI가 백그라운드 화면을 분리할 때도 이 getter를 사용한다. 이전 document의 늦은 inspection 응답은 화면과 document revision이 일치하지 않으면 버린다.
+
+renderer가 죽으면 해당 요청의 접수·결과 영수증을 불확실 상태로 남기고, 새 임시 대화를 자동으로 열지 않는다. 소유자가 기존 결과를 확인하거나 명시적으로 제외한 뒤 새 임시 대화를 선택해야 화면을 다시 만든다. 화면 생성·로그인 쿠키 유지·URL 로딩만으로 기존 임시 작업이 복원됐다고 하지 않는다. 정리 중 파일 선택 callback·parent 제거·destroy가 실패해도 죽은 화면을 현재 연결로 남기지 않는다.
 
 정상 WebView User-Agent와 인증 쿠키를 유지한다. 비밀번호·토큰·웹 저장소를 추출하거나 서비스 인증 보호를 우회하지 않는다. Google OAuth 등 일부 로그인은 embedded WebView를 허용하지 않으며 외부 Chrome 로그인도 WebView 쿠키를 자동으로 공유하지 않는다. 이 경우 연결 미완료로 알린다.
 

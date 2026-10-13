@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 import com.hoyoung.assistant.store.HoyoungStore;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -12,6 +13,7 @@ import java.util.Set;
 public final class GoalLedger {
     public static final int MAX_ACTIVE_GOALS = 256;
     private static final String PREFIX = "activeGoal:", RANGE_END = "activeGoal;";
+    private static final String REPORT_PREFIX="goalReportedArchive:",REPORT_END="goalReportedArchive;";
     private final HoyoungStore store;
     public GoalLedger(HoyoungStore store) { this.store = store; }
 
@@ -86,20 +88,17 @@ public final class GoalLedger {
 
     public JSONObject get(String rootId) {
         validRoot(rootId);
-        String serialized = store.getSetting(PREFIX + rootId, "");
-        if (serialized.isEmpty()) return null;
-        try {
-            JSONObject value = new JSONObject(serialized);
-            if (!rootId.equals(value.optString("rootRequestId")) || !pending(value.optString("stage")))
-                throw new IllegalStateException("Malformed active goal record");
-            return value;
-        } catch (org.json.JSONException invalid) { throw new IllegalStateException("Unreadable active goal record", invalid); }
+        String serialized = store.getSetting(PREFIX + rootId, null);
+        return serialized == null ? null : readActive(serialized,rootId);
     }
 
     /** Keyset pagination advances across scanned rows even if stage/time filters select none. */
     public JSONObject list(JSONObject arguments) {
         JSONObject args = arguments == null ? new JSONObject() : arguments;
-        rejectUnknown(args, "afterRootRequestId", "limit", "stage", "dueBefore");
+        rejectUnknown(args, "afterRootRequestId", "limit", "stage", "dueBefore", "scope");
+        String scope=args.optString("scope","active");
+        if("reported_archive".equals(scope))return listReported(args);
+        if(!"active".equals(scope))throw new IllegalArgumentException("Unknown goal list scope");
         String after = args.optString("afterRootRequestId", ""); if (!after.isEmpty()) validRoot(after);
         int limit = intArgument(args, "limit", 1, 100, 25);
         String stage = args.optString("stage", ""); if (!stage.isEmpty() && !pending(stage)) throw new IllegalArgumentException("Invalid stage filter");
@@ -114,8 +113,7 @@ public final class GoalLedger {
                     if (scanned == limit) { more = true; break; }
                     String key = cursor.getString(0); last = key.substring(PREFIX.length()); scanned++;
                     try {
-                        JSONObject goal = new JSONObject(cursor.getString(1));
-                        if (!last.equals(goal.optString("rootRequestId")) || !pending(goal.optString("stage"))) throw new IllegalStateException();
+                        JSONObject goal = readActive(cursor.getString(1),last);
                         if ((stage.isEmpty() || stage.equals(goal.optString("stage")))
                                 && (!args.has("dueBefore") || (goal.optLong("nextCheckAt") > 0 && goal.optLong("nextCheckAt") <= dueBefore))) goals.put(goal);
                     } catch (Exception unreadable) { invalid.put(last); }
@@ -173,12 +171,21 @@ public final class GoalLedger {
         if (!("completed".equals(finalStage) || "abandoned".equals(finalStage))
                 || reason == null || reason.trim().isEmpty() || reason.length() > 2_000) throw new IllegalArgumentException("Explicit owner closure and reason required");
         return store.withTransaction(db -> {
-            JSONObject previous = get(rootId);
-            if (previous == null) return object("ok", false, "code", "goal_not_active");
+            String raw=store.getSetting(PREFIX+rootId,null);
+            if(raw==null)return object("ok",false,"code","goal_not_active");
+            JSONObject previous;
+            try{previous=readActive(raw,rootId);}
+            catch(IllegalStateException unreadable){
+                JSONObject preserved=store.addMessage("system",object("type","owner_closed_unreadable_goal","rootRequestId",rootId,"rawGoal",raw,"outcomeVerified",false).toString(),null);
+                previous=object("rootRequestId",rootId,"previousGoalUnreadable",true,"sourceUnknown",true,
+                        "previousGoalSourceMessageId",preserved.optLong("id"),"previousGoalSourceHash",preserved.optString("content_hash"),
+                        "previousGoalBodyHash",preserved.optString("raw_content_hash"));
+            }
             put(previous, "stage", finalStage); put(previous, "reportedStage", finalStage);
             put(previous, "ownerResolved", true); put(previous, "completionVerified", false);
             put(previous, "providerOutcomeVerified", false); put(previous, "resolutionReason", reason);
             put(previous, "mayScheduleReadOnlyCheck", false); put(previous, "requiresOwnerReconciliation", false);
+            put(previous, "mayAutoRepeat", false);
             put(previous, "updatedAt", System.currentTimeMillis());
             db.delete("settings", "setting_key = ?", new String[]{PREFIX + rootId});
             bumpRevision();
@@ -187,6 +194,97 @@ public final class GoalLedger {
         });
     }
     public JSONObject remove(String rootId, String reason) { return resolve(rootId, "abandoned", reason); }
+
+    /** Operationally archive an observed provider claim; neither overall nor cloud success is verified. */
+    public JSONObject archiveReportedCompletion(String rootId,String actorRequestId,String progress,JSONObject nativeSummary) {
+        validRoot(rootId);validRoot(actorRequestId);
+        if(progress==null||progress.length()>2_000||nativeSummary==null)throw new IllegalArgumentException("Bounded report and trusted native summary required");
+        JSONObject summary=copy(nativeSummary);
+        return store.withTransaction(db->{
+            JSONObject previous=get(rootId);
+            if(previous==null)return object("ok",false,"archived",false,"code","goal_not_active");
+            if("blocked".equals(previous.optString("stage"))||"uncertain".equals(previous.optString("stage"))
+                    ||"true".equals(store.getSetting("pausedRoot:"+rootId,"false")))return object("ok",false,"archived",false,"code","goal_requires_reconciliation");
+            JSONObject originalRequest=requestByExternalId(db,rootId);
+            if(originalRequest==null)return object("ok",false,"archived",false,"code","goal_source_unavailable");
+            try{validateSource(rootId,previous.optLong("sourceMessageId"),originalRequest);}catch(IllegalArgumentException unavailable){return object("ok",false,"archived",false,"code","goal_source_unavailable");}
+            JSONObject actor=requestByExternalId(db,actorRequestId);
+            if(actor==null||!("accepted".equals(actor.optString("status"))||"completed".equals(actor.optString("status")))
+                    ||!actor.optString("raw_result_hash").matches("[0-9a-f]{64}"))return object("ok",false,"archived",false,"code","observed_report_required");
+            if(!validNativeSummary(summary,rootId))return object("ok",false,"archived",false,"code","native_effects_unconfirmed");
+            String actualSnapshot=new ActionReceiptJournal(store).snapshotHash(rootId);
+            if(!actualSnapshot.equals(summary.optString("snapshotHash")))return object("ok",false,"archived",false,"code","native_receipt_snapshot_changed");
+            long now=System.currentTimeMillis();String priorRaw=store.getSetting(PREFIX+rootId,"");
+            JSONObject report=copy(previous);put(report,"previousStage",previous.optString("stage"));put(report,"stage","reported_completed");put(report,"reportedStage","completed");
+            put(report,"progress",progress);put(report,"updatedAt",now);put(report,"reportActorRequestId",actorRequestId);put(report,"reportRawResponseHash",actor.optString("raw_result_hash"));
+            put(report,"completionVerified",false);put(report,"overallOutcomeVerified",false);put(report,"providerOutcomeVerified",false);put(report,"mayAutoRepeat",false);
+            put(report,"mayScheduleReadOnlyCheck",false);put(report,"operationallyArchived",true);put(report,"knownNativeEffectsReconciled",true);put(report,"nativeSummary",summary);
+            JSONObject source=store.addMessage("system",object("type","goal_provider_reported_complete_archive","goal",report,"previousActiveRecord",priorRaw,"modelReportIsIndependentProof",false).toString(),null);
+            JSONObject index=object("rootRequestId",rootId,"sourceMessageId",previous.optLong("sourceMessageId"),"stage","reported_completed","reportedStage","completed",
+                    "progress",safePrefix(progress,500),"progressIncomplete",progress.length()>500,"reportedAt",now,"actorRequestId",actorRequestId,
+                    "reportRawResponseHash",actor.optString("raw_result_hash"),"reportSourceMessageId",source.optLong("id"),"reportSourceHash",source.optString("content_hash"),"reportBodyHash",source.optString("raw_content_hash"),
+                    "nativeSnapshotHash",actualSnapshot,"nativeReceiptCount",summary.optLong("receiptCount"),"confirmedNativeMutationCount",summary.optLong("confirmedMutationCount"),
+                    "completionVerified",false,"overallOutcomeVerified",false,"providerOutcomeVerified",false,"operationallyArchived",true,"mayAutoRepeat",false);
+            store.putSetting(REPORT_PREFIX+rootId,index.toString());db.delete("settings","setting_key = ?",new String[]{PREFIX+rootId});bumpRevision();
+            store.recordEvent("goal_reported_complete_archived",object("report",index,"immutableSourceStored",true,"modelReportIsVerification",false));
+            return object("ok",true,"archived",true,"tracked",false,"goal",index,"completionConfirmed",true,"confirmationScope","goal_ledger_archival_only","overallOutcomeVerified",false);
+        });
+    }
+    private static boolean validNativeSummary(JSONObject summary,String rootId) {
+        if(!Boolean.TRUE.equals(summary.opt("ready"))||!rootId.equals(summary.optString("rootRequestId"))||!"native_receipts_only".equals(summary.optString("proofScope"))
+                ||!Boolean.FALSE.equals(summary.opt("overallOutcomeVerified"))||!summary.optString("snapshotHash").matches("[0-9a-f]{64}"))return false;
+        for(String key:new String[]{"receiptCount","successfulCount","failedCount","unfinishedCount","mutationCount","confirmedMutationCount","unconfirmedMutationCount","failedMutationCount","readOnlyCount","failedReadOnlyCount","corruptCount"}){
+            Object value=summary.opt(key);if(!(value instanceof Number)||((Number)value).doubleValue()!=((Number)value).longValue()||((Number)value).longValue()<0||((Number)value).longValue()>10_000_000)return false;
+        }
+        return summary.optLong("unfinishedCount")==0&&summary.optLong("unconfirmedMutationCount")==0&&summary.optLong("failedMutationCount")==0&&summary.optLong("corruptCount")==0
+                &&summary.optLong("mutationCount")==summary.optLong("confirmedMutationCount")
+                &&summary.optLong("receiptCount")==summary.optLong("successfulCount")+summary.optLong("failedCount")
+                &&summary.optLong("failedCount")==summary.optLong("failedReadOnlyCount")
+                &&summary.optLong("receiptCount")==summary.optLong("mutationCount")+summary.optLong("readOnlyCount");
+    }
+    private JSONObject listReported(JSONObject args) {
+        String after=args.optString("afterRootRequestId","");if(!after.isEmpty())validRoot(after);int limit=intArgument(args,"limit",1,100,25);
+        if(args.has("dueBefore")||args.has("stage")&&!"reported_completed".equals(args.optString("stage")))throw new IllegalArgumentException("Archived reports are not active due goals");
+        return store.withTransaction(db->{
+            JSONArray reports=new JSONArray(),invalid=new JSONArray();String last=after;int scanned=0;boolean more=false;
+            try(Cursor rows=db.rawQuery("SELECT setting_key,value FROM settings WHERE setting_key >= ? AND setting_key < ? AND setting_key > ? ORDER BY setting_key ASC LIMIT ?",new String[]{REPORT_PREFIX,REPORT_END,REPORT_PREFIX+after,String.valueOf(limit+1)})){
+                while(rows.moveToNext()){if(scanned==limit){more=true;break;}last=rows.getString(0).substring(REPORT_PREFIX.length());scanned++;
+                    try{JSONObject index=readReportIndex(rows.getString(1),last);JSONObject source=store.getMessage(index.optLong("reportSourceMessageId"));
+                        if(source==null||!index.optString("reportSourceHash").equals(source.optString("content_hash"))||!index.optString("reportBodyHash").equals(source.optString("raw_content_hash")))throw new IllegalStateException("Archive original identity unavailable");
+                        put(index,"archiveSourceReferenceMatches",true);put(index,"archiveOriginalContentVerified",false);reports.put(index);
+                    }catch(RuntimeException unavailable){invalid.put(last);}
+                }
+            }
+            long total;try(Cursor count=db.rawQuery("SELECT COUNT(*) FROM settings WHERE setting_key >= ? AND setting_key < ?",new String[]{REPORT_PREFIX,REPORT_END})){count.moveToFirst();total=count.getLong(0);}
+            return object("ok",true,"scope","reported_archive","goals",reports,"totalReportedArchives",total,"totalPending",activeCount(db),"scannedCount",scanned,"returnedCount",reports.length(),
+                    "truncated",more,"nextAfterRootRequestId",more?last:JSONObject.NULL,"invalidRecordCount",invalid.length(),"invalidRootRequestIds",invalid,"reportedCompletionIsIndependentProof",false);
+        });
+    }
+    private static JSONObject readReportIndex(String raw,String rootId){
+        if(raw==null||raw.length()>8_192)throw new IllegalStateException("Unreadable report index");
+        try{JSONObject index=wholeObject(raw);if(!rootId.equals(index.optString("rootRequestId"))||!"reported_completed".equals(index.optString("stage"))
+                    ||!Boolean.FALSE.equals(index.opt("completionVerified"))||!Boolean.FALSE.equals(index.opt("overallOutcomeVerified"))||!Boolean.FALSE.equals(index.opt("mayAutoRepeat"))
+                    ||index.optLong("reportSourceMessageId")<=0||!index.optString("reportSourceHash").matches("[0-9a-f]{64}")||!index.optString("reportBodyHash").matches("[0-9a-f]{64}"))throw new IllegalStateException("Invalid archived report");return index;
+        }catch(org.json.JSONException invalid){throw new IllegalStateException("Unreadable report index",invalid);}
+    }
+
+    private static JSONObject readActive(String raw,String rootId) {
+        if(raw==null||raw.isEmpty()||raw.length()>32_768)throw new IllegalStateException("Unreadable active goal record");
+        try{
+            JSONObject goal=wholeObject(raw);
+            if(!rootId.equals(goal.optString("rootRequestId"))||!pending(goal.optString("stage"))
+                    ||!(goal.opt("lastRequestId") instanceof String)||!goal.optString("lastRequestId").matches("[A-Za-z0-9_.:-]{1,450}")
+                    ||!(goal.opt("progress") instanceof String)||goal.optString("progress").length()>2_000)throw new IllegalStateException("Malformed active goal record");
+            for(String field:new String[]{"sourceMessageId","createdAt","updatedAt","nextCheckAt"}){
+                Object value=goal.opt(field);if(!(value instanceof Number)||((Number)value).doubleValue()!=((Number)value).longValue()||((Number)value).longValue()<0)throw new IllegalStateException("Malformed active goal number");
+            }
+            return goal;
+        }catch(org.json.JSONException unreadable){throw new IllegalStateException("Unreadable active goal record",unreadable);}
+    }
+    private static JSONObject wholeObject(String raw)throws org.json.JSONException{
+        int depth=0;boolean quoted=false,escaped=false;for(int i=0;i<raw.length();i++){char c=raw.charAt(i);if(quoted){if(escaped)escaped=false;else if(c=='\\')escaped=true;else if(c=='"')quoted=false;}else if(c=='"')quoted=true;else if(c=='{'||c=='['){if(++depth>64)throw new IllegalStateException("Goal nesting too deep");}else if(c=='}'||c==']'){if(--depth<0)throw new IllegalStateException("Malformed goal delimiters");}}
+        JSONTokener tokener=new JSONTokener(raw);Object parsed=tokener.nextValue();if(!(parsed instanceof JSONObject)||tokener.nextClean()!=0)throw new IllegalStateException("Goal must be one whole object");return (JSONObject)parsed;
+    }
 
     private void bumpRevision() {
         long previous = 0;
@@ -204,9 +302,9 @@ public final class GoalLedger {
             throw new IllegalArgumentException("An owner request cannot become a source-free automatic goal");
     }
     private static JSONObject requestByExternalId(SQLiteDatabase db, String id) {
-        try (Cursor cursor = db.rawQuery("SELECT id,external_id,text,kind,status FROM requests WHERE external_id = ?", new String[]{id})) {
+        try (Cursor cursor = db.rawQuery("SELECT id,external_id,text,kind,status,raw_result_hash FROM requests WHERE external_id = ?", new String[]{id})) {
             if (!cursor.moveToFirst()) return null;
-            return object("id", cursor.getLong(0), "external_id", cursor.getString(1), "text", cursor.getString(2), "kind", cursor.getString(3), "status", cursor.getString(4));
+            return object("id", cursor.getLong(0), "external_id", cursor.getString(1), "text", cursor.getString(2), "kind", cursor.getString(3), "status", cursor.getString(4),"raw_result_hash",cursor.getString(5));
         }
     }
     private static long activeCount(SQLiteDatabase db) {

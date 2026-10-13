@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import com.hoyoung.assistant.store.HoyoungStore;
 import com.hoyoung.assistant.store.InternalFiles;
+import com.hoyoung.assistant.store.BackupPolicy;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
@@ -33,6 +34,22 @@ public final class PhoneArchiveCompactionTest {
     private File root, snapshot;
     @Before public void setup() throws Exception { root = Files.createTempDirectory("hoyoung-raw-segments-").toFile(); snapshot = Files.createTempDirectory("hoyoung-raw-snapshot-").toFile(); }
     @After public void cleanup() throws Exception { clear(root); clear(snapshot); }
+
+    @Test public void privateSpaceFailureWhilePackingSnapshotPreservesEveryRawOriginalAndReleasesPins() throws Exception {
+        PhoneObservationSpool spool=new PhoneObservationSpool(root,PhoneArchiveSegments.MAX_SEGMENT_BYTES,4);
+        Map<String,byte[]> originals=seedRawFiles(4,1,600);
+        final long[] written={0};
+        BackupPolicy.SpaceMonitor monitor=new BackupPolicy.SpaceMonitor(){
+            @Override public void checkpoint(String phase,String path,long upcoming){assertEquals("export_snapshot",phase);assertTrue(path.startsWith("device-journal/"));}
+            @Override public void beforeWrite(int count)throws IOException{if(written[0]+count>128)throw new IOException("Synthetic private-space reserve crossed mid-segment");}
+            @Override public void written(int count){written[0]+=count;}
+        };
+        expectIo(()->spool.captureSnapshot(snapshot,null,monitor));
+        assertTrue(written[0]>0);assertEquals(4,rawFileCount());assertOriginals(originals,readArchive(new File(root,"archive")));
+        File[] partial=new File(snapshot,"archive/segments").listFiles();assertNotNull(partial);assertEquals(0,partial.length);
+        spool.compactArchive();assertEquals("Failed capture must release its snapshot pin",0,rawFileCount());
+        assertOriginals(originals,readArchive(new File(root,"archive")));
+    }
 
     @Test public void liveRotationRetainsExactBytesNamesAndChecksumsAcrossDays() throws Exception {
         PhoneObservationSpool spool = new PhoneObservationSpool(root, 2048, 4);

@@ -1,0 +1,57 @@
+{
+  "schema": "hoyoung-regression-evidence-v1",
+  "recordedAtUtc": "2026-10-13T22:39:22.731842+00:00",
+  "scope": "SDK28 Robolectric with actual latest HoyoungStore/MemoryReviewCoordinator/private files;14 production source snapshots independently javac compiled; production sources unchanged and no Gradle run.",
+  "beforeFix": {
+    "tests": 43,
+    "passed": 42,
+    "failed": 1,
+    "failedMethod": "deliveredRepresentationKeepsBothHashesAndNeverClaimsTheWholeOriginalWasInspected",
+    "observedAfterRestore": {
+      "providerStatus": "uncertain",
+      "providerRawResponseHashPreserved": true,
+      "textWatermarkMatchesLastOwner": true,
+      "assetsPending": 1,
+      "sourceIntegrity": "provider_analysis_proof_missing"
+    },
+    "diagnosis": "Fixture snapshot left successfully processed provider in accepted state. Store import intentionally quarantines accepted requests as uncertain; strict providerReceiptStillBound rejects uncertain in-flight proof. Production Runtime ordinarily persists completed after processing accepted response.",
+    "diagnosticLogSha256": "190fac1fe25ff5358b996bf44bd03c0b6db1b33557af6477dc715871b1f929f3"
+  },
+  "afterFix": {
+    "tests": 44,
+    "passed": 44,
+    "failed": 0,
+    "skipped": 0,
+    "junitElapsedSeconds": 7.708,
+    "exitCode": 0
+  },
+  "changes": [
+    "Settled representation snapshot fixture marks provider completed with the exact same raw response bytes/hash before backup",
+    "Preserve both original asset SHA and delivered representation SHA, four typed false full-original/independent-server flags and no pending status across settled restore",
+    "Add contrasting accepted/inflight snapshot test: restore becomes uncertain and asset requires review, original analysis/source record+body hashes and derived observation metadata remain unchanged, prior coverage preserved as system source, no request requeues automatically"
+  ],
+  "sourceSha256": {
+    "mobile/app/src/main/java/com/hoyoung/assistant/runtime/AssistantRuntime.java": "b402c39ce74d17af19a044b750e779678b6e20c3dca2e48df42c44c6f4faa68c",
+    "mobile/app/src/main/java/com/hoyoung/assistant/runtime/OwnerDraftStore.java": "33d66d25512bf7e96e514a4c1b32d382937899b8b78034039b7d4cc5f28e05e0",
+    "mobile/app/src/main/java/com/hoyoung/assistant/runtime/ActionReceiptJournal.java": "28dca681712820ae783fea4ac7d467d2e4d2273edd2042bc0aa418417b23481a",
+    "mobile/app/src/main/java/com/hoyoung/assistant/runtime/GoalLedger.java": "efd562bf0e70c79b18f219ac5b0bbe4107020353f8cd3c63238d3e1c60001a09",
+    "mobile/app/src/main/java/com/hoyoung/assistant/runtime/MemoryReviewCoordinator.java": "d305cf9db80c4f9634cef193f393ea95b456560855e8025e0afd7231ec197d4c",
+    "mobile/app/src/main/java/com/hoyoung/assistant/runtime/AssistantReplyNotifications.java": "9c3c69472f9de74aad8781e15124e9b078589274d55493d9b1283203dff9ce69",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/HoyoungStore.java": "08e4542935e2f121a5a75ac6eaacc4bdf327fc0288b5ca305f86d1b876da911e",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/OriginalTextFiles.java": "ba9d667c885e662c9fe25f74329d8ece631fc407976e5908aa769c00f3d5c39b",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/DeviceEventSearch.java": "66b9ed4e6e65264072685d68bd1115e958736283ef4ff24e4744e3cd4641657d",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/InternalFiles.java": "791b07107c034aa29c092e7db9bca62f9a932acfc7e82a17df53bd5e5c971129",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/AttachmentOriginals.java": "0fecf6d8c710b10ba9dc242dabdd4d1883cc66d68e9148265aef542deebf1a11",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/StreamingBackup.java": "f35fe79f8a48543a8c6bc275deff5bcd4e9cb429c820900ec00c66f69c8b226c",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/BackupPolicy.java": "dd6772e05f9b6bcd358a4a55e64a583cc5f49f05d149d9ee837adf998a1ab927",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/BackupFailure.java": "66c8680b95fbb8e37c5432415b2a8aee40610f13f6c7e79a92fffa3a7d87e632",
+    "mobile/app/src/test/java/com/hoyoung/assistant/runtime/MemoryReviewCoordinatorTest.java": "a4191c1a6f30f09222f07c66120f5117911c4e5d2071474f3e00bc22f9ac836c"
+  },
+  "logSha256": "35b2c7b2071c0b43e576c278c6de4340d8d9fcf54c825ff5f7c21f8e9ff645f3",
+  "logLocalPath": "/tmp/hoyoung-coordinator-reopen/tests.log",
+  "limitations": [
+    "Fixture oracle supplies analysis and native upload/representation plan metadata; no actual provider upload, image inspection, model inference or server byte verification was performed.",
+    "No proof checks were weakened. Restore quarantine behavior is intentional and assets marked pending are not claimed analyzed/complete.",
+    "No physical-phone process death/background policy or cloud-state reconciliation was measured."
+  ]
+}

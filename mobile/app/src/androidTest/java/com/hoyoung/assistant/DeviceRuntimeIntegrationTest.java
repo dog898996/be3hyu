@@ -12,6 +12,7 @@ import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 import android.net.ConnectivityManager;
@@ -24,6 +25,8 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ScrollView;
+import android.widget.TextView;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -35,6 +38,7 @@ import androidx.test.uiautomator.UiSelector;
 import androidx.test.uiautomator.Until;
 import com.hoyoung.assistant.runtime.AutonomyService;
 import com.hoyoung.assistant.runtime.HoyoungApplication;
+import com.hoyoung.assistant.runtime.AssistantReplyNotifications;
 import com.hoyoung.assistant.phone.PhoneEventJournal;
 import com.hoyoung.assistant.store.HoyoungStore;
 import com.hoyoung.assistant.store.InternalFiles;
@@ -70,41 +74,54 @@ public final class DeviceRuntimeIntegrationTest {
 
     @Rule public final TestWatcher failureDiagnostics = new TestWatcher() {
         @Override protected void failed(Throwable failure, Description description) {
-            if (!disposableOfflineFixtureConfirmed || device == null) return;
-            try {
-                PowerManager power = context.getSystemService(PowerManager.class);
-                KeyguardManager keyguard = context.getSystemService(KeyguardManager.class);
-                JSONObject state = new JSONObject().put("test", description.getMethodName())
-                        .put("currentUiPackage", device.getCurrentPackageName())
-                        .put("screenInteractive", power.isInteractive()).put("keyguardLocked", keyguard.isKeyguardLocked());
-                ByteArrayOutputStream hierarchy = new ByteArrayOutputStream(); device.dumpWindowHierarchy(hierarchy);
-                XmlPullParser parser = android.util.Xml.newPullParser();
-                parser.setInput(new StringReader(hierarchy.toString(StandardCharsets.UTF_8.name())));
-                JSONArray nodes = new JSONArray();
-                java.util.List<String> publicLabels = java.util.Arrays.asList("설정", "확인", "파일", "Wait", "Close app", "System UI isn't responding");
-                for (int event = parser.getEventType(); event != XmlPullParser.END_DOCUMENT && nodes.length() < 80; event = parser.next()) {
-                    if (event != XmlPullParser.START_TAG || !"node".equals(parser.getName())) continue;
-                    String text = parser.getAttributeValue(null, "text");
-                    JSONObject node = new JSONObject().put("package", parser.getAttributeValue(null, "package"))
-                            .put("class", parser.getAttributeValue(null, "class")).put("bounds", parser.getAttributeValue(null, "bounds"))
-                            .put("enabled", parser.getAttributeValue(null, "enabled")).put("clickable", parser.getAttributeValue(null, "clickable"))
-                            .put("textLength", text == null ? 0 : text.length());
-                    if (publicLabels.contains(text)) node.put("publicLabel", text);
-                    nodes.put(node);
-                }
-                state.put("uiNodesWithoutPrivateText", nodes);
-                System.out.println("HOYOUNG_UI_FAILURE_DIAG " + state);
-                // The driver creates a wiped, offline AVD and never imports an account.
-                // A small test-only screenshot goes to free CI logs, not an uploaded artifact.
-                Bitmap screenshot = InstrumentationRegistry.getInstrumentation().getUiAutomation().takeScreenshot();
-                if (screenshot != null) {
-                    ByteArrayOutputStream image = new ByteArrayOutputStream();
-                    screenshot.compress(Bitmap.CompressFormat.JPEG, 40, image); screenshot.recycle();
-                    System.out.println("HOYOUNG_UI_FAILURE_JPEG_BASE64 " + android.util.Base64.encodeToString(image.toByteArray(), android.util.Base64.NO_WRAP));
-                }
-            } catch (Exception unavailable) { System.out.println("HOYOUNG_UI_FAILURE_DIAG_UNAVAILABLE " + unavailable.getClass().getSimpleName()); }
+            captureFailureUiFixture(description.getMethodName());
         }
     };
+
+    private void captureFailureUiFixture(String test) {
+        if (!disposableOfflineFixtureConfirmed || device == null) return;
+        try {
+            PowerManager power = context.getSystemService(PowerManager.class);
+            KeyguardManager keyguard = context.getSystemService(KeyguardManager.class);
+            JSONObject state = new JSONObject().put("test", test)
+                    .put("currentUiPackage", device.getCurrentPackageName())
+                    .put("screenInteractive", power.isInteractive()).put("keyguardLocked", keyguard.isKeyguardLocked());
+            ByteArrayOutputStream hierarchy = new ByteArrayOutputStream(); device.dumpWindowHierarchy(hierarchy);
+            XmlPullParser parser = android.util.Xml.newPullParser();
+            parser.setInput(new StringReader(hierarchy.toString(StandardCharsets.UTF_8.name())));
+            JSONArray nodes = new JSONArray();
+            java.util.List<String> publicLabels = java.util.Arrays.asList("설정", "확인", "파일", "Wait", "Close app", "System UI isn't responding");
+            for (int event = parser.getEventType(); event != XmlPullParser.END_DOCUMENT && nodes.length() < 80; event = parser.next()) {
+                if (event != XmlPullParser.START_TAG || !"node".equals(parser.getName())) continue;
+                String text = parser.getAttributeValue(null, "text");
+                JSONObject node = new JSONObject().put("package", parser.getAttributeValue(null, "package"))
+                        .put("class", parser.getAttributeValue(null, "class")).put("bounds", parser.getAttributeValue(null, "bounds"))
+                        .put("enabled", parser.getAttributeValue(null, "enabled")).put("clickable", parser.getAttributeValue(null, "clickable"))
+                        .put("textLength", text == null ? 0 : text.length());
+                if (publicLabels.contains(text)) node.put("publicLabel", text);
+                nodes.put(node);
+            }
+            state.put("uiNodesWithoutPrivateText", nodes);
+            logUiFixtureChunks("HOYOUNG_UI_FAILURE_DIAG", test, state.toString());
+            // The driver creates a wiped, offline AVD and never imports an account.
+            // A small test-only screenshot goes to free CI logs, not an uploaded artifact.
+            Bitmap screenshot = InstrumentationRegistry.getInstrumentation().getUiAutomation().takeScreenshot();
+            if (screenshot != null) {
+                ByteArrayOutputStream image = new ByteArrayOutputStream();
+                screenshot.compress(Bitmap.CompressFormat.JPEG, 40, image); screenshot.recycle();
+                logUiFixtureChunks("HOYOUNG_UI_FAILURE_JPEG_BASE64", test,
+                        android.util.Base64.encodeToString(image.toByteArray(), android.util.Base64.NO_WRAP));
+            }
+        } catch (Exception unavailable) { android.util.Log.i("HoyoungDeviceProof", "HOYOUNG_UI_FAILURE_DIAG_UNAVAILABLE " + unavailable.getClass().getSimpleName()); }
+    }
+
+    private static void logUiFixtureChunks(String marker, String test, String payload) {
+        int size = 2_000, chunks = (payload.length() + size - 1) / size;
+        for (int part = 0; part < chunks; part++) {
+            String header = marker + " " + test + " " + part + "/" + chunks + " ";
+            android.util.Log.i("HoyoungDeviceProof", header + payload.substring(part * size, Math.min(payload.length(), (part + 1) * size)));
+        }
+    }
 
     @Before public void requireFixtureEmulator() throws Exception {
         assertTrue("These tests must never mutate a physical phone", Build.HARDWARE.contains("ranchu") || Build.HARDWARE.contains("goldfish"));
@@ -143,10 +160,38 @@ public final class DeviceRuntimeIntegrationTest {
                 }
             });
             device.waitForIdle(1_000);
-            new UiScrollable(new UiSelector().scrollable(true)).scrollTextIntoView("설정 저장");
+            new UiScrollable(new UiSelector().className(ScrollView.class.getName()).scrollable(true)).scrollTextIntoView("설정 저장");
+            boolean[] fullyVisible = {false};
+            for (int attempt = 0; attempt < 6 && !fullyVisible[0]; attempt++) {
+                int[] geometry = new int[4];
+                scenario.onActivity(activity -> {
+                    TextView actual = findText(activity.getWindow().getDecorView(), "설정 저장");
+                    assertTrue("The actual settings Save control must remain a Button", actual instanceof Button);
+                    Rect visible = new Rect(), screen = new Rect();
+                    activity.getWindow().getDecorView().getWindowVisibleDisplayFrame(screen);
+                    boolean isVisible = actual.getGlobalVisibleRect(visible);
+                    fullyVisible[0] = isVisible && actual.getHeight() > 0 && visible.height() == actual.getHeight()
+                            && visible.width() == actual.getWidth() && screen.contains(visible.centerX(), visible.centerY());
+                    int[] location = new int[2]; actual.getLocationOnScreen(location);
+                    Rect scrollViewport = new Rect(screen);
+                    android.view.ViewParent parent = actual.getParent();
+                    while (parent instanceof View && !(parent instanceof ScrollView)) parent = parent.getParent();
+                    if (parent instanceof ScrollView) ((ScrollView) parent).getGlobalVisibleRect(scrollViewport);
+                    geometry[0] = scrollViewport.centerX(); geometry[1] = location[1] + actual.getHeight() / 2;
+                    geometry[2] = scrollViewport.top; geometry[3] = scrollViewport.bottom;
+                });
+                if (!fullyVisible[0]) {
+                    int center = (geometry[2] + geometry[3]) / 2;
+                    int start = geometry[1] > center ? geometry[3] - 100 : geometry[2] + 100;
+                    int end = geometry[1] > center ? start - 180 : start + 180;
+                    device.swipe(geometry[0], start, geometry[0], end, 16); device.waitForIdle(1_000);
+                }
+            }
+            assertTrue("Save must be fully visible before the real touchscreen click", fullyVisible[0]);
             UiObject2 save = device.wait(Until.findObject(By.text("설정 저장").clazz(Button.class)), 10_000);
             assertNotNull(save); save.click();
             UiObject2 acknowledgement = device.wait(Until.findObject(By.text("확인")), 10_000);
+            if (acknowledgement == null) captureFailureUiFixture("aActualSettingsButtonPersistsAndBackupOpensAndroidDocumentPicker-before-close");
             assertNotNull("Actual Save click must open its dialog; persisted interval="
                     + app.getStore().getSetting("heartbeatSeconds", "missing"), acknowledgement);
             assertEquals("120", app.getStore().getSetting("heartbeatSeconds", ""));
@@ -351,11 +396,123 @@ public final class DeviceRuntimeIntegrationTest {
         android.util.Log.i("HoyoungDeviceProof", "HOYOUNG_DEVICE_PHOTO_UI actual-private-PNG-decoded; immutable-source-thumbnail; native-viewer-opened; no-cloud-upload-claimed");
     }
 
+    @Test public void gActualChatPagesFortyMessagesAndOpensLargeUnicodeOriginal() throws Exception {
+        HoyoungApplication app = (HoyoungApplication) context.getApplicationContext();
+        String marker = "DEVICE_PAGE_" + UUID.randomUUID();
+        for (int i = 1; i <= 95; i++) {
+            String text = marker + " row " + i;
+            if (i == 95) text += " 😀한글 " + "😀".repeat(20_000);
+            app.getStore().addMessage("user", text, null);
+        }
+        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
+            java.util.List<String> latest = awaitPageTexts(scenario, marker, " row 95", 40);
+            assertTrue(latest.stream().allMatch(text -> text.length() <= 8_000));
+            String excerpt = latest.stream().filter(text -> text.startsWith(marker + " row 95")).findFirst().get();
+            assertTrue(excerpt.contains("😀한글")); assertFalse(Character.isHighSurrogate(excerpt.charAt(excerpt.length() - 1)));
+            UiObject2 original = device.wait(Until.findObject(By.text("보관된 전체 원문 읽기")), 10_000);
+            assertNotNull("The large message must offer its preserved original", original); original.click();
+            assertTrue(device.wait(Until.hasObject(By.text("다음 부분")), 10_000));
+            device.findObject(By.text("닫기")).click();
+            UiObject2 previous = device.wait(Until.findObject(By.text("이전 대화 40개")), 10_000);
+            assertNotNull(previous); previous.click();
+            java.util.List<String> older = awaitPageTexts(scenario, marker, " row 55", 40);
+            assertTrue(older.stream().noneMatch(text -> text.startsWith(marker + " row 95")));
+            device.findObject(By.text("이전 대화 40개")).click();
+            java.util.List<String> oldest = awaitPageTexts(scenario, marker, " row 1", 15);
+            assertTrue(oldest.stream().noneMatch(text -> text.startsWith(marker + " row 55")));
+            device.findObject(By.text("최신 대화")).click();
+            awaitPageTexts(scenario, marker, " row 95", 40);
+            android.util.Log.i("HoyoungDeviceProof", "HOYOUNG_DEVICE_PAGED_CHAT 95-synthetic-messages; actual-40-row-view-tree-pages; bounded-8000-char-Unicode-preview; preserved-original-dialog; no-live-account");
+        }
+    }
+
+    @Test public void hActualAndroidReplyNotificationOpensOlderSourceAndMarksOnlyVisibleHash() throws Exception {
+        HoyoungApplication app = (HoyoungApplication) context.getApplicationContext();
+        NotificationManager manager = context.getSystemService(NotificationManager.class);
+        String previous = app.getStore().getSetting("replyNotificationsEnabled", "true");
+        String body = "DEVICE_REPLY_NOTIFY_" + UUID.randomUUID();
+        JSONObject source = app.getStore().addMessage("assistant", body, null);
+        long id = source.getLong("id"); String hash = source.getString("content_hash");
+        try {
+            device.pressHome();
+            app.getStore().putSetting("replyNotificationsEnabled", "true");
+            assertFalse("Closing the actual conversation must reset app notification visibility", app.getReplyNotifications().state().getBoolean("conversationVisible"));
+            assertTrue(app.getReplyNotifications().publish(source, "completed").getBoolean("queued"));
+            android.service.notification.StatusBarNotification posted = null;
+            long deadline = SystemClock.elapsedRealtime() + 10_000;
+            while (posted == null && SystemClock.elapsedRealtime() < deadline) {
+                for (android.service.notification.StatusBarNotification candidate : manager.getActiveNotifications()) {
+                    if (candidate.getId() == AssistantReplyNotifications.NOTIFICATION_ID
+                            && hash.equals(candidate.getNotification().extras.getString(AssistantReplyNotifications.EXTRA_SOURCE_HASH))) posted = candidate;
+                }
+                if (posted == null) SystemClock.sleep(50);
+            }
+            assertNotNull("Android must actually post the saved assistant reply", posted);
+            assertEquals(id, posted.getNotification().extras.getLong(AssistantReplyNotifications.EXTRA_SOURCE_ID));
+            // Android can expose notify() before the worker commits its dispatch receipt.
+            JSONObject postedReceipt = null;
+            deadline = SystemClock.elapsedRealtime() + 10_000;
+            while (SystemClock.elapsedRealtime() < deadline) {
+                JSONObject receipt = new JSONObject(app.getStore().getSetting("replyNotification:" + id, "{}"));
+                if ("posted".equals(receipt.optString("status")) && hash.equals(receipt.optString("sourceHash"))) {
+                    postedReceipt = receipt; break;
+                }
+                SystemClock.sleep(50);
+            }
+            assertNotNull("The worker must commit this exact posted source hash", postedReceipt);
+            assertFalse("Posting a notification does not prove conversation display", app.getReplyNotifications().state().getBoolean("readConfirmed"));
+            for (int i = 0; i < 60; i++) app.getStore().addMessage("user", "DEVICE_AFTER_NOTIFICATION " + i, null);
+            assertEquals("posted", new JSONObject(app.getStore().getSetting("replyNotification:" + id, "{}")).getString("status"));
+            device.openNotification();
+            UiObject2 notification = device.wait(Until.findObject(By.text(body)), 10_000);
+            assertNotNull("The real System UI notification must expose this synthetic message", notification); notification.click();
+            assertTrue("The OS tap must open the older source, not merely the latest forty rows", device.wait(Until.hasObject(By.text(body).pkg(context.getPackageName())), 15_000));
+            JSONObject seen = null; deadline = SystemClock.elapsedRealtime() + 10_000;
+            while (SystemClock.elapsedRealtime() < deadline) {
+                JSONObject value = new JSONObject(app.getStore().getSetting("replyNotification:" + id, "{}"));
+                if ("seen".equals(value.optString("status"))) { seen = value; break; }
+                SystemClock.sleep(50);
+            }
+            assertNotNull("Only the actually displayed native body may acknowledge its hash", seen);
+            assertEquals(hash, seen.getString("sourceHash")); assertTrue(seen.getBoolean("readConfirmedByUi"));
+            assertFalse("UI display is not a claim that a human read it", app.getReplyNotifications().state().getBoolean("readConfirmed"));
+            android.util.Log.i("HoyoungDeviceProof", "HOYOUNG_DEVICE_REPLY_NOTIFICATION actual-Android-post; real-SystemUI-tap; older-source-page-anchor; exact-visible-source-hash; no-human-read-claim");
+        } finally { app.getStore().putSetting("replyNotificationsEnabled", previous); manager.cancel("hoyoung_reply:" + id, AssistantReplyNotifications.NOTIFICATION_ID); device.pressHome(); }
+    }
+
+    private static java.util.List<String> awaitPageTexts(ActivityScenario<MainActivity> scenario, String marker, String requiredSuffix, int expectedCount) {
+        java.util.List<String> texts = new java.util.ArrayList<>();
+        long deadline = SystemClock.elapsedRealtime() + 10_000;
+        while (SystemClock.elapsedRealtime() < deadline) {
+            scenario.onActivity(activity -> { texts.clear(); collectPageTexts(activity.getWindow().getDecorView(), marker, texts); });
+            if (texts.size() == expectedCount && texts.stream().anyMatch(text -> text.startsWith(marker + requiredSuffix))) return new java.util.ArrayList<>(texts);
+            SystemClock.sleep(50);
+        }
+        fail("The actual bounded chat view did not render " + expectedCount + " fixture messages for " + requiredSuffix + "; rendered=" + texts.size());
+        return texts;
+    }
+    private static void collectPageTexts(View view, String marker, java.util.List<String> texts) {
+        if (view instanceof TextView && ((TextView) view).getText().toString().startsWith(marker)) texts.add(((TextView) view).getText().toString());
+        if (view instanceof ViewGroup) {
+            ViewGroup group = (ViewGroup) view;
+            for (int i = 0; i < group.getChildCount(); i++) collectPageTexts(group.getChildAt(i), marker, texts);
+        }
+    }
+
     private static ImageView findImage(View view, String description) {
         if (view instanceof ImageView && description.contentEquals(view.getContentDescription() == null ? "" : view.getContentDescription())) return (ImageView) view;
         if (view instanceof ViewGroup) {
             ViewGroup group = (ViewGroup) view;
             for (int i = 0; i < group.getChildCount(); i++) { ImageView image = findImage(group.getChildAt(i), description); if (image != null) return image; }
+        }
+        return null;
+    }
+
+    private static TextView findText(View view, String text) {
+        if (view instanceof TextView && text.contentEquals(((TextView) view).getText())) return (TextView) view;
+        if (view instanceof ViewGroup) {
+            ViewGroup group = (ViewGroup) view;
+            for (int i = 0; i < group.getChildCount(); i++) { TextView found = findText(group.getChildAt(i), text); if (found != null) return found; }
         }
         return null;
     }

@@ -6,6 +6,8 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.Bitmap;
+import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
@@ -25,6 +27,10 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.ImageView;
 import com.hoyoung.assistant.ui.AttachmentPreview;
+import com.hoyoung.assistant.ui.ChatAttachmentPreviews;
+import com.hoyoung.assistant.runtime.AssistantReplyNotifications;
+import com.hoyoung.assistant.runtime.OwnerDraftStore;
+import com.hoyoung.assistant.store.BackupFailure;
 
 import com.hoyoung.assistant.phone.PermissionCatalog;
 import com.hoyoung.assistant.runtime.AutonomyService;
@@ -48,6 +54,19 @@ public final class MainActivity extends Activity {
     private static final int PICK_FILES = 201, EXPORT_BACKUP = 202, IMPORT_BACKUP = 203, WORK_FILE_PICKER = 204, EXPORT_FILE = 205;
     private final Handler main = new Handler(Looper.getMainLooper());
     private final ExecutorService io = Executors.newSingleThreadExecutor();
+    private final ExecutorService commands = Executors.newSingleThreadExecutor();
+    private final ExecutorService display = Executors.newSingleThreadExecutor();
+    private final ExecutorService fileListing = Executors.newSingleThreadExecutor();
+    private final Runnable runtimeRefreshListener = () -> main.post(this::refreshStatus);
+    private ChatAttachmentPreviews photoPreviews;
+    private final java.util.IdentityHashMap<AlertDialog, Bitmap> expandedPhotos = new java.util.IdentityHashMap<>();
+    private final java.util.IdentityHashMap<TextView, JSONObject> replyViews = new java.util.IdentityHashMap<>();
+    private boolean resumed;
+    private OwnerDraftStore draftStore;
+    private OwnerDraftStore.Snapshot draftState;
+    private boolean applyingDraft, messagesLoading, draftSaveFailed;
+    private long chatBeforeId, nextBeforeId, chatGeneration;
+    private LinearLayout chatNavigation;
     private HoyoungApplication app;
     private LinearLayout root, content;
     private TextView connection;
@@ -68,7 +87,9 @@ public final class MainActivity extends Activity {
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
         app = (HoyoungApplication) getApplication();
-        try { attachments = app.getRuntime().isRestoringBackup() ? new JSONArray() : new JSONArray(app.getStore().getSetting("ui.attachments", "[]")); } catch (Exception ignored) { attachments = new JSONArray(); }
+        draftStore = new OwnerDraftStore(app.getStore());
+        photoPreviews = new ChatAttachmentPreviews(this, app.getFiles());
+        if (!app.getRuntime().isRestoringBackup()) { draftState = draftStore.read(); attachments = draftState.attachments(); }
         getWindow().setStatusBarColor(Color.WHITE);
         getWindow().setNavigationBarColor(Color.WHITE);
         root = column(); root.setBackgroundColor(BG);
@@ -87,36 +108,76 @@ public final class MainActivity extends Activity {
         setContentView(root);
         app.getWebController().bindActivity(this);
         app.getWebController().start();
-        app.getRuntime().setListener(() -> main.post(this::refreshStatus));
+        app.getRuntime().setListener(runtimeRefreshListener);
         showTab("대화");
+        openReplyIntent(getIntent());
         if (!app.getRuntime().isRestoringBackup() && "true".equals(app.getStore().getSetting("autonomy.enabled", "false"))) startAutonomy();
     }
 
     @Override protected void onResume() {
         super.onResume();
+        resumed = true;
+        if (app.getReplyNotifications() != null) app.getReplyNotifications().setConversationVisible("대화".equals(tab) && !app.getRuntime().isRestoringBackup());
         app.getWebController().bindActivity(this);
         main.removeCallbacks(refresh); main.post(refresh);
         if (!app.getRuntime().isRestoringBackup()) { app.getPhoneContext().reconcilePermissions(); app.maintainMemory(); }
         if ("권한".equals(tab)) showPermissions();
     }
 
-    @Override protected void onPause() { persistDraft(); main.removeCallbacks(refresh); super.onPause(); }
+    @Override protected void onNewIntent(Intent intent) { super.onNewIntent(intent); setIntent(intent); openReplyIntent(intent); }
+
+    private void openReplyIntent(Intent intent) {
+        if (intent == null || !intent.getBooleanExtra(AssistantReplyNotifications.EXTRA_OPEN_CONVERSATION, false)) return;
+        long id = intent.getLongExtra(AssistantReplyNotifications.EXTRA_SOURCE_ID, 0);
+        String hash = intent.getStringExtra(AssistantReplyNotifications.EXTRA_SOURCE_HASH);
+        intent.removeExtra(AssistantReplyNotifications.EXTRA_OPEN_CONVERSATION);
+        if (id <= 0 || id == Long.MAX_VALUE || hash == null || !hash.matches("[0-9a-f]{64}")) return;
+        display.execute(() -> {
+            try {
+                JSONObject page = app.getStore().boundedChatMessagePage(id + 1, 1, 1);
+                JSONObject source = page.optJSONArray("messages").optJSONObject(0);
+                if (source == null || source.optLong("id") != id || !hash.equals(source.optString("content_hash")) || "user".equals(source.optString("role"))) return;
+                main.post(() -> {
+                    if (isFinishing() || isDestroyed() || app.getRuntime().isRestoringBackup()) return;
+                    showTab("대화"); chatBeforeId = id + 1; displayedMessageId = -1; chatGeneration++; refreshMessages();
+                });
+            } catch (RuntimeException unavailable) { /* A stale notification does not certify read or restored-source identity. */ }
+        });
+    }
+
+    @Override protected void onPause() {
+        resumed = false;
+        if (app.getReplyNotifications() != null) app.getReplyNotifications().setConversationVisible(false);
+        if (photoPreviews != null) photoPreviews.clear();
+        displayedMessageId = -1;
+        main.removeCallbacks(refresh); super.onPause();
+    }
 
     @Override protected void onDestroy() {
         main.removeCallbacks(refresh);
+        app.getRuntime().clearListener(runtimeRefreshListener);
+        if (photoPreviews != null) photoPreviews.close();
+        for (AlertDialog dialog : new java.util.ArrayList<>(expandedPhotos.keySet())) dialog.dismiss();
+        replyViews.clear();
         app.getWebController().unbindActivity(this);
         detachWebView();
         io.shutdown();
+        commands.shutdown(); display.shutdownNow(); fileListing.shutdownNow();
         super.onDestroy();
     }
 
     private void showTab(String name) {
         if (app.getRuntime().isRestoringBackup()) {
+            if (photoPreviews != null) photoPreviews.clear();
+            if (app.getReplyNotifications() != null) app.getReplyNotifications().setConversationVisible(false);
             content.removeAllViews(); content.addView(label("백업을 검증·복원하고 있어. 원문과 파일을 일관된 상태로 되살린 뒤 다시 사용할 수 있어.", 16, INK));
             return;
         }
-        persistDraft();
+        chatGeneration++;
+        if (photoPreviews != null) photoPreviews.clear();
+        replyViews.clear();
         detachWebView(); content.removeAllViews(); composer = null; tab = name;
+        if (app.getReplyNotifications() != null) app.getReplyNotifications().setConversationVisible(resumed && "대화".equals(name));
         switch (name) {
             case "Work": showWork(); break;
             case "권한": showPermissions(); break;
@@ -128,86 +189,126 @@ public final class MainActivity extends Activity {
     }
 
     private void detachWebView() {
-        WebView view = app.getWebController().getView();
+        WebView view = app.getWebController().getExistingView();
+        if (view == null) return;
         if (view.getParent() instanceof ViewGroup parent) parent.removeView(view);
     }
 
     private LinearLayout messageList;
     private ScrollView messageScroll;
     private void showChat() {
+        draftState = draftStore.read(); attachments = draftState.attachments();
+        chatBeforeId = 0; nextBeforeId = 0;
+        chatNavigation = row(); content.addView(chatNavigation);
         messageScroll = new ScrollView(this); messageScroll.setFillViewport(true);
+        messageScroll.getViewTreeObserver().addOnScrollChangedListener(() -> { photoPreviews.updateViewport(); markVisibleReplies(); });
         messageList = column(); messageScroll.addView(messageList);
         content.addView(messageScroll, new LinearLayout.LayoutParams(-1, 0, 1));
         attachmentLabel = label(attachmentSummary(), 12, SUBTLE); content.addView(attachmentLabel);
+        attachmentLabel.setOnClickListener(view -> { if (attachments.length() == 0) return; new AlertDialog.Builder(this).setMessage("선택한 첨부를 대화 입력에서 지울까? 보관된 파일 원본은 남아 있어.").setPositiveButton("첨부 선택 지우기", (dialog, which) -> { attachments = new JSONArray(); persistDraft(); attachmentLabel.setText(attachmentSummary()); }).setNegativeButton("유지", null).show(); });
         LinearLayout entry = row();
         entry.addView(button("＋", () -> pickDocuments(PICK_FILES, "*/*")), new LinearLayout.LayoutParams(dp(48), dp(52)));
         composer = new EditText(this); composer.setTextSize(15); composer.setHint("호영에게 메시지…");
-        composer.setMaxLines(5); composer.setText(app.getStore().getSetting("ui.draft", ""));
+        composer.setMaxLines(5); composer.setText(draftState.text);
         composer.addTextChangedListener(new android.text.TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) { if (!app.getRuntime().isRestoringBackup()) app.getStore().putSetting("ui.draft", s.toString()); }
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) { if (!applyingDraft) persistDraft(); }
             @Override public void afterTextChanged(android.text.Editable s) { }
         });
         entry.addView(composer, new LinearLayout.LayoutParams(0, -2, 1));
         entry.addView(button("보내기", this::send), new LinearLayout.LayoutParams(dp(76), dp(52)));
         content.addView(entry); displayedMessageId = -1; refreshMessages();
-        content.addView(button("현재 작업 중지", () -> io.execute(() -> { app.getRuntime().pauseCurrentWork("사용자가 대화 화면에서 현재 작업 중지 선택"); main.post(this::refreshStatus); })));
+        if (draftState.recoveryRequired) content.addView(label(draftState.recoveryReason, 13, SUBTLE));
+        content.addView(button("현재 작업 중지", () -> commands.execute(() -> { app.getRuntime().pauseCurrentWork("사용자가 대화 화면에서 현재 작업 중지 선택"); main.post(this::refreshStatus); })));
     }
 
     private void send() {
-        if (sending) return;
+        if (sending || composer == null || draftState == null) return;
+        if (draftState.recoveryRequired) { notice(draftState.recoveryReason); return; }
+        if (draftSaveFailed || !draftState.text.equals(composer.getText().toString()) || !draftState.attachmentsJson.equals(attachments.toString())) { notice("입력을 아직 영구 저장하지 못했어. 내용을 수정하거나 첨부 선택을 다시 확인한 뒤 보내 줘."); return; }
         String draft = composer.getText().toString();
         if (draft.trim().isEmpty() && attachments.length() == 0) return;
-        final String text = draft.trim().isEmpty() ? "첨부한 파일을 확인해줘." : draft;
+        final String text = draft;
         final String attached = attachments.toString();
+        final String clientId = draftState.clientInputId;
+        final long revision = draftState.revision;
         sending = true;
-        io.execute(() -> {
+        commands.execute(() -> {
             try {
-                app.getRuntime().receive(text, new JSONArray(attached));
+                app.getRuntime().receive(text, new JSONArray(attached), clientId, revision);
+                OwnerDraftStore.Snapshot current = draftStore.read();
                 main.post(() -> {
                     sending = false;
                     if (isFinishing() || isDestroyed()) return;
-                    // Do not erase text or files the owner added while the immutable copy was being saved.
-                    if (composer != null && composer.getText().toString().equals(draft)) composer.setText("");
-                    if (attachments.toString().equals(attached)) { attachments = new JSONArray(); if (attachmentLabel != null) attachmentLabel.setText(""); }
-                    persistDraft(); refreshMessages(); refreshStatus();
+                    if (draftState != null && clientId.equals(draftState.clientInputId) && revision == draftState.revision) applyDraft(current);
+                    refreshMessages(); refreshStatus();
                 });
             } catch (Exception error) { main.post(() -> { sending = false; notice("메시지나 첨부 원본을 저장하지 못했어. 입력과 선택은 그대로 남겨 뒀어."); }); }
         });
     }
 
+    /** At most forty bounded previews are read/rendered; old originals stay available by source id. */
     private void refreshMessages() {
-        if (app.getRuntime().isRestoringBackup() || messageList == null || !"대화".equals(tab)) return;
-        long newest = app.getStore().lastMessageId();
-        if (newest == displayedMessageId) return;
-        JSONArray messages = app.getStore().listMessages(80);
-        displayedMessageId = newest; messageList.removeAllViews();
-        if (messages.length() == 0) {
-            TextView hint = label("대화와 기억은 이 폰에 저장돼.\nWork 탭에서 ChatGPT를 연결하면 일을 시작할 수 있어.", 15, SUBTLE);
-            hint.setPadding(dp(8), dp(24), dp(8), dp(24)); messageList.addView(hint);
-        }
-        for (int i = 0; i < messages.length(); i++) {
-            JSONObject message = messages.optJSONObject(i); if (message == null) continue;
-            boolean owner = "user".equals(message.optString("role"));
-            LinearLayout line = row(); line.setGravity(owner ? Gravity.END : Gravity.START);
-            LinearLayout bubble = column(); bubble.setPadding(dp(12), dp(9), dp(12), dp(10));
-            bubble.setBackground(round(owner ? BLUE : Color.WHITE));
-            if (!owner) bubble.addView(label("호영", 11, SUBTLE));
-            String original = message.optString("text");
-            TextView body = label(shorten(original, 8000), 15, owner ? Color.WHITE : INK);
-            body.setTextIsSelectable(true); bubble.addView(body);
-            if (original.length() > 8000) bubble.addView(button("원문 보기", () -> new AlertDialog.Builder(this).setMessage(original).setPositiveButton("닫기", null).show()));
-            if (message.optLong("raw_char_count") > original.length()) bubble.addView(button("보관된 전체 원문 읽기", () -> showOriginal(message.optLong("id"), 0)));
-            if (owner) addAttachmentPreviews(bubble, message.optString("request_id"));
-            LinearLayout.LayoutParams bubbleParams = new LinearLayout.LayoutParams(-2, -2);
-            bubbleParams.setMargins(owner ? dp(30) : 0, dp(5), owner ? 0 : dp(30), dp(5));
-            line.addView(bubble, bubbleParams); messageList.addView(line);
-        }
-        messageScroll.post(() -> messageScroll.fullScroll(View.FOCUS_DOWN));
+        if (app.getRuntime().isRestoringBackup() || messageList == null || !"대화".equals(tab) || messagesLoading) return;
+        if (chatBeforeId > 0 && displayedMessageId >= 0) return;
+        final long generation = chatGeneration, before = chatBeforeId, alreadyDisplayed = displayedMessageId;
+        messagesLoading = true;
+        display.execute(() -> {
+            try {
+                long newest = app.getStore().lastChatMessageId();
+                if (newest == alreadyDisplayed) { main.post(() -> { messagesLoading = false; if (generation != chatGeneration && !isDestroyed() && "대화".equals(tab)) refreshMessages(); }); return; }
+                JSONObject page = app.getStore().boundedChatMessagePage(before, 40, 8000);
+                JSONArray messages = page.optJSONArray("messages");
+                java.util.HashMap<Long, JSONArray> assets = new java.util.HashMap<>();
+                for (int i = 0; i < messages.length(); i++) {
+                    JSONObject message = messages.optJSONObject(i);
+                    if ("user".equals(message.optString("role"))) assets.put(message.optLong("id"), parseArray(app.getStore().getSetting("attachmentMetadata:" + message.optString("request_id"), "[]")));
+                }
+                main.post(() -> {
+                    messagesLoading = false;
+                    if (isFinishing() || isDestroyed() || generation != chatGeneration || before != chatBeforeId || !"대화".equals(tab)) { if (!isDestroyed() && "대화".equals(tab)) refreshMessages(); return; }
+                    if (newest == displayedMessageId) return;
+                    boolean follow = displayedMessageId < 0 || messageScroll.getChildAt(0).getHeight() - messageScroll.getHeight() - messageScroll.getScrollY() < dp(100);
+                    int scrollY = messageScroll.getScrollY();
+                    displayedMessageId = newest; nextBeforeId = page.optLong("nextBeforeId", 0);
+                    photoPreviews.clear(); replyViews.clear(); messageList.removeAllViews(); chatNavigation.removeAllViews();
+                    if (before > 0) chatNavigation.addView(button("최신 대화", () -> { chatBeforeId = 0; displayedMessageId = -1; chatGeneration++; refreshMessages(); }));
+                    if (page.optBoolean("hasMore")) chatNavigation.addView(button("이전 대화 40개", () -> { chatBeforeId = nextBeforeId; displayedMessageId = -1; chatGeneration++; refreshMessages(); }));
+                    if (messages.length() == 0) {
+                        TextView hint = label("대화와 기억은 이 폰에 저장돼.\nWork 탭에서 ChatGPT를 연결하면 일을 시작할 수 있어.", 15, SUBTLE);
+                        hint.setPadding(dp(8), dp(24), dp(8), dp(24)); messageList.addView(hint);
+                    }
+                    for (int i = 0; i < messages.length(); i++) {
+                        JSONObject message = messages.optJSONObject(i); if (message == null) continue;
+                        boolean owner = "user".equals(message.optString("role"));
+                        LinearLayout line = row(); line.setGravity(owner ? Gravity.END : Gravity.START);
+                        LinearLayout bubble = column(); bubble.setPadding(dp(12), dp(9), dp(12), dp(10)); bubble.setBackground(round(owner ? BLUE : Color.WHITE));
+                        if (!owner) bubble.addView(label("호영", 11, SUBTLE));
+                        TextView body = label(message.optString("text"), 15, owner ? Color.WHITE : INK); body.setTextIsSelectable(true); bubble.addView(body);
+                        if (!owner) replyViews.put(body, message);
+                        if (message.optBoolean("textIsExcerpt")) bubble.addView(button("보관된 전체 원문 읽기", () -> showOriginal(message.optLong("id"), 0)));
+                        if (owner) addAttachmentPreviews(bubble, assets.get(message.optLong("id")));
+                        LinearLayout.LayoutParams bubbleParams = new LinearLayout.LayoutParams(-2, -2); bubbleParams.setMargins(owner ? dp(30) : 0, dp(5), owner ? 0 : dp(30), dp(5));
+                        line.addView(bubble, bubbleParams); messageList.addView(line);
+                    }
+                    messageScroll.post(() -> { if (follow) messageScroll.fullScroll(View.FOCUS_DOWN); else messageScroll.scrollTo(0, scrollY); photoPreviews.updateViewport(); markVisibleReplies(); });
+                });
+            } catch (RuntimeException failed) { main.post(() -> { messagesLoading = false; if (!isDestroyed()) connection.setText("대화 미리보기를 읽지 못했어. 원본은 그대로 보관돼."); }); }
+        });
     }
 
-    private void addAttachmentPreviews(LinearLayout bubble, String requestId) {
-        JSONArray assets = parseArray(app.getStore().getSetting("attachmentMetadata:" + requestId, "[]"));
+    private void markVisibleReplies() {
+        if (!resumed || !"대화".equals(tab) || app.getRuntime().isRestoringBackup() || app.getReplyNotifications() == null) return;
+        Rect bounds = new Rect();
+        for (java.util.Map.Entry<TextView, JSONObject> entry : replyViews.entrySet()) {
+            TextView view = entry.getKey(); JSONObject source = entry.getValue();
+            if (view.isAttachedToWindow() && view.isShown() && view.getGlobalVisibleRect(bounds) && !bounds.isEmpty())
+                app.getReplyNotifications().markSeen(source.optLong("id"), source.optString("content_hash"));
+        }
+    }
+
+    private void addAttachmentPreviews(LinearLayout bubble, JSONArray assets) {
+        if (assets == null) return;
         for (int i = 0; i < assets.length(); i++) {
             JSONObject asset = assets.optJSONObject(i); if (asset == null) continue;
             String name = asset.optString("sourceName", asset.optString("name", "첨부"));
@@ -215,18 +316,15 @@ public final class MainActivity extends Activity {
             if (!asset.optString("mime", asset.optString("mimeType")).startsWith("image/")) continue;
             ImageView image = new ImageView(this); image.setContentDescription(name); image.setAdjustViewBounds(true); image.setScaleType(ImageView.ScaleType.FIT_CENTER);
             bubble.addView(image, new LinearLayout.LayoutParams(dp(220), dp(180)));
-            io.execute(() -> {
-                AttachmentPreview.Result preview = AttachmentPreview.loadResult(this, app.getFiles(), asset, 512);
-                main.post(() -> { if (!isFinishing() && !isDestroyed() && preview.ready() && image.getParent() != null) image.setImageBitmap(preview.bitmap); });
-            });
-            image.setOnClickListener(view -> io.execute(() -> {
-                AttachmentPreview.Result preview = AttachmentPreview.loadResult(this, app.getFiles(), asset, 1536);
-                main.post(() -> {
-                    if (isFinishing() || isDestroyed()) return;
+            photoPreviews.register(image, asset);
+            image.setOnClickListener(view -> photoPreviews.loadExpanded(asset, preview -> {
+                    if (isFinishing() || isDestroyed()) { if (preview.ready() && !preview.bitmap.isRecycled()) preview.bitmap.recycle(); return; }
                     if (!preview.ready()) { notice("사진을 표시하지 못했어. 보관된 원본을 파일 페이지에서 확인해 줘."); return; }
                     ImageView full = new ImageView(this); full.setImageBitmap(preview.bitmap); full.setAdjustViewBounds(true); full.setScaleType(ImageView.ScaleType.FIT_CENTER);
-                    new AlertDialog.Builder(this).setTitle(name).setView(full).setPositiveButton("닫기", null).show();
-                });
+                    AlertDialog dialog = new AlertDialog.Builder(this).setTitle(name).setView(full).setPositiveButton("닫기", null).create();
+                    expandedPhotos.put(dialog, preview.bitmap);
+                    dialog.setOnDismissListener(ignored -> { Bitmap bitmap = expandedPhotos.remove(dialog); full.setImageDrawable(null); if (bitmap != null && !bitmap.isRecycled()) bitmap.recycle(); });
+                    dialog.show();
             }));
         }
     }
@@ -254,7 +352,7 @@ public final class MainActivity extends Activity {
     private void resolveGoal(String rootId, String stage) { io.execute(() -> { app.getRuntime().getGoalLedger().resolve(rootId, stage, "사용자가 앱 목표 목록에서 직접 정리"); main.post(() -> { notice("추적 상태를 정리했어. 원문과 영수증은 보관돼."); showMemory(); }); }); }
 
     private void showWork() {
-        TextView help = label("여기서 본인 ChatGPT에 로그인하고 Work · 임시 채팅 · GPT-6.1 Sol · Medium · Fast를 선택해. 선택 상태가 확인되기 전에는 메시지를 보내지 않아.", 13, SUBTLE);
+        TextView help = label("여기서 본인 ChatGPT에 로그인하고 Work · 임시 채팅 · 설정에서 정한 모델·강도·속도를 선택해. 기본값은 GPT-6.1 Sol · Medium · Fast야. 선택 상태가 확인되면 요청을 보낼 수 있어.", 13, SUBTLE);
         help.setPadding(0, dp(10), 0, dp(8)); content.addView(help);
         LinearLayout controls = row();
         controls.addView(button("선택 확인", () -> app.getWebController().inspect()), new LinearLayout.LayoutParams(0, dp(46), 1));
@@ -272,8 +370,14 @@ public final class MainActivity extends Activity {
             catch (Exception e) { notice("기존 작업의 결과를 먼저 확인하거나 설정에서 해당 작업을 제외해 줘."); }
         }), new LinearLayout.LayoutParams(0, dp(46), 1));
         content.addView(controls);
-        WebView web = app.getWebController().getView();
-        content.addView(web, new LinearLayout.LayoutParams(-1, 0, 1));
+        try {
+            WebView web = app.getWebController().getView();
+            content.addView(web, new LinearLayout.LayoutParams(-1, 0, 1));
+            app.getWebController().start();
+        } catch (RuntimeException | LinkageError unavailable) {
+            content.addView(label("Work 화면을 아직 열지 못했어. 휴대폰의 웹 구성 요소와 저장된 작업 상태를 확인한 뒤 다시 준비할 수 있어.", 15, INK));
+            content.addView(button("Work 화면 다시 준비", () -> { app.getWebController().start(); showTab("Work"); }));
+        }
     }
 
     private void showMemory() {
@@ -329,7 +433,7 @@ public final class MainActivity extends Activity {
     }
 
     private void showOriginal(long id, long offset) {
-        io.execute(() -> {
+        display.execute(() -> {
             try {
                 JSONObject chunk = app.getStore().readOriginalText(id, offset, 12_000);
                 main.post(() -> {
@@ -396,10 +500,26 @@ public final class MainActivity extends Activity {
         JSONArray tools = app.getPhoneTools().catalog();
         JSONArray fileTools = app.getFiles().catalog();
         for (int i = 0; i < fileTools.length(); i++) tools.put(fileTools.optJSONObject(i));
-        for (String name : new String[]{"memory.search", "memory.save", "memory.source.read", "memory.history", "memory.review", "tasks.list", "tasks.update", "actions.receipt.read", "memory.asset.analyze", "app.settings.get", "app.settings.update", "app.work.pause"}) {
+        for (String name : new String[]{"memory.search", "memory.save", "memory.source.read", "memory.history", "memory.review", "tasks.list", "tasks.update", "tasks.report_completed", "actions.receipt.read", "memory.asset.analyze", "app.settings.get", "app.settings.update", "app.work.pause"}) {
             try { tools.put(new JSONObject().put("name", name)); } catch (Exception ignored) { }
         }
-        JSONObject allowed = parseObject(app.getStore().getSetting("toolPermissions", "{}"));
+        JSONObject allowed;
+        final String rawPermissions = app.getStore().getSetting("toolPermissions", "{}");
+        try {
+            org.json.JSONTokener parser = new org.json.JSONTokener(rawPermissions); Object parsed = parser.nextValue();
+            if (!(parsed instanceof JSONObject) || parser.nextClean() != 0) throw new IllegalArgumentException();
+            allowed = (JSONObject)parsed; java.util.Iterator<String> keys = allowed.keys();
+            while (keys.hasNext()) if (!(allowed.opt(keys.next()) instanceof Boolean)) throw new IllegalArgumentException();
+        } catch (Exception invalid) {
+            panel.addView(label("앱 기능 권한 설정을 읽지 못해 실행을 멈춘 상태야. 기존 설정을 원문으로 보관한 뒤 기본값으로 복구할 수 있어.", 14, INK));
+            panel.addView(button("앱 기능을 모두 허용으로 복구", () -> {
+                try {
+                    app.getStore().withTransaction(db -> { app.getStore().addMessage("system", "앱 기능 권한 설정 복구 전 원문:\n" + rawPermissions, null); app.getStore().putSetting("toolPermissions", "{}"); return null; });
+                    applyPhonePolicy(); app.getPhoneContext().reconcilePermissions(); showPermissions();
+                } catch (RuntimeException failed) { notice("이전 설정을 보관하지 못해 변경하지 않았어."); }
+            }));
+            return;
+        }
         for (int i = 0; i < tools.length(); i++) {
             JSONObject tool = tools.optJSONObject(i); if (tool == null) continue;
             String name = tool.optString("name");
@@ -427,26 +547,49 @@ public final class MainActivity extends Activity {
         panel.addView(label("파일은 폰의 앱 내부 저장소에 보관해. 일반 캐시 삭제에는 남아. 앱 삭제·데이터 삭제 전에 백업을 내보내야 해.", 14, SUBTLE));
         panel.addView(button("사진·파일 가져오기", () -> pickDocuments(PICK_FILES, "*/*")));
         panel.addView(button("대화·기억·파일 백업 내보내기", () -> createDocument(EXPORT_BACKUP, "application/zip", "hoyoung-backup.zip")));
+        panel.addView(button("백업 용량 확인", () -> io.execute(() -> {
+            try {
+                JSONObject capacity = app.getFiles().backupPreflight(app.getStore());
+                main.post(() -> notice("폰 여유 공간: " + (capacity.optLong("privateAvailableBytes") / (1024 * 1024)) + "MiB\n백업 한도: " + app.getStore().getSetting("backupMaxGiB", "64") + "GiB\n외부 저장 위치의 여유 공간은 Android 제공자가 알려 주지 않을 수 있어. 내보내기 중 오류가 나면 완료로 표시하지 않아."));
+            } catch (Exception failed) { main.post(() -> notice("백업 여유 공간을 확인하지 못했어. 폰 저장 공간을 확인해 줘.")); }
+        })));
         panel.addView(button("백업 복원", () -> {
             if (isActive()) { notice("진행 중 작업이 있어. 완료를 확인한 뒤 복원해."); return; }
             pickDocuments(IMPORT_BACKUP, "application/zip");
         }));
-        try {
-            JSONArray files = app.getFiles().listFiles();
-            for (int i = 0; i < files.length(); i++) {
-                JSONObject file = files.optJSONObject(i); if (file == null) continue;
-                String id = file.optString("id"), name = file.optString("displayName", id);
-                panel.addView(button(name + " · " + (file.optLong("size") / 1024) + " KB", () -> new AlertDialog.Builder(this)
-                    .setTitle(name).setItems(new String[]{"대화에 첨부", "외부에 저장", "텍스트 보기"}, (dialog, which) -> {
-                        if (which == 0) { if (attachments.length() < 8) attachments.put(id); persistDraft(); showTab("대화"); }
-                        else if (which == 1) { exportFileId = id; createDocument(EXPORT_FILE, "application/octet-stream", name); }
-                        else io.execute(() -> {
-                            try { String text = app.getFiles().readText(id, 20000); main.post(() -> new AlertDialog.Builder(this).setTitle(name).setMessage(text).setPositiveButton("닫기", null).show()); }
-                            catch (Exception e) { main.post(() -> notice("이 파일은 텍스트로 열 수 없어.")); }
-                        });
-                    }).show()));
-            }
-        } catch (Exception e) { panel.addView(label("파일 목록을 읽지 못했어.", 14, SUBTLE)); }
+        EditText query = new EditText(this); query.setSingleLine(true); query.setHint("파일 이름이나 경로 검색"); panel.addView(query);
+        LinearLayout items = column();
+        panel.addView(button("파일 검색", () -> loadFileListing(items, query.getText().toString()))); panel.addView(items);
+        loadFileListing(items, "");
+    }
+    private void loadFileListing(LinearLayout items, String query) {
+        items.removeAllViews(); items.addView(label("파일 목록을 준비하고 있어…", 13, SUBTLE));
+        final long generation = chatGeneration; final Object queryToken = new Object(); items.setTag(queryToken);
+        fileListing.execute(() -> {
+            try {
+                JSONObject page = app.getFiles().listFilesPage(100, query);
+                main.post(() -> {
+                    if (isDestroyed() || isFinishing() || generation != chatGeneration || items.getTag() != queryToken || !"파일".equals(tab) || !items.isAttachedToWindow()) return;
+                    items.removeAllViews();
+                    items.addView(label("찾은 파일 " + page.optLong("matchedCount") + "개 · 최근 " + page.optJSONArray("files").length() + "개 표시", 12, SUBTLE));
+                    if (page.optBoolean("truncated")) items.addView(label("이름이나 경로로 검색하면 이전 파일도 찾을 수 있어.", 12, SUBTLE));
+                    JSONArray files = page.optJSONArray("files");
+                    for (int i = 0; i < files.length(); i++) {
+                        JSONObject file = files.optJSONObject(i); if (file == null) continue;
+                        String id = file.optString("id"), name = file.optString("displayName", id);
+                        items.addView(button(name + " · " + (file.optLong("size") / 1024) + " KB", () -> new AlertDialog.Builder(this)
+                            .setTitle(name).setItems(new String[]{"대화에 첨부", "외부에 저장", "텍스트 보기"}, (dialog, which) -> {
+                                if (which == 0) { if (attachments.length() < 8) attachments.put(id); persistDraft(); showTab("대화"); }
+                                else if (which == 1) { exportFileId = id; createDocument(EXPORT_FILE, "application/octet-stream", name); }
+                                else display.execute(() -> {
+                                    try { String text = app.getFiles().readText(id, 20000); main.post(() -> { if (!isDestroyed() && !isFinishing()) new AlertDialog.Builder(this).setTitle(name).setMessage(text).setPositiveButton("닫기", null).show(); }); }
+                                    catch (Exception e) { main.post(() -> notice("이 파일은 텍스트로 열 수 없어.")); }
+                                });
+                            }).show()));
+                    }
+                });
+            } catch (Exception failed) { main.post(() -> { if (!isDestroyed() && items.isAttachedToWindow()) { items.removeAllViews(); items.addView(label("파일 목록을 읽지 못했어. 원본을 삭제하지 않았어.", 14, SUBTLE)); } }); }
+        });
     }
 
     private void showSettings() {
@@ -476,20 +619,38 @@ public final class MainActivity extends Activity {
         addSettingToggle(panel, "자동 기억 검토", "memoryReviewEnabled", true);
         addSettingToggle(panel, "허용한 휴대폰 정보 활용", "phoneContextEnabled", true);
         addSettingToggle(panel, "폰 내부 의미 검색", "semanticSearchEnabled", true);
+        addSettingToggle(panel, "호영의 답장·선톡 알림", "replyNotificationsEnabled", true);
+        EditText backupLimit = new EditText(this); backupLimit.setInputType(android.text.InputType.TYPE_CLASS_NUMBER); backupLimit.setHint("백업 용량 한도(GiB, 1~64)");
+        backupLimit.setText(app.getStore().getSetting("backupMaxGiB", "64")); panel.addView(backupLimit);
+        panel.addView(label("사용할 모델과 실행 옵션", 17, INK));
+        panel.addView(label("기본값은 GPT-6.1 Sol · Medium · Fast야. 모델이 바뀌면 여기서 요구값을 수정하고 Work에서 같은 선택을 해 줘. 선택이 확인될 때만 전송해.", 12, SUBTLE));
+        EditText modelChoice = new EditText(this); modelChoice.setSingleLine(true); modelChoice.setHint("gpt-6.1-sol"); modelChoice.setText(app.getStore().getSetting("requiredModel", "gpt-6.1-sol")); panel.addView(modelChoice);
+        android.widget.Spinner effortChoice = new android.widget.Spinner(this), speedChoice = new android.widget.Spinner(this);
+        String[] efforts = {"low", "medium", "high", "xhigh", "max", "ultra"}, speeds = {"fast", "standard"};
+        effortChoice.setAdapter(new android.widget.ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, efforts));
+        speedChoice.setAdapter(new android.widget.ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, speeds));
+        effortChoice.setSelection(Math.max(0, java.util.Arrays.asList(efforts).indexOf(app.getStore().getSetting("requiredEffort", "medium"))));
+        speedChoice.setSelection(Math.max(0, java.util.Arrays.asList(speeds).indexOf(app.getStore().getSetting("requiredSpeed", "fast"))));
+        panel.addView(effortChoice); panel.addView(speedChoice);
         EditText instructions = new EditText(this); instructions.setMinLines(8); instructions.setGravity(Gravity.TOP);
         instructions.setText(app.getStore().getSetting("customInstructions", bundledInstructions())); panel.addView(instructions);
         panel.addView(button("설정 저장", () -> {
             try {
                 int seconds = Integer.parseInt(interval.getText().toString()); if (seconds < 60 || seconds > 86400) throw new IllegalArgumentException();
+                int backupGiB = Integer.parseInt(backupLimit.getText().toString()); if (backupGiB < 1 || backupGiB > 64) throw new IllegalArgumentException();
+                String chosenModel = modelChoice.getText().toString().trim(), chosenEffort = efforts[effortChoice.getSelectedItemPosition()], chosenSpeed = speeds[speedChoice.getSelectedItemPosition()];
+                com.hoyoung.assistant.runtime.AssistantRuntime.validateModelPreferences(chosenModel, chosenEffort, chosenSpeed);
                 String goalText = goals.getText().toString(), instructionText = instructions.getText().toString();
                 if (goalText.length() > 50_000 || instructionText.length() > 50_000) throw new IllegalArgumentException();
                 app.getStore().withTransaction(db -> {
                     app.getStore().putSetting("heartbeatSeconds", String.valueOf(seconds));
                     app.getStore().putSetting("standingGoals", goalText);
-                    app.getStore().putSetting("customInstructions", instructionText); return null;
+                    app.getStore().putSetting("customInstructions", instructionText);
+                    app.getStore().putSetting("requiredModel", chosenModel); app.getStore().putSetting("requiredEffort", chosenEffort); app.getStore().putSetting("requiredSpeed", chosenSpeed);
+                    app.getStore().putSetting("backupMaxGiB", String.valueOf(backupGiB)); return null;
                 });
                 notice("지침과 판단 간격을 저장했어.");
-            } catch (Exception e) { notice("판단 간격은 60~86,400초, 지침과 목표는 각각 50,000자 이내로 입력해."); }
+            } catch (Exception e) { notice("판단 간격은 60~86,400초, 백업 한도는 1~64GiB, 모델은 gpt-… 형식, 지침과 목표는 각각 50,000자 이내로 입력해."); }
         }));
         panel.addView(button("한도·연결 상태 다시 확인", () -> { app.getWebController().manualRetryCheck(); refreshStatus(); }));
         panel.addView(button("연결 진단 복사", () -> {
@@ -548,21 +709,31 @@ public final class MainActivity extends Activity {
         JSONObject web = state.optJSONObject("webState");
         if (web == null) web = state.optJSONObject("web");
         String code = state.optString("lastCode", state.optString("status", ""));
-        if (state.optBoolean("restoringBackup")) connection.setText("백업 복원 중 · 자동 실행을 멈췄어");
+        String readiness = state.optString("readinessCode", "");
+        if (!state.optBoolean("ready") && !readiness.isEmpty() && !"ready".equals(readiness)) code = readiness;
+        if ("Work".equals(tab) && resumed) {
+            WebView existing = app.getWebController().getExistingView();
+            if (existing != null && existing.getParent() == null) { showTab("Work"); return; }
+        }
+        if (state.optBoolean("storageRecoveryBlocked")) connection.setText("저장소 복구 필요 · 앱을 다시 열어 복구해 줘");
+        else if (state.optBoolean("restoringBackup")) connection.setText("백업 복원 중 · 자동 실행을 멈췄어");
         else if (state.optBoolean("quotaBlocked")) connection.setText("사용 한도 대기 · 메시지와 작업은 폰에 저장돼");
         else if (state.optBoolean("uncertaintyBlocked")) connection.setText("이전 작업 결과 확인 필요 · 자동 재전송을 멈췄어");
-        else if (isActive()) connection.setText("작업 중 · 새 메시지는 저장해서 이어서 전달해");
+        else if (isActive()) connection.setText(("preparing".equals(state.optString("activePhase")) ? "관련 기억·요청 준비 중" : "Work 전송·응답 대기") + " · " + (state.optLong("activeWaitingMillis") / 1000) + "초 · 새 입력은 저장돼");
         else if ("prompt_too_large".equals(code)) connection.setText("문맥이 너무 길어 전송을 멈췄어 · 원문은 폰에 남아 있어");
         else if ("ATTACHMENT_NOT_READY".equals(code) || code.startsWith("attachment_")) connection.setText("첨부를 확인하지 못해 전송을 멈췄어");
-        else if (state.optBoolean("ready")) connection.setText("Work 연결 확인 · GPT-6.1 Sol · Medium · Fast");
+        else if (state.optBoolean("ready")) connection.setText("Work 연결 확인 · " + app.getStore().getSetting("requiredModel", "gpt-6.1-sol") + " · " + app.getStore().getSetting("requiredEffort", "medium") + " · " + app.getStore().getSetting("requiredSpeed", "fast"));
         else if (web != null && web.optBoolean("loading")) connection.setText("Work 페이지 로딩 중");
         else connection.setText(switch (code) {
             case "work_unverified" -> "Work 선택을 확인해 줘";
             case "temporary_unverified" -> "임시 채팅 선택을 확인해 줘";
-            case "model_unverified" -> "GPT-6.1 Sol 선택을 확인해 줘";
-            case "effort_unverified" -> "Medium 선택을 확인해 줘";
-            case "speed_unverified" -> "Fast 선택을 확인해 줘";
+            case "model_unverified" -> "설정에 지정한 모델 선택을 확인해 줘";
+            case "effort_unverified" -> "설정에 지정한 추론 강도 선택을 확인해 줘";
+            case "speed_unverified" -> "설정에 지정한 속도 선택을 확인해 줘";
             case "composer_unverified" -> "Work 입력창을 확인하지 못했어";
+            case "startup_failed" -> "Work 시작 재시도 중 · " + Math.max(1, (web == null ? 0 : web.optLong("startupRetryAfterMs")) / 1000) + "초 후 다시 확인";
+            case "work_recovery_review_required", "renderer_lost" -> "이전 Work 화면 확인 필요 · Work 탭에서 복구 상태를 확인해";
+            case "bridge_script_unavailable" -> "Work 연결 도구를 준비하지 못했어 · 대화와 파일은 폰에 남아 있어";
             default -> "연결 확인 필요 · Work 탭에서 로그인과 선택 상태를 확인해";
         });
     }
@@ -586,15 +757,24 @@ public final class MainActivity extends Activity {
         if (result != RESULT_OK || data == null) return;
         if (code == PICK_FILES) {
             java.util.ArrayList<Uri> uris = selectedUris(result, data);
+            if (uris.size() > 8 || attachments.length() + uris.size() > 8) {
+                notice("대화 첨부는 한 번에 최대 8개야. 선택을 나누거나 기존 첨부 선택을 지워 줘. 이번 파일은 일부만 추가하지 않았어.");
+                return;
+            }
             io.execute(() -> {
                 try {
                     JSONArray saved = new JSONArray();
                     for (Uri uri : uris) {
-                        if (saved.length() + attachments.length() >= 8) break;
                         JSONObject file = app.getFiles().saveFromUri(uri, null);
                         app.getStore().putSetting("fileMeta:" + file.getString("id"), file.toString()); saved.put(file.getString("id"));
                     }
                     main.post(() -> {
+                        if (isDestroyed() || isFinishing()) return;
+                        if (attachments.length() + saved.length() > 8) {
+                            notice("파일 원본은 보관했지만 첨부 선택이 바뀌어 이번 파일을 대화에 추가하지 않았어. 파일 탭에서 나눠 선택해 줘.");
+                            if ("파일".equals(tab)) showFiles();
+                            return;
+                        }
                         for (int i = 0; i < saved.length(); i++) attachments.put(saved.optString(i));
                         persistDraft();
                         if ("파일".equals(tab)) showFiles(); else if (attachmentLabel != null) attachmentLabel.setText(attachmentSummary());
@@ -610,8 +790,19 @@ public final class MainActivity extends Activity {
                     if (isActive()) throw new java.io.IOException("Active job");
                     try (InputStream input = getContentResolver().openInputStream(uri)) { if (input == null) throw new java.io.IOException(); app.getRuntime().restoreBackup(input); }
                 } else if (code == EXPORT_FILE) try (OutputStream output = getContentResolver().openOutputStream(uri, "wt")) { if (output == null) throw new java.io.IOException(); app.getFiles().exportFile(exportFileId, output); }
-                main.post(() -> { notice(code == IMPORT_BACKUP ? "백업을 복원했어. 불명확한 작업은 자동으로 반복하지 않아." : "선택한 위치에 저장했어."); if ("파일".equals(tab)) showFiles(); });
-            } catch (Exception e) { main.post(() -> notice("저장·복원을 완료하지 못했어. 기존 폰 데이터를 확인해.")); }
+                main.post(() -> { if (isDestroyed()) return; notice(code == IMPORT_BACKUP ? "백업을 복원했어. 불명확한 작업은 자동으로 반복하지 않아." : "선택한 위치에 저장했어."); if (code == IMPORT_BACKUP) { draftState = draftStore.read(); attachments = draftState.attachments(); showTab(tab); } else if ("파일".equals(tab)) showFiles(); });
+            } catch (Exception e) {
+                String description = "저장·복원을 완료하지 못했어. 기존 폰 데이터를 확인해.";
+                if (e instanceof BackupFailure) {
+                    BackupFailure failed = (BackupFailure)e;
+                    JSONObject detail = failed.diagnostics();
+                    description = "백업 작업이 멈췄어: " + failed.code + " · " + failed.phase;
+                    if (failed.availableBytes >= 0 && failed.requiredBytes >= 0) description += "\n폰 여유 공간 " + (failed.availableBytes / (1024 * 1024)) + "MiB / 필요한 공간 " + (failed.requiredBytes / (1024 * 1024)) + "MiB";
+                    if (detail.optBoolean("restoreCommitted")) description += "\n데이터 복원은 반영됐지만 파일 정리가 남아 있어. 앱을 다시 열어 복구를 완료해 줘.";
+                    if (code == EXPORT_BACKUP) description += "\n선택한 저장 위치에 남은 불완전한 백업은 사용하지 마.";
+                }
+                final String report = description; main.post(() -> notice(report));
+            }
         });
     }
 
@@ -633,7 +824,7 @@ public final class MainActivity extends Activity {
     private Button button(String text, Runnable action) { Button button = new Button(this); button.setText(text); button.setTextColor(BLUE); button.setAllCaps(false); button.setOnClickListener(v -> action.run()); return button; }
     private GradientDrawable round(int color) { GradientDrawable drawable = new GradientDrawable(); drawable.setColor(color); drawable.setCornerRadius(dp(18)); return drawable; }
     private int dp(int value) { return Math.round(value * getResources().getDisplayMetrics().density); }
-    private void notice(String text) { new AlertDialog.Builder(this).setMessage(text).setPositiveButton("확인", null).show(); }
+    private void notice(String text) { if (isFinishing() || isDestroyed()) return; new AlertDialog.Builder(this).setMessage(text).setPositiveButton("확인", null).show(); }
     private String attachmentSummary() { return attachments.length() == 0 ? "" : "첨부 " + attachments.length() + "개 · 폰 내부에 저장됨"; }
     private String shorten(String text, int max) { return text.length() <= max ? text : text.substring(0, max) + "…"; }
     private JSONArray parseArray(String value) { try { return new JSONArray(value); } catch (Exception invalid) { return new JSONArray(); } }
@@ -641,8 +832,17 @@ public final class MainActivity extends Activity {
     private String bundledInstructions() { try (InputStream input = getAssets().open("personalized-instructions.txt")) { return readUtf8(input); } catch (Exception e) { return ""; } }
     private void persistDraft() {
         if (app == null || app.getRuntime().isRestoringBackup()) return;
-        if (composer != null) app.getStore().putSetting("ui.draft", composer.getText().toString());
-        app.getStore().putSetting("ui.attachments", attachments.toString());
+        String text = composer != null ? composer.getText().toString() : draftState == null ? "" : draftState.text;
+        try { draftState = draftStore.edit(text, attachments); draftSaveFailed = false; }
+        catch (RuntimeException failure) { draftSaveFailed = true; connection.setText("임시 입력을 저장하지 못했어. 입력을 그대로 두고 다시 확인해 줘."); }
+    }
+    private void applyDraft(OwnerDraftStore.Snapshot snapshot) {
+        draftState = snapshot; attachments = snapshot.attachments();
+        draftSaveFailed = false;
+        applyingDraft = true;
+        try { if (composer != null) composer.setText(snapshot.text); }
+        finally { applyingDraft = false; }
+        if (attachmentLabel != null) attachmentLabel.setText(attachmentSummary());
     }
     private String readUtf8(InputStream input) throws Exception {
         ByteArrayOutputStream output = new ByteArrayOutputStream(); byte[] buffer = new byte[4096]; int count;

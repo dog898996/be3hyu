@@ -22,6 +22,7 @@ import java.util.UUID;
 /** Immutable binary evidence. Its semantic interpretation is a separate, versioned claim. */
 final class AttachmentOriginals {
     static final String PREFIX = ".attachment-originals";
+    static final long MAX_BYTES=64L*1024*1024;
     private static final String SIDECAR_SUFFIX = ".metadata.json";
     private final File projects;
     private final File root;
@@ -43,7 +44,7 @@ final class AttachmentOriginals {
                 byte[] buffer = new byte[16_384]; int n;
                 while ((n = source.read(buffer)) != -1) {
                     if (n == 0) continue;
-                    if (size > InternalFiles.MAX_FILE_BYTES - n) throw new IOException("Attachment exceeds 64 MiB");
+                    if (size > MAX_BYTES - n) throw new IOException("Attachment exceeds 64 MiB");
                     output.write(buffer, 0, n); size += n;
                 }
                 output.flush(); file.getFD().sync();
@@ -77,7 +78,7 @@ final class AttachmentOriginals {
 
     JSONObject describe(String id, boolean verifyBytes) throws IOException {
         File file = payload(id);
-        if (!file.isFile() || file.length() > InternalFiles.MAX_FILE_BYTES) throw new IOException("Attachment original is missing or oversized");
+        if (!file.isFile() || file.length() > MAX_BYTES) throw new IOException("Attachment original is missing or oversized");
         String sha = hashFromId(id);
         JSONObject saved = readSidecar(file);
         if (saved != null) {
@@ -98,7 +99,7 @@ final class AttachmentOriginals {
     void verify(String id, String expectedHash, long expectedSize) throws IOException {
         File file = payload(id);
         if (!hashFromId(id).equals(expectedHash) || !file.isFile() || file.length() != expectedSize
-                || expectedSize > InternalFiles.MAX_FILE_BYTES) throw new IOException("Attachment original identity or size changed");
+                || expectedSize > MAX_BYTES) throw new IOException("Attachment original identity or size changed");
         MessageDigest digest = OriginalTextFiles.digest();
         try (InputStream input = new DigestInputStream(new BufferedInputStream(new FileInputStream(file)), digest)) {
             byte[] buffer = new byte[16_384]; while (input.read(buffer) != -1) { }

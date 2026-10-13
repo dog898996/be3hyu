@@ -729,6 +729,20 @@ public class AssistantRuntimeTest {
         assertTrue(runtime.preparedDispatchStillAllowed(retry.optString("external_id")));
     }
 
+    @Test public void deeplyNestedProviderEnvelopeIsPreservedWithoutParserStackFailureOrEffects() throws Exception {
+        ready(); JSONObject request = runtime.receive("깊은 데이터 처리", new JSONArray());
+        String raw = "{\"protocol\":\"hoyoung.v1\",\"requestId\":\"" + request.optString("external_id") + "\",\"data\":"
+                + "[".repeat(10_000) + "0" + "]".repeat(10_000) + "}";
+        complete(request, raw);
+        assertEquals(raw, store.getRequest(request.optLong("id")).optString("result"));
+        assertEquals(0, files.listFiles().length());
+        assertTrue(store.events(100).toString().contains("nesting_limit_or_incomplete_structure"));
+        assertTrue(runtime.state().isNull("activeRequestId"));
+        JSONObject next = runtime.receive("정상 후속 입력", new JSONArray());
+        complete(next, envelope("정상 도구", new JSONArray().put(action("after-nested", "files.write", object("relativePath", "after.txt", "content", "valid"))), null));
+        assertEquals("valid", files.readText("after.txt", 100));
+    }
+
     private static JSONObject reviewAck(JSONObject batch) throws Exception {
         JSONArray ranges = new JSONArray(); JSONArray sources = batch.getJSONArray("sourceRanges");
         for (int i = 0; i < sources.length(); i++) { JSONObject source = sources.getJSONObject(i); ranges.put(object("messageId", source.getLong("messageId"), "offsetChars", source.getLong("offsetChars"), "nextOffsetChars", source.getLong("nextOffsetChars"), "contentHash", source.getString("contentHash"))); }

@@ -77,8 +77,9 @@ public final class InternalFilesTest {
 
     @Test public void oversizedStreamFailsAtomicallyAndLeavesPreviousContent() throws Exception {
         files.writeFile("stable.txt", "before");
+        long testLimit=8192;
         InputStream oversized = new InputStream() {
-            long remaining = InternalFiles.MAX_FILE_BYTES + 1;
+            long remaining = testLimit + 1;
             @Override public int read() { return remaining-- > 0 ? 0 : -1; }
             @Override public int read(byte[] bytes, int offset, int length) {
                 if (remaining <= 0) return -1;
@@ -88,7 +89,7 @@ public final class InternalFilesTest {
                 return count;
             }
         };
-        assertThrows(IOException.class, () -> files.writeFile("stable.txt", oversized));
+        assertThrows(IOException.class, () -> files.writeFile("stable.txt", oversized,testLimit));
         assertEquals("before", files.readText("stable.txt", 100));
         assertEquals(1, files.listFiles().length());
     }

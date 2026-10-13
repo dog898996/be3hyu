@@ -308,11 +308,85 @@ public final class HoyoungStore extends SQLiteOpenHelper {
         return chronological;
     }
 
+    // Plain system notices are visible app replies; structured system records are internal
+    // source evidence. Their full originals remain available to source.read/search/backup.
+    private static final String CHAT_VISIBLE = "(role<>'system' OR substr(text,1,1)<>'{')";
+
+    /** Bounded visible chat excerpts; exact originals and hashes remain authoritative. */
+    public synchronized JSONObject boundedChatMessagePage(long beforeId, int limit, int textChars) {
+        if (beforeId < 0) throw new IllegalArgumentException("beforeId must be nonnegative");
+        if (limit < 1 || limit > 40) throw new IllegalArgumentException("limit must be between 1 and 40");
+        if (textChars < 1 || textChars > 8000) throw new IllegalArgumentException("textChars must be between 1 and 8000");
+        // Bound UTF-8 bytes before CursorWindow, then apply the UTF-16 display limit in Java.
+        // BLOB substr also preserves embedded NUL, where SQLite's TEXT substr would stop.
+        // Four bytes per requested character ensure any partial UTF-8 tail is beyond the
+        // final display boundary, while each SQL row remains at most 32 KiB of text bytes.
+        int sqlTextBytes = textChars * 4;
+        String sql = "SELECT id,role,substr(CAST(text AS BLOB),1,?) AS textBytes,request_id,created_at,content_hash,"
+                + "raw_file_id,raw_char_count,raw_byte_count,raw_content_hash,"
+                + "CASE WHEN raw_char_count IS NULL THEN length(text) ELSE raw_char_count END AS textTotalChars,"
+                + "CASE WHEN length(CAST(text AS BLOB))>? THEN 1 ELSE 0 END AS sqlPageTruncated FROM messages"
+                + " WHERE " + CHAT_VISIBLE + (beforeId == 0 ? "" : " AND id<?") + " ORDER BY id DESC LIMIT ?";
+        List<String> arguments = new ArrayList<>();
+        arguments.add(String.valueOf(sqlTextBytes)); arguments.add(String.valueOf(sqlTextBytes));
+        if (beforeId != 0) arguments.add(String.valueOf(beforeId));
+        arguments.add(String.valueOf(limit + 1));
+        JSONArray descending = new JSONArray();
+        try (Cursor cursor = getReadableDatabase().rawQuery(sql, arguments.toArray(new String[0]))) {
+            while (cursor.moveToNext()) {
+                JSONObject row = new JSONObject();
+                for (int column = 0; column < cursor.getColumnCount(); column++) {
+                    String name = cursor.getColumnName(column);
+                    if (name.equals("textBytes")) {
+                        // Native CursorWindow TEXT decoding can reject an incomplete UTF-8
+                        // tail. Java safely replaces that tail beyond the display boundary.
+                        put(row, "text", new String(cursor.getBlob(column), StandardCharsets.UTF_8));
+                    } else if (cursor.isNull(column)) put(row, name, JSONObject.NULL);
+                    else if (cursor.getType(column) == Cursor.FIELD_TYPE_INTEGER) put(row, name, cursor.getLong(column));
+                    else put(row, name, cursor.getString(column));
+                }
+                descending.put(row);
+            }
+        }
+        boolean hasMore = descending.length() > limit;
+        int returned = Math.min(limit, descending.length());
+        JSONArray messages = new JSONArray();
+        for (int i = returned - 1; i >= 0; i--) {
+            JSONObject row = descending.optJSONObject(i);
+            String projected = row.optString("text");
+            boolean sqlTruncated = row.optInt("sqlPageTruncated") != 0;
+            row.remove("sqlPageTruncated");
+            // A legacy row without counts can still supply the exact total when SQL returned
+            // its complete text. New and migrated records already carry UTF-16 raw counts.
+            if (row.isNull("raw_char_count") && !sqlTruncated) put(row, "textTotalChars", projected.length());
+            String excerpt = projected.substring(0, Math.min(textChars, projected.length()));
+            if (!excerpt.isEmpty() && Character.isHighSurrogate(excerpt.charAt(excerpt.length() - 1))) {
+                excerpt = excerpt.substring(0, excerpt.length() - 1);
+            }
+            boolean pageTruncated = sqlTruncated || excerpt.length() < projected.length();
+            put(row, "text", excerpt); put(row, "textExcerptChars", excerpt.length());
+            put(row, "textTruncatedForPage", pageTruncated);
+            put(row, "textIsExcerpt", pageTruncated || row.optLong("textTotalChars") > excerpt.length());
+            messages.put(row);
+        }
+        JSONObject result = new JSONObject();
+        put(result, "messages", messages); put(result, "hasMore", hasMore);
+        put(result, "nextBeforeId", returned == 0 ? 0 : descending.optJSONObject(returned - 1).optLong("id"));
+        return result;
+    }
+
     public synchronized JSONObject getMessage(long id) { return findMessage(id); }
 
     /** UI polling can compare this value without loading or parsing historical message bodies. */
     public synchronized long lastMessageId() {
         try (Cursor cursor = getReadableDatabase().rawQuery("SELECT MAX(id) FROM messages", null)) {
+            return cursor.moveToFirst() && !cursor.isNull(0) ? cursor.getLong(0) : 0;
+        }
+    }
+
+    /** Internal execution evidence must not invalidate the visible conversation page. */
+    public synchronized long lastChatMessageId() {
+        try (Cursor cursor = getReadableDatabase().rawQuery("SELECT MAX(id) FROM messages WHERE " + CHAT_VISIBLE, null)) {
             return cursor.moveToFirst() && !cursor.isNull(0) ? cursor.getLong(0) : 0;
         }
     }
@@ -1301,14 +1375,37 @@ public final class HoyoungStore extends SQLiteOpenHelper {
     }
 
     private static void rebuildDerivedIndexes(SQLiteDatabase db) {
-        db.delete("message_search", null, null); db.execSQL("INSERT INTO message_search(docid,text) SELECT id,text FROM messages");
+        try{rebuildDerivedIndexes(db,null);}
+        catch(IOException failure){throw new IllegalStateException("Search index rebuild failed",failure);}
+    }
+
+    private static void rebuildDerivedIndexes(SQLiteDatabase db,BackupPolicy.Session space)throws IOException {
+        if(space!=null)space.checkpoint("restore_index_rebuild","message_search",64L*1024);
+        db.delete("message_search", null, null);
+        if(space==null)db.execSQL("INSERT INTO message_search(docid,text) SELECT id,text FROM messages");
+        else{
+            long after=0;
+            while(true){
+                long upper;
+                try(Cursor row=db.rawQuery("SELECT MAX(id) FROM (SELECT id FROM messages WHERE id>? ORDER BY id LIMIT 512)",new String[]{String.valueOf(after)})){
+                    upper=row.moveToFirst()&&!row.isNull(0)?row.getLong(0):0;
+                }
+                if(upper<=after)break;
+                space.checkpoint("restore_index_rebuild","message_search",64L*1024);
+                db.execSQL("INSERT INTO message_search(docid,text) SELECT id,text FROM messages WHERE id>? AND id<=?",new Object[]{after,upper});
+                after=upper;
+            }
+        }
         db.delete("memory_search", null, null); db.delete("memory_sources", null, null); db.delete("semantic_vectors", null, null);
-        DeviceEventSearch.rebuild(db);
+        if(space!=null)space.checkpoint("restore_index_rebuild","device_event_search",64L*1024);
+        DeviceEventSearch.rebuild(db,space);
         for (String cache : new String[]{"semantic_chunks", "semantic_chunk_progress", "semantic_index_progress"}) {
             if (one(db, "SELECT name FROM sqlite_master WHERE type='table' AND name=?", new String[]{cache}) != null) db.delete(cache, null, null);
         }
         try (Cursor cursor = db.rawQuery("SELECT * FROM memory_revisions ORDER BY memory_key, revision", null)) {
+            int visited=0;
             while (cursor.moveToNext()) {
+                if(space!=null&&visited++%64==0)space.checkpoint("restore_index_rebuild","memory_sources",64L*1024);
                 JSONObject history = cursorRow(cursor); JSONArray references = history.optJSONArray("sourceRefs");
                 if (references == null || references.length() == 0) references = legacyReferences(history.optJSONArray("sourceMessageIds"));
                 JSONArray verified = normalizeReferences(db, references);
@@ -1318,7 +1415,9 @@ public final class HoyoungStore extends SQLiteOpenHelper {
             }
         }
         try (Cursor cursor = db.rawQuery("SELECT memory_key, revision FROM memories", null)) {
+            int visited=0;
             while (cursor.moveToNext()) {
+                if(space!=null&&visited++%64==0)space.checkpoint("restore_index_rebuild","memory_search",64L*1024);
                 String key = cursor.getString(0); JSONArray references = sourceLinks(db, key, cursor.getInt(1));
                 ContentValues row = new ContentValues(); row.put("source_refs", compactReferences(references).toString());
                 db.update("memories", row, "memory_key = ?", new String[]{key});
@@ -1338,13 +1437,20 @@ public final class HoyoungStore extends SQLiteOpenHelper {
     }
 
     private long rebuildLargeOriginalSearch(SQLiteDatabase db) {
+        try{return rebuildLargeOriginalSearch(db,null);}
+        catch(IOException failure){throw new IllegalStateException("Cannot rebuild an unavailable original",failure);}
+    }
+
+    private long rebuildLargeOriginalSearch(SQLiteDatabase db,BackupPolicy.Session space)throws IOException {
         long count = 0;
         try (Cursor cursor = db.rawQuery("SELECT id,raw_file_id,raw_content_hash,raw_byte_count FROM messages WHERE raw_file_id IS NOT NULL", null)) {
             while (cursor.moveToNext()) {
                 try {
+                    if(space!=null)space.checkpoint("restore_index_rebuild","originals/"+cursor.getString(1),cursor.getLong(3)*2);
                     originalFiles.verify(cursor.getString(1), cursor.getString(2), cursor.getLong(3));
                     replaceMessageSearch(db, cursor.getLong(0), originalFiles.readEntire(cursor.getString(1)));
-                } catch (IOException missing) { throw new IllegalStateException("Cannot rebuild an unavailable original", missing); }
+                } catch (BackupFailure failure){throw failure;}
+                catch (IOException missing) { throw new IllegalStateException("Cannot rebuild an unavailable original", missing); }
                 count++;
             }
         }
@@ -1468,12 +1574,17 @@ public final class HoyoungStore extends SQLiteOpenHelper {
     }
 
     static long readTable(SQLiteDatabase db, String table, InputStream source) throws IOException {
+        return readTable(db,table,source,null);
+    }
+
+    static long readTable(SQLiteDatabase db, String table, InputStream source,BackupPolicy.Session space) throws IOException {
         requireTable(table); long rows = 0;
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(source, StandardCharsets.UTF_8), 16_384)) {
             String line;
             while ((line = boundedLine(reader, 8 * 1024 * 1024)) != null) {
                 if (line.isEmpty()) throw new IOException("Empty authoritative row");
                 checkJsonDepth(line);
+                if(space!=null&&rows%64==0)space.checkpoint("restore_database_stage","store/"+table+".ndjson",Math.min(BackupPolicy.SPACE_RECHECK_BYTES,Math.max(64L*1024,line.length()*6L)));
                 try {
                     JSONObject row = new JSONObject(line);
                     if ((table.equals("messages") || table.equals("memories") || table.equals("device_events")) && row.isNull("content_hash")) throw new IOException("A source hash is missing");
@@ -1514,16 +1625,41 @@ public final class HoyoungStore extends SQLiteOpenHelper {
     }
 
     synchronized void importStagedDatabase(File stagedDatabase, String fileRestoreToken) {
+        try{importStagedDatabase(stagedDatabase,fileRestoreToken,null);}
+        catch(IOException failure){throw new IllegalStateException("Backup database restore failed",failure);}
+    }
+
+    synchronized void importStagedDatabase(File stagedDatabase, String fileRestoreToken,BackupPolicy.Session space)throws IOException {
         SQLiteDatabase db = getWritableDatabase();
         db.execSQL("ATTACH DATABASE ? AS restored_source", new Object[]{stagedDatabase.getPath()});
         try {
             db.beginTransaction();
             try {
-                for (String table : tables()) db.delete(table, null, null);
-                for (String table : tables()) db.execSQL("INSERT INTO main." + table + " SELECT * FROM restored_source." + table);
-                validateDatabase(db); rebuildDerivedIndexes(db); rebuildLargeOriginalSearch(db); quarantineRestoredRequests(db);
+                for (String table : tables()) {
+                    if(space!=null)space.checkpoint("restore_commit",table,64L*1024);
+                    db.delete(table, null, null);
+                }
+                for (String table : tables()) {
+                    if(space==null)db.execSQL("INSERT INTO main." + table + " SELECT * FROM restored_source." + table);
+                    else{
+                        long after=0;
+                        while(true){
+                            long upper;
+                            try(Cursor row=db.rawQuery("SELECT MAX(rowid) FROM (SELECT rowid FROM restored_source."+table+" WHERE rowid>? ORDER BY rowid LIMIT 512)",new String[]{String.valueOf(after)})){
+                                upper=row.moveToFirst()&&!row.isNull(0)?row.getLong(0):0;
+                            }
+                            if(upper<=after)break;
+                            space.checkpoint("restore_commit",table,Math.min(BackupPolicy.SPACE_RECHECK_BYTES,Math.max(64L*1024,stagedDatabase.length())));
+                            db.execSQL("INSERT INTO main."+table+" SELECT * FROM restored_source."+table+" WHERE rowid>? AND rowid<=?",new Object[]{after,upper});
+                            after=upper;
+                        }
+                    }
+                }
+                if(space!=null)space.checkpoint("restore_index_rebuild","",Math.min(BackupPolicy.SPACE_RECHECK_BYTES,stagedDatabase.length()));
+                validateDatabase(db); rebuildDerivedIndexes(db,space); rebuildLargeOriginalSearch(db,space); quarantineRestoredRequests(db);
                 putSetting("autonomy.enabled", "false"); putSetting("runtime.restoreReviewRequired", "true");
                 putSetting(FILE_RESTORE_TOKEN_KEY, fileRestoreToken);
+                if(space!=null)space.checkpoint("restore_commit_finalize","",64L*1024);
                 db.setTransactionSuccessful();
             } finally { db.endTransaction(); }
         } finally { db.execSQL("DETACH DATABASE restored_source"); }

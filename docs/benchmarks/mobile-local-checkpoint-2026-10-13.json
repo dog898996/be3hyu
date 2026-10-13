@@ -1,0 +1,709 @@
+{
+  "scope": "Local compiled Android checkpoint and meaningful regression checks; complete fresh final suite is pending GitHub CI.",
+  "sourceProductionStatus": "Frozen source compiled; no code/config changes during final verification.",
+  "priorFullLocalSuite": {
+    "tests": 494,
+    "passed": 477,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 16,
+    "classes": 51,
+    "remainingFailure": "Completed-provider restore fixture used accepted status; fixed fixture and a new inflight-restore regression added. Production coordinator unchanged."
+  },
+  "finalTargetedJUnit": {
+    "tests": 54,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 54,
+    "classes": 2
+  },
+  "finalTargetedClasses": [
+    "com.hoyoung.assistant.runtime.MemoryReviewCoordinatorTest (44)",
+    "com.hoyoung.assistant.store.BoundedChatMessagePageTest (10)"
+  ],
+  "codeChangesSincePriorFullRun": [
+    "mobile/app/src/main/java/com/hoyoung/assistant/MainActivity.java",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/HoyoungStore.java",
+    "mobile/app/src/test/java/com/hoyoung/assistant/runtime/MemoryReviewCoordinatorTest.java",
+    "mobile/app/src/test/java/com/hoyoung/assistant/store/BoundedChatMessagePageTest.java"
+  ],
+  "latestMainAndStoreChanges": "Eight-file UI selection rejects excess visibly; structured internal system records remain stored/searchable/backed up while actual chat excludes them and preserves plain quota/error notices.",
+  "latestDebugAndInstrumentationApksCompiled": true,
+  "lint": {
+    "Error": 0,
+    "Fatal": 0,
+    "Warning": 16,
+    "Information": 0
+  },
+  "staticDebugBinary": {
+    "applicationId": "com.hoyoung.assistant",
+    "versionName": "0.2.0",
+    "versionCode": 3,
+    "targetSdk": 35,
+    "debuggable": true,
+    "permissionCount": 40,
+    "sourcePermissionDeclarationsExactlyMatch": true
+  },
+  "sourceConfigurationFileCount": 159,
+  "pendingProof": [
+    "Fresh GitHub CI full JUnit counts, expected 497 total but not asserted until reports exist",
+    "Actual accelerated API35 offline Android primary14 plus explicit reopen, force-stop boundary, real process crash and real reboot phases",
+    "Stable-key non-debug release build/signature verification and release APK SHA256"
+  ],
+  "actualChatGptAccountUsed": false,
+  "physicalPhoneTested": false,
+  "uninterrupted24HoursTested": false,
+  "realYearOfOwnerUsageTested": false,
+  "recordedAtUtc": "2026-10-13T22:44:00Z",
+  "chromiumBridge": {
+    "tests": 43,
+    "passed": 43,
+    "failed": 0,
+    "actualAccountUsed": false
+  },
+  "recordedCurrentSourceFiles": [
+    {
+      "path": "mobile/app/build.gradle",
+      "sha256": "0522138d0324daab3de087f6cf2a510d54c2366aabec6e8f92aef5d0ce975fe6"
+    },
+    {
+      "path": "mobile/app/src/androidTest/java/com/hoyoung/assistant/DeviceRestartIntegrationTest.java",
+      "sha256": "43469f97081ea20d21a51031ff353512299a7f9a52c24aaea3830927a02c1f57"
+    },
+    {
+      "path": "mobile/app/src/androidTest/java/com/hoyoung/assistant/DeviceRuntimeIntegrationTest.java",
+      "sha256": "20446f302a381291225e12e9c2b3a7f8ccfb88b70459118294af40bab56908ae"
+    },
+    {
+      "path": "mobile/app/src/androidTest/java/com/hoyoung/assistant/memory/NativeAnnDeviceTest.java",
+      "sha256": "c1d6a3c4abd7f13eab9f2bf917d0e156750c831a6823e8d3f0a035ae554754d0"
+    },
+    {
+      "path": "mobile/app/src/androidTest/java/com/hoyoung/assistant/memory/local/LocalNeuralDeviceTest.java",
+      "sha256": "3520aecc82a52a2f1158aac11335b567cd1754d1fb83e94c8be9e4a73c2cb21b"
+    },
+    {
+      "path": "mobile/app/src/androidTest/java/com/hoyoung/assistant/phone/PhoneDeviceIntegrationTest.java",
+      "sha256": "0890b70cf93c7e579339ee3e4a9ff2c4b47aba1d17186e99e92f8496f697d0a8"
+    },
+    {
+      "path": "mobile/app/src/main/AndroidManifest.xml",
+      "sha256": "3f9181eef07f145b47109dc47a47a8c3286da0e3314a68940d0d8c6610f3d292"
+    },
+    {
+      "path": "mobile/app/src/main/assets/THIRD_PARTY_NOTICES.txt",
+      "sha256": "5180a2132dcc93363a5d414376a60f183f4169d7a43c802ff98c856ea0d541e9"
+    },
+    {
+      "path": "mobile/app/src/main/assets/core-identity.txt",
+      "sha256": "fb44c394e317a3f0f7d085186db9c550ca41d4cce220b031a56125bd033a7ebc"
+    },
+    {
+      "path": "mobile/app/src/main/assets/personalized-instructions.txt",
+      "sha256": "e41a64a475d133c9fd6592e25a3e8693551c73d37a1a7a221de2cd433916cd6b"
+    },
+    {
+      "path": "mobile/app/src/main/assets/semantic-model.json",
+      "sha256": "7ddec583a2dfe6af230ad14add77e042696465cbd4e081439f46d4ea99012acf"
+    },
+    {
+      "path": "mobile/app/src/main/assets/work-bridge.js",
+      "sha256": "a17199039335c0c81f168bbe150bd4a53d459145bffe7b4424a53d02b899eed6"
+    },
+    {
+      "path": "mobile/app/src/main/cpp/CMakeLists.txt",
+      "sha256": "3675deae815681e9623e2b7b5fe3a3fb0611843401389ce640a94530e6a48091"
+    },
+    {
+      "path": "mobile/app/src/main/cpp/ann_c_api.cpp",
+      "sha256": "6dca24cc876fcb4e3250748cd79e6dfc91786fa2f696230b047f30a2c1d0f2ed"
+    },
+    {
+      "path": "mobile/app/src/main/cpp/ann_cache_fuzz_test.cpp",
+      "sha256": "10dea3f0413610f145e01f672f72661ccd1a33f39c989670556eb22b2932ea38"
+    },
+    {
+      "path": "mobile/app/src/main/cpp/ann_host_test.cpp",
+      "sha256": "8623142b49a0b1f8d294636674eef1c6a06b230dd33b6f22348712a4b70ab342"
+    },
+    {
+      "path": "mobile/app/src/main/cpp/ann_index.h",
+      "sha256": "b16f3a4f257670a2358c86ea45d475e026356217c6d91907443a9593b1b46904"
+    },
+    {
+      "path": "mobile/app/src/main/cpp/ann_jni.cpp",
+      "sha256": "21f7df633f381820e5bc51a7181abc2f7c31b4efb486b57c8e6dc3b3c9827f8a"
+    },
+    {
+      "path": "mobile/app/src/main/cpp/third_party/hnswlib/UPSTREAM.json",
+      "sha256": "f4fed71b638a79359b9853e228b397781c9563a1ba9437c90f66670451575883"
+    },
+    {
+      "path": "mobile/app/src/main/cpp/third_party/hnswlib/bruteforce.h",
+      "sha256": "da1f179e99d8e5a4c39b5db0c681bccf3c63e797aaa4982620519f8e001cb2c6"
+    },
+    {
+      "path": "mobile/app/src/main/cpp/third_party/hnswlib/hnswalg.h",
+      "sha256": "0fb2c1b1d3aae1ea959b536f96844f3f3ae6a2f32ce063f2c31f93d84a7e5c32"
+    },
+    {
+      "path": "mobile/app/src/main/cpp/third_party/hnswlib/hnswlib.h",
+      "sha256": "54403db81f55fd28246114c5c9f683e663a2a55ad64903b56578c73e6db5ad2c"
+    },
+    {
+      "path": "mobile/app/src/main/cpp/third_party/hnswlib/space_ip.h",
+      "sha256": "6a89b5275527fe3592a9b02ea4fc50293fdc68cbd9f7c1ec13683581e1ebbaf7"
+    },
+    {
+      "path": "mobile/app/src/main/cpp/third_party/hnswlib/space_l2.h",
+      "sha256": "c599d024657896412250b4fde1a95e39f8bc55cccd263f36c8948fa35779edf1"
+    },
+    {
+      "path": "mobile/app/src/main/cpp/third_party/hnswlib/stop_condition.h",
+      "sha256": "930da73eead77dff0c8c9f3281c5d12250051c90ef98fcfbab8f5f307bdae8d9"
+    },
+    {
+      "path": "mobile/app/src/main/cpp/third_party/hnswlib/visited_list_pool.h",
+      "sha256": "8e5bab8d12b5ef26e3b603b656b8a1acba6738498d1d98f44c9fdb1cb0e25110"
+    },
+    {
+      "path": "mobile/app/src/main/java/com/hoyoung/assistant/MainActivity.java",
+      "sha256": "b0eebe4a515b6e5800ce38fd6d9aad1df9c06f7a9efb351de5c669bf9d344c4f"
+    },
+    {
+      "path": "mobile/app/src/main/java/com/hoyoung/assistant/memory/MemoryHistory.java",
+      "sha256": "17a6c3dcd21e796b0b75d90c07965cd98a4e752bcdfe348547d831285a9e0529"
+    },
+    {
+      "path": "mobile/app/src/main/java/com/hoyoung/assistant/memory/MemoryPolicy.java",
+      "sha256": "25a109369dde48ebbb7c3e4d8864bc569dbe8199342d687a34d239dee6207f67"
+    },
+    {
+      "path": "mobile/app/src/main/java/com/hoyoung/assistant/memory/MemoryQuery.java",
+      "sha256": "1dfaa5d898e8db7f140c6f4a16e7dc4766154524e7cb31ccba0724ad2bd8cb24"
+    },
+    {
+      "path": "mobile/app/src/main/java/com/hoyoung/assistant/memory/MemoryRetriever.java",
+      "sha256": "910d297b28de88868adcb07879a84c3f79ed17b6486ea6987bf7891aad4ef5b2"
+    },
+    {
+      "path": "mobile/app/src/main/java/com/hoyoung/assistant/memory/MemoryText.java",
+      "sha256": "d880450cc2d36309b34c94340a4755877ac632e6de6007b37a9fcd26f04d2622"
+    },
+    {
+      "path": "mobile/app/src/main/java/com/hoyoung/assistant/memory/NativeAnnIndex.java",
+      "sha256": "0e64ae7b8cc2289cb00983682e61af06860449cb7ccc50c2c515325ae7c19d20"
+    },
+    {
+      "path": "mobile/app/src/main/java/com/hoyoung/assistant/memory/SemanticAnnCache.java",
+      "sha256": "e792b8e045e30c2012719e184dadcc8f4782222d394d237c84a7e1bcce5db9cf"
+    },
+    {
+      "path": "mobile/app/src/main/java/com/hoyoung/assistant/memory/SemanticCandidateProvider.java",
+      "sha256": "dfb07cf9e8de3599b820843e946e1a1542b35dde67d84dc05a7561653c16ca68"
+    },
+    {
+      "path": "mobile/app/src/main/java/com/hoyoung/assistant/memory/SemanticEncoder.java",
+      "sha256": "23839c706b37302429d6f5ec4ce6cf78e5e99e33c409d442ea9ae5906ebfd1c1"
+    },
+    {
+      "path": "mobile/app/src/main/java/com/hoyoung/assistant/memory/SemanticIndex.java",
+      "sha256": "4b0cb1dfcc00535407c900b86acafe8876db644161b0bafdf169e5ec7a16acb0"
+    },
+    {
+      "path": "mobile/app/src/main/java/com/hoyoung/assistant/memory/StructuredMemorySearch.java",
+      "sha256": "9b20c518ea967dc833f359280dbf7fe76fe5b4e91560d088a34eee9da701f687"
+    },
+    {
+      "path": "mobile/app/src/main/java/com/hoyoung/assistant/memory/VectorCodec.java",
+      "sha256": "d31cefe95dd153d900329d93a1fb0aeb44b0dc4a1cef31e74fb88dc07502d3c1"
+    },
+    {
+      "path": "mobile/app/src/main/java/com/hoyoung/assistant/memory/local/BertWordPieceTokenizer.java",
+      "sha256": "e23fc5a98a11f32fcd2c442c27e0c865e9005fa67b910187904b36894345eb16"
+    },
+    {
+      "path": "mobile/app/src/main/java/com/hoyoung/assistant/memory/local/LocalSemanticEncoder.java",
+      "sha256": "9c40c9a0e9b9f72d3273ccfd0d26921f810d76bccef6c703a2f55a025b18d36d"
+    },
+    {
+      "path": "mobile/app/src/main/java/com/hoyoung/assistant/phone/HoyoungAccessibilityService.java",
+      "sha256": "9203abc1f3d01b8ad8fe9798b410350da62d1594479d0ff732699930d9ba547a"
+    },
+    {
+      "path": "mobile/app/src/main/java/com/hoyoung/assistant/phone/HoyoungDeviceAdminReceiver.java",
+      "sha256": "d290eac03e9f1c9916b74ad80a349a19cffbacee8207e3595fb49849e862dd40"
+    },
+    {
+      "path": "mobile/app/src/main/java/com/hoyoung/assistant/phone/HoyoungNotificationListener.java",
+      "sha256": "3c792598d5c799df55e74b2c1b58b9dfc2fc5fb7bc5895bfc6e43966067aa4c6"
+    },
+    {
+      "path": "mobile/app/src/main/java/com/hoyoung/assistant/phone/NotificationObservedContent.java",
+      "sha256": "2d250a9389e7b6553cd857a348106bbdca3010c67460e04c204d7da30de761d7"
+    },
+    {
+      "path": "mobile/app/src/main/java/com/hoyoung/assistant/phone/PermissionCatalog.java",
+      "sha256": "fcada8a114b817bc04bf76511c31a38e41b7c9294b03366fc38939e054be1d84"
+    },
+    {
+      "path": "mobile/app/src/main/java/com/hoyoung/assistant/phone/PhoneActivityTracker.java",
+      "sha256": "79e0471316e3259716d37f88c83e7d3364d7455de560a7a96becd3122af0f293"
+    },
+    {
+      "path": "mobile/app/src/main/java/com/hoyoung/assistant/phone/PhoneArchiveSegments.java",
+      "sha256": "a5019b4a9d031046839f0b0e501b72aa8c3bb67616004fdeb03e1ff08e28eca0"
+    },
+    {
+      "path": "mobile/app/src/main/java/com/hoyoung/assistant/phone/PhoneContextCollector.java",
+      "sha256": "10f21790f7d0908fa9364e37bbc6f4e92f986f920976c365b5311a228d852799"
+    },
+    {
+      "path": "mobile/app/src/main/java/com/hoyoung/assistant/phone/PhoneEnvironmentTools.java",
+      "sha256": "0022638585ba4878aa3a9f987658394b1e027d0bafac9aeec9cbae88892e55bb"
+    },
+    {
+      "path": "mobile/app/src/main/java/com/hoyoung/assistant/phone/PhoneEventJournal.java",
+      "sha256": "fad6a086cd16bedb8370a660110a80b138511780cb643e1c58c76df73cabe8f9"
+    },
+    {
+      "path": "mobile/app/src/main/java/com/hoyoung/assistant/phone/PhoneLocationRequests.java",
+      "sha256": "3b43ccda3e1298cc6ca329bdbdf81074f1942cbe4c805e6ddafa5e6438bf57e8"
+    },
+    {
+      "path": "mobile/app/src/main/java/com/hoyoung/assistant/phone/PhoneObservationSpool.java",
+      "sha256": "e3ab6674e75339ae7fed74ef18163d5f70093d5f8e4f5bb8f6edc81224e2c301"
+    },
+    {
+      "path": "mobile/app/src/main/java/com/hoyoung/assistant/phone/PhoneProviderTools.java",
+      "sha256": "64762dec61856345219bf32e25ba298c1654ba9848a2f14aa6073f8a8ef1934a"
+    },
+    {
+      "path": "mobile/app/src/main/java/com/hoyoung/assistant/phone/PhoneSharedFiles.java",
+      "sha256": "61dfb6ee4da11fff3443a1fa1d6f0be8ec79caf667e104b364df7eab041d4419"
+    },
+    {
+      "path": "mobile/app/src/main/java/com/hoyoung/assistant/phone/PhoneTools.java",
+      "sha256": "77de754bff1774c337de19e639ea17c9d48a9c56b2daffb850c763c8ac3aa906"
+    },
+    {
+      "path": "mobile/app/src/main/java/com/hoyoung/assistant/phone/PhoneUsageTools.java",
+      "sha256": "8bb2692974dfa74159c0b62835ea1ce2e4a3ac082ea44952ad4ff6b70d091cc8"
+    },
+    {
+      "path": "mobile/app/src/main/java/com/hoyoung/assistant/phone/PhoneVoiceRecorder.java",
+      "sha256": "415d7f8ccb7fda38352f5e12764470c0f2bc8b856b8cde325cf38c53c6c4559d"
+    },
+    {
+      "path": "mobile/app/src/main/java/com/hoyoung/assistant/runtime/ActionReceiptJournal.java",
+      "sha256": "28dca681712820ae783fea4ac7d467d2e4d2273edd2042bc0aa418417b23481a"
+    },
+    {
+      "path": "mobile/app/src/main/java/com/hoyoung/assistant/runtime/AssistantReplyNotifications.java",
+      "sha256": "9c3c69472f9de74aad8781e15124e9b078589274d55493d9b1283203dff9ce69"
+    },
+    {
+      "path": "mobile/app/src/main/java/com/hoyoung/assistant/runtime/AssistantRuntime.java",
+      "sha256": "b402c39ce74d17af19a044b750e779678b6e20c3dca2e48df42c44c6f4faa68c"
+    },
+    {
+      "path": "mobile/app/src/main/java/com/hoyoung/assistant/runtime/AutonomyService.java",
+      "sha256": "29cc2b07b3d74344190e45d10821a5f37110bca8aa03e271e35bc125b5737fa3"
+    },
+    {
+      "path": "mobile/app/src/main/java/com/hoyoung/assistant/runtime/BootReceiver.java",
+      "sha256": "b29e2590caa6d37ede66df03ac02d87fd1dbba250f83361815b816dbf743d2da"
+    },
+    {
+      "path": "mobile/app/src/main/java/com/hoyoung/assistant/runtime/GoalLedger.java",
+      "sha256": "efd562bf0e70c79b18f219ac5b0bbe4107020353f8cd3c63238d3e1c60001a09"
+    },
+    {
+      "path": "mobile/app/src/main/java/com/hoyoung/assistant/runtime/HoyoungApplication.java",
+      "sha256": "ab5c68943229ec50c364e5752368f0d3cbd85ed035ea3526841fcb79a1415669"
+    },
+    {
+      "path": "mobile/app/src/main/java/com/hoyoung/assistant/runtime/MemoryReviewCoordinator.java",
+      "sha256": "d305cf9db80c4f9634cef193f393ea95b456560855e8025e0afd7231ec197d4c"
+    },
+    {
+      "path": "mobile/app/src/main/java/com/hoyoung/assistant/runtime/OwnerDraftStore.java",
+      "sha256": "33d66d25512bf7e96e514a4c1b32d382937899b8b78034039b7d4cc5f28e05e0"
+    },
+    {
+      "path": "mobile/app/src/main/java/com/hoyoung/assistant/store/AttachmentOriginals.java",
+      "sha256": "0fecf6d8c710b10ba9dc242dabdd4d1883cc66d68e9148265aef542deebf1a11"
+    },
+    {
+      "path": "mobile/app/src/main/java/com/hoyoung/assistant/store/BackupFailure.java",
+      "sha256": "66c8680b95fbb8e37c5432415b2a8aee40610f13f6c7e79a92fffa3a7d87e632"
+    },
+    {
+      "path": "mobile/app/src/main/java/com/hoyoung/assistant/store/BackupPolicy.java",
+      "sha256": "dd6772e05f9b6bcd358a4a55e64a583cc5f49f05d149d9ee837adf998a1ab927"
+    },
+    {
+      "path": "mobile/app/src/main/java/com/hoyoung/assistant/store/DeviceEventSearch.java",
+      "sha256": "66b9ed4e6e65264072685d68bd1115e958736283ef4ff24e4744e3cd4641657d"
+    },
+    {
+      "path": "mobile/app/src/main/java/com/hoyoung/assistant/store/HoyoungStore.java",
+      "sha256": "1ffbbfbb36e24148ddc2dec1a20fbb1a91a72131e018504a52fc16afc29184f9"
+    },
+    {
+      "path": "mobile/app/src/main/java/com/hoyoung/assistant/store/InternalFiles.java",
+      "sha256": "791b07107c034aa29c092e7db9bca62f9a932acfc7e82a17df53bd5e5c971129"
+    },
+    {
+      "path": "mobile/app/src/main/java/com/hoyoung/assistant/store/OriginalTextFiles.java",
+      "sha256": "ba9d667c885e662c9fe25f74329d8ece631fc407976e5908aa769c00f3d5c39b"
+    },
+    {
+      "path": "mobile/app/src/main/java/com/hoyoung/assistant/store/StreamingBackup.java",
+      "sha256": "f35fe79f8a48543a8c6bc275deff5bcd4e9cb429c820900ec00c66f69c8b226c"
+    },
+    {
+      "path": "mobile/app/src/main/java/com/hoyoung/assistant/ui/AttachmentPreview.java",
+      "sha256": "21f40cce44736560acdd085c471fd9bb29a0258189b8002533669b74e1e98bfb"
+    },
+    {
+      "path": "mobile/app/src/main/java/com/hoyoung/assistant/ui/ChatAttachmentPreviews.java",
+      "sha256": "37ad2bbf1d73eba3ef029b80e12ae5f9d35d6c8420410dcac5cded5429cb89cd"
+    },
+    {
+      "path": "mobile/app/src/main/java/com/hoyoung/assistant/web/WorkAttachmentRepresentations.java",
+      "sha256": "2301e9c4755caa6e35cbbf7e738d93ac3844ad3a83888b0a866ae16ebc104906"
+    },
+    {
+      "path": "mobile/app/src/main/java/com/hoyoung/assistant/web/WorkWebController.java",
+      "sha256": "bfe0fffe5a2203821193e433eff1e4c0967fb7b69bb44a00c7e3461d1a969bba"
+    },
+    {
+      "path": "mobile/app/src/main/java/com/hoyoung/assistant/web/WorkingDownload.java",
+      "sha256": "c06d5280c3e445b1bbc17ba1e258f490e59d3435482d1718c6824eb90093c7ef"
+    },
+    {
+      "path": "mobile/app/src/main/res/drawable/ic_launcher_fallback.xml",
+      "sha256": "e721abafed70ddd65ec01f07c7fc01fed739b90f99f21e6524b47eb7edd519cd"
+    },
+    {
+      "path": "mobile/app/src/main/res/drawable/ic_launcher_foreground.xml",
+      "sha256": "c069533116d87b05b5af6f37c6d7c45d7c1f3b08c402bcb7af2291f9b8f0ff7b"
+    },
+    {
+      "path": "mobile/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml",
+      "sha256": "2a1c34e5482dbdb61623f9bd467517afc592329e4789ca17617a95efd5b51771"
+    },
+    {
+      "path": "mobile/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml",
+      "sha256": "2a1c34e5482dbdb61623f9bd467517afc592329e4789ca17617a95efd5b51771"
+    },
+    {
+      "path": "mobile/app/src/main/res/values/icon_colors.xml",
+      "sha256": "78cd1aa729a7ee14e250a30eba6cd37456538411a119dcbc17ac438cb687233f"
+    },
+    {
+      "path": "mobile/app/src/main/res/xml/data_extraction_rules.xml",
+      "sha256": "be38b2838b82a3440b7d8a938313155942af4f43084f87b3477fc62113514551"
+    },
+    {
+      "path": "mobile/app/src/main/res/xml/hoyoung_accessibility.xml",
+      "sha256": "4705c95273dd2953e6e2a251f3f7feae3662a00d3166005517ed7cb805e29522"
+    },
+    {
+      "path": "mobile/app/src/main/res/xml/hoyoung_device_admin.xml",
+      "sha256": "999b0c6dd408df3a697766f4189dc5f45a4d6e2f0aeb535fa2de27575655eefd"
+    },
+    {
+      "path": "mobile/app/src/test/java/com/hoyoung/assistant/MainActivitySmokeTest.java",
+      "sha256": "107a76c7a803c26af3d1e8c6e44119feab8b1d5e56ca60db8dd4440d713f5f4a"
+    },
+    {
+      "path": "mobile/app/src/test/java/com/hoyoung/assistant/memory/LargeCorpusRetrievalBenchmarkTest.java",
+      "sha256": "c410cac782b8e0f602845814ace52280e37fd96d8b8e1cebd66e657b9d2fe2a9"
+    },
+    {
+      "path": "mobile/app/src/test/java/com/hoyoung/assistant/memory/LongTermRetrievalBenchmarkTest.java",
+      "sha256": "00a7359c2a686019731afa23a8e107048e125e1b50c1c73ff75733615271754c"
+    },
+    {
+      "path": "mobile/app/src/test/java/com/hoyoung/assistant/memory/LongitudinalMemoryProductBenchmarkTest.java",
+      "sha256": "3c34961fbb1dd34ad3237a7dc7f8ee6741ff4e2e25ab7b24a3118a583b27678a"
+    },
+    {
+      "path": "mobile/app/src/test/java/com/hoyoung/assistant/memory/PrecomputedOnnxFixture.java",
+      "sha256": "899be3c5c63f37358b07e762e8bb2b4d24b35e9edff88fd5d3be7693a453c881"
+    },
+    {
+      "path": "mobile/app/src/test/java/com/hoyoung/assistant/memory/PublicDatasetRetrievalBenchmarkTest.java",
+      "sha256": "e61d85a8f563ec66048ab30b7291dcd1a7147d10b330f201c9dd27230a6c1b10"
+    },
+    {
+      "path": "mobile/app/src/test/java/com/hoyoung/assistant/memory/PublicNeuralRetrievalBenchmarkTest.java",
+      "sha256": "846baac1c2d0c142703102fe1df2af2452e122233fa6b1888c50c41034817b1f"
+    },
+    {
+      "path": "mobile/app/src/test/java/com/hoyoung/assistant/memory/SemanticAnnCacheTest.java",
+      "sha256": "0e51aae77a16de1e1bc60fcd8860e358305547485eac663d94a8967860eeea05"
+    },
+    {
+      "path": "mobile/app/src/test/java/com/hoyoung/assistant/memory/SemanticAnnCheckpointTest.java",
+      "sha256": "c3b13100b34cd4e804321bfc9ac03b1421d7fae2a3f5d8208abd3a2b0a43e76c"
+    },
+    {
+      "path": "mobile/app/src/test/java/com/hoyoung/assistant/memory/SemanticAnnScalingBenchmarkTest.java",
+      "sha256": "c31dd6af4618117a43280efd5939b535007bf522229383bb8a090e4edc667150"
+    },
+    {
+      "path": "mobile/app/src/test/java/com/hoyoung/assistant/memory/SemanticScanScalingBenchmarkTest.java",
+      "sha256": "6390a27cd8e0957ae106464acdcb2b3681d6ce7af73749ed3f232fa34c24bfe5"
+    },
+    {
+      "path": "mobile/app/src/test/java/com/hoyoung/assistant/memory/StructuredMemoryScalingBenchmarkTest.java",
+      "sha256": "b56cd05c374cce26a80547aef5fb8100303da15b2c689e1b811cb8a5a32a33b9"
+    },
+    {
+      "path": "mobile/app/src/test/java/com/hoyoung/assistant/memory/VectorCodecTest.java",
+      "sha256": "3e460d93665e23dbd4cb483b0c5365631b82ace54e2e6ef3155c279076c0117a"
+    },
+    {
+      "path": "mobile/app/src/test/java/com/hoyoung/assistant/phone/AutonomyResourceModeTest.java",
+      "sha256": "3e34ef569fe6464d24d5f5352798d6d77f59ef036bf03d27a665dc78064b8fb5"
+    },
+    {
+      "path": "mobile/app/src/test/java/com/hoyoung/assistant/phone/NotificationObservedContentTest.java",
+      "sha256": "2989af6b91d27e65a9e2660ced20760a970ae8418f829882c32e949de782334c"
+    },
+    {
+      "path": "mobile/app/src/test/java/com/hoyoung/assistant/phone/PhoneArchiveCompactionTest.java",
+      "sha256": "db9657f3fe84c94da071688045364316fe45137cb8ab6309d8f3ae210d4794c9"
+    },
+    {
+      "path": "mobile/app/src/test/java/com/hoyoung/assistant/phone/PhoneArchivedResultVisibilityTest.java",
+      "sha256": "11ac8464d6dc06ce8f918c665ce675752aeaf779fa680f830556bfb902614b8a"
+    },
+    {
+      "path": "mobile/app/src/test/java/com/hoyoung/assistant/phone/PhoneContextTest.java",
+      "sha256": "518f333c97e55fe9133fd1870be79d8e5f487b40636094e3fc0f0aa12d01e8dc"
+    },
+    {
+      "path": "mobile/app/src/test/java/com/hoyoung/assistant/phone/PhoneJournalSpoolTest.java",
+      "sha256": "2d69d97f98911021f116eb6bdb1a14df74883cc803c254c9e1f34a7abb48fee0"
+    },
+    {
+      "path": "mobile/app/src/test/java/com/hoyoung/assistant/phone/PhoneSharedFilesTest.java",
+      "sha256": "1eb78ba0844b2931d60fab2e240abffb1f853ab159453be80ac0832dd0a373a9"
+    },
+    {
+      "path": "mobile/app/src/test/java/com/hoyoung/assistant/phone/PhoneUiInputTest.java",
+      "sha256": "733a94ea6f95f1e2c178922a88f55e7e9a88f715837b7a3593c91c3fe39e5809"
+    },
+    {
+      "path": "mobile/app/src/test/java/com/hoyoung/assistant/runtime/ActionReceiptJournalTest.java",
+      "sha256": "4b0eb65c0cb8bb685d24e18c54653dec2917a1ca5ca2ea8d9bd5b9451fd53fc9"
+    },
+    {
+      "path": "mobile/app/src/test/java/com/hoyoung/assistant/runtime/AssistantReplyNotificationsTest.java",
+      "sha256": "0519840f0ef00f233f3c92dbec6ae5b14046909e5f89e9420c5cbd701f2d38eb"
+    },
+    {
+      "path": "mobile/app/src/test/java/com/hoyoung/assistant/runtime/AssistantRuntimePreparingSteeringTest.java",
+      "sha256": "1c9d8e5c0c9546f7172f56799215ce00f3851a13584d4d9bb43f8a90f879d1f6"
+    },
+    {
+      "path": "mobile/app/src/test/java/com/hoyoung/assistant/runtime/AssistantRuntimeTest.java",
+      "sha256": "f0d50680789574242c6175360c071fa6e45735677e7726896410a1636c07e8ab"
+    },
+    {
+      "path": "mobile/app/src/test/java/com/hoyoung/assistant/runtime/GoalLedgerTest.java",
+      "sha256": "53e945ca28b9ecb98b2cf0c9acece9716151dd38b3515c4308b5f3196ffe997e"
+    },
+    {
+      "path": "mobile/app/src/test/java/com/hoyoung/assistant/runtime/MemoryReviewCoordinatorTest.java",
+      "sha256": "a4191c1a6f30f09222f07c66120f5117911c4e5d2071474f3e00bc22f9ac836c"
+    },
+    {
+      "path": "mobile/app/src/test/java/com/hoyoung/assistant/runtime/OwnerDraftStoreTest.java",
+      "sha256": "ff09626f3059b7db27eef0faeb4bb3f3c04eb9f7b664645ffdee681e83ebd663"
+    },
+    {
+      "path": "mobile/app/src/test/java/com/hoyoung/assistant/runtime/RuntimeGoalArchiveIntegrationTest.java",
+      "sha256": "54bb114739983e6df9e191b7498c33fd8c9e016ec8e51c298401fac548159a6f"
+    },
+    {
+      "path": "mobile/app/src/test/java/com/hoyoung/assistant/runtime/RuntimeMemoryReviewSchedulingTest.java",
+      "sha256": "3e4313e007ca030da216da83047ba680bc46200dcdbba1e4b226ba59ff8181f0"
+    },
+    {
+      "path": "mobile/app/src/test/java/com/hoyoung/assistant/runtime/RuntimeModelPreferencesTest.java",
+      "sha256": "b103bfefd702fa9aed4a0949763227e904aecbde5ed632ed8f2a4d03440ac758"
+    },
+    {
+      "path": "mobile/app/src/test/java/com/hoyoung/assistant/runtime/RuntimeNativeOutcomeMemoryTest.java",
+      "sha256": "8836ade67b085c93e05ef9c21d800d0a2227304c7f55d9539ef3106151257a2e"
+    },
+    {
+      "path": "mobile/app/src/test/java/com/hoyoung/assistant/runtime/RuntimeOwnerInputIdentityTest.java",
+      "sha256": "acc14c944676bf727bd9560b4e7b9b37620de4b351fed5ca0fa80643ed8f1e9b"
+    },
+    {
+      "path": "mobile/app/src/test/java/com/hoyoung/assistant/runtime/RuntimeReadFailureTest.java",
+      "sha256": "ff18f11b97da7e0b8fdefb888d19596d40c7f740cfaa77f10a50852a75da8b4d"
+    },
+    {
+      "path": "mobile/app/src/test/java/com/hoyoung/assistant/runtime/RuntimeRepresentationAcceptanceTest.java",
+      "sha256": "ad4b80a0ed02d94e707a151b2c8dd0bcb50775d7950eee77630ea8a7497cf392"
+    },
+    {
+      "path": "mobile/app/src/test/java/com/hoyoung/assistant/store/AttachmentOriginalsTest.java",
+      "sha256": "1ce7ee18ecb481fbbb21c457a2f531013da45ffb5bc982e576aa0ccc5a5ce811"
+    },
+    {
+      "path": "mobile/app/src/test/java/com/hoyoung/assistant/store/BackupCapacityTest.java",
+      "sha256": "fcf3671301f1cd5292e9e67bb6205bc20a2604ae9dbc9c8658658bbdae678eb2"
+    },
+    {
+      "path": "mobile/app/src/test/java/com/hoyoung/assistant/store/BoundedChatMessagePageTest.java",
+      "sha256": "98b1f9ea3c525d20cd7757a5cb3022167171b1ca7d2a5c4e2fc89e0a1fb985b3"
+    },
+    {
+      "path": "mobile/app/src/test/java/com/hoyoung/assistant/store/FileListingResponsivenessTest.java",
+      "sha256": "0f66de018b3ec62e2b5b9be44d878035aa81df4689b5d906a28b6799d15cbe15"
+    },
+    {
+      "path": "mobile/app/src/test/java/com/hoyoung/assistant/store/FullHistorySearchTest.java",
+      "sha256": "de46153dc9a2ce3acd3420b92b1e13efedbf344b3f344a50071994cc78aa7548"
+    },
+    {
+      "path": "mobile/app/src/test/java/com/hoyoung/assistant/store/HoyoungStoreTest.java",
+      "sha256": "ab5d58bbc6280a388a4f27ec4c24b0ca0d9da495c7e88853a43279a63dafcfa8"
+    },
+    {
+      "path": "mobile/app/src/test/java/com/hoyoung/assistant/store/InternalFilesTest.java",
+      "sha256": "4c599638c2fa6424ae0e7588b823dc5a32b8d3325f9152db6aba5cbd65646e50"
+    },
+    {
+      "path": "mobile/app/src/test/java/com/hoyoung/assistant/store/LongTermStorageTest.java",
+      "sha256": "ddb6ccb1bf3a5553d6d944e1af55800f5481e02d460587450859ba9502b98d14"
+    },
+    {
+      "path": "mobile/app/src/test/java/com/hoyoung/assistant/store/VerifiedImageSourceTest.java",
+      "sha256": "c6372c0ef3c2904bba143bab10ed61a01276b81d63755dc40ca45f0c87ad5ad5"
+    },
+    {
+      "path": "mobile/app/src/test/java/com/hoyoung/assistant/store/WorkingBinaryStorageTest.java",
+      "sha256": "235e6e6a78853125898090c4aa3bf747f6401bae42c8659daa6cca85f205c1b3"
+    },
+    {
+      "path": "mobile/app/src/test/java/com/hoyoung/assistant/ui/AttachmentPreviewTest.java",
+      "sha256": "a485cc384ec35483a8ad4da04a9c25bec14e21a32a4ef0159532f1b88b0ab738"
+    },
+    {
+      "path": "mobile/app/src/test/java/com/hoyoung/assistant/ui/ChatAttachmentPreviewsTest.java",
+      "sha256": "f1f15c6df18151f07f20d7df32e61b737f34ccd1a7eafd25ad16e642332677fc"
+    },
+    {
+      "path": "mobile/app/src/test/java/com/hoyoung/assistant/ui/PhotoPreviewStreamingTest.java",
+      "sha256": "2ca3a26c571e146a1b4687e6195e90f645bf62cf330725b4c3ca35b9dfb02031"
+    },
+    {
+      "path": "mobile/app/src/test/java/com/hoyoung/assistant/web/OriginBoundaryTest.java",
+      "sha256": "fd7f8921a36bacd9ae739d7d0ff32974c2dd96be321f11b95f65b579a8e4d925"
+    },
+    {
+      "path": "mobile/app/src/test/java/com/hoyoung/assistant/web/WorkAttachmentRepresentationsTest.java",
+      "sha256": "feafdb31c8bde10700b4d4fb184ed18b0565fc81f0bca0bc6c2b788ea730b49c"
+    },
+    {
+      "path": "mobile/app/src/test/java/com/hoyoung/assistant/web/WorkStartupRecoveryTest.java",
+      "sha256": "3c7ed045443c6b1ce531fc17a04a1af887ea35b1f24b0cad3be5d83b7d12dd20"
+    },
+    {
+      "path": "mobile/app/src/test/java/com/hoyoung/assistant/web/WorkTransportIntegrityTest.java",
+      "sha256": "2dc9050c0dbabbec83f3d1cc860d45a2caf85cb56861043270c5ae22d655ca4d"
+    },
+    {
+      "path": "mobile/build.gradle",
+      "sha256": "4b08d3c261d317db5e5a5f7fa8ade50f361690e3b03fa86ee69a678f2a4b3a37"
+    },
+    {
+      "path": "mobile/gradle.properties",
+      "sha256": "e6b436ff6a08da8b8c05e0e2fc1a7f40f41701bb506cd80fc2ddfd7b6e3b3b2b"
+    },
+    {
+      "path": "mobile/settings.gradle",
+      "sha256": "fac6dbdd6c1ea3e27e7cd7d30e09ff9cd833efcfe313e2d0b5a7fb8576518baa"
+    },
+    {
+      "path": "mobile/tests/fixtures/model-memory-evaluation.json",
+      "sha256": "88ac53592f13b3cf7868df562d31fe8d646968075f7bee93f0eab09768a6b0dd"
+    },
+    {
+      "path": "mobile/tests/model_memory_evaluation_test.py",
+      "sha256": "16095d6c6317752ec3a7eff9081bd9fd557567ec054fc5bd2e0a43723f34a2a8"
+    },
+    {
+      "path": "mobile/tests/tokenizer-golden.json",
+      "sha256": "f70eed2019ddbd15e35f23791cb55859f0703e8d391275c8723f0911f69903a9"
+    },
+    {
+      "path": "mobile/tests/work-bridge.test.mjs",
+      "sha256": "2f5b9d82d4f6d3715499990ea353e9006a946c08ae44e5eb507e6d8ab374185c"
+    },
+    {
+      "path": "mobile/tools/benchmark-native-ann.py",
+      "sha256": "af6eac3d7fad4211efb790fc8bc01fb3d73ddb57c67ffcee483e88df5c0f1599"
+    },
+    {
+      "path": "mobile/tools/build-android.sh",
+      "sha256": "314cf90672d2289ddd3576722bdc11497be046d8b942b7a806302963f2a755e6"
+    },
+    {
+      "path": "mobile/tools/build-release.sh",
+      "sha256": "586578efe844567e38d1eb556d4146a8aa7a9ee3cd0f7ba619f55f1802f4865b"
+    },
+    {
+      "path": "mobile/tools/decode-device-fixture-ui.py",
+      "sha256": "ea5f55814fbffa1e3f31548c4418ef6ef0f66c45f63261e594bedbee1413cfca"
+    },
+    {
+      "path": "mobile/tools/model-memory-evaluation.py",
+      "sha256": "de3fefb9b1d82c2fd8bf4ca4fbfa2c195eb24168572cf53733395f5730789394"
+    },
+    {
+      "path": "mobile/tools/prepare-public-memory-benchmark.py",
+      "sha256": "ed71e6a0856cc3b6d813bf3bb7610e170eb0a1cdc46502a44a2f6c1f25425de3"
+    },
+    {
+      "path": "mobile/tools/prepare-public-semantic-benchmark.py",
+      "sha256": "82d7eeb8cec57364fb27431ba1a15886b3c2bc787489712b4cb72aa1efc5d4f7"
+    },
+    {
+      "path": "mobile/tools/prepare-semantic-model.py",
+      "sha256": "e411f30f406232be99c863b9b967a4ec1fb1f83af2e77bd79913b13e2b1f4da3"
+    },
+    {
+      "path": "mobile/tools/run-emulator-tests.sh",
+      "sha256": "2b54d04f6dcf0867b665adf3d514eeafe90f4bee12d32629badfb18f5ef15eae"
+    },
+    {
+      "path": "mobile/tools/run-native-ann-host.sh",
+      "sha256": "d21c178dd692691bfc92d1b13e4dc16ba0c26a7742e1e8898babb5914c93003d"
+    },
+    {
+      "path": "mobile/tools/semantic-host-requirements.txt",
+      "sha256": "9228813906b571603a22d285b22fb56fb73476178da87aa25350c3efc3df06d6"
+    },
+    {
+      "path": "mobile/tools/validate-semantic-host.py",
+      "sha256": "0263406e7974a8876bf5a2cc2fd1b29145f8023047e91222568f6691a2284540"
+    },
+    {
+      "path": "mobile/tools/verify-apk.py",
+      "sha256": "e2ac9ef835f495ddda703aa6f88fb0c84030c9eeedcd8d0d0c4cf672beb10a2d"
+    }
+  ],
+  "recordedCurrentSourceFileCount": 160,
+  "sourceHashScope": "Current public mobile source/config/scripts/tests after final targeted Android compile/lint plus Chromium43; source hashes alone do not assert all files were executed."
+}

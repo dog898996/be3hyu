@@ -8,6 +8,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import com.hoyoung.assistant.store.BackupPolicy;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.CharacterCodingException;
@@ -59,6 +61,10 @@ final class PhoneArchiveSegments {
 
     /** The only published name is the hash of the complete, fsynced and verified container. */
     static File write(File destination, List<Source> sources, long limit) throws IOException {
+        return write(destination,sources,limit,null);
+    }
+    static File write(File destination,List<Source> sources,long limit,BackupPolicy.SpaceMonitor monitor)throws IOException {
+        if(monitor!=null)monitor.checkpoint("export_snapshot","device-journal/archive/segments",0);
         if (sources.isEmpty() || sources.size() > MAX_RECORDS || limit > MAX_SEGMENT_BYTES || limit < OVERHEAD) throw new IOException("Invalid archive segment bounds");
         directory(destination); long expectedLength = OVERHEAD;
         for (Source source : sources) expectedLength += source.framedLength();
@@ -66,7 +72,7 @@ final class PhoneArchiveSegments {
         File partial = new File(destination, ".partial-segment-" + UUID.randomUUID());
         try {
             MessageDigest completeHash = digest();
-            try (FileOutputStream file = new FileOutputStream(partial); DataOutputStream output = new DataOutputStream(new DigestOutputStream(file, completeHash))) {
+            try (FileOutputStream file = new FileOutputStream(partial); DataOutputStream output = new DataOutputStream(new DigestOutputStream(monitored(file,monitor), completeHash))) {
                 output.writeLong(MAGIC); output.writeInt(1);
                 for (Source source : sources) {
                     byte[] name = source.path.getBytes(StandardCharsets.UTF_8);
@@ -90,12 +96,23 @@ final class PhoneArchiveSegments {
             else Files.move(partial.toPath(), published.toPath(), StandardCopyOption.ATOMIC_MOVE);
             syncDirectory(destination);
             // Do not trust publication alone when deciding whether originals can be removed.
-            verify(published, true, null); return published;
+            verify(published, true, null);
+            if(monitor!=null)monitor.checkpoint("export_snapshot","device-journal/archive/segments",0);
+            return published;
         } finally {
             // Interrupted writes left by a process crash are recovered separately. An ordinary
             // failed write can safely discard this incomplete container; originals remain.
             if (partial.exists()) Files.delete(partial.toPath());
         }
+    }
+    static OutputStream monitored(OutputStream output,BackupPolicy.SpaceMonitor monitor){
+        if(monitor==null)return output;
+        return new OutputStream(){
+            @Override public void write(int value)throws IOException{monitor.beforeWrite(1);output.write(value);monitor.written(1);}
+            @Override public void write(byte[]bytes,int offset,int length)throws IOException{monitor.beforeWrite(length);output.write(bytes,offset,length);monitor.written(length);}
+            @Override public void flush()throws IOException{output.flush();}
+            @Override public void close()throws IOException{output.close();}
+        };
     }
 
     static Verified verify(File file, boolean enforceName, Visitor visitor) throws IOException {

@@ -84,8 +84,8 @@ cleanup() {
   if [[ -n "$emulator_pid" ]]; then
     if (( test_exit != 0 )); then
       echo 'Offline disposable-emulator failure diagnostics (no account or physical phone was used):' >&2
-      timeout 8 "$ADB" -s "$SERIAL" logcat -d -t 250 -v brief \
-        'AndroidRuntime:E' 'HoyoungDeviceProof:I' '*:S' 2>/dev/null | tail -120 || true
+      timeout 8 "$ADB" -s "$SERIAL" logcat -d -v brief \
+        'AndroidRuntime:E' 'HoyoungDeviceProof:I' '*:S' 2>/dev/null | tail -240 || true
       if [[ -f "$LOG_DIR/emulator.log" ]]; then
         tail -30 "$LOG_DIR/emulator.log" | sed '/pubkey/d;/public key/d' || true
       fi
@@ -144,9 +144,11 @@ done
 "$ADB" -s "$SERIAL" shell chmod 755 /data/local/tmp/hoyoung-semantic-model
 echo 'Testing a fresh API 35 AOSP emulator offline, with synthetic data and real ONNX native inference.'
 "$ADB" -s "$SERIAL" logcat -c
-timeout 720 "$ADB" -s "$SERIAL" shell am instrument -w -r \
+primary_passed=true
+if ! timeout 720 "$ADB" -s "$SERIAL" shell am instrument -w -r \
+  -e class com.hoyoung.assistant.DeviceRuntimeIntegrationTest,com.hoyoung.assistant.phone.PhoneDeviceIntegrationTest,com.hoyoung.assistant.memory.NativeAnnDeviceTest,com.hoyoung.assistant.memory.local.LocalNeuralDeviceTest \
   -e fixtureModelPath /data/local/tmp/hoyoung-semantic-model \
-  "$TEST_RUNNER" | tee "$LOG_DIR/instrumentation.log"
+  "$TEST_RUNNER" | tee "$LOG_DIR/instrumentation.log"; then primary_passed=false; fi
 verify_instrumentation() {
 python3 - "$1" "$2" <<'PY'
 import pathlib, re, sys
@@ -158,21 +160,107 @@ if failure or not success or int(success.group(1)) < int(sys.argv[2]):
 print('Verified real Android instrumentation:', success.group(1), 'passing tests.')
 PY
 }
-verify_instrumentation "$LOG_DIR/instrumentation.log" 12
+if ! verify_instrumentation "$LOG_DIR/instrumentation.log" 14; then
+  primary_passed=false
+  echo '::error::Primary Android checks failed; independent real restart checks will still run, and this job remains failed.' >&2
+fi
 "$ADB" -s "$SERIAL" shell am force-stop "$APP_ID"
 echo 'The force-stopped app is explicitly reopened by a second instrumentation process; no automatic force-stop recovery is claimed.'
-timeout 120 "$ADB" -s "$SERIAL" shell am instrument -w -r \
+explicit_recovery_passed=true
+if ! timeout 120 "$ADB" -s "$SERIAL" shell am instrument -w -r \
   -e recoveryOnly true \
   -e class com.hoyoung.assistant.DeviceRuntimeIntegrationTest#dAcknowledgedOwnerDataSurvivesExplicitProcessStop \
-  "$TEST_RUNNER" | tee "$LOG_DIR/recovery.log"
-verify_instrumentation "$LOG_DIR/recovery.log" 1
-"$ADB" -s "$SERIAL" logcat -d -v brief 'HoyoungDeviceProof:I' '*:S' | tee "$LOG_DIR/device-proof.log"
+  "$TEST_RUNNER" | tee "$LOG_DIR/recovery.log"; then explicit_recovery_passed=false; fi
+if ! verify_instrumentation "$LOG_DIR/recovery.log" 1; then explicit_recovery_passed=false; fi
+
+# Only this fresh emulator is touched. A shell-side probe runs before the next
+# instrumentation/Activity launch so cached app state cannot fake auto recovery.
+system_foreground_present() {
+  local service_dump
+  service_dump="$(timeout 8 "$ADB" -s "$SERIAL" shell dumpsys activity services "$APP_ID" 2>/dev/null)" || return 1
+  [[ "$service_dump" == *".runtime.AutonomyService"* && "$service_dump" == *"isForeground=true"* ]]
+}
+await_system_foreground() {
+  local phase="$1" deadline=$((SECONDS + 120))
+  while (( SECONDS < deadline )); do
+    if system_foreground_present; then
+      echo "HOYOUNG_SYSTEM_FGS phase=$phase; real-dumpsys-foreground-before-test-Activity"
+      return 0
+    fi
+    sleep 2
+  done
+  echo "::error::The actual Android foreground service did not recover during $phase." >&2
+  return 1
+}
+run_restart_phase() {
+  local phase="$1" phase_log="$LOG_DIR/restart-$1.log"
+  timeout 120 "$ADB" -s "$SERIAL" shell am instrument -w -r \
+    -e restartPhase "$phase" \
+    -e class com.hoyoung.assistant.DeviceRestartIntegrationTest \
+    "$TEST_RUNNER" | tee "$phase_log"
+  verify_instrumentation "$phase_log" 1
+}
+run_restart_phase seed
+await_system_foreground seed
+"$ADB" -s "$SERIAL" shell am force-stop "$APP_ID"
+sleep 5
+stopped_pid="$(timeout 8 "$ADB" -s "$SERIAL" shell pidof "$APP_ID" 2>/dev/null | tr -d '\r' || true)"
+if [[ -n "$stopped_pid" ]] || system_foreground_present; then
+  echo '::error::A force-stopped app must not claim to keep running or bypass the Android stop boundary.' >&2
+  exit 1
+fi
+echo 'HOYOUNG_SYSTEM_FORCE_STOP actual-process-and-FGS-absent; explicit-user-reopen-required'
+run_restart_phase forceReopen
+await_system_foreground forceReopen
+crash_pid="$(timeout 8 "$ADB" -s "$SERIAL" shell pidof "$APP_ID" | tr -d '\r')"
+if [[ ! "$crash_pid" =~ ^[0-9]+$ ]]; then echo '::error::Expected one actual app PID before crash.' >&2; exit 1; fi
+"$ADB" -s "$SERIAL" shell am crash "$crash_pid"
+crash_deadline=$((SECONDS + 120))
+replacement_pid=''
+while (( SECONDS < crash_deadline )); do
+  replacement_pid="$(timeout 8 "$ADB" -s "$SERIAL" shell pidof "$APP_ID" 2>/dev/null | tr -d '\r' || true)"
+  if [[ "$replacement_pid" =~ ^[0-9]+$ && "$replacement_pid" != "$crash_pid" ]] && system_foreground_present; then break; fi
+  sleep 2
+done
+if [[ ! "$replacement_pid" =~ ^[0-9]+$ || "$replacement_pid" == "$crash_pid" ]] || ! system_foreground_present; then
+  echo '::error::An actual crashed app failed to replace its process and recover the foreground service.' >&2
+  exit 1
+fi
+echo 'HOYOUNG_SYSTEM_CRASH_RECOVERY actual-am-crash; new-process-PID; START_STICKY-FGS-recovered-before-test-Activity'
+run_restart_phase crash
+await_system_foreground beforeBoot
+"$ADB" -s "$SERIAL" logcat -d -v brief 'HoyoungDeviceProof:I' '*:S' | tee "$LOG_DIR/device-proof-preboot.log"
+"$ADB" -s "$SERIAL" reboot
+timeout 240 "$ADB" -s "$SERIAL" wait-for-device
+reboot_deadline=$((SECONDS + 240))
+while (( SECONDS < reboot_deadline )); do
+  if [[ "$(timeout 8 "$ADB" -s "$SERIAL" shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" == 1 ]]; then break; fi
+  sleep 2
+done
+if [[ "$(timeout 8 "$ADB" -s "$SERIAL" shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" != 1 ]]; then
+  echo '::error::A real emulator reboot did not complete in time.' >&2; exit 1
+fi
+"$ADB" -s "$SERIAL" shell input keyevent 224
+"$ADB" -s "$SERIAL" shell input keyevent 82
+"$ADB" -s "$SERIAL" shell wm dismiss-keyguard
+"$ADB" -s "$SERIAL" shell cmd connectivity airplane-mode enable
+"$ADB" -s "$SERIAL" shell svc wifi disable
+"$ADB" -s "$SERIAL" shell svc data disable
+await_system_foreground bootReceiver
+run_restart_phase boot
+{ cat "$LOG_DIR/device-proof-preboot.log"; "$ADB" -s "$SERIAL" logcat -d -v brief 'HoyoungDeviceProof:I' '*:S'; } | tee "$LOG_DIR/device-proof.log"
+if ! $primary_passed || ! $explicit_recovery_passed; then
+  echo '::error::Independent restart phases finished, but an earlier Android test failure still prevents a successful job.' >&2
+  exit 1
+fi
 python3 - "$LOG_DIR/device-proof.log" <<'PY'
 import pathlib, sys
 text = pathlib.Path(sys.argv[1]).read_text()
 for marker in ('HOYOUNG_REAL_ANDROID_NN', 'HOYOUNG_REAL_ANDROID_ANN', 'HOYOUNG_DEVICE_SCREEN_OFF',
                'HOYOUNG_DEVICE_RECOVERY verified-after-explicit-force-stop', 'HOYOUNG_DEVICE_APP_JOURNAL_BACKUP',
-               'HOYOUNG_DEVICE_PHOTO_UI'):
+               'HOYOUNG_DEVICE_PHOTO_UI', 'HOYOUNG_DEVICE_PAGED_CHAT', 'HOYOUNG_DEVICE_REPLY_NOTIFICATION',
+               'HOYOUNG_RESTART_RECOVERED phase=forceReopen', 'HOYOUNG_RESTART_RECOVERED phase=crash',
+               'HOYOUNG_RESTART_RECOVERED phase=boot'):
     if marker not in text:
         raise SystemExit('Missing actual Android proof marker: ' + marker)
 print('Real native-neural, ANN, screen-off service, explicit-reopen recovery, application journal-backup, and native photo-UI proof reached the CI log.')

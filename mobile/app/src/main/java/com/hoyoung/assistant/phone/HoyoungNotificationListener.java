@@ -71,10 +71,14 @@ public final class HoyoungNotificationListener extends NotificationListenerServi
                 "postedAt", sbn.getPostTime(), "event", event, "removalReason", reason, "titleTruncated", title != null && title.length() > 1000,
                 "textTruncated", text != null && text.length() > 6000, "contentsMayBeRedactedByAndroid", true, "observedOnly", true,
                 "ownerReadConfirmed", false, "isOwnerInstruction", false);
+            JSONObject original = NotificationObservedContent.capture(sbn.getNotification());
+            payload.put("observedOriginal", original).put("originalTruncated", original.optBoolean("originalTruncated"))
+                .put("originalContentSha256", original.optString("sha256"));
             boolean own = getPackageName().equals(sbn.getPackageName());
             boolean assistantReply = own && extras != null && "assistant_reply".equals(extras.get("com.hoyoung.assistant.source_kind"));
             payload.put("sourceKind", assistantReply ? "assistant_reply" : own ? "assistant_app_notification" : "external_notification");
             payload.put("assistantGenerated", own);
+            if (own) payload.put("externalInputTriggerEligible", false);
             if (assistantReply) {
                 Object sourceId = extras.get("com.hoyoung.assistant.assistant_message_id");
                 long messageId = sourceId instanceof Long ? (Long) sourceId : -1;

@@ -10,7 +10,7 @@ SAF에서 사용자가 선택한 파일은 `Context.filesDir/projects/.attachmen
 
 메타데이터의 핵심 필드는 `originalAssetId`, `sha256`, `sourceName`, `mime`, `size`, `kind`다. `kind: owner_attachment`는 사용자가 첨부한 원본, `kind: tool_result`는 도구 실행 결과다. 같은 binary의 원본 파일은 공유될 수 있고, 메시지·action별 출처와 분석 결과는 각 메시지 metadata/영수증에 별도로 연결한다. 파일 목록에는 payload만 보이고 내부 sidecar는 숨긴다.
 
-SHA 계산과 파일 복사는 크기에 비례한다. import/freeze/archive/read 작업은 UI main thread에서 호출하지 않는다. 파일당 64 MiB를 초과하면 명시적으로 실패하며 기존 원본을 지우거나 잘라 저장하지 않는다.
+SHA 계산과 파일 복사는 크기에 비례한다. import/freeze/archive/read 작업은 UI main thread에서 호출하지 않는다. 사용자 첨부 원본은 파일당 64 MiB를 초과하면 명시적으로 실패하며 기존 원본을 지우거나 잘라 저장하지 않는다. 일반 작업·다운로드 binary는 별도 512 MiB 한도로 작은 buffer를 사용해 저장·내보낸다. 문자열 파일 쓰기도 전체 UTF-8 byte 배열을 추가로 만들지 않고 작은 구간을 이어 인코딩한다. 읽기 결과의 문자 수 제한과 Work 업로드·사진 미리보기의 제한은 별도로 유지한다.
 
 ## 내용 파악 상태
 
@@ -30,6 +30,6 @@ SHA 계산과 파일 복사는 크기에 비례한다. import/freeze/archive/rea
 
 원본과 sidecar는 기존 `projects` ZIP namespace에 포함된다. 복원 staging에서 payload 파일명 SHA, 실제 binary SHA/size, sidecar identity, 저장된 attachment metadata reference를 확인한 뒤에만 현재 DB/파일 tree를 교체한다. ZIP checksum을 새로 계산한 변조 archive도 content-addressed 원본이 일치하지 않으면 거부한다. 백업이 없으면 앱 데이터 삭제·제거로 private 원본도 지워진다. SAF에서 외부 저장소로 내보낸 백업이 필요하다.
 
-현재 streaming 백업은 ZIP 압축 bytes와 펼친 payload 합계 각각 4 GiB, 파일당 64 MiB, 전체 ZIP entry 100,000개까지다. 제한을 넘으면 명시적으로 중단하며 오래된 원문을 조용히 제외하지 않는다. 폰 관찰의 immutable segment 보관은 작은 파일 수와 ZIP entry 부담을 줄이는 방식이지 원문 bytes를 줄이거나 백업 크기 한도를 없애는 방식은 아니다. 복원에는 staging과 기존 파일 tree가 동시에 존재할 여유 공간도 필요하다.
+현재 streaming 백업은 ZIP 압축 bytes와 펼친 payload 합계 각각 기본 64 GiB, 일반 작업 binary 512 MiB, 사용자 첨부 64 MiB, 텍스트 원문 40 MiB, 전체 ZIP entry 100,000개까지다. 총 한도는 `backupMaxGiB` 정수 1~64로 변경할 수 있으며 원래 4 GiB였던 구현의 백업도 호환된다. 제한을 넘으면 명시적으로 중단하며 오래된 원문을 조용히 제외하지 않는다. 폰 관찰의 immutable segment 보관은 작은 파일 수와 ZIP entry 부담을 줄이는 방식이지 원문 bytes를 줄이거나 백업 크기 한도를 없애는 방식은 아니다. 복원에는 staging과 기존 파일 tree·DB/WAL·파생 색인이 동시에 존재할 여유 공간도 필요하다. [용량과 실패 처리](backup-capacity.md)
 
 합성 회귀는 working file 덮어쓰기 후 원본 유지, prefix/alias 쓰기 차단, 동일 payload 재사용, provider MIME 유지, SHA/size 허위 claim 거부, 동일 길이/mtime 변조 감지, 정상 백업 복원과 checksum을 일관되게 바꾼 원본 변조 거부, 큰 도구 결과 및 emoji range 경계를 확인한다. 실제 기기의 전원 차단·가득 찬 디스크 검증은 별도다.

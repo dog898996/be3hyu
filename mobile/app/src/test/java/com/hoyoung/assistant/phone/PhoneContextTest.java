@@ -97,6 +97,14 @@ public final class PhoneContextTest {
         assertTrue(tools.canUseImplicitMemorySource(rows.getJSONObject(1)));
         assertFalse(tools.contextSummary("알림 메시지 확인", 12000).contains("assistant-only-synthetic"));
         assertEquals("assistant_reply", tools.execute("phone_context_read", new JSONObject().put("eventId", rows.getJSONObject(0).getLong("id"))).getJSONObject("event").getJSONObject("payload").getString("sourceKind"));
+        Notification status = new Notification(); status.extras.putCharSequence(Notification.EXTRA_TEXT, "own-service-status-only-synthetic");
+        listener.onNotificationPosted(new StatusBarNotification(context.getPackageName(), context.getPackageName(), 714, null, Process.myUid(), 0, 0, status, Process.myUserHandle(), System.currentTimeMillis()));
+        journal.ingestPendingForTests();
+        JSONObject statusRow = store.deviceEvents("notification", null, 0, 100).getJSONObject(2);
+        assertEquals("assistant_app_notification", statusRow.getJSONObject("payload").getString("sourceKind"));
+        assertFalse(statusRow.getJSONObject("payload").getBoolean("externalInputTriggerEligible"));
+        assertTrue(tools.canReadStoredSource(statusRow)); assertFalse(tools.canUseImplicitMemorySource(statusRow));
+        assertFalse(tools.contextSummary("알림 메시지 확인", 12000).contains("own-service-status-only-synthetic"));
     }
 
     @Test public void notificationGrantRevocationAndAppDisableFilterPreviouslySavedData() throws Exception {

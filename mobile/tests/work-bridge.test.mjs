@@ -1,6 +1,7 @@
 import test, { before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 import { chromium } from 'playwright';
 
 const source = await readFile(new URL('../app/src/main/assets/work-bridge.js', import.meta.url), 'utf8');
@@ -139,6 +140,77 @@ test('a guest composer, a signed-out page and unverified preference settings can
     assert.equal((await send(page)).code, 'speed_unverified');
     assert.equal(await page.evaluate(() => window.clicks), 0);
   }, { setup: `document.querySelector('#effort').textContent='High'` });
+});
+
+test('configured future model, effort and speed require exact visible choices and never fall back to defaults', async () => {
+  await pageFixture(async page => {
+    const preferences = { requiredModel: 'gpt-6.2-sol', requiredEffort: 'xhigh', requiredSpeed: 'standard' };
+    const configured = await page.evaluate(prefs => window.HoyoungWorkBridge.configurePreferences(prefs), preferences);
+    assert.equal(configured.code, 'model_unverified');
+    assert.equal(configured.state.model, 'gpt-6.1-sol', 'required model does not rewrite observed evidence');
+    assert.equal((await send(page, preferences)).code, 'model_unverified');
+    assert.equal(await page.evaluate(() => window.clicks), 0);
+    await page.evaluate(() => {
+      const model = document.querySelector('[data-testid="model-switcher-dropdown-button"]'); model.textContent = 'GPT-6.2 Sol'; model.dataset.state = 'closed';
+      document.querySelector('#effort').textContent = 'Extra high';
+      document.querySelector('#speed').textContent = 'Standard';
+    });
+    const observed = await inspect(page);
+    assert.equal(observed.code, 'ready');
+    assert.equal(observed.state.model, 'gpt-6.2-sol'); assert.equal(observed.state.effort, 'xhigh'); assert.equal(observed.state.speed, 'standard');
+    assert.equal((await send(page, preferences)).code, 'dispatch_pending');
+    await advance(page, 250);
+    assert.equal(await page.evaluate(() => window.clicks), 1);
+    assert.equal((await events(page)).some(event => event.type === 'accepted'), true);
+  });
+  await pageFixture(async page => {
+    const preferences = { requiredModel: 'gpt-7.4-orion', requiredEffort: 'max', requiredSpeed: 'fast' };
+    await page.evaluate(prefs => window.HoyoungWorkBridge.configurePreferences(prefs), preferences);
+    assert.equal((await inspect(page)).code, 'ready');
+    assert.equal((await send(page, preferences)).code, 'dispatch_pending'); await advance(page, 250);
+    assert.equal(await page.evaluate(() => window.clicks), 1);
+  }, { setup: `document.querySelector('[data-testid="model-switcher-dropdown-button"]').textContent='GPT-7.4 Orion'; document.querySelector('#effort').textContent='Max'` });
+});
+
+test('menu offers, assistant text and promotional labels cannot prove a configured future selection', async () => {
+  await pageFixture(async page => {
+    const preferences = { requiredModel: 'gpt-6.2-sol', requiredEffort: 'high', requiredSpeed: 'standard' };
+    await page.evaluate(prefs => window.HoyoungWorkBridge.configurePreferences(prefs), preferences);
+    assert.equal((await send(page, preferences)).code, 'model_unverified');
+    await page.evaluate(() => document.querySelector('[data-testid="model-switcher-dropdown-button"]').textContent = 'GPT-6.2 Sol');
+    assert.equal((await send(page, preferences)).code, 'effort_unverified');
+    await page.evaluate(() => document.querySelector('#effort').textContent = 'High');
+    assert.equal((await send(page, preferences)).code, 'speed_unverified');
+    assert.equal(await page.evaluate(() => window.clicks), 0);
+  }, { setup: `document.querySelector('#turns').innerHTML='<article data-turn-key="old-offer"><section data-conversation-role="assistant"><div class="markdown">GPT-6.2 Sol High Standard</div></section></article>'; const menu=document.createElement('div');menu.setAttribute('role','menu'); for(const label of ['GPT-6.2 Sol','High','Standard']) {const offer=document.createElement('button');offer.setAttribute('role','menuitemradio');offer.setAttribute('aria-checked','false');offer.textContent=label;menu.append(offer)} document.querySelector('header').append(menu)` });
+  await pageFixture(async page => {
+    const preferences = { requiredModel: 'gpt-6.2-sol', requiredEffort: 'medium', requiredSpeed: 'fast' };
+    await page.evaluate(prefs => window.HoyoungWorkBridge.configurePreferences(prefs), preferences);
+    assert.equal((await inspect(page)).state.model, null);
+    assert.equal((await send(page, preferences)).code, 'model_unverified');
+  }, { setup: `document.querySelector('[data-testid="model-switcher-dropdown-button"]').textContent='Try GPT-6.2 Sol today'` });
+});
+
+test('invalid explicit preferences fail closed without restoring prior/default choices; configured missing request fields use exact current requirements', async () => {
+  await pageFixture(async page => {
+    for (const extra of [{ requiredModel: '' }, { requiredModel: 'gpt-6..2-sol' }, { requiredModel: 'gpt-' + 'x'.repeat(80) }, { requiredEffort: 'automatic' }, { requiredSpeed: 'normal' }, { requiredSpeed: 'flex' }, { requiredModel: null }]) {
+      const failure = await send(page, extra);
+      assert.equal(failure.code, 'unsupported_preferences'); assert.equal(failure.knownNotSent, true);
+    }
+    const bad = await page.evaluate(() => window.HoyoungWorkBridge.configurePreferences({requiredModel:'gpt-6.1-sol', requiredEffort:'medium', requiredSpeed:'normal'}));
+    assert.equal(bad.code, 'unsupported_preferences');
+    assert.equal((await inspect(page)).state.model, 'gpt-6.1-sol');
+    assert.equal((await send(page)).code, 'unsupported_preferences');
+    assert.equal(await page.evaluate(() => window.clicks), 0);
+    await page.evaluate(() => window.HoyoungWorkBridge.configurePreferences({requiredModel:'gpt-6.1-sol',requiredEffort:'medium',requiredSpeed:'fast'}));
+    assert.equal((await inspect(page)).code, 'ready');
+  });
+  await pageFixture(async page => {
+    await page.evaluate(() => window.HoyoungWorkBridge.configurePreferences({requiredModel:'gpt-6.2-sol',requiredEffort:'low',requiredSpeed:'standard'}));
+    const pending = await page.evaluate(() => window.HoyoungWorkBridge.send({requestId:'configured-only',text:'선택한 새 설정으로 보내 줘'}));
+    assert.equal(pending.code, 'dispatch_pending'); await advance(page, 250);
+    assert.equal(await page.evaluate(() => window.clicks), 1);
+  }, { setup: `document.querySelector('[data-testid="model-switcher-dropdown-button"]').textContent='GPT-6.2 Sol';document.querySelector('#effort').textContent='Low';document.querySelector('#speed').textContent='Standard'` });
 });
 
 test('one request dispatches once; matching stable user evidence acknowledges it and duplicates cannot dispatch again', async () => {
@@ -656,6 +728,132 @@ test('photos are forwarded through the real composer file input and prompt waits
   }, { setup: `window.uploadMode='pending'` });
 });
 
+test('a derived JPEG is forwarded as its exact wire bytes and name without claiming the original was inspected', async () => {
+  await pageFixture(async page => {
+    const base64 = await page.evaluate(() => {
+      const canvas = document.createElement('canvas'); canvas.width = 8; canvas.height = 8;
+      const context = canvas.getContext('2d'); context.fillStyle = '#2161ff'; context.fillRect(0, 0, 8, 8);
+      return canvas.toDataURL('image/jpeg', 0.75).split(',')[1];
+    });
+    const wireName = 'camera.work-fixture.jpeg';
+    const representation = { id: 'immutable-original-photo', name: wireName, mime: 'image/jpeg', size: Buffer.from(base64, 'base64').length, base64,
+      originalSize: 60 * 1024 * 1024, originalBytesFullyUploaded: true, originalContentFullyInspected: true };
+    await nativeAuthorization(page, 'allow');
+    assert.equal((await send(page, { attachments: [representation], requiresNativeAuthorization: true })).code, 'dispatch_pending');
+    await advance(page, 500);
+    const actual = await page.evaluate(async () => {
+      const file = document.querySelector('input[type="file"]').files[0];
+      const bitmap = await createImageBitmap(file);
+      return { name: file.name, mime: file.type, size: file.size, bytes: Array.from(new Uint8Array(await file.arrayBuffer())), width: bitmap.width, height: bitmap.height };
+    });
+    assert.equal(actual.name, wireName); assert.equal(actual.mime, 'image/jpeg');
+    assert.equal(actual.size, representation.size); assert.deepEqual(Buffer.from(actual.bytes), Buffer.from(base64, 'base64'));
+    assert.equal(actual.width, 8); assert.equal(actual.height, 8);
+    assert.equal(await page.evaluate(() => window.clicks), 1);
+    const accepted = (await events(page)).find(event => event.type === 'accepted');
+    assert.deepEqual(accepted.attachmentNames, [wireName]); assert.equal(accepted.uploadObserved, true);
+    assert.equal(accepted.uploadObservationScope, 'composer_reports_uploaded_before_user_turn_confirmation');
+    assert.equal(accepted.originalBytesFullyUploaded, undefined, 'untrusted attachment metadata cannot manufacture native upload proof');
+    assert.equal(accepted.originalContentFullyInspected, undefined);
+  });
+});
+
+test('configured and observed models remain distinct; changing the selected model during upload blocks the prepared request', async () => {
+  await pageFixture(async page => {
+    const requirements = { requiredModel: 'gpt-6.2-sol', requiredEffort: 'medium', requiredSpeed: 'fast' };
+    const before = await page.evaluate(prefs => window.HoyoungWorkBridge.configurePreferences(prefs), requirements);
+    assert.equal(before.requiredPreferences.model, 'gpt-6.2-sol'); assert.equal(before.state.model, 'gpt-6.1-sol');
+    assert.equal(before.code, 'model_unverified');
+    assert.equal(await page.evaluate(() => document.querySelector('[data-testid="model-switcher-dropdown-button"]').textContent), 'GPT-6.1 Sol');
+    await page.evaluate(() => document.querySelector('[data-testid="model-switcher-dropdown-button"]').textContent = 'GPT-6.2 Sol');
+    assert.equal((await inspect(page)).code, 'ready');
+    const attachment = { id: 'pending-media', name: 'pending.pdf', mime: 'application/pdf', base64: Buffer.from('%PDF-1.4\nfixture transfer').toString('base64') };
+    await nativeAuthorization(page, 'allow');
+    assert.equal((await send(page, { ...requirements, attachments: [attachment], requiresNativeAuthorization: true })).code, 'dispatch_pending');
+    await advance(page, 500); assert.equal(await page.evaluate(() => window.clicks), 0);
+    await page.evaluate(() => {
+      document.querySelector('[data-testid="model-switcher-dropdown-button"]').textContent = 'GPT-6.1 Sol';
+      const card = document.querySelector('[aria-label="pending.pdf"]'); card.setAttribute('aria-busy', 'false'); card.querySelector('progress')?.remove();
+    });
+    await advance(page, 1_000);
+    assert.equal(await page.evaluate(() => window.clicks), 0);
+    assert.equal((await events(page)).some(event => event.type === 'accepted'), false);
+    assert.equal((await events(page)).some(event => event.code === 'dispatch_authorization_requested'), false);
+    assert.equal((await events(page)).some(event => event.code === 'selection_changed_before_send'), true);
+    assert.equal((await inspect(page)).state.model, 'gpt-6.1-sol');
+    assert.equal((await inspect(page)).requiredPreferences.model, 'gpt-6.2-sol');
+    assert.equal((await inspect(page)).phase, 'uncertain');
+    await page.evaluate(() => document.querySelector('[data-testid="model-switcher-dropdown-button"]').textContent = 'GPT-6.2 Sol');
+    await advance(page, 1_000); assert.equal(await page.evaluate(() => window.clicks), 0, 'restoring selection cannot repeat an uncertain dispatch');
+  }, { setup: `window.uploadMode='pending'` });
+});
+
+test('video, audio, PDF, ZIP and opaque binary attachments preserve exact bytes, SHA, MIME and order through the file input', async () => {
+  // These are byte transport vectors with recognizable headers, not media codec
+  // or provider parsing tests. Work support for a file type still needs a real account.
+  const vectors = [
+    { name: '영상.mp4', mime: 'video/mp4', prefix: Buffer.from([0, 0, 0, 24, 102, 116, 121, 112, 105, 115, 111, 109]) },
+    { name: '음성.wav', mime: 'audio/wav', prefix: Buffer.from('RIFF\x00\x00\x00\x00WAVE', 'binary') },
+    { name: '자료.pdf', mime: 'application/pdf', prefix: Buffer.from('%PDF-1.4\n') },
+    { name: '묶음.zip', mime: 'application/zip', prefix: Buffer.from([80, 75, 5, 6]) },
+    { name: 'opaque.data', mime: 'application/octet-stream', prefix: Buffer.from([0, 255, 128, 0, 1, 254]) }
+  ].map((vector, index) => {
+    const bytes = Buffer.concat([vector.prefix, Buffer.from([0, 255, 128, 13, 10, index]), Buffer.alloc(4_099 + index, 179 - index)]);
+    return { id: `source-${index}`, name: vector.name, mime: vector.mime, size: bytes.length, sha256: createHash('sha256').update(bytes).digest('hex'), base64: bytes.toString('base64') };
+  });
+  await pageFixture(async page => {
+    await nativeAuthorization(page, 'allow');
+    assert.equal((await send(page, { attachments: vectors, requiresNativeAuthorization: true })).code, 'dispatch_pending');
+    await advance(page, 500);
+    const actual = await page.evaluate(async () => Promise.all(Array.from(document.querySelector('input[type="file"]').files, async file => {
+      const bytes = await file.arrayBuffer();
+      const digest = await crypto.subtle.digest('SHA-256', bytes);
+      return { name: file.name, mime: file.type, size: file.size, sha256: Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join(''), bytes: Array.from(new Uint8Array(bytes)) };
+    })));
+    assert.equal(actual.length, vectors.length);
+    for (let index = 0; index < vectors.length; index++) {
+      assert.equal(actual[index].name, vectors[index].name); assert.equal(actual[index].mime, vectors[index].mime);
+      assert.equal(actual[index].size, vectors[index].size); assert.equal(actual[index].sha256, vectors[index].sha256);
+      assert.deepEqual(Buffer.from(actual[index].bytes), Buffer.from(vectors[index].base64, 'base64'));
+    }
+    assert.equal(await page.evaluate(() => window.fileChanges), 1); assert.equal(await page.evaluate(() => window.clicks), 1);
+    const accepted = (await events(page)).find(event => event.type === 'accepted');
+    assert.deepEqual(accepted.attachmentNames, vectors.map(vector => vector.name)); assert.equal(accepted.uploadObserved, true);
+    assert.equal(accepted.uploadObservationScope, 'composer_reports_uploaded_before_user_turn_confirmation');
+    assert.equal(accepted.serverBytesIndependentlyVerified, undefined, 'DOM observation cannot prove provider byte storage');
+  });
+});
+
+test('a restrictive composer refuses unsupported file types before any draft or upload; advertised MIME and extension options are honored', async () => {
+  const pdf = { id: 'pdf-source', name: 'owner.PDF', mime: 'application/pdf', base64: Buffer.from('%PDF-1.4\ntransfer fixture').toString('base64') };
+  await pageFixture(async page => {
+    const rejected = await send(page, { attachments: [pdf] });
+    assert.equal(rejected.code, 'attachment_control_unverified'); assert.equal(rejected.knownNotSent, true);
+    assert.equal(await page.evaluate(() => document.querySelector('#prompt-textarea').value), '');
+    assert.equal(await page.evaluate(() => window.fileChanges || 0), 0); assert.equal(await page.evaluate(() => window.clicks), 0);
+    assert.equal((await events(page)).some(event => event.type === 'accepted'), false);
+  }, { setup: `document.querySelector('input[type="file"]').accept='image/*'` });
+  await pageFixture(async page => {
+    assert.equal((await send(page, { attachments: [pdf] })).code, 'dispatch_pending'); await advance(page, 500);
+    assert.equal(await page.evaluate(() => window.clicks), 1);
+    assert.deepEqual((await events(page)).find(event => event.type === 'accepted').attachmentNames, ['owner.PDF']);
+  }, { setup: `document.querySelector('input[type="file"]').accept='.pdf,audio/*,video/mp4,application/zip,application/octet-stream'` });
+});
+
+test('empty files are explicitly rejected before file or composer effects rather than silently removed from a mixed upload', async () => {
+  const empty = { id: 'empty-source', name: 'empty.txt', mime: 'text/plain', base64: '' };
+  const nonempty = { id: 'other-source', name: 'other.txt', mime: 'text/plain', base64: Buffer.from('Keep this exact byte text').toString('base64') };
+  for (const attachments of [[empty], [nonempty, empty]]) {
+    await pageFixture(async page => {
+      const rejected = await send(page, { attachments });
+      assert.equal(rejected.code, 'invalid_attachments'); assert.equal(rejected.knownNotSent, true);
+      assert.equal(await page.evaluate(() => window.fileChanges || 0), 0); assert.equal(await page.evaluate(() => window.clicks), 0);
+      assert.equal(await page.evaluate(() => document.querySelector('#prompt-textarea').value), '');
+      assert.equal((await events(page)).some(event => event.type === 'accepted'), false);
+    });
+  }
+});
+
 test('missing file inputs, unknown upload activation and oversized attachments never send a text-only replacement', async () => {
   const attachment = { id: 'a', name: 'photo.png', mime: 'image/png', base64: Buffer.from('image').toString('base64') };
   await pageFixture(async page => {
@@ -671,6 +869,13 @@ test('missing file inputs, unknown upload activation and oversized attachments n
   await pageFixture(async page => {
     const oversized = { ...attachment, base64: Buffer.alloc(10 * 1024 * 1024 + 1).toString('base64') };
     assert.equal((await send(page, { attachments: [oversized] })).ok, false);
+    assert.equal(await page.evaluate(() => window.clicks), 0);
+    assert.equal(await page.evaluate(() => window.fileChanges || 0), 0);
+  });
+  await pageFixture(async page => {
+    const nine = Array.from({ length: 9 }, (_, index) => ({ ...attachment, name: `photo-${index}.png` }));
+    const rejection = await send(page, { attachments: nine });
+    assert.equal(rejection.code, 'invalid_attachments'); assert.equal(rejection.knownNotSent, true);
     assert.equal(await page.evaluate(() => window.clicks), 0);
     assert.equal(await page.evaluate(() => window.fileChanges || 0), 0);
   });

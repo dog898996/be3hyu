@@ -85,7 +85,7 @@ public final class AssistantReplyNotificationsTest {
         assertEquals(1,manager.getActiveNotifications().length);assertSame(original,active(source).getNotification());assertEquals(prior,record(source).toString());assertEquals("already_handled",replies.state().getString("lastCode"));
     }
     @Test public void uiSeenCancelsOnlyThatSourceAndCannotBeReplayed()throws Exception{
-        JSONObject first=assistant("first"),second=assistant("second");replies.publish(first,"completed");replies.publish(second,"completed");foregroundNotification();replies.markSeen(first.getLong("id"));
+        JSONObject first=assistant("first"),second=assistant("second");replies.publish(first,"completed");replies.publish(second,"completed");foregroundNotification();replies.markSeen(first.getLong("id"),first.getString("content_hash"));
         assertNull(active(first));assertNotNull(active(second));assertNotNull(Shadows.shadowOf(manager).getNotification(2410));assertEquals("seen",record(first).getString("status"));assertTrue(record(first).getBoolean("readConfirmedByUi"));assertEquals("assistant_reply_seen_in_conversation",store.events(1).getJSONObject(0).getString("type"));
         replies.publish(first,"completed");assertNull(active(first));assertFalse(replies.state().getBoolean("readConfirmed"));
     }
@@ -120,6 +120,40 @@ public final class AssistantReplyNotificationsTest {
         store.getWritableDatabase().execSQL("CREATE TRIGGER fail_reply_intent BEFORE INSERT ON settings WHEN NEW.setting_key >= 'replyNotification:' AND NEW.setting_key < 'replyNotification;' BEGIN SELECT RAISE(ABORT,'test intent disk failure'); END");
         JSONObject source=assistant("do not emit without intent");replies.publish(source,"completed");assertEquals(0,manager.getActiveNotifications().length);assertEquals("notification_processing_failed",replies.state().getString("lastCode"));assertNull(store.getSetting("replyNotification:"+source.getLong("id"),null));
     }
+    @Test public void idOnlySeenRequestCannotPromoteAnUnknownSnapshotIdentity()throws Exception{
+        JSONObject source=assistant("identity required");replies.publish(source,"completed");replies.markSeen(source.getLong("id"));assertNotNull(active(source));assertEquals("posted",record(source).getString("status"));assertEquals("seen_source_identity_required",replies.state().getString("lastCode"));
+    }
+    @Test public void displayedOldHashDoesNotCancelOrMarkSameIdNewSnapshotMessageSeen()throws Exception{
+        JSONObject old=assistant("old displayed identity");replies.publish(old,"completed");JSONObject replacement=replaceIdentity(old,"new snapshot identity");replies.publish(replacement,"completed");replies.markSeen(old.getLong("id"),old.getString("content_hash"));
+        assertNotNull(active(replacement));assertEquals("posted",record(replacement).getString("status"));assertEquals("seen_source_changed",replies.state().getString("lastCode"));assertFalse(record(replacement).getBoolean("readConfirmedByUi"));
+    }
+    @Test public void queuedSeenCallbackBeforeRestoreCannotMarkReusedSourceIdReadAfterRestore()throws Exception{
+        JSONObject old=assistant("queued old visible message");replies.publish(old,"completed");ArrayDeque<Runnable> queue=new ArrayDeque<>();AssistantReplyNotifications delayed=new AssistantReplyNotifications(context,store,queue::add);while(!queue.isEmpty())queue.remove().run();delayed.markSeen(old.getLong("id"),old.getString("content_hash"));
+        JSONObject replacement;replies.beginRestore();try{replacement=replaceIdentity(old,"restored never displayed message");}finally{replies.endRestore();}replies.publish(replacement,"completed");while(!queue.isEmpty())queue.remove().run();
+        assertNotNull(active(replacement));assertEquals("posted",record(replacement).getString("status"));assertFalse(record(replacement).getBoolean("readConfirmedByUi"));assertEquals("seen_restore_epoch_changed",delayed.state().getString("lastCode"));
+    }
+    @Test public void queuedPublisherBeforeRestoreCannotPostAfterRestoreCancellation()throws Exception{
+        ArrayDeque<Runnable> queue=new ArrayDeque<>();AssistantReplyNotifications delayed=new AssistantReplyNotifications(context,store,queue::add);while(!queue.isEmpty())queue.remove().run();JSONObject source=assistant("old pending source");delayed.publish(source,"completed");foregroundNotification();
+        replies.beginRestore();try{assertTrue(replies.state().getBoolean("restoreInProgress"));}finally{replies.endRestore();}while(!queue.isEmpty())queue.remove().run();assertNull(active(source));assertEquals("notification_restore_epoch_changed",delayed.state().getString("lastCode"));assertNotNull(Shadows.shadowOf(manager).getNotification(2410));
+        delayed.publish(source,"completed");while(!queue.isEmpty())queue.remove().run();assertNotNull(active(source));
+    }
+    @Test public void restoreSuppressesPublishAcrossInstancesUntilAllNestedBarriersExit()throws Exception{
+        AssistantReplyNotifications other=new AssistantReplyNotifications(context,store,Runnable::run);JSONObject source=assistant("after restore only");replies.beginRestore();other.beginRestore();try{other.publish(source,"completed");assertNull(active(source));replies.endRestore();other.publish(source,"completed");assertNull(active(source));assertTrue(other.state().getBoolean("restoreInProgress"));}finally{other.endRestore();}
+        other.publish(source,"completed");assertNotNull(active(source));assertFalse(other.state().getBoolean("restoreInProgress"));assertThrows(IllegalStateException.class,other::endRestore);
+    }
+    @Test public void repeatedUiDisplayIsIdempotentAndDoesNotAppendAnotherSeenEvent()throws Exception{
+        JSONObject source=assistant("one display event");replies.publish(source,"completed");replies.markSeen(source.getLong("id"),source.getString("content_hash"));String first=record(source).toString();long seenEvents=eventCount("assistant_reply_seen_in_conversation");
+        replies.markSeen(source.getLong("id"),source.getString("content_hash"));assertEquals(first,record(source).toString());assertEquals(seenEvents,eventCount("assistant_reply_seen_in_conversation"));assertNull(active(source));
+    }
+    @Test public void closeStopsNewWorkButDrainsAlreadyAcceptedExternalExecutorTasks()throws Exception{
+        ArrayDeque<Runnable> queue=new ArrayDeque<>();AssistantReplyNotifications delayed=new AssistantReplyNotifications(context,store,queue::add);JSONObject source=assistant("already accepted");delayed.publish(source,"completed");delayed.close();assertFalse(delayed.publish(source,"completed").getBoolean("queued"));while(!queue.isEmpty())queue.remove().run();assertNotNull(active(source));assertTrue(delayed.state().getBoolean("workerClosed"));
+    }
+    private JSONObject replaceIdentity(JSONObject old,String text)throws Exception{
+        JSONObject snapshot=store.exportSnapshot();org.json.JSONArray sources=snapshot.getJSONArray("messages");for(int i=0;i<sources.length();i++){JSONObject row=sources.getJSONObject(i);if(row.getLong("id")==old.getLong("id")){row.put("text",text);row.put("raw_char_count",text.length());row.put("raw_byte_count",text.getBytes(java.nio.charset.StandardCharsets.UTF_8).length);row.put("raw_content_hash",sha(text));row.remove("content_hash");row.put("raw_file_id",JSONObject.NULL);}}
+        store.importSnapshot(snapshot);return store.getMessage(old.getLong("id"));
+    }
+    private long eventCount(String type){try(android.database.Cursor count=store.getReadableDatabase().rawQuery("SELECT COUNT(*) FROM events WHERE type = ?",new String[]{type})){count.moveToFirst();return count.getLong(0);}}
+    private static String sha(String text)throws Exception{StringBuilder result=new StringBuilder();for(byte value:java.security.MessageDigest.getInstance("SHA-256").digest(text.getBytes(java.nio.charset.StandardCharsets.UTF_8)))result.append(String.format(java.util.Locale.ROOT,"%02x",value&255));return result.toString();}
     private JSONObject assistant(String text){return store.addMessage("assistant",text,null);}
     private JSONObject record(JSONObject source)throws Exception{return new JSONObject(store.getSetting("replyNotification:"+source.getLong("id"),"{}"));}
     private JSONObject intentRecord(JSONObject source,String status)throws Exception{return new JSONObject().put("sourceMessageId",source.getLong("id")).put("sourceHash",source.getString("content_hash")).put("status",status).put("stage","completed");}

@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "scope": "Host Robolectric Android 28 actual SQLite + private immutable files + packaged app assets + FakeTransport; no model call, real wire send, external phone effect or physical Activity rotation",
+  "result": {
+    "testsRun": 18,
+    "failed": 0,
+    "skipped": 0,
+    "junitSeconds": 9.709
+  },
+  "contract": {
+    "receive": "receive(rawText,rawAttachments,clientInputUUID,draftRevision)",
+    "enqueuedAndConsumed": "single nested SQLite transaction",
+    "duplicate": "same frozen-payload fingerprint returns existing intent before owner/source metadata mutation",
+    "currentCohort": "same current UUID requires exact revision >=0, exact raw tuple and no recovery flag; -1 cannot bypass",
+    "historicalCohort": "different historical UUID can enqueue without erasing current draft",
+    "fakeDispatch": "all sends recorded only; queued row must already be dispatching"
+  },
+  "cases": [
+    "queuedDuplicateDoesNotAddOwnerSourceChangeMetadataOrResetProgress",
+    "duplicateAfterActualCompletedFakeTurnKeepsStatusResultAndOneDispatch",
+    "uncertainDuplicateNeverQueuesAgainOrClearsUncertainty",
+    "concurrentSameClientCohortProducesOneOwnerRecordOneRequestAndOneDispatch",
+    "sameClientIdWithDifferentRawTextIsRejectedWithoutChangingOriginal",
+    "changedWorkingFileBytesCannotReuseInputIdentityAndOldImmutableFileSurvives",
+    "sameClientIdWithReorderedOrAddedAssetsIsRejected",
+    "photoOnlyRawEmptyTextDiffersFromGeneratedPlaceholderAndWhitespace",
+    "frozenMetadataRepresentationAndIncidentalAnnotationsDoNotChangeIdentity",
+    "aToBToAIsANewIntentAndOlderSendCannotEraseNewA",
+    "committedInputAndConsumeSurviveRecreationBeforeUiCallback",
+    "repeatedUncertainInputAfterProcessRecreationStillCannotReplay",
+    "failedConsumeMirrorRollsBackRequestMessageFingerprintAndDraftTogether",
+    "defaultTwoArgumentReceiveRemainsSeparateIntentForRepeatedText",
+    "falseImmutableHashOrSizeFailsBeforeDuplicateLookupWithoutChangingStoredIntent",
+    "matchingCurrentCohortWithWrongRawTextOrAttachmentOrderCannotConsumeRealDraft",
+    "recoveryRequiredCurrentInputCannotBeSubmittedThroughRuntimeBypassingUi",
+    "wrongRevisionForCurrentIdCannotPoisonLaterLegitimateSend"
+  ],
+  "log": "/tmp/hoyoung-runtime-input/tests.log",
+  "productionAndTestSha256": {
+    "mobile/app/src/main/java/com/hoyoung/assistant/runtime/AssistantRuntime.java": "30c776bd286b7898b4914a3ba0dc572979b00d960c34e27b089ec3b88633d957",
+    "mobile/app/src/main/java/com/hoyoung/assistant/runtime/OwnerDraftStore.java": "33d66d25512bf7e96e514a4c1b32d382937899b8b78034039b7d4cc5f28e05e0",
+    "mobile/app/src/main/java/com/hoyoung/assistant/runtime/ActionReceiptJournal.java": "28dca681712820ae783fea4ac7d467d2e4d2273edd2042bc0aa418417b23481a",
+    "mobile/app/src/main/java/com/hoyoung/assistant/runtime/GoalLedger.java": "efd562bf0e70c79b18f219ac5b0bbe4107020353f8cd3c63238d3e1c60001a09",
+    "mobile/app/src/main/java/com/hoyoung/assistant/runtime/MemoryReviewCoordinator.java": "9fd37f1c9406abd04463f6a6124b4bec8a2451cd5ef14bbc6906a2628761fbe4",
+    "mobile/app/src/main/java/com/hoyoung/assistant/runtime/AssistantReplyNotifications.java": "9c3c69472f9de74aad8781e15124e9b078589274d55493d9b1283203dff9ce69",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/HoyoungStore.java": "08e4542935e2f121a5a75ac6eaacc4bdf327fc0288b5ca305f86d1b876da911e",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/OriginalTextFiles.java": "ba9d667c885e662c9fe25f74329d8ece631fc407976e5908aa769c00f3d5c39b",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/DeviceEventSearch.java": "66b9ed4e6e65264072685d68bd1115e958736283ef4ff24e4744e3cd4641657d",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/InternalFiles.java": "e798b79057273c92d5ae9a92205666589d311052bf671ad4574a2f863fa8f483",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/AttachmentOriginals.java": "0fecf6d8c710b10ba9dc242dabdd4d1883cc66d68e9148265aef542deebf1a11",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/StreamingBackup.java": "f35fe79f8a48543a8c6bc275deff5bcd4e9cb429c820900ec00c66f69c8b226c",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/BackupPolicy.java": "dd6772e05f9b6bcd358a4a55e64a583cc5f49f05d149d9ee837adf998a1ab927",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/BackupFailure.java": "66c8680b95fbb8e37c5432415b2a8aee40610f13f6c7e79a92fffa3a7d87e632",
+    "mobile/app/src/test/java/com/hoyoung/assistant/runtime/RuntimeOwnerInputIdentityTest.java": "acc14c944676bf727bd9560b4e7b9b37620de4b351fed5ca0fa80643ed8f1e9b"
+  },
+  "changedWorkingTreeSourcesAfterSnapshot": [
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/InternalFiles.java"
+  ],
+  "followupSourceNote": "InternalFiles changed only a VerifiedImageSource photo-open failure catch to also close on Error; this test does not call that photo source path. Central owner will recompile complete final sources."
+}

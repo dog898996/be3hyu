@@ -205,8 +205,10 @@ public final class PhoneEventJournal {
         if (!closed) worker.execute(this::refreshPolicyBlocking);
         requestDrain();
     }
-    public void captureBackupSnapshot(File destination) throws IOException { try { spool.captureSnapshot(destination); } catch (IOException validationFailure) { recordArchiveFailure(validationFailure); throw validationFailure; } finally { requestDrain(); } }
+    public void captureBackupSnapshot(File destination) throws IOException {captureBackupSnapshot(destination,null);}
+    public void captureBackupSnapshot(File destination,com.hoyoung.assistant.store.BackupPolicy.SpaceMonitor monitor) throws IOException { try { spool.captureSnapshot(destination,null,monitor); } catch (IOException validationFailure) { recordArchiveFailure(validationFailure); throw validationFailure; } finally { requestDrain(); } }
     public static void captureBackupSnapshot(Context context, File destination) throws IOException { forContext(context).captureBackupSnapshot(destination); }
+    public static void captureBackupSnapshot(Context context,File destination,com.hoyoung.assistant.store.BackupPolicy.SpaceMonitor monitor)throws IOException{forContext(context).captureBackupSnapshot(destination,monitor);}
     /** Pure background validation of staged raw segments, before any live restore replacement. */
     public static void validateBackupSnapshot(File stagedJournal) throws IOException { PhoneObservationSpool.validateSnapshot(stagedJournal); }
     public JSONArray events(String category, String source, long afterId, int limit) { return store.deviceEvents(category, source, afterId, limit); }

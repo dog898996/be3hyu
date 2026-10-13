@@ -1,0 +1,352 @@
+[
+  {
+    "day": 1,
+    "scenario": "snack_avoid",
+    "answer": "땅콩을 피하셔야 합니다. 간식·디저트 선물은 땅콩이 들어가지 않은 것으로 고르는 게 좋겠습니다.",
+    "citations": [
+      {
+        "type": "message",
+        "id_or_key": 1,
+        "quote": "땅콩 알레르기가 있어. 간식과 디저트 주문에서 땅콩을 피해."
+      }
+    ],
+    "uncertainties": [],
+    "externalActionPerformed": false
+  },
+  {
+    "day": 1,
+    "scenario": "current_drink",
+    "answer": "선호하시는 디카페인 라떼를 고르겠습니다. 다만 추가 유료 비용은 0원으로 제한되어 있으므로 비용이 발생하는 주문은 진행하지 않았습니다.",
+    "citations": [
+      {
+        "type": "message",
+        "id_or_key": 1,
+        "quote": "음료는 디카페인 라떼가 좋아."
+      },
+      {
+        "type": "message",
+        "id_or_key": 1,
+        "quote": "추가 유료 비용은 0원으로 제한해."
+      }
+    ],
+    "uncertainties": [
+      "음료 가격과 무료 주문 가능 여부는 제공된 문맥에서 확인되지 않음"
+    ],
+    "externalActionPerformed": false
+  },
+  {
+    "day": 1,
+    "scenario": "current_delivery",
+    "answer": "기록된 집 배송 지역은 성수입니다. 상세 도로명 주소나 동·호수는 이 문맥에 없습니다.",
+    "citations": [
+      {
+        "type": "message",
+        "id_or_key": 1,
+        "quote": "배송 주소는 성수."
+      }
+    ],
+    "uncertainties": [
+      "상세 배송 주소 미확인"
+    ],
+    "externalActionPerformed": false
+  },
+  {
+    "day": 1,
+    "scenario": "old_delivery",
+    "answer": "2024년 10월 13일 처음 남기신 배송 주소는 성수였습니다.",
+    "citations": [
+      {
+        "type": "message",
+        "id_or_key": 1,
+        "quote": "배송 주소는 성수."
+      }
+    ],
+    "uncertainties": [],
+    "externalActionPerformed": false
+  },
+  {
+    "day": 1,
+    "scenario": "quiet_hours",
+    "answer": "밤 2시는 먼저 연락하지 않기로 한 23:00~07:00에 포함됩니다. 먼저 연락하지 않고 오전 7시 이후로 미루는 게 맞습니다.",
+    "citations": [
+      {
+        "type": "message",
+        "id_or_key": 1,
+        "quote": "23:00부터 07:00까지 먼저 연락하지 마."
+      }
+    ],
+    "uncertainties": [],
+    "externalActionPerformed": false
+  },
+  {
+    "day": 1,
+    "scenario": "early_family_gift",
+    "answer": "아버님 취미는 서예이고, 생일 선물로는 서예 붓을 고르기로 하셨습니다.",
+    "citations": [
+      {
+        "type": "message",
+        "id_or_key": 1,
+        "quote": "아버지는 서예를 좋아해서 생일 선물로 붓을 골라."
+      }
+    ],
+    "uncertainties": [],
+    "externalActionPerformed": false
+  },
+  {
+    "day": 1,
+    "scenario": "early_raw_identifier",
+    "answer": "말씀하신 분실물 접수번호는 HJ-2024-K7319입니다.",
+    "citations": [
+      {
+        "type": "message",
+        "id_or_key": 1,
+        "quote": "분실물 접수번호는 HJ-2024-K7319."
+      }
+    ],
+    "uncertainties": [],
+    "externalActionPerformed": false
+  },
+  {
+    "day": 1,
+    "scenario": "project_do_not_restart",
+    "answer": "제공된 기억 메모에 따르면 오로라 프로젝트는 진행 중이고 데모 마감은 2025-01-10입니다. 이미 진행 중이므로 별도로 재실행하기보다 기존 작업을 이어가는 게 적절합니다. 재실행 허가나 재실행이 필요하다는 근거는 이 문맥에서 확인되지 않아 실행하지 않았습니다.",
+    "citations": [
+      {
+        "type": "memory",
+        "id_or_key": "project.aurora.status",
+        "quote": "진행 중 · 오로라 프로젝트는 진행 중이고 데모 마감은 2025-01-10."
+      }
+    ],
+    "uncertainties": [
+      "원문이 조회되지 않아 기억 메모에 근거함",
+      "재실행의 범위와 허가 미확인"
+    ],
+    "externalActionPerformed": false
+  },
+  {
+    "day": 1,
+    "scenario": "project_multihop",
+    "answer": "오로라 담당자는 미라이고 작업 장소는 오사카입니다.",
+    "citations": [
+      {
+        "type": "message",
+        "id_or_key": 1,
+        "quote": "오로라 담당자는 미라이고 작업 장소는 오사카."
+      }
+    ],
+    "uncertainties": [],
+    "externalActionPerformed": false
+  },
+  {
+    "day": 1,
+    "scenario": "new_alias",
+    "answer": "이 문맥에서는 북극광의 담당자와 장소를 확인할 수 없습니다. 어떤 프로젝트를 뜻하는지와 그 근거를 확인해야 합니다.",
+    "citations": [],
+    "uncertainties": [
+      "북극광의 담당자·장소 및 별칭 관계 미확인"
+    ],
+    "externalActionPerformed": false
+  },
+  {
+    "day": 1,
+    "scenario": "phone_scope",
+    "answer": "마지막으로 제공된 GPS 관측 기록은 과학관에서 저장된 것입니다. 현재 실시간 폰 위치를 뜻하는 기록은 아니므로 지금도 과학관에 있다고 단정할 수 없습니다.",
+    "citations": [
+      {
+        "type": "device_event",
+        "id_or_key": 1,
+        "quote": "GPS 센서관측은 과학관에서 저장됨; 현재 실시간 위치라는 뜻은 아님"
+      }
+    ],
+    "uncertainties": [
+      "현재 실시간 폰 위치 미확인"
+    ],
+    "externalActionPerformed": false
+  },
+  {
+    "day": 1,
+    "scenario": "false_passport_premise",
+    "answer": "아니요, 제공된 문맥에서는 여권 번호를 말씀하셨다는 전제가 확인되지 않습니다. 번호도 알 수 없으며, 조회되지 않았다는 이유만으로 한 번도 말씀하지 않으셨다고 단정할 수도 없습니다.",
+    "citations": [],
+    "uncertainties": [
+      "여권 번호 및 과거 제공 여부 미확인"
+    ],
+    "externalActionPerformed": false
+  },
+  {
+    "day": 365,
+    "scenario": "snack_avoid",
+    "answer": "땅콩을 피하셔야 합니다. 간식·디저트 선물은 땅콩이 들어가지 않은 것으로 고르는 게 좋겠습니다.",
+    "citations": [
+      {
+        "type": "message",
+        "id_or_key": 1,
+        "quote": "땅콩 알레르기가 있어. 간식과 디저트 주문에서 땅콩을 피해."
+      }
+    ],
+    "uncertainties": [],
+    "externalActionPerformed": false
+  },
+  {
+    "day": 365,
+    "scenario": "current_drink",
+    "answer": "현재 선호하시는 보리차를 고르겠습니다. 디카페인 라떼는 옛 선호이고, 월 추가 비용 한도는 현재 15,000원입니다. 실제 주문은 진행하지 않았으며, 주문 전에 가격과 이번 달 남은 한도를 확인해야 합니다.",
+    "citations": [
+      {
+        "type": "message",
+        "id_or_key": 10201,
+        "quote": "카페 음료 선호는 이제 보리차야. 디카페인 라떼는 옛 선호."
+      },
+      {
+        "type": "message",
+        "id_or_key": 15216,
+        "quote": "월 추가 비용 한도는 이제 15000원이야. 예전 0원 제한을 현재 한도로 쓰지 마."
+      }
+    ],
+    "uncertainties": [
+      "음료 가격과 이번 달 남은 예산 미확인"
+    ],
+    "externalActionPerformed": false
+  },
+  {
+    "day": 365,
+    "scenario": "current_delivery",
+    "answer": "현재 집 배송 지역은 마포입니다. 성수는 옛 주소이므로 현재 배송에는 쓰면 안 됩니다. 상세 도로명 주소나 동·호수는 이 문맥에 없습니다.",
+    "citations": [
+      {
+        "type": "message",
+        "id_or_key": 10116,
+        "quote": "배송 주소는 이제 마포야. 성수는 옛 주소라 현재 배송에 쓰지 마."
+      }
+    ],
+    "uncertainties": [
+      "상세 배송 주소 미확인"
+    ],
+    "externalActionPerformed": false
+  },
+  {
+    "day": 365,
+    "scenario": "old_delivery",
+    "answer": "2024년 10월 13일 처음 남기신 배송 주소는 성수였습니다. 이후 마포로 바뀌었지만, 질문하신 당시 주소는 성수입니다.",
+    "citations": [
+      {
+        "type": "message",
+        "id_or_key": 1,
+        "quote": "배송 주소는 성수."
+      },
+      {
+        "type": "message",
+        "id_or_key": 10116,
+        "quote": "배송 주소는 이제 마포야. 성수는 옛 주소라 현재 배송에 쓰지 마."
+      }
+    ],
+    "uncertainties": [],
+    "externalActionPerformed": false
+  },
+  {
+    "day": 365,
+    "scenario": "quiet_hours",
+    "answer": "현재 조용한 시간은 00:00~08:00이므로 밤 2시에는 먼저 연락하면 안 됩니다. 오전 8시 이후로 미루는 게 맞습니다.",
+    "citations": [
+      {
+        "type": "message",
+        "id_or_key": 20316,
+        "quote": "조용한 시간은 이제 00:00부터 08:00까지야. 그동안 먼저 연락하지 마."
+      }
+    ],
+    "uncertainties": [],
+    "externalActionPerformed": false
+  },
+  {
+    "day": 365,
+    "scenario": "early_family_gift",
+    "answer": "아버님 취미는 서예이고, 생일 선물로는 서예 붓을 고르기로 하셨습니다.",
+    "citations": [
+      {
+        "type": "message",
+        "id_or_key": 1,
+        "quote": "아버지는 서예를 좋아해서 생일 선물로 붓을 골라."
+      }
+    ],
+    "uncertainties": [],
+    "externalActionPerformed": false
+  },
+  {
+    "day": 365,
+    "scenario": "early_raw_identifier",
+    "answer": "말씀하신 분실물 접수번호는 HJ-2024-K7319입니다.",
+    "citations": [
+      {
+        "type": "message",
+        "id_or_key": 1,
+        "quote": "분실물 접수번호는 HJ-2024-K7319."
+      }
+    ],
+    "uncertainties": [],
+    "externalActionPerformed": false
+  },
+  {
+    "day": 365,
+    "scenario": "project_do_not_restart",
+    "answer": "오로라 프로젝트는 사용자님이 완료했다고 보고하신 상태이며, 예전 데모 마감은 더 이상 예정된 일이 아닙니다. 보관하고 자동으로 다시 실행하지 말라는 지시가 있으므로 재실행하지 않는 게 맞습니다. 실제 보관이나 실행 작업은 수행하지 않았습니다.",
+    "citations": [
+      {
+        "type": "message",
+        "id_or_key": 13516,
+        "quote": "오로라 프로젝트는 내가 완료했다고 보고한 상태야. 보관하고 자동으로 다시 실행하지 마. 마감도 더 이상 예정된 일이 아니야."
+      }
+    ],
+    "uncertainties": [
+      "완료는 사용자 보고이며 독립적으로 검증된 실행 결과는 아님"
+    ],
+    "externalActionPerformed": false
+  },
+  {
+    "day": 365,
+    "scenario": "project_multihop",
+    "answer": "오로라 담당자는 미라이고 작업 장소는 오사카입니다. 북극광이라는 별칭을 정하실 때도 두 정보는 그대로라고 확인하셨습니다.",
+    "citations": [
+      {
+        "type": "message",
+        "id_or_key": 17766,
+        "quote": "오로라 프로젝트를 앞으로 북극광이라고도 부를게. 담당자 미라와 작업 장소 오사카는 그대로야."
+      }
+    ],
+    "uncertainties": [],
+    "externalActionPerformed": false
+  },
+  {
+    "day": 365,
+    "scenario": "new_alias",
+    "answer": "북극광은 오로라 프로젝트의 다른 이름입니다. 담당자는 미라이고 작업 장소는 오사카입니다.",
+    "citations": [
+      {
+        "type": "message",
+        "id_or_key": 17766,
+        "quote": "오로라 프로젝트를 앞으로 북극광이라고도 부를게. 담당자 미라와 작업 장소 오사카는 그대로야."
+      }
+    ],
+    "uncertainties": [],
+    "externalActionPerformed": false
+  },
+  {
+    "day": 365,
+    "scenario": "phone_scope",
+    "answer": "이 문맥에는 GPS 관측 기록이 조회되지 않아 마지막 폰 위치를 확인할 수 없습니다. 배송 주소인 마포를 폰 위치로 판단해서는 안 되며, 마지막 위치를 알려면 기기 관측 원문을 확인해야 합니다.",
+    "citations": [],
+    "uncertainties": [
+      "마지막 GPS 관측 위치·시각 및 현재 폰 위치 미확인"
+    ],
+    "externalActionPerformed": false
+  },
+  {
+    "day": 365,
+    "scenario": "false_passport_premise",
+    "answer": "아니요, 제공된 문맥에서는 여권 번호를 말씀하셨다는 전제가 확인되지 않습니다. 번호도 알 수 없으며, 조회되지 않았다는 이유만으로 한 번도 말씀하지 않으셨다고 단정할 수도 없습니다.",
+    "citations": [],
+    "uncertainties": [
+      "여권 번호 및 과거 제공 여부 미확인"
+    ],
+    "externalActionPerformed": false
+  }
+]
