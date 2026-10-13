@@ -145,9 +145,9 @@ public final class DeviceRuntimeIntegrationTest {
         HoyoungApplication app = (HoyoungApplication) context.getApplicationContext();
         String previous = app.getStore().getSetting("heartbeatSeconds", "300");
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
-            assertTrue(device.wait(Until.hasObject(By.text("설정")), 15_000));
+            assertTrue(DeviceFixtureHealth.waitFor(device, Until.hasObject(By.text("설정")), 15_000));
             device.findObject(By.text("설정")).click();
-            assertTrue(device.wait(Until.hasObject(By.text("자율 모드 켜기")), 10_000));
+            assertTrue(DeviceFixtureHealth.waitFor(device, Until.hasObject(By.text("자율 모드 켜기")), 10_000));
             for (UiObject2 entry : device.findObjects(By.clazz(EditText.class))) {
                 if (entry.getText() != null && entry.getText().matches("[0-9]+")) { entry.setText("120"); break; }
             }
@@ -188,18 +188,18 @@ public final class DeviceRuntimeIntegrationTest {
                 }
             }
             assertTrue("Save must be fully visible before the real touchscreen click", fullyVisible[0]);
-            UiObject2 save = device.wait(Until.findObject(By.text("설정 저장").clazz(Button.class)), 10_000);
+            UiObject2 save = DeviceFixtureHealth.waitFor(device, Until.findObject(By.text("설정 저장").clazz(Button.class)), 10_000);
             assertNotNull(save); save.click();
-            UiObject2 acknowledgement = device.wait(Until.findObject(By.text("확인")), 10_000);
+            UiObject2 acknowledgement = DeviceFixtureHealth.waitFor(device, Until.findObject(By.text("확인")), 10_000);
             if (acknowledgement == null) captureFailureUiFixture("aActualSettingsButtonPersistsAndBackupOpensAndroidDocumentPicker-before-close");
             assertNotNull("Actual Save click must open its dialog; persisted interval="
                     + app.getStore().getSetting("heartbeatSeconds", "missing"), acknowledgement);
             assertEquals("120", app.getStore().getSetting("heartbeatSeconds", ""));
             acknowledgement.click();
             device.findObject(By.text("파일")).click();
-            UiObject2 export = device.wait(Until.findObject(By.text("대화·기억·파일 백업 내보내기")), 10_000);
+            UiObject2 export = DeviceFixtureHealth.waitFor(device, Until.findObject(By.text("대화·기억·파일 백업 내보내기")), 10_000);
             assertNotNull(export); export.click();
-            assertTrue("Real platform SAF picker must receive the backup request", device.wait(Until.hasObject(By.pkg("com.android.documentsui")), 10_000));
+            assertTrue("Real platform SAF picker must receive the backup request", DeviceFixtureHealth.waitFor(device, Until.hasObject(By.pkg("com.android.documentsui")), 10_000));
             device.pressBack();
         } finally { app.getStore().putSetting("heartbeatSeconds", previous); }
     }
@@ -239,9 +239,9 @@ public final class DeviceRuntimeIntegrationTest {
     @Test public void cForegroundServiceRemainsForegroundAcrossOneScreenOffMinute() throws Exception {
         HoyoungApplication app = (HoyoungApplication) context.getApplicationContext();
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
-            assertTrue(device.wait(Until.hasObject(By.text("설정")), 15_000));
+            assertTrue(DeviceFixtureHealth.waitFor(device, Until.hasObject(By.text("설정")), 15_000));
             device.findObject(By.text("설정")).click();
-            UiObject2 enable = device.wait(Until.findObject(By.text("자율 모드 켜기")), 10_000);
+            UiObject2 enable = DeviceFixtureHealth.waitFor(device, Until.findObject(By.text("자율 모드 켜기")), 10_000);
             assertNotNull(enable); enable.click();
             awaitService(app, 10_000);
             assertTrue(actualForegroundService());
@@ -369,7 +369,7 @@ public final class DeviceRuntimeIntegrationTest {
         app.getStore().addMessage("user", "DEVICE_PHOTO_FIXTURE", requestId);
         app.getFiles().writeFile(working.getString("id"), "mutable working file replaced after original capture");
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
-            assertTrue("The actual chat must expose the attachment thumbnail", device.wait(Until.hasObject(By.desc(name)), 15_000));
+            assertTrue("The actual chat must expose the attachment thumbnail", DeviceFixtureHealth.waitFor(device, Until.hasObject(By.desc(name)), 15_000));
             boolean[] decoded = {false};
             long deadline = SystemClock.elapsedRealtime() + 10_000;
             while (!decoded[0] && SystemClock.elapsedRealtime() < deadline) {
@@ -385,7 +385,7 @@ public final class DeviceRuntimeIntegrationTest {
             }
             assertTrue("Android must actually decode immutable image bytes, not just display a placeholder", decoded[0]);
             device.findObject(By.desc(name)).click();
-            UiObject2 close = device.wait(Until.findObject(By.text("닫기")), 10_000);
+            UiObject2 close = DeviceFixtureHealth.waitFor(device, Until.findObject(By.text("닫기")), 10_000);
             assertNotNull("The real thumbnail click must open the native image-viewer dialog", close);
             assertTrue(device.hasObject(By.text(name))); close.click();
         }
@@ -409,11 +409,11 @@ public final class DeviceRuntimeIntegrationTest {
             assertTrue(latest.stream().allMatch(text -> text.length() <= 8_000));
             String excerpt = latest.stream().filter(text -> text.startsWith(marker + " row 95")).findFirst().get();
             assertTrue(excerpt.contains("😀한글")); assertFalse(Character.isHighSurrogate(excerpt.charAt(excerpt.length() - 1)));
-            UiObject2 original = device.wait(Until.findObject(By.text("보관된 전체 원문 읽기")), 10_000);
+            UiObject2 original = DeviceFixtureHealth.waitFor(device, Until.findObject(By.text("보관된 전체 원문 읽기")), 10_000);
             assertNotNull("The large message must offer its preserved original", original); original.click();
-            assertTrue(device.wait(Until.hasObject(By.text("다음 부분")), 10_000));
+            assertTrue(DeviceFixtureHealth.waitFor(device, Until.hasObject(By.text("다음 부분")), 10_000));
             device.findObject(By.text("닫기")).click();
-            UiObject2 previous = device.wait(Until.findObject(By.text("이전 대화 40개")), 10_000);
+            UiObject2 previous = DeviceFixtureHealth.waitFor(device, Until.findObject(By.text("이전 대화 40개")), 10_000);
             assertNotNull(previous); previous.click();
             java.util.List<String> older = awaitPageTexts(scenario, marker, " row 55", 40);
             assertTrue(older.stream().noneMatch(text -> text.startsWith(marker + " row 95")));
@@ -464,9 +464,9 @@ public final class DeviceRuntimeIntegrationTest {
             for (int i = 0; i < 60; i++) app.getStore().addMessage("user", "DEVICE_AFTER_NOTIFICATION " + i, null);
             assertEquals("posted", new JSONObject(app.getStore().getSetting("replyNotification:" + id, "{}")).getString("status"));
             device.openNotification();
-            UiObject2 notification = device.wait(Until.findObject(By.text(body)), 10_000);
+            UiObject2 notification = DeviceFixtureHealth.waitFor(device, Until.findObject(By.text(body)), 10_000);
             assertNotNull("The real System UI notification must expose this synthetic message", notification); notification.click();
-            assertTrue("The OS tap must open the older source, not merely the latest forty rows", device.wait(Until.hasObject(By.text(body).pkg(context.getPackageName())), 15_000));
+            assertTrue("The OS tap must open the older source, not merely the latest forty rows", DeviceFixtureHealth.waitFor(device, Until.hasObject(By.text(body).pkg(context.getPackageName())), 15_000));
             JSONObject seen = null; deadline = SystemClock.elapsedRealtime() + 10_000;
             while (SystemClock.elapsedRealtime() < deadline) {
                 JSONObject value = new JSONObject(app.getStore().getSetting("replyNotification:" + id, "{}"));

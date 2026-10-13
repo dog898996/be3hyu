@@ -45,7 +45,7 @@ public final class DeviceRestartIntegrationTest {
         if ("seed".equals(phase)) {
             String draft = "DEVICE_RESTART_DRAFT " + UUID.randomUUID() + " 😀 한글";
             try (ActivityScenario<MainActivity> activity = ActivityScenario.launch(MainActivity.class)) {
-                UiObject2 composer = device.wait(Until.findObject(By.clazz(EditText.class).pkg(context.getPackageName())), 15_000);
+                UiObject2 composer = DeviceFixtureHealth.waitFor(device, Until.findObject(By.clazz(EditText.class).pkg(context.getPackageName())), 15_000);
                 assertNotNull("The real native conversation must expose its composer", composer); composer.setText(draft);
                 OwnerDraftStore.Snapshot snapshot = awaitDraft(app, draft);
                 activity.onActivity(actual -> {
@@ -57,8 +57,8 @@ public final class DeviceRestartIntegrationTest {
                     }
                 });
                 device.waitForIdle(1_000);
-                UiObject2 settings = device.wait(Until.findObject(By.text("설정")), 10_000); assertNotNull(settings); settings.click();
-                UiObject2 enable = device.wait(Until.findObject(By.text("자율 모드 켜기")), 10_000); assertNotNull(enable); enable.click();
+                UiObject2 settings = DeviceFixtureHealth.waitFor(device, Until.findObject(By.text("설정")), 10_000); assertNotNull(settings); settings.click();
+                UiObject2 enable = DeviceFixtureHealth.waitFor(device, Until.findObject(By.text("자율 모드 켜기")), 10_000); assertNotNull(enable); enable.click();
                 awaitForeground(context, 15_000);
                 JSONObject marker = new JSONObject().put("draft", draft).put("clientInputId", snapshot.clientInputId)
                         .put("revision", snapshot.revision).put("seedPid", Process.myPid())
@@ -83,7 +83,7 @@ public final class DeviceRestartIntegrationTest {
             assertTrue("Force-stop or crash must produce another process", Process.myPid() != marker.getInt("seedPid"));
         }
         try (ActivityScenario<MainActivity> activity = ActivityScenario.launch(MainActivity.class)) {
-            assertTrue("The native composer must load the exact durable unsent draft", device.wait(Until.hasObject(
+            assertTrue("The native composer must load the exact durable unsent draft", DeviceFixtureHealth.waitFor(device, Until.hasObject(
                     By.text(marker.getString("draft")).clazz(EditText.class).pkg(context.getPackageName())), 15_000));
             awaitForeground(context, 15_000);
             app.getSemanticEncoder().prepareAsync();

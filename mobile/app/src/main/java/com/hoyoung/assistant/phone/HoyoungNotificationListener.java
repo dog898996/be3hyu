@@ -16,6 +16,7 @@ public final class HoyoungNotificationListener extends NotificationListenerServi
     private static final java.util.concurrent.ConcurrentHashMap<PhoneEventJournal, Boolean> MIGRATING = new java.util.concurrent.ConcurrentHashMap<>();
     @Override public void onListenerConnected() {
         connected = true;
+        if (startupUnavailable(this)) return;
         PhoneEventJournal journal = PhoneEventJournal.forContext(this);
         migrateLegacyAsync(this, journal);
         long gap = number(journal.get("notification.gapSince", "0"));
@@ -35,7 +36,8 @@ public final class HoyoungNotificationListener extends NotificationListenerServi
     @Override public void onListenerDisconnected() { disconnected("listener_disconnected"); }
     @Override public void onDestroy() { disconnected("listener_destroyed"); super.onDestroy(); }
     private void disconnected(String reason) {
-        connected = false; PhoneEventJournal journal = PhoneEventJournal.forContext(this); long now = System.currentTimeMillis();
+        connected = false; if (startupUnavailable(this)) return;
+        PhoneEventJournal journal = PhoneEventJournal.forContext(this); long now = System.currentTimeMillis();
         if (number(journal.get("notification.gapSince", "0")) == 0) journal.put("notification.gapSince", String.valueOf(now));
         journal.append("collector_state", "android.notification_listener", PhoneEventJournal.object("state", reason, "futureObservationsUnavailable", true), now, null);
     }
@@ -43,9 +45,15 @@ public final class HoyoungNotificationListener extends NotificationListenerServi
     @Override public void onNotificationRemoved(StatusBarNotification notification) { retain(notification, "removed", 0); }
     @Override public void onNotificationRemoved(StatusBarNotification notification, RankingMap ranking, int reason) { retain(notification, "removed", reason); }
     public static boolean isConnected() { return connected; }
+    private static boolean startupUnavailable(Context context) {
+        Context app = context.getApplicationContext();
+        return app instanceof com.hoyoung.assistant.runtime.HoyoungApplication
+                && !((com.hoyoung.assistant.runtime.HoyoungApplication) app).isStartupReady();
+    }
 
     /** Recent-view compatibility; every older record remains in durable, paged deviceEvents. */
     public static JSONArray notificationSnapshot(Context context) {
+        if (startupUnavailable(context)) return new JSONArray();
         PhoneEventJournal journal = PhoneEventJournal.forContext(context); migrateLegacy(context, journal);
         JSONArray recent = journal.recent("notification", null, 500), output = new JSONArray();
         for (int i = 0; i < recent.length(); i++) {
@@ -58,7 +66,7 @@ public final class HoyoungNotificationListener extends NotificationListenerServi
         return output;
     }
     private void retain(StatusBarNotification sbn, String event, int reason) {
-        if (sbn == null) return;
+        if (sbn == null || startupUnavailable(this)) return;
         PhoneEventJournal journal = PhoneEventJournal.forContext(this); migrateLegacyAsync(this, journal);
         if (!allowed(journal)) { if (number(journal.get("notification.policyGapSince", "0")) == 0) journal.put("notification.policyGapSince", String.valueOf(System.currentTimeMillis())); return; }
         long gap = number(journal.get("notification.policyGapSince", "0"));

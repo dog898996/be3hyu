@@ -66,6 +66,7 @@ public final class AutonomyService extends Service {
 
     @Override public void onCreate() {
         super.onCreate();
+        if (!((HoyoungApplication) getApplication()).isStartupReady()) return;
         liveService = this;
         runtime = ((HoyoungApplication) getApplication()).getRuntime();
         PowerManager power = (PowerManager) getSystemService(POWER_SERVICE);
@@ -82,6 +83,7 @@ public final class AutonomyService extends Service {
     }
 
     @Override public int onStartCommand(Intent intent, int flags, int startId) {
+        if (runtime == null || !((HoyoungApplication) getApplication()).isStartupReady()) { stopSelf(); return START_NOT_STICKY; }
         if (intent != null && ACTION_STOP.equals(intent.getAction())) { runtime.stopAutonomy(); stopSelf(); return START_NOT_STICKY; }
         if (!runtime.autonomyEnabled()) { stopSelf(); return START_NOT_STICKY; }
         try {
@@ -117,8 +119,8 @@ public final class AutonomyService extends Service {
         if (wakeLock != null && wakeLock.isHeld()) wakeLock.release();
         if (powerReceiverRegistered) { unregisterReceiver(powerReceiver); powerReceiverRegistered = false; }
         if (runtime != null) runtime.setServiceRunning(false);
-        ((HoyoungApplication) getApplication()).getPhoneContext().setProcessingListener(null);
-        ((HoyoungApplication) getApplication()).getPhoneContext().stop("autonomy_service_stopped");
+        com.hoyoung.assistant.phone.PhoneContextCollector collector = ((HoyoungApplication) getApplication()).getPhoneContext();
+        if (collector != null) { collector.setProcessingListener(null); collector.stop("autonomy_service_stopped"); }
         updateResources();
         super.onDestroy();
     }

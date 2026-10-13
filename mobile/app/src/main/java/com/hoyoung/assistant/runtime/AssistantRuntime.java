@@ -75,7 +75,7 @@ public final class AssistantRuntime {
     private volatile String completingRequestId = "";
     private volatile boolean restoringBackup;
     private volatile boolean storageRecoveryBlocked;
-    public boolean isRestoringBackup() { return restoringBackup; }
+    public boolean isRestoringBackup() { return restoringBackup || storageRecoveryBlocked; }
 
     public AssistantRuntime(Context context, HoyoungStore store, InternalFiles files, PhoneTools phoneTools) {
         this(context, store, files, phoneTools, Executors.newSingleThreadExecutor());

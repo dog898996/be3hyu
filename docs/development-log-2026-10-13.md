@@ -94,3 +94,11 @@ Android debug 앱·instrumentation APK 빌드, 전체 JVM 단위 테스트와 li
 첨부 분석이 끝난 시험은 실제 Runtime처럼 provider 상태를 completed로 정리하고, 미완료 accepted의 백업은 uncertain/재검토로 복원되는 반대 시험을 추가했다. 원문·분석·두 SHA를 보존하며 proof 조건이나 assertion을 낮추지 않았다. 또 실행 경험·목표 보관의 내부 system JSON이 대화방을 채우던 실제 UI 연결 문제를 수정했다. 원문·검색·백업은 그대로 두고 보이는 대화 페이지와 가벼운 갱신 확인만 구분한다. 평문 한도·오류 안내와 사용자 JSON 메시지는 계속 표시한다. 파일을 8개 넘게 선택하거나 가져오기 중 선택이 바뀐 경우 일부만 조용히 추가하지 않고 이유와 보관 여부를 표시한다.
 
 최신 Coordinator44개·bounded 대화10개, 총54개가 실패·건너뜀 없이 통과했다. 최신 생산 코드·debug APK·AndroidTest APK 컴파일과 lint가 통과했고 lint는 오류0·warning16개다. binary 권한40개가 소스와 일치하고 실제 ONNX/JNI 양 ABI의16KiB 패키징을 검사했다. 앞선 전체494개 기록과 이 수정 이후 targeted54개를 중복 합산하지 않는다. 같은 커밋의 무료 실제 Android CI와 안정적인 개인키 release 빌드에서 최신 전체 suite를 다시 확정한다. [체크포인트와 현재 소스 SHA](benchmarks/mobile-local-checkpoint-2026-10-13.json)를 공개한다.
+
+## 23시 44분 UTC — 원문 RFC 확보·복구 결함·5년 기준선
+
+사용자가 「세션과 기억처리」 원문을 파일로 제공했다. 1,034행·99,691바이트 전체를 읽고 SHA-256 `4b778bdb7d71abc838bafcffa05bf83c2b105ad4e2837ce620cb32857ef21194`로 고정했다. 이전 Library 접근 실패는 당시 기록이며 현재 원문 검토는 완료됐다. [항목별 적용 계획](memory-rfc-integration-plan.md)에 기존 Android/Work 구조와 RFC의 차이, 다섯 계층 필수 조회·전달 패킷 해시·정정/삭제 fence·자율 판단·검증 범위를 기록했다. 적용 계획은 구현 완료를 의미하지 않는다.
+
+실제 private 파일/SQLite 검증에서 Store 초기화가 복원 저널보다 먼저 실행되면 빈 originals 경로를 만들고 유일한 이전 원문 세대를 삭제할 수 있음을 재현했다. 복원 검사부터 초기화하고, 실패 시 원문·저널을 보존하며 읽기 전용 복구 화면과 worker 재시도를 제공한다. 차단 상태의 파일 변경도 거절한다. 저장소 회귀41개와 실제 Application/서비스 경계8개가 통과했다. 동결 소스의 전체526개는510통과·16개 명시적 opt-in 건너뜀·실패/오류0, lint 오류0·경고16이었다. debug/AndroidTest APK 컴파일도 완료했다. 이전 실제 Android CI는 Quickstep 시스템 ANR와 instrumentation 종료가 대상 앱을 force-stop하는 fixture 영향으로 실패했고, 실제 assertion을 유지한 수정으로 새 CI를 수행한다.
+
+마지막 합격 기준은 5년보다 오래된 첫해 기록 회상으로 강화했다. 결과를 보기 전에 최종 시점2026-12-31·첫해2021·2,191일·방해 기록184,044개·고정144질문으로 preregistration v2를 수정했다. 동일한 생산 검색기의 실제 기준선은 원문 전달130/144, 원문만 저장한 상세 질문10/12였다. 별명 다단계 연결12개와 식별번호2개를 놓쳤고 삭제 요청 뒤 노출6건이 있었다. [기준선 전체 결과](five-year-memory-baseline-results.md)를 공개하며 불합격으로 기록한다. 모델 답변 정확도, 개선 버전, 실제 Work 서비스와 실폰 장기 실행은 이 수치에서 측정되지 않았다. 추가 유료 API·호스팅을 사용하지 않았다.

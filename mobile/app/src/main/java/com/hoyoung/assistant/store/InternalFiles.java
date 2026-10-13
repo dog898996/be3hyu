@@ -50,6 +50,8 @@ public final class InternalFiles {
     private final AttachmentOriginals attachmentOriginals;
     private final Object backupLock = new Object();
     private volatile BackupParticipant backupParticipant;
+    private IOException startupFailure;
+    private IOException startupWarning;
     public interface BackupParticipant {
         void capture(File destination) throws IOException;
         default void capture(File destination,BackupPolicy.SpaceMonitor monitor) throws IOException { capture(destination); }
@@ -57,7 +59,29 @@ public final class InternalFiles {
         default void validate(File stagedJournal) throws IOException { }
     }
     public void setBackupParticipant(BackupParticipant participant) { backupParticipant = participant; }
-    public boolean restoreRecoveryPending(){return new File(privateRoot,RESTORE_JOURNAL).exists();}
+    public boolean restoreRecoveryPending(){return restoreJournalPresent(privateRoot);}
+    /** Recovery failures retain the journal/generations and allow a read-only boot diagnostics UI. */
+    public boolean startupBlocked(){return startupFailure!=null||restoreRecoveryPending();}
+    public JSONObject startupDiagnostics(){
+        JSONObject result=new JSONObject();boolean pending=restoreRecoveryPending(),blocked=startupFailure!=null||pending;
+        put(result,"ready",!blocked);put(result,"blocked",blocked);put(result,"recoveryPending",pending);
+        put(result,"status",blocked?"restore_recovery_blocked":startupWarning!=null?"ready_cleanup_deferred":"ready");
+        put(result,"failure",startupFailure==null?"":startupFailure.getMessage());put(result,"warning",startupWarning==null?"":startupWarning.getMessage());
+        put(result,"failureClass",startupFailure==null?"":startupFailure.getClass().getSimpleName());put(result,"warningClass",startupWarning==null?"":startupWarning.getClass().getSimpleName());
+        put(result,"retryable",blocked||startupWarning!=null);put(result,"automaticReplay",false);return result;
+    }
+    /** Only constructor failures make this instance diagnostic-only. A healthy instance
+     * may legitimately create a journal while carrying out its own in-session restore. */
+    private void assertStartupWritable()throws IOException{
+        if(startupFailure!=null)throw new IOException("Private storage is limited to startup recovery diagnostics",startupFailure);
+    }
+    static boolean restoreJournalPresent(File privateRoot){File journal=new File(privateRoot,RESTORE_JOURNAL);return journal.exists()||Files.isSymbolicLink(journal.toPath());}
+    static void requireNoPendingRestore(File privateRoot){if(restoreJournalPresent(privateRoot))throw new RestoreRecoveryPendingException();}
+    public static final class RestoreRecoveryPendingException extends IllegalStateException {
+        private static final long serialVersionUID=1L;
+        public final String code="restore_recovery_pending";
+        RestoreRecoveryPendingException(){super("Interrupted restore recovery must finish before creating storage or opening its database");}
+    }
 
     /** Run on an IO worker: filesystem sizes are a conservative estimate, not remote-provider capacity. */
     public JSONObject backupPreflight(HoyoungStore store)throws IOException {
@@ -90,13 +114,19 @@ public final class InternalFiles {
         this.projects = new File(privateRoot, "projects");
         this.attachmentOriginals = new AttachmentOriginals(projects);
         try { recoverRestore(); }
-        catch (IOException e) { throw new IllegalStateException("An interrupted backup restore could not be recovered", e); }
-        ensureDirectory(projects);
-        ensureDirectory(new File(privateRoot, "originals"));
-        try { cleanupAbandonedStaging(); } catch (IOException unavailable) { throw new IllegalStateException("Staging recovery failed", unavailable); }
+        catch (IOException failure) { startupFailure=failure;return; }
+        catch (RuntimeException unavailable) { startupFailure=new IOException("Interrupted restore recovery is unavailable",unavailable);return; }
+        // A missing committed namespace is evidence of an incomplete generation. Never
+        // manufacture an empty directory before recovery has checked that evidence.
+        try { ensureDirectory(projects);ensureDirectory(new File(privateRoot, "originals")); }
+        catch (RuntimeException unavailable) { startupFailure=new IOException("Private storage initialization is unavailable",unavailable);return; }
+        try { cleanupAbandonedStaging(); }
+        catch (IOException deferred) { startupWarning=deferred; }
+        catch (RuntimeException deferred) { startupWarning=new IOException("Abandoned staging cleanup is deferred",deferred); }
     }
 
     public synchronized JSONObject saveFromUri(Uri uri, String displayName) throws IOException {
+        assertStartupWritable();
         if (uri == null) throw new IllegalArgumentException("A source URI is required");
         if (displayName == null || displayName.trim().isEmpty()) {
             try (Cursor cursor = context.getContentResolver().query(uri, new String[]{OpenableColumns.DISPLAY_NAME}, null, null, null)) {
@@ -117,6 +147,7 @@ public final class InternalFiles {
 
     /** Freeze before linking an attachment to an owner message. Call from a background worker. */
     public synchronized JSONArray freezeAttachments(JSONArray attachments) throws IOException {
+        assertStartupWritable();
         JSONArray frozen = new JSONArray();
         if (attachments == null) return frozen;
         if (attachments.length() > 8) throw new IOException("A message supports at most eight attachments");
@@ -151,6 +182,7 @@ public final class InternalFiles {
 
     /** Exact large action results use the same immutable payload archive as owner attachments. */
     public synchronized JSONObject archiveToolResult(String rootRequestId, String actionId, String text) throws IOException {
+        assertStartupWritable();
         if (text == null || text.length() > OriginalTextFiles.MAX_ORIGINAL_CHARS) throw new IOException("Tool result exceeds 10,000,000 UTF-16 characters");
         if (rootRequestId == null || rootRequestId.isEmpty() || rootRequestId.length() > 512
                 || actionId == null || actionId.isEmpty() || actionId.length() > 512) throw new IOException("Tool result needs bounded request and action ids");
@@ -370,6 +402,7 @@ public final class InternalFiles {
     }
 
     public synchronized JSONObject writeFile(String relativePath, String content) throws IOException {
+        assertStartupWritable();
         if (content == null) throw new IllegalArgumentException("File content is required");
         if (content.length() > MAX_FILE_BYTES) throw new IOException("Working file exceeds the 512 MiB limit");
         return writeFile(relativePath, new Utf8StringInput(content));
@@ -377,11 +410,13 @@ public final class InternalFiles {
 
     /** The caller owns the input stream. A failed/oversized write leaves the old file intact. */
     public synchronized JSONObject writeFile(String relativePath, InputStream source) throws IOException {
+        assertStartupWritable();
         return writeFile(relativePath,source,MAX_FILE_BYTES);
     }
 
     /** An explicit smaller test/operation limit never raises the production binary limit. */
     public synchronized JSONObject writeFile(String relativePath,InputStream source,long maxBytes)throws IOException {
+        assertStartupWritable();
         if (source == null) throw new IllegalArgumentException("File content is required");
         if(maxBytes<=0||maxBytes>MAX_FILE_BYTES)throw new IllegalArgumentException("Invalid working-file byte limit");
         if (AttachmentOriginals.reserved(relativePath)) throw new IOException("Attachment originals are immutable; use a separate working path");
@@ -421,11 +456,13 @@ public final class InternalFiles {
      * OutputStream ownership stays with the caller. Export this outside the app before uninstall.
      */
     public void exportBackup(OutputStream destination, HoyoungStore store) throws IOException {
+        assertStartupWritable();
         if(destination==null||store==null)throw new IllegalArgumentException("A destination and store are required");
         exportBackup(destination,store,BackupPolicy.fromStore(store));
     }
 
     public void exportBackup(OutputStream destination, HoyoungStore store,BackupPolicy policy) throws IOException {
+        assertStartupWritable();
         if (destination == null || store == null) throw new IllegalArgumentException("A destination and store are required");
         if(policy==null)throw new IllegalArgumentException("A backup policy is required");
         BackupPolicy.Session space=policy.session(privateRoot);
@@ -456,11 +493,13 @@ public final class InternalFiles {
     }
 
     public void importBackup(InputStream source, HoyoungStore store) throws IOException {
+        assertStartupWritable();
         if(source==null||store==null)throw new IllegalArgumentException("A backup and store are required");
         importBackup(source,store,BackupPolicy.fromStore(store));
     }
 
     public void importBackup(InputStream source, HoyoungStore store,BackupPolicy policy) throws IOException {
+        assertStartupWritable();
         if (source == null || store == null) throw new IllegalArgumentException("A backup and store are required");
         if(policy==null)throw new IllegalArgumentException("A backup policy is required");
         BackupPolicy.Session space=policy.session(privateRoot);
@@ -530,8 +569,8 @@ public final class InternalFiles {
     /** The DB commit token decides whether every namespace swap commits or rolls back. */
     private void recoverRestore() throws IOException {
         File journal = new File(privateRoot, RESTORE_JOURNAL);
-        if (!journal.exists()) return;
-        if (journal.length() > 8192) throw new IOException("Invalid restore journal");
+        if (!restoreJournalPresent(privateRoot)) return;
+        if (Files.isSymbolicLink(journal.toPath())||!journal.isFile()||journal.length() > 8192) throw new IOException("Invalid restore journal");
         JSONObject record;
         try (InputStream input = new FileInputStream(journal); ByteArrayOutputStream bytes = new ByteArrayOutputStream()) {
             copy(input, bytes, 8192);
@@ -547,18 +586,27 @@ public final class InternalFiles {
             JSONObject legacy = new JSONObject(); put(legacy, "current", "projects"); put(legacy, "previous", record.optString("previous")); moves.put(legacy);
         }
         boolean committed = restoreTokenCommitted(token);
+        if(moves.length()==0||moves.length()>3)throw new IOException("Invalid restore namespace count");
+        List<File> currents=new ArrayList<>(),previousDirectories=new ArrayList<>();Set<String> namespaces=new HashSet<>();
+        // Check the complete generation before deleting even the first previous tree.
+        // Otherwise a later missing namespace could destroy the only recoverable original.
         for (int i = 0; i < moves.length(); i++) {
             JSONObject move = moves.optJSONObject(i); if (move == null) throw new IOException("Invalid namespace move");
             String namespace = move.optString("current");
             if (!(namespace.equals("projects") || namespace.equals("originals") || namespace.equals("device-journal"))) throw new IOException("Invalid restore namespace");
+            if(!namespaces.add(namespace))throw new IOException("Duplicate restore namespace");
             File current = new File(privateRoot, namespace);
             File previous = journalDirectory(move.optString("previous"), ".previous-" + namespace + "-");
+            if(Files.isSymbolicLink(current.toPath())||Files.isSymbolicLink(previous.toPath())||previous.exists()&&!previous.isDirectory())throw new IOException("Unsafe restore namespace");
             if (committed) {
                 if (!current.isDirectory()) throw new IOException("Committed restore is missing a namespace");
-                deleteTree(previous);
-            } else if (previous.exists()) {
-                deleteTree(current); atomicMove(previous, current);
-            } else if (!current.isDirectory()) throw new IOException("Original namespace is missing during rollback");
+            } else if (!previous.isDirectory()&&!current.isDirectory()) throw new IOException("Original namespace is missing during rollback");
+            currents.add(current);previousDirectories.add(previous);
+        }
+        for(int i=0;i<currents.size();i++){
+            File current=currents.get(i),previous=previousDirectories.get(i);
+            if(committed)deleteTree(previous);
+            else if(previous.isDirectory()){deleteTree(current);atomicMove(previous,current);}
         }
         deleteTree(staging); removeRestoreJournal();
     }
@@ -576,6 +624,7 @@ public final class InternalFiles {
         try { UUID.fromString(name.substring(prefix.length())); }
         catch (IllegalArgumentException e) { throw new IOException("Invalid restore directory", e); }
         File directory = new File(privateRoot, name);
+        if(Files.isSymbolicLink(directory.toPath()))throw new IOException("Unsafe restore directory");
         if (!directory.getCanonicalPath().startsWith(privateRoot.getCanonicalPath() + File.separator)) throw new IOException("Unsafe restore directory");
         return directory;
     }

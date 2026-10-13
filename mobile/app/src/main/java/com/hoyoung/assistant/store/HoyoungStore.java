@@ -48,6 +48,9 @@ public final class HoyoungStore extends SQLiteOpenHelper {
 
     public HoyoungStore(Context context) {
         super(context.getApplicationContext(), DATABASE_NAME, null, SCHEMA_VERSION);
+        // SQLiteOpenHelper's constructor has not opened the database yet. Preserve a
+        // pending generation before OriginalTextFiles can create a missing namespace.
+        InternalFiles.requireNoPendingRestore(context.getApplicationContext().getFilesDir());
         originalFiles = new OriginalTextFiles(context.getApplicationContext().getFilesDir());
         setWriteAheadLoggingEnabled(true);
         // A process death cannot tell us whether the remote side accepted an in-flight request.

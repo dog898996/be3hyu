@@ -87,6 +87,14 @@ public final class MainActivity extends Activity {
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
         app = (HoyoungApplication) getApplication();
+        if (!app.isStartupReady()) { showStartupRecovery(); return; }
+        initializeReadyUi();
+    }
+
+    private boolean uiReady;
+    private void initializeReadyUi() {
+        if (uiReady || !app.isStartupReady()) return;
+        uiReady = true;
         draftStore = new OwnerDraftStore(app.getStore());
         photoPreviews = new ChatAttachmentPreviews(this, app.getFiles());
         if (!app.getRuntime().isRestoringBackup()) { draftState = draftStore.read(); attachments = draftState.attachments(); }
@@ -114,9 +122,41 @@ public final class MainActivity extends Activity {
         if (!app.getRuntime().isRestoringBackup() && "true".equals(app.getStore().getSetting("autonomy.enabled", "false"))) startAutonomy();
     }
 
+    private void showStartupRecovery() {
+        LinearLayout panel = column(); panel.setBackgroundColor(BG); panel.setPadding(dp(20), dp(32), dp(20), dp(20));
+        panel.addView(label("호영 · 원문 복구 확인 필요", 23, INK));
+        JSONObject diagnosis = app.startupState();
+        panel.addView(label(diagnosis.optBoolean("recoveryPending")
+                ? "원문 복구를 완료하지 못했어. 이전 파일과 복원 기록을 보존하고 새 저장소 생성과 자동 작업을 멈췄어."
+                : "폰 저장소를 열지 못해서 자동 작업을 멈췄어. 저장 공간과 저장소 접근을 확인해 줘.", 16, INK));
+        panel.addView(label("앱 데이터를 지우지 말고, 저장 공간을 확보한 뒤 복구를 다시 확인해 줘.", 14, SUBTLE));
+        Button retry = button("원문 복구 다시 확인", () -> { });
+        retry.setOnClickListener(view -> {
+            retry.setEnabled(false);
+            panel.addView(label("원문 복구 상태를 확인하고 있어…", 14, SUBTLE));
+            io.execute(() -> {
+                boolean failed = false;
+                try { app.retryStartupRecovery(); }
+                catch (RuntimeException unavailable) { failed = true; }
+                final boolean retryFailed = failed;
+                main.post(() -> {
+                    if (isDestroyed() || isFinishing()) return;
+                    if (app.isStartupReady()) { initializeReadyUi(); if (resumed) resumeReadyUi(); }
+                    else { showStartupRecovery(); if (retryFailed) notice("복구 준비를 완료하지 못했어. 원문을 초기화하지 않았어."); }
+                });
+            });
+        });
+        panel.addView(retry); setContentView(panel);
+    }
+
     @Override protected void onResume() {
         super.onResume();
         resumed = true;
+        if (!uiReady) return;
+        resumeReadyUi();
+    }
+
+    private void resumeReadyUi() {
         if (app.getReplyNotifications() != null) app.getReplyNotifications().setConversationVisible("대화".equals(tab) && !app.getRuntime().isRestoringBackup());
         app.getWebController().bindActivity(this);
         main.removeCallbacks(refresh); main.post(refresh);
@@ -127,6 +167,7 @@ public final class MainActivity extends Activity {
     @Override protected void onNewIntent(Intent intent) { super.onNewIntent(intent); setIntent(intent); openReplyIntent(intent); }
 
     private void openReplyIntent(Intent intent) {
+        if (!uiReady) return;
         if (intent == null || !intent.getBooleanExtra(AssistantReplyNotifications.EXTRA_OPEN_CONVERSATION, false)) return;
         long id = intent.getLongExtra(AssistantReplyNotifications.EXTRA_SOURCE_ID, 0);
         String hash = intent.getStringExtra(AssistantReplyNotifications.EXTRA_SOURCE_HASH);
@@ -155,22 +196,23 @@ public final class MainActivity extends Activity {
 
     @Override protected void onDestroy() {
         main.removeCallbacks(refresh);
-        app.getRuntime().clearListener(runtimeRefreshListener);
+        if (app.getRuntime() != null) app.getRuntime().clearListener(runtimeRefreshListener);
         if (photoPreviews != null) photoPreviews.close();
         for (AlertDialog dialog : new java.util.ArrayList<>(expandedPhotos.keySet())) dialog.dismiss();
         replyViews.clear();
-        app.getWebController().unbindActivity(this);
-        detachWebView();
+        if (app.getWebController() != null) { app.getWebController().unbindActivity(this); detachWebView(); }
         io.shutdown();
         commands.shutdown(); display.shutdownNow(); fileListing.shutdownNow();
         super.onDestroy();
     }
 
     private void showTab(String name) {
+        if (!uiReady) { showStartupRecovery(); return; }
         if (app.getRuntime().isRestoringBackup()) {
             if (photoPreviews != null) photoPreviews.clear();
             if (app.getReplyNotifications() != null) app.getReplyNotifications().setConversationVisible(false);
-            content.removeAllViews(); content.addView(label("백업을 검증·복원하고 있어. 원문과 파일을 일관된 상태로 되살린 뒤 다시 사용할 수 있어.", 16, INK));
+            boolean recoveryBlocked = app.getRuntime().state().optBoolean("storageRecoveryBlocked");
+            content.removeAllViews(); content.addView(label(recoveryBlocked ? "복원 파일 확인이 남아 있어. 원문과 복원 기록은 보존했으니 앱 데이터를 지우지 말고 앱을 다시 열어 복구해 줘." : "백업을 검증·복원하고 있어. 원문과 파일을 일관된 상태로 되살린 뒤 다시 사용할 수 있어.", 16, INK));
             return;
         }
         chatGeneration++;

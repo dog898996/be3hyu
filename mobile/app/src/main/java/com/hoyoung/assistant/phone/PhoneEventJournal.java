@@ -64,7 +64,10 @@ public final class PhoneEventJournal {
         PhoneEventJournal journal = new PhoneEventJournal(app, store); INSTANCES.put(app, journal); return journal;
     }
     public static synchronized PhoneEventJournal forContext(Context context) {
-        Context app = context.getApplicationContext(); PhoneEventJournal found = INSTANCES.get(app); if (found != null && !found.closed) return found;
+        Context app = context.getApplicationContext();
+        if (app instanceof HoyoungApplication && !((HoyoungApplication) app).isStartupReady())
+            throw new IllegalStateException("Storage startup recovery must finish before phone observations start");
+        PhoneEventJournal found = INSTANCES.get(app); if (found != null && !found.closed) return found;
         if (app instanceof HoyoungApplication) { HoyoungStore store = ((HoyoungApplication) app).getStore(); if (store != null) return bind(app, store); }
         return bind(app, new HoyoungStore(app));
     }

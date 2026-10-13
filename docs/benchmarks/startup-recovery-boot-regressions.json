@@ -1,0 +1,61 @@
+{
+  "schema": "hoyoung-startup-recovery-regression-v1",
+  "recordedAtUtc": "2026-10-13T23:27:14.491527+00:00",
+  "status": "production_fix_regressions_passed_host_scope",
+  "scope": "Latest Root/Storage source25 snapshot independently javac compiled with SDK35/JDK17; SDK28 Robolectric actual private files and native SQLite. An attached real HoyoungApplication is its own getApplicationContext, onCreate/retryStartupRecovery drive actual state, no ready-field injection. Shadow framework service attachment models callbacks without real OS/background/provider login. No Gradle or production edits by test owner.",
+  "results": {
+    "tests": 8,
+    "passed": 8,
+    "failed": 0,
+    "skipped": 0,
+    "junitElapsedSeconds": 5.102,
+    "exitCode": 0
+  },
+  "cases": [
+    "Malformed/truncated journal boots to explicit blocked state before Store, Runtime, phone tools/journal/collector, semantic encoder/retriever, replies or browser construction; raw original and journal bytes retained",
+    "Committed missing originals namespace leaves namespace absent and retains exact previous raw source, stage and journal rather than creating empty namespace and deleting previous",
+    "Accidental Store-before-recovery constructor rejects pending marker before original-directory creation/database open; canonical SQLite file bytes unchanged",
+    "All3 namespace moves are validated before an earlier valid previous projects/device journal tree can be retired when later originals is missing",
+    "Repeated worker retries remain blocked with exact journal, previous raw, staging and prior namespace trees unchanged",
+    "After explicitly replacing malformed journal with correct uncommitted journal, same App worker retry rolls back files, preserves original record SHA/raw bytes, initializes core once and reuses the same Store/Runtime on repeated retry; provider ready remains false",
+    "Actual orphan directory with only injected listFiles failure and no journal yields ready_cleanup_deferred warning; canonical file/source remain readable and orphan retained",
+    "Actual blocked App identity permits safe BootReceiver/notification/autonomy/accessibility lifecycle callbacks, prevents PhoneEventJournal fallback, does not create Store or delete prior phone/source evidence"
+  ],
+  "regressionBackground": "Read-only prior audit proved Store-before-Files could create an empty originals namespace then retire previous raw originals under a committed restore token. Those defect-reproducing assertions were outside the repo; this suite expects corrected preservation behavior.",
+  "sourceSha256": {
+    "mobile/app/src/main/java/com/hoyoung/assistant/runtime/AssistantRuntime.java": "6e58c7a4ca19f45bf5605d248f14a16a369ee85bc070cb71e7cc580e1d9057a2",
+    "mobile/app/src/main/java/com/hoyoung/assistant/runtime/OwnerDraftStore.java": "33d66d25512bf7e96e514a4c1b32d382937899b8b78034039b7d4cc5f28e05e0",
+    "mobile/app/src/main/java/com/hoyoung/assistant/runtime/ActionReceiptJournal.java": "28dca681712820ae783fea4ac7d467d2e4d2273edd2042bc0aa418417b23481a",
+    "mobile/app/src/main/java/com/hoyoung/assistant/runtime/GoalLedger.java": "efd562bf0e70c79b18f219ac5b0bbe4107020353f8cd3c63238d3e1c60001a09",
+    "mobile/app/src/main/java/com/hoyoung/assistant/runtime/MemoryReviewCoordinator.java": "d305cf9db80c4f9634cef193f393ea95b456560855e8025e0afd7231ec197d4c",
+    "mobile/app/src/main/java/com/hoyoung/assistant/runtime/AssistantReplyNotifications.java": "9c3c69472f9de74aad8781e15124e9b078589274d55493d9b1283203dff9ce69",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/HoyoungStore.java": "637bfe0a7792d8e0574de0f9f397e98e2cf94d001aae16a7473db5ebf8a745a5",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/OriginalTextFiles.java": "7435615d48df98a1dea3f2267d6c986330c5233fd5aef3a9e36d8406485359ce",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/DeviceEventSearch.java": "66b9ed4e6e65264072685d68bd1115e958736283ef4ff24e4744e3cd4641657d",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/InternalFiles.java": "82b89f63a7d8476885812088404af7346db5d3468bd09fadabaa6e3b39da8179",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/AttachmentOriginals.java": "0fecf6d8c710b10ba9dc242dabdd4d1883cc66d68e9148265aef542deebf1a11",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/StreamingBackup.java": "f35fe79f8a48543a8c6bc275deff5bcd4e9cb429c820900ec00c66f69c8b226c",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/BackupPolicy.java": "dd6772e05f9b6bcd358a4a55e64a583cc5f49f05d149d9ee837adf998a1ab927",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/BackupFailure.java": "66c8680b95fbb8e37c5432415b2a8aee40610f13f6c7e79a92fffa3a7d87e632",
+    "mobile/app/src/main/java/com/hoyoung/assistant/runtime/HoyoungApplication.java": "483b40f81e9bc734307626a1f49d0f1e007d258965e9acc97507cc0f2ebde629",
+    "mobile/app/src/main/java/com/hoyoung/assistant/runtime/AutonomyService.java": "ab0f317513c3a1b4ee855f581eb792b3bd0d7963842379b450820f5f9d3991fc",
+    "mobile/app/src/main/java/com/hoyoung/assistant/runtime/BootReceiver.java": "ac22d1170c5a1dc6fe6fbd69f642896fe8c584b59339495eef0db5432680547f",
+    "mobile/app/src/main/java/com/hoyoung/assistant/phone/PhoneTools.java": "77de754bff1774c337de19e639ea17c9d48a9c56b2daffb850c763c8ac3aa906",
+    "mobile/app/src/main/java/com/hoyoung/assistant/phone/PhoneContextCollector.java": "10f21790f7d0908fa9364e37bbc6f4e92f986f920976c365b5311a228d852799",
+    "mobile/app/src/main/java/com/hoyoung/assistant/phone/PhoneEventJournal.java": "e1d30dea1b21dbda21f5a33ca899cca19ce98e88ed357733f8cf9fc0faa924e5",
+    "mobile/app/src/main/java/com/hoyoung/assistant/phone/HoyoungNotificationListener.java": "103252f9aace36940713e6f078d50968eda7f8dad179bdb3ae7a350942904c7b",
+    "mobile/app/src/main/java/com/hoyoung/assistant/phone/HoyoungAccessibilityService.java": "9203abc1f3d01b8ad8fe9798b410350da62d1594479d0ff732699930d9ba547a",
+    "mobile/app/src/main/java/com/hoyoung/assistant/web/WorkWebController.java": "bfe0fffe5a2203821193e433eff1e4c0967fb7b69bb44a00c7e3461d1a969bba",
+    "mobile/app/src/main/java/com/hoyoung/assistant/MainActivity.java": "e2c2fe23940c4a47850cf51449720ff9535a3769ee39d2b1ea677f802482c5e8",
+    "mobile/app/src/test/java/com/hoyoung/assistant/runtime/StartupRecoveryBootTest.java": "bae9c45fe46e4a57ea7a1d23417305c2d81fc04581cf3aa0e614414bf19482b6"
+  },
+  "logSha256": "0b30dcb44af10d899885500113501c00bc26d0b48f28df683f09dba9750d1421",
+  "logLocalPath": "/tmp/hoyoung-startup-boot/tests.log",
+  "limitations": [
+    "The test manually attaches framework Application/Service objects with real application identity to execute production initialization/callback logic; it is not physical-device boot, process death, OEM scheduling or the actual MainActivity rendered screen.",
+    "Orphan failure uses a narrow File.listFiles injection for the orphan while canonical files and SQLite are actual.",
+    "Same-App retry is explicit fixture correction of a journal and does not automatically reconstruct corrupt/missing original bytes or certify a previous generation matches arbitrary restored DB data.",
+    "No ChatGPT authentication, browser network/model dispatch, phone outbound action or autonomous effect was performed.",
+    "MainActivity is compiled in this snapshot but UI visual/lifecycle behavior requires the parent device/build verification."
+  ]
+}

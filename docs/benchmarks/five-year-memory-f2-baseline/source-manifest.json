@@ -1,0 +1,29 @@
+{
+  "ref": "f2e67c6fced3db82b1950c7c9382e57094fd2b6e",
+  "sources": {
+    "mobile/app/src/main/java/com/hoyoung/assistant/memory/MemoryHistory.java": "17a6c3dcd21e796b0b75d90c07965cd98a4e752bcdfe348547d831285a9e0529",
+    "mobile/app/src/main/java/com/hoyoung/assistant/memory/MemoryPolicy.java": "25a109369dde48ebbb7c3e4d8864bc569dbe8199342d687a34d239dee6207f67",
+    "mobile/app/src/main/java/com/hoyoung/assistant/memory/MemoryQuery.java": "1dfaa5d898e8db7f140c6f4a16e7dc4766154524e7cb31ccba0724ad2bd8cb24",
+    "mobile/app/src/main/java/com/hoyoung/assistant/memory/MemoryRetriever.java": "910d297b28de88868adcb07879a84c3f79ed17b6486ea6987bf7891aad4ef5b2",
+    "mobile/app/src/main/java/com/hoyoung/assistant/memory/MemoryText.java": "d880450cc2d36309b34c94340a4755877ac632e6de6007b37a9fcd26f04d2622",
+    "mobile/app/src/main/java/com/hoyoung/assistant/memory/NativeAnnIndex.java": "0e64ae7b8cc2289cb00983682e61af06860449cb7ccc50c2c515325ae7c19d20",
+    "mobile/app/src/main/java/com/hoyoung/assistant/memory/SemanticAnnCache.java": "e792b8e045e30c2012719e184dadcc8f4782222d394d237c84a7e1bcce5db9cf",
+    "mobile/app/src/main/java/com/hoyoung/assistant/memory/SemanticCandidateProvider.java": "dfb07cf9e8de3599b820843e946e1a1542b35dde67d84dc05a7561653c16ca68",
+    "mobile/app/src/main/java/com/hoyoung/assistant/memory/SemanticEncoder.java": "23839c706b37302429d6f5ec4ce6cf78e5e99e33c409d442ea9ae5906ebfd1c1",
+    "mobile/app/src/main/java/com/hoyoung/assistant/memory/SemanticIndex.java": "4b0cb1dfcc00535407c900b86acafe8876db644161b0bafdf169e5ec7a16acb0",
+    "mobile/app/src/main/java/com/hoyoung/assistant/memory/StructuredMemorySearch.java": "9b20c518ea967dc833f359280dbf7fe76fe5b4e91560d088a34eee9da701f687",
+    "mobile/app/src/main/java/com/hoyoung/assistant/memory/VectorCodec.java": "d31cefe95dd153d900329d93a1fb0aeb44b0dc4a1cef31e74fb88dc07502d3c1",
+    "mobile/app/src/main/java/com/hoyoung/assistant/memory/local/BertWordPieceTokenizer.java": "e23fc5a98a11f32fcd2c442c27e0c865e9005fa67b910187904b36894345eb16",
+    "mobile/app/src/main/java/com/hoyoung/assistant/memory/local/LocalSemanticEncoder.java": "9c40c9a0e9b9f72d3273ccfd0d26921f810d76bccef6c703a2f55a025b18d36d",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/AttachmentOriginals.java": "0fecf6d8c710b10ba9dc242dabdd4d1883cc66d68e9148265aef542deebf1a11",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/BackupFailure.java": "66c8680b95fbb8e37c5432415b2a8aee40610f13f6c7e79a92fffa3a7d87e632",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/BackupPolicy.java": "dd6772e05f9b6bcd358a4a55e64a583cc5f49f05d149d9ee837adf998a1ab927",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/DeviceEventSearch.java": "66b9ed4e6e65264072685d68bd1115e958736283ef4ff24e4744e3cd4641657d",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/HoyoungStore.java": "1ffbbfbb36e24148ddc2dec1a20fbb1a91a72131e018504a52fc16afc29184f9",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/InternalFiles.java": "791b07107c034aa29c092e7db9bca62f9a932acfc7e82a17df53bd5e5c971129",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/OriginalTextFiles.java": "ba9d667c885e662c9fe25f74329d8ece631fc407976e5908aa769c00f3d5c39b",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/StreamingBackup.java": "f35fe79f8a48543a8c6bc275deff5bcd4e9cb429c820900ec00c66f69c8b226c",
+    "benchmarkFixture": "7ac08972bf64b0a614678f33e7fb11772ec07279d18b778a2852051870cb166f"
+  },
+  "matrixSha256": "2821867ebb826cb2b873ef5d95e5abbbbf4b9a60923a2755f681e6c26e6ae1c8"
+}

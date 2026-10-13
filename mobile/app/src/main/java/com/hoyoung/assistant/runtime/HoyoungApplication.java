@@ -25,11 +25,25 @@ public final class HoyoungApplication extends Application {
     private AssistantReplyNotifications replyNotifications;
     private final java.util.concurrent.ExecutorService maintenance = java.util.concurrent.Executors.newSingleThreadExecutor();
     private final java.util.concurrent.atomic.AtomicBoolean indexing = new java.util.concurrent.atomic.AtomicBoolean();
+    private volatile boolean startupReady;
+    private volatile org.json.JSONObject startupState = state(false, "starting", "");
 
     @Override public void onCreate() {
         super.onCreate();
-        store = new HoyoungStore(this);
-        files = new InternalFiles(this);
+        initializeCore();
+    }
+
+    /** Recovery never manufactures an empty canonical namespace before checking the journal. */
+    private synchronized void initializeCore() {
+        if (startupReady) return;
+        try {
+            files = new InternalFiles(this);
+            if (files.startupBlocked()) { startupState = files.startupDiagnostics(); return; }
+            store = new HoyoungStore(this);
+        } catch (RuntimeException storageUnavailable) {
+            startupState = state(false, "storage_unavailable", storageUnavailable.getClass().getSimpleName());
+            return;
+        }
         phoneTools = new PhoneTools(this, store);
         phoneContext = new PhoneContextCollector(this, phoneTools, store);
         files.setBackupParticipant(new InternalFiles.BackupParticipant() {
@@ -54,7 +68,20 @@ public final class HoyoungApplication extends Application {
         runtime.setPhoneContextCollector(phoneContext);
         webController = new WorkWebController(this, runtime, files);
         runtime.attachTransport(webController);
+        startupReady = true;
+        startupState = state(true, "ready", "");
         webController.start();
+    }
+
+    public boolean isStartupReady() { return startupReady; }
+    public org.json.JSONObject startupState() {
+        try { return new org.json.JSONObject(startupState.toString()); }
+        catch (org.json.JSONException invalid) { return state(false, "storage_unavailable", "diagnostic_unavailable"); }
+    }
+    /** Explicit retry on an IO worker; a failed retry retains previous files and its journal. */
+    public synchronized void retryStartupRecovery() { initializeCore(); }
+    private static org.json.JSONObject state(boolean ready, String status, String errorType) {
+        return PhoneEventJournal.object("ready", ready, "blocked", !ready, "status", status, "errorType", errorType);
     }
 
     public AssistantRuntime getRuntime() { return runtime; }
@@ -68,6 +95,7 @@ public final class HoyoungApplication extends Application {
     public AssistantReplyNotifications getReplyNotifications() { return replyNotifications; }
 
     public void maintainMemory() {
+        if (!startupReady) return;
         boolean enabled = "true".equals(store.getSetting("semanticSearchEnabled", "true"));
         memoryRetriever.setSemanticEnabled(enabled);
         if (!enabled) return;

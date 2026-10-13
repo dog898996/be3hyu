@@ -1,0 +1,140 @@
+{
+  "checkpoint": "2026-12-31",
+  "strata": {
+    "raw_only": {
+      "cases": 12,
+      "completeDelivery": 10,
+      "requiredSources": 12,
+      "deliveredSources": 10,
+      "leakCases": 0,
+      "sourceRecallAt5Hits": 8,
+      "sourceRecallAt12Hits": 8
+    },
+    "alias_cues": {
+      "cases": 12,
+      "completeDelivery": 0,
+      "requiredSources": 24,
+      "deliveredSources": 8,
+      "leakCases": 0,
+      "sourceRecallAt5Hits": 8,
+      "sourceRecallAt12Hits": 8
+    },
+    "temporal_change": {
+      "cases": 12,
+      "completeDelivery": 12,
+      "requiredSources": 24,
+      "deliveredSources": 24,
+      "leakCases": 0,
+      "sourceRecallAt5Hits": 24,
+      "sourceRecallAt12Hits": 24
+    },
+    "claim_status": {
+      "cases": 12,
+      "completeDelivery": 12,
+      "requiredSources": 20,
+      "deliveredSources": 20,
+      "leakCases": 0,
+      "sourceRecallAt5Hits": 20,
+      "sourceRecallAt12Hits": 20
+    },
+    "episodes": {
+      "cases": 12,
+      "completeDelivery": 12,
+      "requiredSources": 36,
+      "deliveredSources": 36,
+      "leakCases": 0,
+      "sourceRecallAt5Hits": 24,
+      "sourceRecallAt12Hits": 24
+    },
+    "decision_reasons": {
+      "cases": 12,
+      "completeDelivery": 12,
+      "requiredSources": 24,
+      "deliveredSources": 24,
+      "leakCases": 0,
+      "sourceRecallAt5Hits": 16,
+      "sourceRecallAt12Hits": 23
+    },
+    "procedure_scope": {
+      "cases": 12,
+      "completeDelivery": 12,
+      "requiredSources": 24,
+      "deliveredSources": 24,
+      "leakCases": 0,
+      "sourceRecallAt5Hits": 12,
+      "sourceRecallAt12Hits": 12
+    },
+    "active_constraints": {
+      "cases": 12,
+      "completeDelivery": 12,
+      "requiredSources": 24,
+      "deliveredSources": 24,
+      "leakCases": 0,
+      "sourceRecallAt5Hits": 24,
+      "sourceRecallAt12Hits": 24
+    },
+    "missing_facts": {
+      "cases": 12,
+      "completeDelivery": 12,
+      "requiredSources": 12,
+      "deliveredSources": 12,
+      "leakCases": 0,
+      "sourceRecallAt5Hits": 12,
+      "sourceRecallAt12Hits": 12
+    },
+    "image_wire_scope": {
+      "cases": 12,
+      "completeDelivery": 12,
+      "requiredSources": 16,
+      "deliveredSources": 16,
+      "leakCases": 0,
+      "sourceRecallAt5Hits": 16,
+      "sourceRecallAt12Hits": 16
+    },
+    "forget_revoke": {
+      "cases": 12,
+      "completeDelivery": 12,
+      "requiredSources": 12,
+      "deliveredSources": 12,
+      "leakCases": 6,
+      "sourceRecallAt5Hits": 12,
+      "sourceRecallAt12Hits": 12
+    },
+    "range_coverage": {
+      "cases": 12,
+      "completeDelivery": 12,
+      "requiredSources": 168,
+      "deliveredSources": 168,
+      "leakCases": 0,
+      "sourceRecallAt5Hits": 60,
+      "sourceRecallAt12Hits": 144
+    }
+  },
+  "failedDeliveryCases": [
+    "alias_cues-01",
+    "raw_only-02",
+    "alias_cues-02",
+    "alias_cues-03",
+    "alias_cues-04",
+    "raw_only-05",
+    "alias_cues-05",
+    "alias_cues-06",
+    "alias_cues-07",
+    "alias_cues-08",
+    "alias_cues-09",
+    "alias_cues-10",
+    "alias_cues-11",
+    "alias_cues-12"
+  ],
+  "leakCases": [
+    "forget_revoke-01",
+    "forget_revoke-03",
+    "forget_revoke-05",
+    "forget_revoke-07",
+    "forget_revoke-09",
+    "forget_revoke-11"
+  ],
+  "sourceRecallRankScope": "ranked evidence after production q.limit*2 selection, before context packing; not whole initial500candidate ranking",
+  "answerAccuracy": "not_measured",
+  "finalAcceptancePassed": false
+}

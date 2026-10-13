@@ -28,6 +28,7 @@ final class OriginalTextFiles {
     private final Map<String, String> verified = new HashMap<>();
 
     OriginalTextFiles(File filesDir) {
+        InternalFiles.requireNoPendingRestore(filesDir);
         root = new File(filesDir, "originals");
         if (!root.isDirectory() && !root.mkdirs()) throw new IllegalStateException("Original storage cannot be created");
     }

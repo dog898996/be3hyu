@@ -194,12 +194,29 @@ await_system_foreground() {
 }
 run_restart_phase() {
   local phase="$1" phase_log="$LOG_DIR/restart-$1.log"
-  timeout 120 "$ADB" -s "$SERIAL" shell am instrument -w -r \
+  # API35 AMS normally force-stops the target on instrumentation finish.
+  # --no-restart injects into the already-running normal process and leaves its
+  # real FGS alive, rather than measuring that test-harness cleanup as a crash.
+  # Official source: android-15.0.0_r1 ActivityManagerService.java,
+  # startInstrumentation()/finishInstrumentationLocked().
+  timeout 120 "$ADB" -s "$SERIAL" shell am instrument --no-restart -w -r \
     -e restartPhase "$phase" \
     -e class com.hoyoung.assistant.DeviceRestartIntegrationTest \
     "$TEST_RUNNER" | tee "$phase_log"
   verify_instrumentation "$phase_log" 1
 }
+start_normal_app() {
+  timeout 30 "$ADB" -s "$SERIAL" shell am start -W -n "$APP_ID/.MainActivity" >/dev/null
+  local deadline=$((SECONDS + 30)) app_pid=''
+  while (( SECONDS < deadline )); do
+    app_pid="$(timeout 8 "$ADB" -s "$SERIAL" shell pidof "$APP_ID" 2>/dev/null | tr -d '\r' || true)"
+    if [[ "$app_pid" =~ ^[0-9]+$ ]]; then return 0; fi
+    sleep 1
+  done
+  echo '::error::The normal app process did not start before no-restart instrumentation.' >&2
+  return 1
+}
+start_normal_app
 run_restart_phase seed
 await_system_foreground seed
 "$ADB" -s "$SERIAL" shell am force-stop "$APP_ID"
@@ -210,6 +227,7 @@ if [[ -n "$stopped_pid" ]] || system_foreground_present; then
   exit 1
 fi
 echo 'HOYOUNG_SYSTEM_FORCE_STOP actual-process-and-FGS-absent; explicit-user-reopen-required'
+start_normal_app
 run_restart_phase forceReopen
 await_system_foreground forceReopen
 crash_pid="$(timeout 8 "$ADB" -s "$SERIAL" shell pidof "$APP_ID" | tr -d '\r')"
