@@ -110,6 +110,24 @@ jobs:
         run: |
           ./mobile/tools/build-android.sh ./mobile \
             assembleDebug assembleDebugAndroidTest testDebugUnitTest lintDebug
+          python3 - <<'PY'
+          import json
+          import pathlib
+          import xml.etree.ElementTree as ET
+
+          files = sorted(pathlib.Path('mobile/app/build/test-results/testDebugUnitTest').glob('TEST-*.xml'))
+          totals = {name: 0 for name in ('tests', 'failures', 'errors', 'skipped')}
+          for path in files:
+              suite = ET.parse(path).getroot()
+              for name in totals:
+                  totals[name] += int(suite.attrib.get(name, '0'))
+          totals['passed'] = totals['tests'] - totals['failures'] - totals['errors'] - totals['skipped']
+          totals['testClasses'] = len(files)
+          if not files or totals['passed'] < 1 or totals['failures'] or totals['errors']:
+              raise SystemExit('The real unit-test reports are missing or contain failures.')
+          # Report counts only, never raw test fixture text or private credentials.
+          print('HOYOUNG_UNIT_PROOF ' + json.dumps(totals, sort_keys=True))
+          PY
 
       - name: Verify binary permissions and real native packaging
         run: |

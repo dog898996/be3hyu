@@ -18,6 +18,8 @@ import android.os.PowerManager;
 import android.os.SystemClock;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import androidx.test.core.app.ActivityScenario;
@@ -76,11 +78,21 @@ public final class DeviceRuntimeIntegrationTest {
             for (UiObject2 entry : device.findObjects(By.clazz(EditText.class))) {
                 if (entry.getText() != null && entry.getText().matches("[0-9]+")) { entry.setText("120"); break; }
             }
+            scenario.onActivity(activity -> {
+                View focused = activity.getCurrentFocus();
+                if (focused != null) {
+                    InputMethodManager keyboard = activity.getSystemService(InputMethodManager.class);
+                    if (keyboard != null) keyboard.hideSoftInputFromWindow(focused.getWindowToken(), 0);
+                    focused.clearFocus();
+                }
+            });
+            device.waitForIdle(1_000);
             new UiScrollable(new UiSelector().scrollable(true)).scrollTextIntoView("설정 저장");
-            UiObject2 save = device.wait(Until.findObject(By.text("설정 저장")), 10_000);
+            UiObject2 save = device.wait(Until.findObject(By.text("설정 저장").clazz(Button.class)), 10_000);
             assertNotNull(save); save.click();
             UiObject2 acknowledgement = device.wait(Until.findObject(By.text("확인")), 10_000);
-            assertNotNull(acknowledgement);
+            assertNotNull("Actual Save click must open its dialog; persisted interval="
+                    + app.getStore().getSetting("heartbeatSeconds", "missing"), acknowledgement);
             assertEquals("120", app.getStore().getSetting("heartbeatSeconds", ""));
             acknowledgement.click();
             device.findObject(By.text("파일")).click();
