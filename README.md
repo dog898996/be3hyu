@@ -2,9 +2,11 @@
 
 추가 서버 비용 0원, 사설 VM·상시 PC 없이 **Android 전용 앱 → ChatGPT Work 임시채팅**으로 작업하고 원문·기억·파일은 폰에 보관한다. [Android 설치·연결·백업 안내](mobile/README.md)를 먼저 참고한다. 아래 Node/사설 VM 코드는 이전 구현으로 보존한다.
 
+**최신 0.4.1**: 보내기 옆에서 이번 화면의 모델을 선택하고, 화면을 떠나도 이미 맡긴 작업의 모델은 유지한다. 영구 라우팅·이름·프사는 설정과 채팅에서 바꾸고 전체 백업에 보관한다. 정기 판단 기본값은 Medium이다. [설치 파일](https://github.com/dog898996/be3hyu/releases/tag/v0.4.1) · [변경·검증 기록](docs/release-v041.md) · [설정 동작 설명](docs/routing-and-identity-v041.md). 변경 관련 집중 검사 100/100 통과. 아래 0.4.0의 전체·Android 에뮬레이터 검증은 이전 버전의 이력이다.
+
 **0.4.0**은 대화 중심 UI, 고양이 프로필, 메시지 애니메이션·입력 중 표시, 기억으로 보존되는 이모지 반응, 계정·추가 인증 보관함과 실제 휴대폰 도구를 연결한다. 설정·권한·기억·계정·파일·Work는 사이드바에서 연다. [11개 앱 화면](docs/ui-redesign.md) · [0.4.0 배포 기록](docs/release-v040.md).
 
-최종 Android15 검증·lint·서명 APK 검증을 통과했다. [0.4.0 배포에서 APK·전체 소스·UI 미리보기를 내려받을 수 있다](https://github.com/dog898996/be3hyu/releases/tag/v0.4.0). 0.4.0 소스는 48개 권한 선언과 실제 grant를 구분하고, 실행기의 전체 목록을 권한 화면에 연결한다. 지원되는 필수 권한은 시작 전에 허용하며 기능별 사용 여부·사용자 지침·모델은 앱과 대화에서 수정한다. [권한별 기능·검증 수준](docs/permission-capability-matrix.md) · [계정·로그인·MFA](docs/account-login-status.md).
+0.4.0은 Android15 검증·lint·서명 APK 검증을 통과했다. [0.4.0 배포에서 APK·전체 소스·UI 미리보기를 내려받을 수 있다](https://github.com/dog898996/be3hyu/releases/tag/v0.4.0). 0.4.0 소스는 48개 권한 선언과 실제 grant를 구분하고, 실행기의 전체 목록을 권한 화면에 연결한다. 지원되는 필수 권한은 시작 전에 허용하며 기능별 사용 여부·사용자 지침·모델은 앱과 대화에서 수정한다. [권한별 기능·검증 수준](docs/permission-capability-matrix.md) · [계정·로그인·MFA](docs/account-login-status.md).
 
 통합 unit suite는 **1,260개 중1,243개 통과·선택형17개 제외·실패0개**다. [최종 5년 원문 회귀](docs/benchmarks/android-v040-five-year-memory-regression.json)는432/432개 출처 조건과 0.3.2의144개 전체 기억 패킷 동일성을 확인했다. 합성 기록과 실제 native SQLite를 사용하는 원문 시험이며 새 모델144개 답변 채점이나 실제5년 사용 결과는 아니다. 실제 Android15의 제품25/25·전체 계측33/33과 별도 재시작 shell 검사를 통과했다. 최종 CI·설치 파일과 지문은 [배포 기록](docs/release-v040.md)에 남겼다. 강제 종료로 접근성이 해제되면 앱의 권한 안내에서 사용자가 다시 허용해야 한다.
 

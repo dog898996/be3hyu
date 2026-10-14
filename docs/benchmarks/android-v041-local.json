@@ -1,0 +1,27 @@
+{
+  "version": "0.4.1",
+  "sourceCommit": "28008d320ae696276be2b611e11b59ba9c738def",
+  "unitSourceCommit": "e8373f8d31ef5fba21ae0bd385a39054bb54523d",
+  "unitToApkSourceDifference": "Only a documented ResourceType annotation/comments on the existing file-backed drawable byte read; no execution change.",
+  "focusedUnitTotals": {
+    "tests": 100,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "releaseBuild": "passed",
+  "releaseLint": {
+    "errors": 0,
+    "warnings": 29
+  },
+  "apkVerification": "android-v041-apk.json",
+  "samePublicCertificateAsV040": true,
+  "completeAndroidPermissionDeclarations": 48,
+  "runtimeCatalogTools": 122,
+  "fullSuiteRepeated": false,
+  "fiveYearMemorySimulationRepeated": false,
+  "newEmulatorRun": false,
+  "physicalSamsungRun": false,
+  "realModelCalls": 0,
+  "dateUtc": "2026-10-14T11:52:02.835724+00:00"
+}
