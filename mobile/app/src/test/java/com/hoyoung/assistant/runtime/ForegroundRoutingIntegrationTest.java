@@ -43,6 +43,21 @@ public class ForegroundRoutingIntegrationTest {
         JSONObject background=store.enqueueRequest("정기 판단","autonomy",UUID.randomUUID().toString());assertRoute(background,"medium","standard");
         assertEquals("medium",store.getSetting("autonomousEffort",""));
     }
+    @Test public void standardSelectionSurvivesScreenExitAndContinuationWithoutChangingNewDefaults()throws Exception{
+        runtime.enterForegroundRouting();JSONObject choice=runtime.foregroundRoutingState();
+        assertTrue(runtime.selectForegroundRouting(choice.optString("sessionId"),choice.optLong("revision"),"gpt-6.1-sol","high","standard",false).optBoolean("ok"));
+        JSONObject first=runtime.receive("Standard로 작업을 계속해",new JSONArray());ready("high","standard");runtime.leaveForegroundRouting();assertRoute(first,"high","standard");
+        finish(first,actions(first,"app.settings.get",new JSONObject()));JSONObject next=active();assertRoute(next,"high","standard");finish(next,done(next));
+        runtime.enterForegroundRouting();assertRoute(runtime.receive("다음 새 메시지",new JSONArray()),"medium","fast");
+        assertEquals("standard",new JSONObject(store.getSetting("ownerRouteOverride:"+first.optString("external_id"),"{}")).optString("speed"));
+    }
+    @Test public void chatFastOffAndLaterEffortOnlyChangeKeepStandard(){
+        runtime.enterForegroundRouting();JSONObject first=runtime.receive("이번 작업 Fast 끄고 high로",new JSONArray());ready("medium","fast");
+        finish(first,actions(first,"app.routing.session.set",json("effort","high","speed","standard")));ready("high","standard");
+        JSONObject next=active();assertRoute(next,"high","standard");finish(next,done(next));
+        JSONObject second=runtime.receive("강도만 xhigh로 올려",new JSONArray());ready("high","standard");finish(second,actions(second,"app.routing.session.set",json("effort","xhigh")));
+        assertEquals("standard",runtime.foregroundRoutingState().optString("speed"));assertRoute(active(),"xhigh","standard");
+    }
     @Test public void sendTapSnapshotSurvivesImmediateScreenOffBeforeAttachmentIo(){
         runtime.enterForegroundRouting();select("xhigh");JSONObject atTap=runtime.foregroundRoutingState();runtime.leaveForegroundRouting();
         JSONObject request=runtime.receive("전송 직후 화면 꺼짐",new JSONArray(),UUID.randomUUID().toString(),-1,UiAutomationProvenance.OWNER,atTap);assertRoute(request,"xhigh","fast");

@@ -1,0 +1,69 @@
+{
+  "version": "0.4.3",
+  "dateUtc": "2026-10-14T13:17:33.250777+00:00",
+  "summary": {
+    "tests": 71,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "suiteCount": 5,
+  "suites": [
+    {
+      "name": "com.hoyoung.assistant.MainActivityRoutingProfileTest",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "4.26"
+    },
+    {
+      "name": "com.hoyoung.assistant.runtime.ForegroundRoutingIntegrationTest",
+      "tests": "13",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.91"
+    },
+    {
+      "name": "com.hoyoung.assistant.runtime.ModelRoutingPolicyTest",
+      "tests": "27",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.344"
+    },
+    {
+      "name": "com.hoyoung.assistant.runtime.RuntimeModelPreferencesTest",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "4.75"
+    },
+    {
+      "name": "com.hoyoung.assistant.web.WorkStartupRecoveryTest",
+      "tests": "18",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.682"
+    }
+  ],
+  "browserFixtureTests": {
+    "tests": 13,
+    "passed": 13,
+    "failures": 0,
+    "log": "/tmp/hoyoung-v043-bridge.log",
+    "scope": "Selected preference/authentication/Work transport fixtures, including mobile combined labels and observed Fast switch."
+  },
+  "realModelCalls": 0,
+  "physicalDeviceVerified": false,
+  "realWorkProviderVerified": false,
+  "initialFailures": [
+    "Three old tests expected hard-coded owner Fast despite saved Standard; updated their expectations and mismatch checks for configurable speed.",
+    "New mobile send fixture asserted before the existing asynchronous dispatch timer; now advances the local mock clock before checking acceptance.",
+    "Test-only WebResourceError constructor unavailable in Android stub; callback fixture passes null because production handler does not inspect the error object."
+  ],
+  "rerun": "All affected focused tests passed after corrections; no long-memory simulation repeated."
+}

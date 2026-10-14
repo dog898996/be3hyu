@@ -203,7 +203,11 @@ public final class AssistantRuntime {
     public synchronized void leaveForegroundRouting() { foregroundRouting.leave(); changed(); }
     public synchronized JSONObject foregroundRoutingState() { return foregroundRouting.snapshot(); }
     public synchronized JSONObject selectForegroundRouting(String sessionId,long revision,String model,String effort,boolean reset) {
-        JSONObject result=foregroundRouting.select(sessionId,revision,model,effort,reset);
+        JSONObject current=foregroundRouting.snapshot();
+        return selectForegroundRouting(sessionId,revision,model,effort,current.optBoolean("selected")?current.optString("speed","fast"):store.getSetting("requiredSpeed","fast"),reset);
+    }
+    public synchronized JSONObject selectForegroundRouting(String sessionId,long revision,String model,String effort,String speed,boolean reset) {
+        JSONObject result=foregroundRouting.select(sessionId,revision,model,effort,speed,reset);
         if(result.optBoolean("ok"))changed(); return result;
     }
     public JSONObject assistantIdentity() { return identity.snapshot(); }
@@ -1059,9 +1063,9 @@ public final class AssistantRuntime {
         if(owner) {
             JSONObject selected=parseObject(store.getSetting("ownerRouteOverride:"+root,"{}"));
             if(selected.optBoolean("selected")) {
-                validateModelPreferences(selected.optString("model"),selected.optString("effort"),"fast");
+                validateModelPreferences(selected.optString("model"),selected.optString("effort"),selected.optString("speed","fast"));
                 put(route,"model",selected.optString("model"));put(route,"effort",selected.optString("effort"));
-                put(route,"speed","fast");put(route,"decisionOnly",false);put(route,"explicitOwnerSelection",true);
+                put(route,"speed",selected.optString("speed","fast"));put(route,"decisionOnly",false);put(route,"explicitOwnerSelection",true);
                 put(route,"reason","accepted_owner_task_selection");
             }
         }
@@ -1214,7 +1218,7 @@ public final class AssistantRuntime {
         store.putSetting("preparedIdentityRevision:"+externalId,currentIdentity.optString("revision"));
         prompt.append("\nCURRENT_ASSISTANT_IDENTITY (현재 설정, 과거 기억·옛 이름보다 우선):\n").append(currentIdentity).append("\n")
                 .append("현재 자기 이름은 위 name이다. 과거의 호영/옛 자기소개는 역사이며 현재 이름으로 되돌리지 않는다. 프사 파일은 app.identity.avatar로 직접 볼 수 있다. 실제로 업로드된 새 프사를 보면 assistantAvatarAnalysis:{revision,sha256,description}으로 관찰을 남겨. 보지 못했으면 내용을 추측하지 않는다.\n")
-                .append("이번만/이번 작업/잠깐 모델 변경은 app.routing.session.set을 사용한다. 화면을 보는 동안 다음 사용자 메시지에도 유지되고 화면 이탈은 다음 새 메시지의 선택만 초기화한다. 이미 맡긴 작업은 후속 처리까지 선택을 유지한다. 영구/앞으로 변경은 app.settings.update를 사용한다. session 도구가 실패하면 영구 설정으로 대신 바꾸지 마. 모델 선택 변경은 그 턴에서 session.set 도구 하나만 요청하고, 실제 작업은 변경된 모델로 이어지는 다음 턴에 해. 프사·이름은 app.identity.update로 바꾸고 현재 revision을 확인해.\n");
+                .append("선택 가능한 모델은 6 Sol(gpt-6-sol), 6.1 Sol(gpt-6.1-sol), Astra(gpt-6-astra)다. Fast 켜기는 speed=fast, 끄기는 speed=standard다. UltraFast는 사용하지 않는다. 이번만/이번 작업/잠깐 모델·속도 변경은 app.routing.session.set을 사용한다. 화면을 보는 동안 다음 사용자 메시지에도 유지되고 화면 이탈은 다음 새 메시지의 선택만 초기화한다. 이미 맡긴 작업은 후속 처리까지 선택을 유지한다. 영구/앞으로 변경은 app.settings.update를 사용한다. session 도구가 실패하면 영구 설정으로 대신 바꾸지 마. 모델 선택 변경은 그 턴에서 session.set 도구 하나만 요청하고, 실제 작업은 변경된 모델로 이어지는 다음 턴에 해. 프사·이름은 app.identity.update로 바꾸고 현재 revision을 확인해.\n");
         String primaryCustom=store.getSetting("customInstructions",null);
         String customKey=primaryCustom==null?"personalizedInstructions":"customInstructions";
         String custom=primaryCustom==null?store.getSetting("personalizedInstructions","<unset>"):primaryCustom;
@@ -1432,11 +1436,11 @@ public final class AssistantRuntime {
         catalog.put(object("name", "app.tools.describe", "arguments", "names:string[]; return each complete exact tool definition, including all constraints"));
         catalog.put(object("name", "app.work.pause", "arguments", "reason:string; hold current root's new local effects and request remote cancellation without claiming it stopped"));
         catalog.put(object("name","app.routing.session.get","arguments",""));
-        catalog.put(object("name","app.routing.session.set","arguments","model?:gpt-model-id,effort?:low|medium|high|xhigh|max|ultra,reset?:boolean"));
+        catalog.put(object("name","app.routing.session.set","arguments","model?:gpt-6-sol|gpt-6.1-sol|gpt-6-astra,effort?:low|medium|high|xhigh|max|ultra,speed?:fast|standard,reset?:boolean"));
         catalog.put(object("name","app.identity.get","arguments",""));
         catalog.put(object("name","app.identity.update","arguments","name?:string,avatarFileId?:string,useDefaultAvatar?:boolean,expectedRevision?:string"));
         catalog.put(object("name","app.identity.avatar","arguments",""));
-        catalog.put(object("name", "app.settings.update", "arguments", "customInstructions?:string,standingGoals?:string,toolPermissions?:{catalogTool:boolean},autonomyEnabled?:boolean,heartbeatSeconds?:60..86400,memoryReviewEnabled?:boolean,phoneContextEnabled?:boolean,semanticSearchEnabled?:boolean,replyNotificationsEnabled?:boolean,toolRoundLimit?:integer>=0(0=unlimited),toolActionsPerTurnLimit?:integer>=0(0=unlimited),replyLockscreenContentVisible?:boolean,replySystemContextualActionsEnabled?:boolean,workFileDownloadsEnabled?:boolean,backupMaxGiB?:1..64,wakeMode?:continuous|while_working|charging,requiredModel?:gpt-model-id,requiredEffort?:low|medium|high|xhigh|max|ultra,requiredSpeed?:fast|standard,usageOptimizationEnabled?:boolean,backgroundSpeed?:fast|standard,autonomousEffort?:low|medium|high|xhigh|max|ultra,memoryMinimumEffort?:medium|high|xhigh|max|ultra,budgetBasis?:pool_per_day|daily_share,budgetTargetPercent?:number(0..100]"));
+        catalog.put(object("name", "app.settings.update", "arguments", "customInstructions?:string,standingGoals?:string,toolPermissions?:{catalogTool:boolean},autonomyEnabled?:boolean,heartbeatSeconds?:60..86400,memoryReviewEnabled?:boolean,phoneContextEnabled?:boolean,semanticSearchEnabled?:boolean,replyNotificationsEnabled?:boolean,toolRoundLimit?:integer>=0(0=unlimited),toolActionsPerTurnLimit?:integer>=0(0=unlimited),replyLockscreenContentVisible?:boolean,replySystemContextualActionsEnabled?:boolean,workFileDownloadsEnabled?:boolean,backupMaxGiB?:1..64,wakeMode?:continuous|while_working|charging,requiredModel?:gpt-6-sol|gpt-6.1-sol|gpt-6-astra,requiredEffort?:low|medium|high|xhigh|max|ultra,requiredSpeed?:fast|standard,usageOptimizationEnabled?:boolean,backgroundSpeed?:fast|standard,autonomousEffort?:low|medium|high|xhigh|max|ultra,memoryMinimumEffort?:medium|high|xhigh|max|ultra,budgetBasis?:pool_per_day|daily_share,budgetTargetPercent?:number(0..100]"));
         append(catalog, accountTools.catalog());
         append(catalog, files.catalog());
         append(catalog, phoneTools.catalog());
@@ -2304,7 +2308,7 @@ public final class AssistantRuntime {
         }
         if("app.routing.session.get".equals(name)){rejectUnknown(args);return foregroundRouting.snapshot();}
         if("app.routing.session.set".equals(name)) {
-            rejectUnknown(args,"model","effort","reset");
+            rejectUnknown(args,"model","effort","speed","reset");
             if(args.has("reset")&&!(args.opt("reset") instanceof Boolean))throw new IllegalArgumentException("reset must be boolean");
             String root=store.getSetting("requestRoot:"+completingRequestId,completingRequestId);
             String sessionId=store.getSetting("ownerRoutingSessionId:"+root,"");
@@ -2312,7 +2316,8 @@ public final class AssistantRuntime {
             JSONObject current=foregroundRouting.snapshot();
             String model=args.optString("model",current.optBoolean("selected")?current.optString("model"):store.getSetting("requiredModel","gpt-6.1-sol"));
             String effort=args.optString("effort",current.optBoolean("selected")?current.optString("effort"):store.getSetting("requiredEffort","medium"));
-            JSONObject result=foregroundRouting.select(sessionId,revision,model,effort,args.optBoolean("reset"));
+            String speed=args.optString("speed",current.optBoolean("selected")?current.optString("speed","fast"):store.getSetting("requiredSpeed","fast"));
+            JSONObject result=foregroundRouting.select(sessionId,revision,model,effort,speed,args.optBoolean("reset"));
             if(result.optBoolean("ok")) {
                 // Explicit chat selection changes this task's subsequent calls as requested,
                 // and subsequent new owner messages. Leaving the screen never rewrites it.

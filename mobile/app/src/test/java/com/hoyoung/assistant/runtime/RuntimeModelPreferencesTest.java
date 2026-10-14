@@ -31,11 +31,11 @@ public final class RuntimeModelPreferencesTest {
     }
     @Test public void newPersistedChoiceRequiresExactObservedModelEffortAndSpeed()throws Exception{
         choose("gpt-6.2-sol","high","standard");JSONObject request=runtime.receive("새 모델 선택 테스트",new JSONArray());observed("gpt-6.1-sol","medium","fast");assertFalse(runtime.state().getBoolean("ready"));assertEquals(0,transport.ids.size());
-        observed("gpt-6.2-sol","medium","fast");assertEquals(0,transport.ids.size());observed("gpt-6.2-sol","high","standard");assertEquals(0,transport.ids.size());observed("gpt-6.2-sol","high","fast");assertTrue(runtime.state().getBoolean("ready"));assertEquals(request.getString("external_id"),transport.ids.get(0));
+        observed("gpt-6.2-sol","medium","fast");assertEquals(0,transport.ids.size());observed("gpt-6.2-sol","high","fast");assertEquals(0,transport.ids.size());observed("gpt-6.2-sol","high","standard");assertTrue(runtime.state().getBoolean("ready"));assertEquals(request.getString("external_id"),transport.ids.get(0));
     }
     @Test public void similarModelPrefixCannotSatisfyExactNewSelection()throws Exception{
-        choose("gpt-6.2-sol","high","standard");JSONObject request=runtime.receive("접두어 오인 금지",new JSONArray());for(String wrong:new String[]{"gpt-6.20-sol","gpt-6.2-solar","gpt-6.2-sol-preview"}){observed(wrong,"high","fast");assertFalse(runtime.state().getBoolean("ready"));assertEquals(0,transport.ids.size());}
-        observed("6.2-sol","high","fast");assertEquals(request.getString("external_id"),transport.ids.get(0));
+        choose("gpt-6.2-sol","high","standard");JSONObject request=runtime.receive("접두어 오인 금지",new JSONArray());for(String wrong:new String[]{"gpt-6.20-sol","gpt-6.2-solar","gpt-6.2-sol-preview"}){observed(wrong,"high","standard");assertFalse(runtime.state().getBoolean("ready"));assertEquals(0,transport.ids.size());}
+        observed("6.2-sol","high","standard");assertEquals(request.getString("external_id"),transport.ids.get(0));
     }
     @Test public void invalidCombinedSettingsUpdateCannotPartiallyChangeOtherInstructions()throws Exception{
         observed("gpt-6.1-sol","medium","fast");JSONObject[] invalid={object("requiredModel","6.2 sol"),object("requiredEffort","extreme"),object("requiredSpeed","turbo"),object("requiredModel",JSONObject.NULL)};
@@ -47,7 +47,7 @@ public final class RuntimeModelPreferencesTest {
     @Test public void validConversationSettingsPersistThenGateContinuationUntilNewSelectionObserved()throws Exception{
         observed("gpt-6.1-sol","medium","fast");JSONObject request=runtime.receive("다음부터 모델을 바꿔",new JSONArray());complete(request,settingsEnvelope(request,"change",object("requiredModel","gpt-6.2-sol","requiredEffort","high","requiredSpeed","standard","customInstructions","updated owner instructions")));
         assertEquals("gpt-6.2-sol",store.getSetting("requiredModel",""));assertEquals("high",store.getSetting("requiredEffort",""));assertEquals("standard",store.getSetting("requiredSpeed",""));assertEquals("updated owner instructions",store.getSetting("customInstructions",""));assertFalse(runtime.state().getBoolean("ready"));assertEquals(1,transport.ids.size());
-        observed("gpt-6.2-sol","high","standard");assertEquals(1,transport.ids.size());observed("gpt-6.2-sol","high","fast");assertEquals(2,transport.ids.size());assertTrue(runtime.state().getBoolean("ready"));assertEquals("tool-continuation",active().getString("kind"));
+        observed("gpt-6.2-sol","high","fast");assertEquals(1,transport.ids.size());observed("gpt-6.2-sol","high","standard");assertEquals(2,transport.ids.size());assertTrue(runtime.state().getBoolean("ready"));assertEquals("tool-continuation",active().getString("kind"));
     }
     @Test public void malformedPersistedPreferencesFailClosedEvenWhenBrowserDefaultLooksReady()throws Exception{
         choose("broken model","medium","fast");runtime.receive("설정이 손상된 상황",new JSONArray());observed("gpt-6.1-sol","medium","fast");assertFalse(runtime.state().getBoolean("ready"));assertEquals(0,transport.ids.size());

@@ -86,6 +86,63 @@ const send = (page, extra = {}) => page.evaluate(payload => window.HoyoungWorkBr
 const advance = (page, milliseconds) => page.clock.runFor(milliseconds);
 const events = page => page.evaluate(() => window.events);
 
+test('mobile combined model and effort label remains readable with a collapsed signed-in sidebar', async () => {
+  await pageFixture(async page => {
+    const current = await inspect(page);
+    assert.equal(current.state.authenticated, true);
+    assert.equal(current.state.model, 'gpt-6.1-sol');
+    assert.equal(current.state.effort, 'medium');
+    assert.equal(current.code, 'ready');
+    await page.evaluate(() => {
+      const button = document.createElement('button'); button.textContent = '로그인'; document.querySelector('header').append(button);
+    });
+    assert.equal((await inspect(page)).code, 'authentication_required');
+  }, { setup: `document.querySelector('[data-testid="model-switcher-dropdown-button"]').textContent='GPT-6.1 Sol Medium'; document.querySelector('#effort').remove(); document.querySelector('[data-testid="user-menu-button"]').hidden=true;` });
+});
+
+test('mobile Fast switch is read explicitly, may turn off, and survives closing its observed model menu', async () => {
+  const mobileMenu = `
+    document.querySelector('#effort').remove(); document.querySelector('#speed').remove();
+    const picker = document.querySelector('[data-testid="model-switcher-dropdown-button"]');
+    picker.textContent='GPT-6.1 Sol Medium'; picker.id='mobile-picker'; picker.setAttribute('aria-haspopup','menu'); picker.setAttribute('aria-controls','mobile-menu');
+    window.modelMenuOpens=0; window.fastChanges=0; window.isFast=true;
+    picker.addEventListener('click',()=>{
+      window.modelMenuOpens++; const menu=document.createElement('div'); menu.id='mobile-menu'; menu.setAttribute('role','menu'); menu.setAttribute('aria-labelledby','mobile-picker');
+      const fast=document.createElement('button'); fast.type='button'; fast.setAttribute('role','switch'); fast.textContent='Fast'; fast.setAttribute('aria-checked',String(window.isFast));
+      fast.addEventListener('click',()=>{window.fastChanges++;window.isFast=!window.isFast;fast.setAttribute('aria-checked',String(window.isFast));});menu.append(fast);document.body.append(menu);
+    });
+    document.querySelector('#prompt-textarea').addEventListener('focus',()=>document.querySelector('#mobile-menu')?.remove());
+  `;
+  await pageFixture(async page => {
+    assert.equal((await inspect(page)).code, 'speed_unverified');
+    await page.evaluate(() => window.HoyoungWorkBridge.ensurePreferences({requiredModel:'gpt-6.1-sol', requiredEffort:'medium', requiredSpeed:'standard'}));
+    await advance(page, 1_000);
+    assert.equal((await inspect(page)).state.speed, 'standard');
+    assert.equal((await inspect(page)).code, 'ready');
+    assert.equal(await page.evaluate(() => window.fastChanges), 1);
+    const submitted = await send(page, { requiredSpeed:'standard' });
+    assert.equal(submitted.ok, true); await advance(page, 500); assert.equal(await page.evaluate(() => window.clicks), 1);
+    assert.equal((await inspect(page)).state.speed, 'standard');
+  }, { setup: mobileMenu });
+  await pageFixture(async page => {
+    await page.evaluate(() => window.HoyoungWorkBridge.ensurePreferences({requiredModel:'gpt-6.1-sol', requiredEffort:'medium', requiredSpeed:'fast'}));
+    await advance(page, 1_000);
+    assert.equal((await inspect(page)).code, 'ready');
+    assert.equal(await page.evaluate(() => window.fastChanges), 0);
+    assert.equal(await page.evaluate(() => window.modelMenuOpens), 1);
+  }, { setup: mobileMenu });
+});
+
+test('mobile combined labels never infer speed, temporary mode or Work selection from the desired settings', async () => {
+  await pageFixture(async page => {
+    assert.equal((await inspect(page)).code, 'temporary_unverified');
+    assert.equal((await send(page)).ok, false);
+    await page.evaluate(() => document.querySelector('#temporary').setAttribute('aria-pressed','true'));
+    assert.equal((await inspect(page)).code, 'speed_unverified');
+    assert.equal((await send(page)).ok, false);assert.equal(await page.evaluate(() => window.clicks), 0);
+  }, { setup: `document.querySelector('[data-testid="model-switcher-dropdown-button"]').textContent='GPT-6.1 Sol Medium';document.querySelector('#effort').remove();document.querySelector('#speed').remove();document.querySelector('#temporary').setAttribute('aria-pressed','false');` });
+});
+
 // Explicit, observed menu choices with selected-state acknowledgements. These
 // fixtures do not assert that a real account exposes these particular options.
 const preferenceMenus = `

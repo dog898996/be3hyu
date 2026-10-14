@@ -13,24 +13,24 @@ import static org.junit.Assert.*;
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk=28,application=Application.class)
 public final class ModelRoutingPolicyTest {
-    @Test public void ownerGoesDirectlyToMediumFastEvenWithBackgroundAndLegacyStandard() throws Exception {
+    @Test public void ownerHonorsStandardIndependentlyOfOptimization() throws Exception {
         JSONObject settings=object("requiredEffort","low","requiredSpeed","standard","backgroundSpeed","standard");
         JSONObject route=choose(settings,"user","user",false,false,"");
-        assertRoute(route,"medium","fast","owner",false);
-        assertEquals("owner_direct_fast",route.getString("reason"));
+        assertRoute(route,"medium","standard","owner",false);
+        assertEquals("owner_direct_standard",route.getString("reason"));
         assertFalse("Requested selection is not evidence of backend application",route.getBoolean("backendModelAppliedVerified"));
     }
 
     @Test public void ownerHigherEffortIsNeverReducedToMediumByOptimization() throws Exception {
         for(String effort:new String[]{"high","xhigh","max","ultra"}) {
             JSONObject route=choose(object("requiredEffort",effort,"requiredSpeed","standard"),"user","user",false,false,"");
-            assertRoute(route,effort,"fast","owner",false);
+            assertRoute(route,effort,"standard","owner",false);
         }
     }
 
-    @Test public void ownerToolContinuationRetainsFastAndOwnerQualityFloor() throws Exception {
+    @Test public void ownerToolContinuationRetainsChosenSpeedAndOwnerQualityFloor() throws Exception {
         JSONObject route=choose(object("requiredEffort","low","requiredSpeed","standard"),"tool-continuation","user",true,true,"high");
-        assertRoute(route,"high","fast","owner",false);
+        assertRoute(route,"high","standard","owner",false);
     }
 
     @Test public void ownerKindHasPriorityEvenWhenPurposeLooksLikeBackgroundReview() throws Exception {
@@ -114,18 +114,18 @@ public final class ModelRoutingPolicyTest {
         assertRoute(choose(settings,"autonomy","autonomy",true,false,""),"medium","standard","memory",false);
     }
 
-    @Test public void optimizationDisabledPreservesLegacyBackgroundButOwnerStillFast() throws Exception {
+    @Test public void optimizationDisabledPreservesOwnerAndBackgroundSpeed() throws Exception {
         JSONObject settings=object("usageOptimizationEnabled",false,"requiredEffort","low","requiredSpeed","standard");
         assertRoute(choose(settings,"autonomy","autonomy",false,true,""),"medium","standard","legacy",false);
-        assertRoute(choose(settings,"user","user",false,false,""),"medium","fast","owner",false);
-        assertRoute(choose(settings,"tool-continuation","user",false,false,""),"medium","fast","owner",false);
+        assertRoute(choose(settings,"user","user",false,false,""),"medium","standard","owner",false);
+        assertRoute(choose(settings,"tool-continuation","user",false,false,""),"medium","standard","owner",false);
     }
     @Test public void disablingOptimizationPreservesExplicitAutonomyEffortForWorkAndReview() throws Exception {
         JSONObject settings=object("usageOptimizationEnabled",false,"requiredEffort","medium","requiredSpeed","standard","autonomousEffort","xhigh");
         assertRoute(choose(settings,"autonomy","autonomy",false,true,""),"xhigh","standard","legacy",false);
         assertRoute(choose(settings,"tool-continuation","autonomy",false,false,""),"xhigh","standard","legacy",false);
         assertRoute(choose(settings,"tool-continuation","autonomy",true,true,""),"xhigh","standard","memory",false);
-        assertRoute(choose(settings,"user","user",false,false,""),"medium","fast","owner",false);
+        assertRoute(choose(settings,"user","user",false,false,""),"medium","standard","owner",false);
     }
     @Test public void turningOptimizationOffCannotLowerTheMemoryWriterBelowMedium() throws Exception {
         JSONObject settings=object("usageOptimizationEnabled",false,"requiredEffort","low","requiredSpeed","standard","memoryMinimumEffort","low");

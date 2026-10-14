@@ -5,23 +5,26 @@ import java.util.UUID;
 
 /** Visible-screen selection only. Accepted work keeps its own durable copy. */
 public final class ForegroundRoutingSession {
-    private String id = "", model = "", effort = "";
+    private String id = "", model = "", effort = "", speed = "";
     private long revision;
 
     public synchronized void enter() {
         if (id.isEmpty()) { id = UUID.randomUUID().toString(); revision++; }
     }
-    public synchronized void leave() { id = ""; model = ""; effort = ""; revision++; }
-    public synchronized void resetSelection(){if(!id.isEmpty())id=UUID.randomUUID().toString();model="";effort="";revision++;}
+    public synchronized void leave() { id = ""; model = ""; effort = ""; speed = ""; revision++; }
+    public synchronized void resetSelection(){if(!id.isEmpty())id=UUID.randomUUID().toString();model="";effort="";speed="";revision++;}
     public synchronized JSONObject snapshot() {
         return json("sessionId", id, "revision", revision, "visible", !id.isEmpty(),
-                "selected", !effort.isEmpty(), "model", model, "effort", effort, "speed", "fast");
+                "selected", !effort.isEmpty(), "model", model, "effort", effort, "speed", speed);
     }
     public synchronized JSONObject select(String expectedId, long expectedRevision, String model, String effort, boolean reset) {
+        return select(expectedId, expectedRevision, model, effort, speed.isEmpty() ? "fast" : speed, reset);
+    }
+    public synchronized JSONObject select(String expectedId, long expectedRevision, String model, String effort, String speed, boolean reset) {
         if (id.isEmpty() || !id.equals(expectedId) || revision != expectedRevision)
             return json("ok", false, "code", "screen_selection_changed", "message", "화면을 떠났거나 더 최근 선택이 있어. 현재 선택을 다시 확인해 줘.");
-        if (!reset) AssistantRuntime.validateModelPreferences(model, effort, "fast");
-        this.model = reset ? "" : model; this.effort = reset ? "" : effort; revision++;
+        if (!reset) AssistantRuntime.validateModelPreferences(model, effort, speed);
+        this.model = reset ? "" : model; this.effort = reset ? "" : effort; this.speed = reset ? "" : speed; revision++;
         JSONObject result = snapshot(); put(result, "ok", true); return result;
     }
     static JSONObject json(Object... fields) {

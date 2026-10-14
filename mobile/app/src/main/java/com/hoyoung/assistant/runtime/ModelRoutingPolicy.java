@@ -23,7 +23,7 @@ public final class ModelRoutingPolicy {
         String effort,speed,lane,reason;
         boolean decisionOnly=false;
         if(owner) {
-            effort=atLeast(ownerEffort,"medium",minimumEffort);speed="fast";lane="owner";reason="owner_direct_fast";
+            effort=atLeast(ownerEffort,"medium",minimumEffort);speed=legacySpeed;lane="owner";reason="owner_direct_"+speed;
         } else if(!optimize) {
             boolean writer="memory-review".equals(purpose)||reviewPending;
             effort=writer?atLeast(ownerEffort,config.optString("memoryMinimumEffort","medium"),"medium",autonomyFloor,minimumEffort)

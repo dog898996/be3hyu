@@ -67,6 +67,7 @@ public final class MainActivity extends Activity {
     private static final int PICK_FILES = 201, EXPORT_BACKUP = 202, IMPORT_BACKUP = 203, WORK_FILE_PICKER = 204, EXPORT_FILE = 205, OWNER_FOLDER = 206, PICK_PROFILE = 207;
     private TextView ownerFolderState;
     private TextView usageBudgetState;
+    private TextView workConnectionDetails;
     private final Handler main = new Handler(Looper.getMainLooper());
     private final ExecutorService io = Executors.newSingleThreadExecutor();
     private final ExecutorService commands = Executors.newSingleThreadExecutor();
@@ -688,13 +689,31 @@ public final class MainActivity extends Activity {
     }
     private void resolveGoal(String rootId, String stage) { io.execute(() -> { app.getRuntime().getGoalLedger().resolve(rootId, stage, "사용자가 앱 목표 목록에서 직접 정리"); main.post(() -> { notice("추적 상태를 정리했어. 원문과 영수증은 보관돼."); showMemory(); }); }); }
 
+    private void copyConnectionDiagnosis() {
+            JSONObject diagnosis = app.getRuntime().state();
+            // Progress can contain a streamed answer; diagnostics are state flags only.
+            diagnosis.remove("progress");
+            JSONObject budget = diagnosis.optJSONObject("usageBudget");
+            if (budget != null) {
+                budget.remove("observation"); budget.remove("latestProviderObservation");
+                budget.remove("accountScope"); budget.remove("poolId"); budget.remove("evidenceRef");
+            }
+            try { diagnosis.put("androidSdk", android.os.Build.VERSION.SDK_INT).put("appVersion", getPackageManager().getPackageInfo(getPackageName(), 0).versionName).put("permissions", new PermissionCatalog(this).snapshot()); }
+            catch (Exception ignored) { }
+            android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+            if (clipboard != null) { clipboard.setPrimaryClip(android.content.ClipData.newPlainText("호영이 연결 진단", diagnosis.toString())); notice("연결·권한 상태만 복사했어. 비밀번호·대화·알림 본문은 포함하지 않아."); }
+    }
+
     private void showWork() {
-        TextView help = label("여기서 본인 ChatGPT에 로그인하고 Work · 임시 채팅 · 설정에서 정한 모델·강도·속도를 선택해. 기본값은 GPT-6.1 Sol · Medium · Fast야. 선택 상태가 확인되면 요청을 보낼 수 있어.", 13, SUBTLE);
+        TextView help = label("① 아래에서 ChatGPT 로그인  ② Work·임시 채팅 선택  ③ 연결 확인. 모델·강도·속도는 앱에서 정한 값으로 맞춰. 접수가 확인되면 대화에 읽음이 표시돼.", 13, SUBTLE);
         help.setPadding(dp(16), dp(14), dp(16), dp(14)); content.addView(help);
+        workConnectionDetails=label("연결 상태 확인 중",12,SUBTLE);workConnectionDetails.setPadding(dp(16),0,dp(16),dp(8));
+        workConnectionDetails.setContentDescription("Work 연결 상세");content.addView(workConnectionDetails);
         LinearLayout controls = row();
-        controls.addView(button("선택 확인", () -> app.getWebController().inspect()), new LinearLayout.LayoutParams(0, dp(46), 1));
+        controls.addView(button("연결 확인", () -> app.getWebController().inspect()), new LinearLayout.LayoutParams(0, dp(46), 1));
         controls.addView(button("Work 선택", () -> app.getWebController().selectWork()), new LinearLayout.LayoutParams(0, dp(46), 1));
         controls.addView(button("검증 요청", () -> {
+            if(!app.getRuntime().state().optBoolean("ready")){app.getWebController().inspect();notice("아직 연결 준비가 안 됐어. Work 탭의 상세 안내부터 확인해 줘.");return;}
             app.getRuntime().receive("연결 검증만 수행해. Work의 실제 클라우드 코드 실행 도구가 있다면 Python으로 2+2를 계산하고 임시 작업 파일 hoyoung-connection-check.txt에 그 결과를 기록해. 실제 실행 결과와 사용한 도구를 보고하고, 클라우드 도구가 없으면 없다고 정확히 말해. 폰 연결은 phone_device_info 도구로 최소 상태만 확인해. 로그인 계정 변경·외부 메시지·결제·개인 연락처나 알림 읽기는 하지 마. 실제 도구 결과 없이 검증 통과라고 만들지 마.", new JSONArray());
             showTab("대화");
         }), new LinearLayout.LayoutParams(0, dp(46), 1));
@@ -706,6 +725,7 @@ public final class MainActivity extends Activity {
             try { app.getRuntime().openTemporary(); }
             catch (Exception e) { notice("기존 작업의 결과를 먼저 확인하거나 설정에서 해당 작업을 제외해 줘."); }
         }), new LinearLayout.LayoutParams(0, dp(46), 1));
+        controls.addView(button("연결 진단 복사",this::copyConnectionDiagnosis));
         android.widget.HorizontalScrollView controlsScroll=new android.widget.HorizontalScrollView(this);controlsScroll.setHorizontalScrollBarEnabled(false);controlsScroll.setPadding(dp(12),0,dp(12),dp(10));
         for(int i=0;i<controls.getChildCount();i++){View control=controls.getChildAt(i);LinearLayout.LayoutParams params=new LinearLayout.LayoutParams(-2,dp(48));params.rightMargin=dp(8);control.setLayoutParams(params);}
         controlsScroll.addView(controls);content.addView(controlsScroll);
@@ -1236,7 +1256,7 @@ public final class MainActivity extends Activity {
         panel.addView(label("사용량 절약 · 하루 10% 목표", 17, INK));
         CheckBox optimize = new CheckBox(this); optimize.setText("판단·기억 처리에 맞춰 실행 옵션 분리");
         optimize.setChecked("true".equals(app.getStore().getSetting("usageOptimizationEnabled", "true"))); panel.addView(optimize);
-        panel.addView(label("네 대화와 지시의 응답은 Fast를 유지해. 정기 판단은 기본 Medium·Standard, 기억 검토는 최소 Medium으로 분리해. 판단 간격과 기억 보관량은 줄이지 않아. Fast 선택이 실제로 확인되어야 전송하며, 즉시 답변 완료를 보장하는 설정은 아니야.", 12, SUBTLE));
+        panel.addView(label("대화 응답은 아래 Fast 스위치를 따라. 정기 판단은 기본 Medium·Standard, 기억 검토는 최소 Medium으로 분리해. 판단 간격과 기억 보관량은 줄이지 않아.", 12, SUBTLE));
         usageBudgetState = label(usageBudgetDescription(app.getRuntime().state().optJSONObject("usageBudget")), 13, INK);
         panel.addView(usageBudgetState);
         panel.addView(label("공개된 고정 하루 토큰 한도는 없어. 아래 목표는 사용량 화면의 한도 비율을 기준으로 해. 실제 사용량을 확인하지 못하면 10% 달성으로 표시하지 않아. 다른 ChatGPT·Codex 작업도 같은 계정 한도를 사용할 수 있어.", 12, SUBTLE));
@@ -1265,26 +1285,20 @@ public final class MainActivity extends Activity {
         backgroundSpeedChoice.setSelection(Math.max(0, java.util.Arrays.asList(backgroundSpeeds).indexOf(app.getStore().getSetting("backgroundSpeed", "standard")))); panel.addView(backgroundSpeedChoice);
         panel.addView(label("기본 모델과 응답 속도", 17, INK));
         panel.addView(label("여기서 저장한 값은 영구 설정이야. 채팅에서도 ‘앞으로 계속’이라고 바꿀 수 있어. 이번 화면에서만 바꿀 때는 보내기 옆 모델 버튼을 사용해.",12,SUBTLE));
-        panel.addView(label("기본값은 GPT-6.1 Sol · Medium · Fast야. 추론 강도는 사용자 응답의 품질 기준이야. 사용량 절약을 켜면 응답 속도는 Fast로 고정하고, 백그라운드 선택을 별도로 사용해. 모델이 바뀌면 여기서 요구값을 수정해. Work에서 선택이 확인될 때만 전송해.", 12, SUBTLE));
-        EditText modelChoice = new EditText(this); modelChoice.setSingleLine(true); modelChoice.setHint("gpt-6.1-sol"); modelChoice.setText(app.getStore().getSetting("requiredModel", "gpt-6.1-sol")); panel.addView(modelChoice);
-        android.widget.Spinner effortChoice = new android.widget.Spinner(this), speedChoice = new android.widget.Spinner(this);
-        String[] efforts = {"low", "medium", "high", "xhigh", "max", "ultra"}, speeds = {"fast", "standard"};
+        panel.addView(label("기본값은 6.1 Sol · Medium · Fast야. Fast를 끄면 Standard로 실행해. 사용량 절약을 켜도 네 속도 선택은 유지하고, 정기 판단은 별도 설정을 따라. 실제 Work에서 선택을 확인한 뒤 전송해.", 12, SUBTLE));
+        android.widget.Spinner modelChoice = modelChoice(app.getStore().getSetting("requiredModel", "gpt-6.1-sol"), "기본 모델"); panel.addView(modelChoice);
+        android.widget.Spinner effortChoice = new android.widget.Spinner(this); effortChoice.setContentDescription("기본 추론 강도");
+        android.widget.Switch fastChoice = fastChoice(app.getStore().getSetting("requiredSpeed", "fast"), "기본 Fast");
+        String[] efforts = {"low", "medium", "high", "xhigh", "max", "ultra"};
         effortChoice.setAdapter(new android.widget.ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, efforts));
-        speedChoice.setAdapter(new android.widget.ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, speeds));
         effortChoice.setSelection(Math.max(0, java.util.Arrays.asList(efforts).indexOf(app.getStore().getSetting("requiredEffort", "medium"))));
-        speedChoice.setSelection(Math.max(0, java.util.Arrays.asList(speeds).indexOf(app.getStore().getSetting("requiredSpeed", "fast"))));
-        panel.addView(effortChoice); panel.addView(speedChoice);
-        if (optimize.isChecked()) { speedChoice.setSelection(0); speedChoice.setEnabled(false); }
-        optimize.setOnCheckedChangeListener((view, enabled) -> {
-            speedChoice.setEnabled(!enabled);
-            if (enabled) speedChoice.setSelection(0);
-        });
+        panel.addView(effortChoice); panel.addView(fastChoice);
         EditText instructions = new EditText(this); instructions.setMinLines(8); instructions.setGravity(Gravity.TOP);
         instructions.setText(app.getStore().getSetting("customInstructions", bundledInstructions())); panel.addView(instructions);
         java.util.function.Supplier<JSONObject> formValues=()->settingsObject(
             "heartbeatSeconds",interval.getText().toString(),"backupMaxGiB",backupLimit.getText().toString(),"budgetTargetPercent",budgetTarget.getText().toString(),
             "standingGoals",goals.getText().toString(),"customInstructions",instructions.getText().toString(),
-            "requiredModel",modelChoice.getText().toString().trim(),"requiredEffort",efforts[effortChoice.getSelectedItemPosition()],"requiredSpeed",optimize.isChecked()?"fast":speeds[speedChoice.getSelectedItemPosition()],
+            "requiredModel",com.hoyoung.assistant.ui.ModelChoices.id(modelChoice.getSelectedItemPosition()),"requiredEffort",efforts[effortChoice.getSelectedItemPosition()],"requiredSpeed",fastChoice.isChecked()?"fast":"standard",
             "usageOptimizationEnabled",optimize.isChecked(),"autonomousEffort",autonomyEfforts[autonomyEffortChoice.getSelectedItemPosition()],
             "memoryMinimumEffort",memoryEfforts[memoryEffortChoice.getSelectedItemPosition()],"backgroundSpeed",backgroundSpeeds[backgroundSpeedChoice.getSelectedItemPosition()],"budgetBasis",budgetBases[budgetBasisChoice.getSelectedItemPosition()]);
         JSONObject initialForm=formValues.get();
@@ -1293,7 +1307,7 @@ public final class MainActivity extends Activity {
                 int seconds = Integer.parseInt(interval.getText().toString()); if (seconds < 60 || seconds > 86400) throw new IllegalArgumentException();
                 int backupGiB = Integer.parseInt(backupLimit.getText().toString()); if (backupGiB < 1 || backupGiB > 64) throw new IllegalArgumentException();
                 double targetPercent = Double.parseDouble(budgetTarget.getText().toString()); if (!Double.isFinite(targetPercent) || targetPercent < 1 || targetPercent > 100) throw new IllegalArgumentException();
-                String chosenModel = modelChoice.getText().toString().trim(), chosenEffort = efforts[effortChoice.getSelectedItemPosition()], chosenSpeed = optimize.isChecked() ? "fast" : speeds[speedChoice.getSelectedItemPosition()];
+                String chosenModel = com.hoyoung.assistant.ui.ModelChoices.id(modelChoice.getSelectedItemPosition()), chosenEffort = efforts[effortChoice.getSelectedItemPosition()], chosenSpeed = fastChoice.isChecked() ? "fast" : "standard";
                 com.hoyoung.assistant.runtime.AssistantRuntime.validateModelPreferences(chosenModel, chosenEffort, chosenSpeed);
                 String goalText = goals.getText().toString(), instructionText = instructions.getText().toString();
                 if (goalText.length() > 50_000 || instructionText.length() > 50_000) throw new IllegalArgumentException();
@@ -1307,23 +1321,10 @@ public final class MainActivity extends Activity {
                 for(java.util.Iterator<String> keys=patch.keys();keys.hasNext();){String key=keys.next();baseline.put(key,saved.opt(key));initialForm.put(key,desired.opt(key));}
                 AutonomyService.reevaluateActiveService();refreshModelSelector();
                 notice("변경한 지침과 영구 설정을 저장했어.");
-            } catch (Exception e) { notice("판단 간격은 60~86,400초, 백업 한도는 1~64GiB, 사용량 목표는 1~100%, 모델은 gpt-… 형식, 지침과 목표는 각각 50,000자 이내로 입력해."); }
+            } catch (Exception e) { notice("판단 간격은 60~86,400초, 백업 한도는 1~64GiB, 사용량 목표는 1~100%, 지침과 목표는 각각 50,000자 이내로 입력해."); }
         }));
         panel.addView(button("한도·연결 상태 다시 확인", () -> { app.getWebController().manualRetryCheck(); refreshStatus(); }));
-        panel.addView(button("연결 진단 복사", () -> {
-            JSONObject diagnosis = app.getRuntime().state();
-            // Progress can contain a streamed answer; diagnostics are state flags only.
-            diagnosis.remove("progress");
-            JSONObject budget = diagnosis.optJSONObject("usageBudget");
-            if (budget != null) {
-                budget.remove("observation"); budget.remove("latestProviderObservation");
-                budget.remove("accountScope"); budget.remove("poolId"); budget.remove("evidenceRef");
-            }
-            try { diagnosis.put("androidSdk", android.os.Build.VERSION.SDK_INT).put("appVersion", getPackageManager().getPackageInfo(getPackageName(), 0).versionName).put("permissions", new PermissionCatalog(this).snapshot()); }
-            catch (Exception ignored) { }
-            android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-            if (clipboard != null) { clipboard.setPrimaryClip(android.content.ClipData.newPlainText("호영이 연결 진단", diagnosis.toString())); notice("연결·권한 상태만 복사했어. 비밀번호·대화·알림 본문은 포함하지 않아."); }
-        }));
+        panel.addView(button("연결 진단 복사", this::copyConnectionDiagnosis));
         panel.addView(label("확인되지 않은 작업", 20, INK));
         JSONArray requests = app.getStore().listRequests(30);
         for (int i = 0; i < requests.length(); i++) {
@@ -1467,31 +1468,40 @@ public final class MainActivity extends Activity {
         JSONObject current=app.getRuntime().foregroundRoutingState();boolean selected=current.optBoolean("selected");
         String model=selected?current.optString("model"):app.getStore().getSetting("requiredModel","gpt-6.1-sol");
         String effort=selected?current.optString("effort"):app.getStore().getSetting("requiredEffort","medium");
-        String speed="fast";
-        modelSelector.setText(model.replace("gpt-","").replace("-sol"," Sol")+" · "+effortLabel(effort)+"⌄");
+        String speed=selected?current.optString("speed","fast"):app.getStore().getSetting("requiredSpeed","fast");
+        modelSelector.setText(com.hoyoung.assistant.ui.ModelChoices.label(model)+" · "+effortLabel(effort)+" · "+("fast".equals(speed)?"Fast":"Standard")+"⌄");
         modelSelector.setTextColor(selected?BLUE:INK);
         modelSelector.setContentDescription("이번 화면의 모델 선택 · "+model+" · "+effort+" · "+speed+(selected?" · 임시 선택":" · 기본 설정"));
     }
     private static String effortLabel(String effort){return switch(effort){case "low"->"Light";case "xhigh"->"XHigh";default->effort.isEmpty()?"Medium":Character.toUpperCase(effort.charAt(0))+effort.substring(1);};}
+    private android.widget.Spinner modelChoice(String value,String description){
+        android.widget.Spinner choice=new android.widget.Spinner(this);choice.setContentDescription(description);
+        choice.setAdapter(new android.widget.ArrayAdapter<>(this,android.R.layout.simple_spinner_dropdown_item,com.hoyoung.assistant.ui.ModelChoices.labels()));
+        choice.setSelection(com.hoyoung.assistant.ui.ModelChoices.index(value));return choice;
+    }
+    private android.widget.Switch fastChoice(String value,String description){
+        android.widget.Switch choice=new android.widget.Switch(this);choice.setText("Fast");choice.setContentDescription(description);choice.setChecked("fast".equals(value));
+        choice.setTextOn("켜짐");choice.setTextOff("꺼짐 · Standard");choice.setShowText(true);choice.setMinHeight(dp(48));return choice;
+    }
     private void showForegroundModelPicker(){
         JSONObject opening=app.getRuntime().foregroundRoutingState();if(!opening.optBoolean("visible"))return;
         LinearLayout panel=new com.hoyoung.assistant.ui.FormColumn(this);panel.setPadding(dp(20),dp(8),dp(20),dp(8));
         panel.addView(label("바꾸기 전까지 다음 메시지와 작업에 계속 적용해. 화면을 나가면 새 메시지는 영구 설정으로 돌아가고, 이미 맡긴 작업은 선택을 유지해. 정기 판단은 별도 설정을 따라.",13,SUBTLE));
-        EditText model=new EditText(this);model.setSingleLine(true);model.setHint("gpt-6.1-sol");model.setContentDescription("이번 화면 모델");
-        model.setText(opening.optBoolean("selected")?opening.optString("model"):app.getStore().getSetting("requiredModel","gpt-6.1-sol"));panel.addView(model);
+        android.widget.Spinner model=modelChoice(opening.optBoolean("selected")?opening.optString("model"):app.getStore().getSetting("requiredModel","gpt-6.1-sol"),"이번 화면 모델");panel.addView(model);
         String[] efforts={"low","medium","high","xhigh","max","ultra"};
         android.widget.Spinner effort=new android.widget.Spinner(this);effort.setContentDescription("이번 화면 추론 강도");effort.setAdapter(new android.widget.ArrayAdapter<>(this,android.R.layout.simple_spinner_dropdown_item,new String[]{"Light","Medium","High","XHigh","Max","Ultra"}));
         effort.setSelection(Math.max(0,java.util.Arrays.asList(efforts).indexOf(opening.optBoolean("selected")?opening.optString("effort"):app.getStore().getSetting("requiredEffort","medium"))));panel.addView(effort);
-        panel.addView(label("Fast · 응답과 작업에 적용",13,BLUE));
+        android.widget.Switch fast=fastChoice(opening.optBoolean("selected")?opening.optString("speed","fast"):app.getStore().getSetting("requiredSpeed","fast"),"이번 화면 Fast");panel.addView(fast);
+        panel.addView(label("Fast를 끄면 Standard · UltraFast는 사용하지 않아",12,SUBTLE));
         AlertDialog dialog=new ObservedDialogBuilder(this).setTitle("이번 화면의 모델").setView(panel).setPositiveButton("적용",null).setNeutralButton("기본 설정으로",null).setNegativeButton("닫기",null).create();
         dialog.show();UiAutomationProvenance.observeWindow(this,dialog.getWindow());
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v->applyForegroundChoice(dialog,opening,model.getText().toString().trim(),efforts[effort.getSelectedItemPosition()],false));
-        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(v->applyForegroundChoice(dialog,opening,"","",true));
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v->applyForegroundChoice(dialog,opening,com.hoyoung.assistant.ui.ModelChoices.id(model.getSelectedItemPosition()),efforts[effort.getSelectedItemPosition()],fast.isChecked()?"fast":"standard",false));
+        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(v->applyForegroundChoice(dialog,opening,"","","",true));
     }
-    private void applyForegroundChoice(AlertDialog dialog,JSONObject opening,String model,String effort,boolean reset){
-        try{JSONObject result=app.getRuntime().selectForegroundRouting(opening.optString("sessionId"),opening.optLong("revision"),model,effort,reset);
+    private void applyForegroundChoice(AlertDialog dialog,JSONObject opening,String model,String effort,String speed,boolean reset){
+        try{JSONObject result=app.getRuntime().selectForegroundRouting(opening.optString("sessionId"),opening.optLong("revision"),model,effort,speed,reset);
             if(!result.optBoolean("ok")){dialog.dismiss();notice(result.optString("message"));return;}dialog.dismiss();refreshModelSelector();
-        }catch(RuntimeException invalid){notice("모델은 gpt-… 형식으로 입력해 줘. 실제 Work에서 사용 가능한 모델이어야 해.");}
+        }catch(RuntimeException invalid){notice("모델과 추론 강도·속도를 다시 선택해 줘.");}
     }
 
     private void refreshStatus() {
@@ -1531,8 +1541,11 @@ public final class MainActivity extends Activity {
         }
         else if (web != null && web.optBoolean("loading")) connection.setText("Work 페이지 로딩 중");
         else connection.setText(switch (code) {
-            case "work_unverified" -> "Work 선택을 확인해 줘";
-            case "temporary_unverified" -> "임시 채팅 선택을 확인해 줘";
+            case "authentication_required" -> "ChatGPT 로그인 필요";
+            case "authentication_unverified" -> "로그인 상태를 확인하지 못했어";
+            case "page_load_failed" -> "Work 페이지 로드 실패";
+            case "work_control_unverified", "work_unverified" -> "Work 선택을 확인해 줘";
+            case "temporary_control_unverified", "temporary_unverified" -> "임시 채팅 선택을 확인해 줘";
             case "model_unverified" -> "설정에 지정한 모델 선택을 확인해 줘";
             case "effort_unverified" -> "설정에 지정한 추론 강도 선택을 확인해 줘";
             case "speed_unverified" -> "설정에 지정한 속도 선택을 확인해 줘";
@@ -1550,7 +1563,8 @@ public final class MainActivity extends Activity {
         if(blocked)connection.setText(state.optBoolean("quotaBlocked")?"사용 한도 대기 중":"작업 상태 확인 필요");
         else if(active)connection.setText("preparing".equals(state.optString("activePhase"))?"답변을 준비하고 있어":"응답을 기다리고 있어");
         else if(state.optBoolean("ready"))connection.setText("연결됨 · "+("true".equals(app.getStore().getSetting("autonomy.enabled","false"))?"자율 모드":"대화 준비 완료"));
-        else connection.setText(web!=null&&web.optBoolean("loading")?"Work 연결 중":"Work 연결 확인 필요");
+        else connection.setText("Work".equals(tab)?detail:(web!=null&&web.optBoolean("loading")?"Work 연결 중":"Work 연결 확인 필요"));
+        if("Work".equals(tab)&&workConnectionDetails!=null)workConnectionDetails.setText(com.hoyoung.assistant.ui.WorkConnectionStatus.describe(code,web));
         statusDot.setBackground(round(blocked?Color.rgb(203,146,81):state.optBoolean("ready")?Color.rgb(80,161,128):Color.rgb(177,171,191)));
         if(typingDots!=null&&typingRow!=null){boolean show=active&&state.optBoolean("activeOwnerReply")&&!blocked&&"대화".equals(tab);typingRow.setVisibility(show?View.VISIBLE:View.GONE);typingDots.setActive(show&&resumed);typingLabel.setText("preparing".equals(state.optString("activePhase"))?"기억을 살펴보고 있어":"답변을 기다리고 있어");}
     }

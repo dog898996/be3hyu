@@ -44,6 +44,31 @@ public class MainActivityRoutingProfileTest {
         app.sendBroadcast(new Intent(Intent.ACTION_SCREEN_OFF));Shadows.shadowOf(Looper.getMainLooper()).idle();assertFalse(app.getRuntime().foregroundRoutingState().optBoolean("selected"));
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick();assertFalse(app.getRuntime().foregroundRoutingState().optBoolean("selected"));
     }
+    @Test public void onlyThreeModelsAndFastToggleAreAvailableInComposerAndPermanentSettings()throws Exception{
+        ((TextView)get("modelSelector")).performClick();AlertDialog dialog=ShadowAlertDialog.getLatestAlertDialog();View window=dialog.getWindow().getDecorView();
+        Spinner models=(Spinner)MainActivityUiTestSupport.description(window,"이번 화면 모델");
+        assertEquals(3,models.getCount());assertEquals("6 Sol",models.getItemAtPosition(0));assertEquals("6.1 Sol",models.getItemAtPosition(1));assertEquals("Astra",models.getItemAtPosition(2));
+        assertNull(findHint(window,"gpt-6.1-sol"));models.setSelection(2);
+        Switch fast=(Switch)MainActivityUiTestSupport.description(window,"이번 화면 Fast");assertTrue(fast.isChecked());fast.setChecked(false);
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick();drain();
+        assertEquals("gpt-6-astra",app.getRuntime().foregroundRoutingState().optString("model"));assertEquals("standard",app.getRuntime().foregroundRoutingState().optString("speed"));
+        assertTrue(((TextView)get("modelSelector")).getText().toString().contains("Standard"));
+        MainActivityUiTestSupport.navigate(activity,"설정");
+        models=(Spinner)MainActivityUiTestSupport.description(root(),"기본 모델");assertEquals(3,models.getCount());models.setSelection(0);
+        fast=(Switch)MainActivityUiTestSupport.description(root(),"기본 Fast");assertTrue(fast.isEnabled());fast.setChecked(false);
+        MainActivityUiTestSupport.text(root(),"설정 저장").performClick();
+        assertEquals("true",app.getStore().getSetting("usageOptimizationEnabled","true"));assertEquals("standard",app.getStore().getSetting("requiredSpeed",""));assertEquals("gpt-6-sol",app.getStore().getSetting("requiredModel",""));
+        assertEquals("gpt-6-astra",app.getRuntime().foregroundRoutingState().optString("model"));
+    }
+    @Test public void workTabExplainsAuthenticationBlockerAndDoesNotQueueVerificationBeforeReady()throws Exception{
+        MainActivityUiTestSupport.navigate(activity,"Work");
+        app.getRuntime().onWebEvent(new JSONObject().put("type","state").put("code","authentication_unverified").put("state",new JSONObject().put("workSelected",true).put("temporary",false)));
+        Method refresh=MainActivity.class.getDeclaredMethod("refreshStatus");refresh.setAccessible(true);refresh.invoke(activity);
+        TextView detail=(TextView)MainActivityUiTestSupport.description(root(),"Work 연결 상세");
+        assertTrue(detail.getText().toString().contains("authentication_unverified"));assertTrue(detail.getText().toString().contains("웹 왼쪽 메뉴"));
+        assertTrue(((TextView)get("connection")).getText().toString().contains("로그인"));
+        int count=app.getStore().listRequests(100).length();MainActivityUiTestSupport.text(root(),"검증 요청").performClick();assertEquals(count,app.getStore().listRequests(100).length());
+    }
     @Test public void uneditedPermanentFieldsNeverOverwriteLaterChatChangesAndEditedConflictsAreRejected()throws Exception{
         MainActivityUiTestSupport.navigate(activity,"설정");EditText goals=findHint(root(),"계속 맡길 일과 목표");goals.setText("화면에서 편집한 목표");
         app.getRuntime().updatePersonalSettings(new JSONObject().put("requiredEffort","high"),null);

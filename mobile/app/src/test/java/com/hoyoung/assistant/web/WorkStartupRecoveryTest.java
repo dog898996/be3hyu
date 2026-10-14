@@ -66,6 +66,26 @@ public final class WorkStartupRecoveryTest {
         for (int i = 0; i < 10; i++) { assertNull(controller.getExistingView()); controller.inspect(); controller.unbindActivity(null); }
         idle(); assertEquals(0, calls[0]);
     }
+    @Test public void workSelectionFailureKeepsTheActualStepInsteadOfDiscardingItsReceipt() throws Exception {
+        List<RecordingView> views=new ArrayList<>();WorkWebController controller=controller(c->{RecordingView result=new RecordingView(c);views.add(result);return result;});
+        controller.start();idle();markLoaded(controller);RecordingView view=views.get(0);
+        controller.selectWork();idle();
+        view.callbacks.get(view.callbacks.size()-1).onReceiveValue(JSONObject.quote(object("ok",false,"code","temporary_control_unverified","state",object("authenticated",true,"workSelected",true,"temporary",false)).toString()));
+        assertEquals("temporary_control_unverified",runtime.state().optString("readinessCode"));assertFalse(runtime.state().optBoolean("ready"));
+        assertTrue(store.listMessages(20).toString().contains("새 임시 대화"));
+    }
+    @Test public void mainDocumentLoadFailureIsNotOverwrittenByPageFinishedOrRetriedAsNewWork() throws Exception {
+        List<RecordingView> views=new ArrayList<>();WorkWebController controller=controller(c->{RecordingView result=new RecordingView(c);views.add(result);return result;});
+        controller.start();idle();RecordingView view=views.get(0);WebViewClient client=shadowOf(view).getWebViewClient();
+        client.onPageStarted(view,"https://chatgpt.com/",null);
+        android.webkit.WebResourceRequest request=new android.webkit.WebResourceRequest(){
+            public android.net.Uri getUrl(){return android.net.Uri.parse("https://chatgpt.com/");}public boolean isForMainFrame(){return true;}public boolean isRedirect(){return false;}public boolean hasGesture(){return false;}public String getMethod(){return "GET";}public java.util.Map<String,String> getRequestHeaders(){return java.util.Collections.emptyMap();}
+        };
+        client.onReceivedError(view,request,null);
+        client.onPageFinished(view,"https://chatgpt.com/");
+        assertEquals("page_load_failed",runtime.state().optString("readinessCode"));assertFalse(runtime.state().optBoolean("ready"));assertFalse(runtime.state().getJSONObject("web").optBoolean("loading"));
+        advance(30_000);assertEquals(1,view.urlLoads);
+    }
 
     @Test public void repeatedStartsUseOneMonotonicOneFiveThirtySixtySecondBackoff() throws Exception {
         runtime.receive("대기 원문은 startup 실패해도 보존", new JSONArray());

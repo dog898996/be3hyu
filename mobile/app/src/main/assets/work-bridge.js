@@ -24,7 +24,8 @@
   const ANSWER = '.markdown, [data-markdown-text-style="assistant-message"], .puik-root.not-markdown > [class*="_DilResponseRoot"]';
   const FOOTER = 'button[data-testid="copy-turn-action-button"], .turn-action-controls button';
   const TRANSCRIPT = '[data-turn-key], [data-testid^="conversation-turn-"], [data-turn-id-container], [data-message-author-role], [data-conversation-role], [data-user-message-bubble]';
-  const CONTROL = 'button, [role="button"], [role="tab"], [role="switch"], [role="menuitemradio"], [role="radio"], a[aria-current]';
+  const CONTROL = 'button, [role="button"], [role="tab"], [role="switch"], [role="checkbox"], [role="menuitemcheckbox"], [role="menuitemradio"], [role="radio"], [role="option"], [role="menuitem"], a[aria-current]';
+  const MODEL_CONTROL = 'button[data-testid="model-switcher-dropdown-button"], button[data-codex-intelligence-trigger="true"], [data-model-picker-view-toggle="true"]';
   const STOP_ICON_PATH = 'M4.5 5.75C4.5 5.05964 5.05964 4.5 5.75 4.5H14.25C14.9404 4.5 15.5 5.05964 15.5 5.75V14.25C15.5 14.9404 14.9404 15.5 14.25 15.5H5.75C5.05964 15.5 4.5 14.9404 4.5 14.25V5.75Z';
   const DEFAULTS = { model: 'gpt-6.1-sol', effort: 'medium', speed: 'fast' };
   const MODEL_ID = /^gpt-[a-z0-9]+(?:[.-][a-z0-9]+)*$/;
@@ -61,6 +62,7 @@
   let lastStateKey = '';
   let lastQuotaKey = '';
   let quotaLatched = false;
+  let observedSpeed = null;
   let lastInputRequiredKey = '';
   const receipts = new Map();
   const seenRequestIds = new Set();
@@ -91,7 +93,8 @@
       || element.getAttribute('data-selected') === 'true';
   }
   function isWork(element) { return /^(?:Work|ChatGPT Work|Work mode|워크|작업|Work 모드)$/i.test(labelOf(element)); }
-  function isTemporary(element) { return /^(?:Temporary(?: chat)?|임시 (?:채팅|대화))$/i.test(labelOf(element)); }
+  function isTemporary(element) { return /^(?:Temporary(?: chat)?|임시 (?:채팅|대화)|Turn (?:on|off) temporary chat|임시 (?:채팅|대화) (?:켜기|끄기))$/i.test(labelOf(element)); }
+  function temporaryOn(element) { return isTemporary(element) && (selected(element) || /^(?:Turn off temporary chat|임시 (?:채팅|대화) 끄기)$/i.test(labelOf(element))); }
   function composer() {
     const candidates = all(COMPOSER).filter(element => !element.closest(TRANSCRIPT));
     return candidates.length === 1 ? candidates[0] : null;
@@ -140,6 +143,8 @@
     // Match the entire observable label, not promotional text, a menu offer or
     // a model name embedded in an assistant answer. Known compact family labels
     // remain compatible; other future names require an explicit GPT prefix.
+    const combined = parseCombinedModel(label);
+    if (combined) return combined.model;
     const family = /^(?:GPT[-\s]?)?(\d+(?:\.\d+)?)\s*[- ]?\s*(Sol|Astra|Luna)$/i.exec(label);
     if (family) return 'gpt-' + family[1] + '-' + family[2].toLowerCase();
     const canonical = label.toLowerCase().replace(/^gpt(?:\s*-\s*|\s+)/, 'gpt-').replace(/\s+/g, '-');
@@ -183,15 +188,45 @@
   function parseSpeed(label) {
     return { fast: 'fast', standard: 'standard', flex: 'flex', 빠름: 'fast' }[label.toLowerCase()] || null;
   }
+  function parseCombinedModel(label) {
+    const match = /^(?:GPT[-\s]?)?(\d+(?:\.\d+)?)\s*[- ]?\s*(Sol|Astra|Luna)\s*(Low|Light|Medium|High|XHigh|Extra high|Max|Ultra|미디엄|중간)(?:\s*[·|,]?\s*(Fast|Standard|빠름))?$/i.exec(label);
+    return match ? { model: 'gpt-' + match[1] + '-' + match[2].toLowerCase(), effort: parseEffort(match[3]), speed: match[4] ? parseSpeed(match[4]) : null } : null;
+  }
+  function modelTriggers() {
+    return controls().filter(element => !element.closest('[role="menu"], [role="listbox"]')
+      && (element.matches(MODEL_CONTROL) || element.matches('button[data-tone="neutral"][aria-haspopup="menu"]')
+        && !!element.closest('form, [data-chatgpt-composer]') && !!parseCombinedModel(labelOf(element))));
+  }
+  function ownedMenus(triggers) {
+    if (triggers.length !== 1) return [];
+    const trigger = triggers[0];
+    const ids = normalized([trigger.getAttribute('aria-controls'), trigger.getAttribute('aria-owns')].filter(Boolean).join(' ')).split(' ').filter(Boolean);
+    return all('[role="menu"], [role="listbox"]').filter(menu => !menu.closest(TRANSCRIPT)
+      && (menu.id && ids.includes(menu.id) || trigger.id && normalized(menu.getAttribute('aria-labelledby')).split(' ').includes(trigger.id)));
+  }
+  function fastToggles() {
+    const menus = ownedMenus(modelTriggers());
+    return controls().filter(element => /^Fast$|^빠름$/i.test(labelOf(element))
+      && element.matches('[role="switch"], [role="checkbox"], [role="menuitemcheckbox"], button[aria-pressed]')
+      && (menus.some(menu => menu.contains(element)) || element.closest('[role="group"][aria-label="Speed"], [role="group"][aria-label="속도"]'))
+      && /^(?:true|false)$/.test(element.getAttribute('aria-checked') || element.getAttribute('aria-pressed') || ''));
+  }
+  function fastToggleValue(element) { return (element.getAttribute('aria-checked') || element.getAttribute('aria-pressed')) === 'true' ? 'fast' : 'standard'; }
+  function invalidatePopupEvidence(event) {
+    if (event.target instanceof Element && modelTriggers().some(trigger => trigger.contains(event.target))) observedSpeed = null;
+  }
   function preferenceEvidence() {
     const chosen = controls().filter(selected);
-    const modelControls = all('button[data-testid="model-switcher-dropdown-button"], button[data-codex-intelligence-trigger="true"], [data-model-picker-view-toggle="true"]')
+    const triggers = { model: modelTriggers(), effort: preferenceTriggers('effort'), speed: preferenceTriggers('speed') };
+    const menus = { model: ownedMenus(triggers.model), effort: ownedMenus(triggers.effort), speed: ownedMenus(triggers.speed) };
+    const toggles = fastToggles();
+    const modelControls = triggers.model
       .filter(element => !element.closest(TRANSCRIPT + ', [role="menu"], [role="listbox"]')
         && (!['aria-pressed', 'aria-selected', 'aria-checked', 'aria-current', 'data-selected'].some(name => element.hasAttribute(name)) || selected(element))
         && !/^(?:off|unchecked|inactive)$/.test(element.getAttribute('data-state') || ''));
     const isDimensionEvidence = (element, dimension) => {
-      if (element.closest('[role="menu"], [role="listbox"]')) return preferenceMenus(dimension).some(menu => menu.contains(element));
-      if (dimension === 'model' && modelControls.includes(element) || preferenceTriggers(dimension).includes(element)) return true;
+      if (element.closest('[role="menu"], [role="listbox"]')) return menus[dimension].some(menu => menu.contains(element));
+      if (dimension === 'model' && modelControls.includes(element) || triggers[dimension].includes(element)) return true;
       const explicitDescription = dimension === 'effort'
         ? /^(?:Reasoning effort|Thinking effort|추론 강도|생각 강도)\s*[:：]/i
         : dimension === 'speed' ? /^(?:Speed|Response speed|속도|응답 속도)\s*[:：]/i : /^(?:Model|AI model|모델)\s*[:：]/i;
@@ -205,21 +240,29 @@
       return labels.some(label => groupLabel.test(label));
     };
     const model = uniqueValue(modelControls.concat(chosen.filter(element => isDimensionEvidence(element, 'model'))).map(element => parseModel(labelOf(element))));
-    const currentControls = chosen.concat(modelControls, preferenceTriggers('effort'), preferenceTriggers('speed'));
-    const effort = uniqueValue(currentControls.filter(element => isDimensionEvidence(element, 'effort')).map(element => {
+    const currentControls = chosen.concat(modelControls, triggers.effort, triggers.speed);
+    const combined = modelControls.map(element => parseCombinedModel(labelOf(element))).filter(Boolean);
+    const effort = uniqueValue(combined.map(item => item.effort).concat(currentControls.filter(element => isDimensionEvidence(element, 'effort')).map(element => {
       const label = labelOf(element);
       if (selected(element) && parseEffort(label)) return parseEffort(label);
       const description = /^(?:Reasoning effort|Thinking effort|추론 강도|생각 강도)\s*[:：]\s*(Low|Light|Medium|High|XHigh|Extra high|Max|Ultra|미디엄|중간)$/i.exec(label);
       if (description) return parseEffort(description[1]);
       return null;
-    }));
-    const speed = uniqueValue(currentControls.filter(element => isDimensionEvidence(element, 'speed')).map(element => {
+    })));
+    const speedValues = combined.map(item => item.speed).concat(toggles.map(fastToggleValue), currentControls.filter(element => isDimensionEvidence(element, 'speed')).map(element => {
       const label = labelOf(element);
       if (selected(element) && parseSpeed(label)) return parseSpeed(label);
       const description = /^(?:Speed|Response speed|속도|응답 속도)\s*[:：]\s*(Fast|Standard|Flex|빠름)$/i.exec(label);
       if (description) return parseSpeed(description[1]);
       return null;
     }));
+    let speed = uniqueValue(speedValues);
+    const popupSpeed = toggles.some(element => element.closest('[role="menu"], [role="listbox"]'))
+      || chosen.some(element => element.closest('[role="menu"], [role="listbox"]') && isDimensionEvidence(element, 'speed') && parseSpeed(labelOf(element)));
+    if (speed) observedSpeed = popupSpeed && model && effort ? { value: speed, model, effort } : null;
+    else if (speedValues.filter(Boolean).length) observedSpeed = null; // Conflicting evidence is never hidden by a remembered menu.
+    else if (observedSpeed && observedSpeed.model === model && observedSpeed.effort === effort) speed = observedSpeed.value;
+    else observedSpeed = null;
     return { model, effort, speed };
   }
 
@@ -238,7 +281,7 @@
       || Array.from(scope.querySelectorAll('input[type="file"]')).some(input => input.files && input.files.length)) return 'composer_has_attachments';
     // Missing/contradictory selected UI evidence is never replaced by the desired
     // preference, a model offer or arbitrary transcript text.
-    if (!state.model || !state.effort || !state.speed) return 'preference_selection_unverified';
+    if (!state.model || !state.effort) return 'preference_selection_unverified';
     return 'safe';
   }
   function optionValue(element, dimension) {
@@ -246,6 +289,10 @@
     return dimension === 'model' ? parseModel(label) : dimension === 'effort' ? parseEffort(label) : parseSpeed(label);
   }
   function preferenceOptions(dimension, value) {
+    if (dimension === 'speed') {
+      const toggles = fastToggles();
+      if (toggles.length === 1 && fastToggleValue(toggles[0]) !== value) return toggles;
+    }
     const menus = preferenceMenus(dimension);
     if (menus.length !== 1) return [];
     return controls().filter(element => {
@@ -256,24 +303,19 @@
     });
   }
   function preferenceMenus(dimension) {
-    const triggers = preferenceTriggers(dimension);
-    if (triggers.length !== 1) return [];
-    const trigger = triggers[0];
-    const ownedIds = normalized([trigger.getAttribute('aria-controls'), trigger.getAttribute('aria-owns')].filter(Boolean).join(' ')).split(' ').filter(Boolean);
-    return all('[role="menu"], [role="listbox"]').filter(menu => !menu.closest(TRANSCRIPT)
-      && (menu.id && ownedIds.includes(menu.id)
-        || trigger.id && normalized(menu.getAttribute('aria-labelledby')).split(' ').includes(trigger.id)));
+    return ownedMenus(preferenceTriggers(dimension));
   }
   function preferenceTriggers(dimension) {
-    return controls().filter(element => {
+    if (dimension === 'model') return modelTriggers().filter(element => element.matches('button, [role="button"]'));
+    const dedicated = controls().filter(element => {
       if (element.closest('[role="menu"], [role="listbox"]') || !element.matches('button, [role="button"]')) return false;
-      if (dimension === 'model') return element.matches('button[data-testid="model-switcher-dropdown-button"], button[data-codex-intelligence-trigger="true"], [data-model-picker-view-toggle="true"]');
       if (!/^(?:menu|listbox|true)$/.test(element.getAttribute('aria-haspopup') || '')) return false;
       const label = labelOf(element);
       return dimension === 'effort'
         ? /^(?:Reasoning effort|Thinking effort|추론 강도|생각 강도)(?:\s*[:：]\s*(?:Low|Light|Medium|High|XHigh|Extra high|Max|Ultra|미디엄|중간))?$/i.test(label)
         : /^(?:Speed|Response speed|속도|응답 속도)(?:\s*[:：]\s*(?:Fast|Standard|Flex|빠름))?$/i.test(label);
     });
+    return dedicated.length || dimension === 'model' ? dedicated : modelTriggers().filter(element => !!parseCombinedModel(labelOf(element)) && /^(?:menu|listbox|true)$/.test(element.getAttribute('aria-haspopup') || ''));
   }
   function clickPreference(element, dimension, value, opening) {
     const selection = preferenceSelection;
@@ -307,6 +349,11 @@
       if (!flight.opening && state[flight.dimension] === flight.value) {
         preferenceSelectionFlight = null;
       } else if (flight.opening) {
+        if (state[flight.dimension] === configuredPreferences[flight.dimension]) {
+          preferenceSelectionFlight = null;
+          selection.status = 'pending';
+          return;
+        }
         const choices = preferenceOptions(flight.dimension, configuredPreferences[flight.dimension]);
         if (choices.length === 1 && enabled(choices[0])) {
           // If the owner has changed the next route while the menu was opening,
@@ -435,14 +482,18 @@
     const loggedOut = selectable.some(element => /^(?:Log in|Login|Sign in|로그인)$/i.test(labelOf(element)));
     const accountControl = selectable.some(element => element.matches('[data-testid="user-menu-button"]')
       || /^(?:Open (?:profile|account|user) menu|(?:프로필|계정|사용자) 메뉴 열기)$/i.test(labelOf(element)));
+    // A mobile sidebar may keep the signed-in account control mounted but hidden.
+    // Only the account-specific marker counts; arbitrary hidden labels do not.
+    const responsiveAccount = Array.from(document.querySelectorAll('button[data-testid="user-menu-button"]'))
+      .some(element => !element.closest(TRANSCRIPT));
     // A guest composer alone is not proof of an authenticated subscription.
-    const authenticated = loggedOut ? false : editor && accountControl ? true : null;
+    const authenticated = loggedOut ? false : editor && (accountControl || responsiveAccount) ? true : null;
     const temporaryBanner = all('header [role="status"], main > [role="status"], header h1, main > h1')
       .some(element => isTemporary(element) && !element.closest(TRANSCRIPT));
     return Object.assign({
       authenticated,
       workSelected: selectable.some(element => isWork(element) && selected(element)),
-      temporary: selectable.some(element => isTemporary(element) && selected(element)) || temporaryBanner,
+      temporary: selectable.some(temporaryOn) || temporaryBanner,
       busy: stopButtons().length > 0 || !!(composerScope(editor) && composerScope(editor).getAttribute('aria-busy') === 'true'),
       quota: quotaLatched || !!quotaBanner(),
       needsInput: !!inputRequiredStatus(),
@@ -469,6 +520,7 @@
   }
   function inspect() {
     const state = readState();
+    state.selectionStatus = preferenceSelection ? preferenceSelection.status : null;
     const code = readyCode(state);
     return { ok: code === 'ready', code, state, requiredPreferences: Object.assign({}, configuredPreferences),
       preferenceSelection: preferenceSelection ? { status: preferenceSelection.status, clicks: preferenceSelection.clicks, enabled: preferenceSelection.enabled } : null,
@@ -1015,6 +1067,7 @@
     if (observer) observer.disconnect();
     if (interval) clearInterval(interval);
     window.removeEventListener('pagehide', onPageHide);
+    document.removeEventListener('click', invalidatePopupEvidence, true);
   }
   function onPageHide() { dispose('navigation_uncertain'); }
   const api = { inspect, selectWork, send, cancel, inspectAndEmit, prepareOwnerRetry, authorizeDispatch, configurePreferences, ensurePreferences, captureUsageObservation };
@@ -1029,5 +1082,6 @@
   observer.observe(document.documentElement, { childList: true, subtree: true, characterData: true, attributes: true });
   interval = setInterval(tick, 250);
   window.addEventListener('pagehide', onPageHide);
+  document.addEventListener('click', invalidatePopupEvidence, true);
   tick();
 })();

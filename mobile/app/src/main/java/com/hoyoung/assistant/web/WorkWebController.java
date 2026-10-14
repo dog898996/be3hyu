@@ -69,6 +69,7 @@ public final class WorkWebController implements AssistantRuntime.Transport {
     private String script;
     private ValueCallback<Uri[]> fileCallback;
     private String currentOrigin = "";
+    private String pageLoadFailure = "";
     private final java.util.concurrent.ExecutorService downloads = java.util.concurrent.Executors.newSingleThreadExecutor();
     private final java.util.concurrent.ExecutorService responseCaptures = java.util.concurrent.Executors.newSingleThreadExecutor();
     private final java.util.concurrent.ExecutorService attachmentPreparation = java.util.concurrent.Executors.newSingleThreadExecutor();
@@ -300,7 +301,7 @@ public final class WorkWebController implements AssistantRuntime.Transport {
                 advanceDocumentEpoch();
                 if (loaded) emitActiveTransportError("WORK_DOCUMENT_REPLACED");
                 loaded = false;
-                currentOrigin = url;
+                currentOrigin = url; pageLoadFailure = "";
                 JSONObject state = new JSONObject();
                 try { state.put("loading", true).put("workSelected", false).put("temporary", false).put("authenticated", JSONObject.NULL); } catch (Exception ignored) { }
                 emitState(state, "page_loading");
@@ -308,6 +309,7 @@ public final class WorkWebController implements AssistantRuntime.Transport {
             @Override public void onPageFinished(WebView v, String url) {
                 if (v != view) return;
                 try {
+                if (!pageLoadFailure.isEmpty()) { publishUnavailableState(pageLoadFailure, false, 0, null); return; }
                 documentEverLoaded = true;
                 startupRetry.reset();
                 currentOrigin = url;
@@ -316,7 +318,18 @@ public final class WorkWebController implements AssistantRuntime.Transport {
                     int epoch = documentEpoch;
                     v.evaluateJavascript(script, ignored -> { if (v == view && loaded && epoch == documentEpoch) inspect(); });
                 } else if (loaded) publishUnavailableState("bridge_script_unavailable", false, 0, null);
+                else publishUnavailableState("authentication_required", false, 0, null);
                 } catch (RuntimeException | LinkageError failure) { startupFailed(failure); }
+            }
+            @Override public void onReceivedError(WebView v, WebResourceRequest request, android.webkit.WebResourceError error) {
+                if (v != view || !request.isForMainFrame()) return;
+                loaded = false; emitActiveTransportError("WORK_PAGE_LOAD_FAILED");
+                pageLoadFailure = "page_load_failed"; publishUnavailableState(pageLoadFailure, false, 0, null);
+            }
+            @Override public void onReceivedHttpError(WebView v, WebResourceRequest request, android.webkit.WebResourceResponse response) {
+                if (v != view || !request.isForMainFrame()) return;
+                loaded = false; emitActiveTransportError("WORK_PAGE_HTTP_ERROR");
+                pageLoadFailure = "page_http_" + response.getStatusCode(); publishUnavailableState(pageLoadFailure, false, 0, null);
             }
             @Override public boolean onRenderProcessGone(WebView v, RenderProcessGoneDetail detail) {
                 if (v != view) return true;
@@ -397,7 +410,17 @@ public final class WorkWebController implements AssistantRuntime.Transport {
     public void selectWork() {
         main.post(() -> {
             if (view == null || !loaded) { emitError("WEBVIEW_NOT_READY", null); return; }
-            try { view.evaluateJavascript("window.HoyoungWorkBridge ? JSON.stringify(window.HoyoungWorkBridge.selectWork()) : null", ignored -> inspect()); }
+            WebView destination = view; int epoch = documentEpoch;
+            try { destination.evaluateJavascript("window.HoyoungWorkBridge ? JSON.stringify(window.HoyoungWorkBridge.selectWork()) : null", raw -> {
+                if (view != destination || !loaded || documentEpoch != epoch) return;
+                try {
+                    JSONObject result = decodeResult(raw), state = result.optJSONObject("state");
+                    String code = result.optString("code", "selection_unverified");
+                    if (state != null) emitState(state, code);
+                    if (result.optBoolean("ok")) inspect();
+                    else runtime.localNotice("work_connection_step", com.hoyoung.assistant.ui.WorkConnectionStatus.hint(code));
+                } catch (Exception invalid) { emitError("BRIDGE_INSPECTION_INVALID", null); }
+            }); }
             catch (RuntimeException | LinkageError failure) { startupFailed(failure); }
         });
     }

@@ -2,7 +2,9 @@
 
 추가 서버 비용 0원, 사설 VM·상시 PC 없이 **Android 전용 앱 → ChatGPT Work 임시채팅**으로 작업하고 원문·기억·파일은 폰에 보관한다. [Android 설치·연결·백업 안내](mobile/README.md)를 먼저 참고한다. 아래 Node/사설 VM 코드는 이전 구현으로 보존한다.
 
-**최신 0.4.2**: 여섯 분야 코드 감사와 통합 담당자의 최종 재검토로 장기기억·설정 충돌·새 지시·한도 복구·첨부·알림·응답 캡처 오류를 수정했다. 변경 관련 검사 **227/227 통과**, signed release·lint 오류 0. [설치 파일](https://github.com/dog898996/be3hyu/releases/tag/v0.4.2) · [변경·검증 기록](docs/release-v042.md) · [지속가능성·복원 범위](docs/final-code-audit-v042.md) · [모델·프로필 설정](docs/routing-and-identity-v041.md). 아래 전체·Android 에뮬레이터 검증은 이전 버전의 이력이다.
+**최신 0.4.3**: 모델 선택을 **6 Sol / 6.1 Sol / Astra**로 고정하고, 대화·설정의 **Fast 켜기/끄기**를 연결했다. 모바일 Work 모델·강도 표시와 Fast 스위치 감지를 보완하고, 연결이 막힌 단계를 화면에 표시한다. 관련 Android **71/71**, 브라우저 fixture **13/13** 통과. 실계정 연결 성공은 아직 미확인이다. [설치 파일](https://github.com/dog898996/be3hyu/releases/tag/v0.4.3) · [변경·검증 기록](docs/release-v043.md).
+
+**0.4.2**: 여섯 분야 코드 감사와 통합 담당자의 최종 재검토로 장기기억·설정 충돌·새 지시·한도 복구·첨부·알림·응답 캡처 오류를 수정했다. 변경 관련 검사 **227/227 통과**, signed release·lint 오류 0. [설치 파일](https://github.com/dog898996/be3hyu/releases/tag/v0.4.2) · [변경·검증 기록](docs/release-v042.md) · [지속가능성·복원 범위](docs/final-code-audit-v042.md) · [모델·프로필 설정](docs/routing-and-identity-v041.md). 아래 전체·Android 에뮬레이터 검증은 이전 버전의 이력이다.
 
 **0.4.0**은 대화 중심 UI, 고양이 프로필, 메시지 애니메이션·입력 중 표시, 기억으로 보존되는 이모지 반응, 계정·추가 인증 보관함과 실제 휴대폰 도구를 연결한다. 설정·권한·기억·계정·파일·Work는 사이드바에서 연다. [11개 앱 화면](docs/ui-redesign.md) · [0.4.0 배포 기록](docs/release-v040.md).
 
@@ -10,7 +12,7 @@
 
 통합 unit suite는 **1,260개 중1,243개 통과·선택형17개 제외·실패0개**다. [최종 5년 원문 회귀](docs/benchmarks/android-v040-five-year-memory-regression.json)는432/432개 출처 조건과 0.3.2의144개 전체 기억 패킷 동일성을 확인했다. 합성 기록과 실제 native SQLite를 사용하는 원문 시험이며 새 모델144개 답변 채점이나 실제5년 사용 결과는 아니다. 실제 Android15의 제품25/25·전체 계측33/33과 별도 재시작 shell 검사를 통과했다. 최종 CI·설치 파일과 지문은 [배포 기록](docs/release-v040.md)에 남겼다. 강제 종료로 접근성이 해제되면 앱의 권한 안내에서 사용자가 다시 허용해야 한다.
 
-[재설치 기억 보존](docs/reinstallation-memory-preservation.md)은 같은 공유 폴더에 전체 기억 ZIP과 최신 삭제·제외 정책을 보관한다. 작은 정책은 자동 보존하고 전체 대화·첨부·계정 ZIP은 직접 저장한다. 재설치 후 같은 폴더를 먼저 연결한 뒤 ZIP을 복원한다. [사용량 최적화](docs/token-optimization.md)는 사용자 Fast·기억 Medium 이상을 유지하며10%를 일평균 목표로 관측한다. 목표를 넘었다고 대화·자율 판단·기억을 강제 중단하지 않는다.
+[재설치 기억 보존](docs/reinstallation-memory-preservation.md)은 같은 공유 폴더에 전체 기억 ZIP과 최신 삭제·제외 정책을 보관한다. 작은 정책은 자동 보존하고 전체 대화·첨부·계정 ZIP은 직접 저장한다. 재설치 후 같은 폴더를 먼저 연결한 뒤 ZIP을 복원한다. [사용량 최적화](docs/token-optimization.md)는 사용자 선택 속도(기본 Fast)·기억 Medium 이상을 유지하며10%를 일평균 목표로 관측한다. 목표를 넘었다고 대화·자율 판단·기억을 강제 중단하지 않는다.
 
 사진·파일 전송, 모델 선택, 작업 중 새 지시, 휴대폰 관찰과 장기 기억을 함께 확인하는 기준은 [사용자 흐름 검증](docs/mobile-product-acceptance.md)에 있다. 실제 Galaxy 장기 실행·실계정 Work·외부 사이트 로그인·통화/문자 전달·일평균10%는 아직 측정하지 않았다. 실제 계정 비밀번호·쿠키·사용자 DB·서명 개인키는 공개하지 않는다.
 
