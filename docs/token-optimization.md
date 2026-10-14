@@ -45,6 +45,10 @@ UsageBudgetLedger는 별도 private SQLite에 전송 준비, 실제 접수 영�
 
 이 fixture들은 미리 검토된 원문 상태를 사용하며 실제 모델 호출0회다. UTF-16 문자 수는 토큰·구독 차감·답변 정확도 비교가 아니다. 새 정정·삭제·중복 제거·단계 전환·사용량 초과 후 계속 실행·선택 불확실성 복구는 별도 검사 대상이다. [365세션 모의 기억 시험](benchmarks/android-v032-longitudinal-memory.json)은 방해 기록30,660건과 정정·별칭·과거 원문을 넣고 1·30·180·365일의24조건씩96개를 모두 통과했다. 원문은 모두 유지됐다. 기억 추출과 검토 ACK는 손으로 작성한 시험자료이므로 실제 모델의 장기 답변 정확도를 증명하지 않는다.
 
+[5년 기록 원문 회귀](benchmarks/android-v032-five-year-memory-regression.json)는 현재 저장·검색·Gateway 소스를 고정해 방해 기록184,044건과 2,191일 자료를 재생했다. 세 시점432/432개 원문 조건과 최종144/144개 질문 패킷을 통과했고, 이전 V7의 전체 패킷과 원문 매핑·해시가 정확히 같았다. 명시적 삭제6건, 옛 캐시12건 거절, 이전 백업 복원 후12/12개 조건도 통과했다. 이 시험은 Gateway의 기존 prepare overload를 사용하므로 최적화된 runtime 전달과 문자열 중복 제거는 별도의 runtime/Gateway 회귀로 검사한다. 실제 모델의144개 새 답변을 채점한 시험은 아니다.
+
+[최종 실제 Android CI](https://github.com/dog898996/be3hyu/actions/runs/38518027292)는 코드36c2af8에서 Java893개 중876개 통과·선택형17개 제외·실패0개, 실제 기본18개 및9개 복구 단계 플래그를 통과했다. 로컬과 달리365세션 선택형은 기본으로 제외된다. API35 실제 네이티브 JSON에서 도구45개 원형 복원, Medium 기억·Fast 사용자·목표 초과 후 계속 실행과 정정·삭제 유효성을 확인했다. [네이티브 로그 영수증](benchmarks/android-v032-final-native.json)을 보관한다.
+
 실제 계정의 일평균10%, 실제 Work UI 호환성·서버 적용 모델, Light/Medium 의미 정확도 동등성, Galaxy S24 Ultra의 지연·24시간 운용은 아직 측정하지 않았다. 이전5년144문항 답변 채점을 이번 버전에서 새로 실행했다는 주장도 하지 않는다. 새 코드의 구조 검사와 원문 회귀를 실사용 정확도 검증으로 바꾸어 표현하지 않는다.
 
 공식 근거: [모델·Light/Low 대응](https://learn.chatgpt.com/docs/models?surface=web), [Fast의 포함 한도2.5배 소비와 Pro 설명](https://help.openai.com/en/articles/9793128-about-chatgpt-pro-tiers), [Work/Codex 공유 한도](https://help.openai.com/en/articles/20001516-managing-usage-with-gpt-6-astra-in-work-and-codex). 고정 일일 토큰 한도와 계정에 적용되는 구체 차감량은 이 문서에서 만들지 않는다.

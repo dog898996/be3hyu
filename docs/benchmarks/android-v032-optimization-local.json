@@ -762,5 +762,43 @@
     "actualLmExtractionMeasured": false,
     "lmAnswerQualityMeasured": false,
     "report": "android-v032-longitudinal-memory.json"
+  },
+  "verifiedCodeCommit": "36c2af8fbb7de2f912e8b068a6ae29f1f96b4495",
+  "sourceFingerprintSha256": "65ab9c6bf6ff14b749366cca066b359b390a27f1771b91b60c60176eb6d1f4d2",
+  "fiveYearMemoryRegression": {
+    "completedSourceChecks": 432,
+    "totalSourceChecks": 432,
+    "completeFinalReaderPackets": 144,
+    "priorWholePacketsExactlyEqual": 144,
+    "explicitDeletedOriginalRecords": 6,
+    "retainedOriginalsVerified": 402,
+    "oldCachedScopesRejected": 12,
+    "oldBackupQueriesPassed": 12,
+    "actualNewModelAnswers": 0,
+    "report": "android-v032-five-year-memory-regression.json"
+  },
+  "lintRelease": {
+    "Warning": 16
+  },
+  "releaseBuildLogSha256": "6de8233f9a3a0e5e6c7868f0b6fe9771c288df7fc91482610818d926ca2daf4b",
+  "apk": {
+    "sha256": "222ef280ee17aab64107e522ad7171e6db7977e27e1d4dd7005fe3940c0d4a3e",
+    "bytes": 78829655
+  },
+  "nativeCi": {
+    "sourceCommit": "36c2af8fbb7de2f912e8b068a6ae29f1f96b4495",
+    "run": 38518027292,
+    "url": "https://github.com/dog898996/be3hyu/actions/runs/38518027292",
+    "conclusion": "success",
+    "unitTests": 893,
+    "passed": 876,
+    "skipped": 17,
+    "failures": 0,
+    "errors": 0,
+    "primaryNativeTests": 18,
+    "restartPhaseFlagsAllTrue": 9,
+    "nativeCompleteToolSchemasRoundTrip": 45,
+    "logSha256": "fd4faa41aac8489e6d178201227e5c9d4a9b8225722edd87a7bdf9fc0ed9f38b",
+    "report": "android-v032-final-native.json"
   }
 }

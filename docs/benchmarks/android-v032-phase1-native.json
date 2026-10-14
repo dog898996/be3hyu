@@ -1,0 +1,255 @@
+{
+  "recordedAtUTC": "2026-10-14T05:35:06.769251+00:00",
+  "sourceCommit": "97a6911051a5fc5e4c27d0f05cc69a7619efe113",
+  "workflowRun": {
+    "conclusion": "success",
+    "createdAt": "2026-10-14T05:13:01Z",
+    "databaseId": 38515439424,
+    "headSha": "97a6911051a5fc5e4c27d0f05cc69a7619efe113",
+    "jobs": [
+      {
+        "completedAt": "2026-10-14T05:21:20Z",
+        "conclusion": "success",
+        "databaseId": 115693069835,
+        "name": "android",
+        "startedAt": "2026-10-14T05:13:04Z",
+        "status": "completed",
+        "steps": [
+          {
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Check out source",
+            "number": 2,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Set up Java 17",
+            "number": 3,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Verify emulator driver failure accounting",
+            "number": 4,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Require runner SDK and hardware acceleration",
+            "number": 5,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Prepare pinned build tools",
+            "number": 6,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install official API 35 AOSP emulator",
+            "number": 7,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Prepare checksum-verified public ONNX test model",
+            "number": 8,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Build debug APKs, unit tests, and lint",
+            "number": 9,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Verify binary permissions and real native packaging",
+            "number": 10,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Test real Android runtime and ONNX on accelerated emulator",
+            "number": 11,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Set up Java 17",
+            "number": 21,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Check out source",
+            "number": 22,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 23,
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/dog898996/be3hyu/actions/runs/38515439424/job/115693069835"
+      }
+    ],
+    "status": "completed",
+    "updatedAt": "2026-10-14T05:21:21Z",
+    "url": "https://github.com/dog898996/be3hyu/actions/runs/38515439424"
+  },
+  "phase": "0.3.2 phase1 only; distinct from later phase2 source and final CI",
+  "unitTotals": {
+    "errors": 0,
+    "failures": 0,
+    "passed": 856,
+    "skipped": 17,
+    "testClasses": 87,
+    "tests": 873
+  },
+  "lintDebug": {
+    "completedSuccessfully": true,
+    "taskMarker": "android\tBuild debug APKs, unit tests, and lint\t2026-10-14T05:17:14.6476169Z > Task :app:lintDebug",
+    "numericIssueCountsPrintedInWorkflowLog": false,
+    "exactWarningCount": null,
+    "lintXmlRetainedInCIArtifact": false,
+    "note": "Do not count 15 C++ compiler warnings per ABI as Android lint issues."
+  },
+  "instrumentation": {
+    "sdk": 35,
+    "actualKVM": true,
+    "primaryPassed": 18,
+    "primaryTestNames": [
+      "aActualSettingsButtonPersistsAndBackupOpensAndroidDocumentPicker",
+      "bRealSQLiteOriginalRevisionsAndWorkingFileSurviveCacheCleanupAndBinaryRestore",
+      "cForegroundServiceRemainsForegroundAcrossOneScreenOffMinute",
+      "dAcknowledgedOwnerDataSurvivesExplicitProcessStop",
+      "eActualApplicationJournalBackupCapturesArchivedAndPendingOriginals",
+      "fActualChatThumbnailAndNativeViewerUseImmutablePhotoOriginal",
+      "gActualChatPagesFortyMessagesAndOpensLargeUnicodeOriginal",
+      "hActualAndroidReplyNotificationOpensOlderSourceAndMarksOnlyVisibleHash",
+      "iActualFiveLayerSnapshotAndFinalPayloadGateRejectStalePrivacy",
+      "jActualNativeOptimizationPreservesFastMemoryAndAdvisoryUsage",
+      "aContactsDeniedThenGrantedReadCreateUpdate",
+      "bCalendarDeniedThenGrantedReadCreateUpdate",
+      "cCollectorObservesRealProviderChangeAndFiltersDisabledSource",
+      "dNotificationListenerObservesActualSyntheticNotification",
+      "packagedJniSupportsExactRerankFilteringAndVerifiedPersistence",
+      "actualNeuralEncoderLoadsVerifiedWeightsAndMeasuresMultilingualEmbeddings",
+      "realSafCorruptCompletedPolicyFailsClosed",
+      "realSafPolicyAndMemoryZipRecoverLatestDeletionOverOlderSnapshot"
+    ],
+    "separateRecoveryOrSeedPassingInvocations": 6,
+    "observedPassingInvocationCounts": [
+      18,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "aggregatePassingMethodExecutions": 24
+  },
+  "restartPhaseResults": {
+    "primary": true,
+    "explicitDataRecovery": true,
+    "seed": true,
+    "forceReopen": true,
+    "processDeath": true,
+    "javaCrash": true,
+    "boot": true,
+    "bootstrapAndProofInfrastructure": true,
+    "javaCleanBaseline": true
+  },
+  "restartPhaseMarker": "android\tTest real Android runtime and ONNX on accelerated emulator\t2026-10-14T05:21:15.4199228Z HOYOUNG_RESTART_PHASE_RESULTS primary=true; explicitDataRecovery=true; seed=true; forceReopen=true; processDeath=true; javaCrash=true; boot=true; bootstrapAndProofInfrastructure=true; javaCleanBaseline=true",
+  "recoveredProcessProofs": {
+    "forceReopen": {
+      "pid": 2926,
+      "modelReadyMillis": 26,
+      "marker": "android\tTest real Android runtime and ONNX on accelerated emulator\t2026-10-14T05:21:15.2278445Z I/HoyoungDeviceProof( 2926): HOYOUNG_RESTART_RECOVERED phase=forceReopen; actual-native-draft-and-identity; foreground-service; offline-model-ready-ms=26; actual-512D-unit-vector; no-24-hour-or-S24-claim"
+    },
+    "processDeath": {
+      "pid": 3060,
+      "modelReadyMillis": 14,
+      "marker": "android\tTest real Android runtime and ONNX on accelerated emulator\t2026-10-14T05:21:15.2280179Z I/HoyoungDeviceProof( 3060): HOYOUNG_RESTART_RECOVERED phase=processDeath; actual-native-draft-and-identity; foreground-service; offline-model-ready-ms=14; actual-512D-unit-vector; no-24-hour-or-S24-claim"
+    },
+    "crash": {
+      "pid": 3321,
+      "modelReadyMillis": 46,
+      "marker": "android\tTest real Android runtime and ONNX on accelerated emulator\t2026-10-14T05:21:15.2281778Z I/HoyoungDeviceProof( 3321): HOYOUNG_RESTART_RECOVERED phase=crash; actual-native-draft-and-identity; foreground-service; offline-model-ready-ms=46; actual-512D-unit-vector; no-24-hour-or-S24-claim"
+    },
+    "boot": {
+      "pid": 1711,
+      "modelReadyMillis": 15,
+      "marker": "android\tTest real Android runtime and ONNX on accelerated emulator\t2026-10-14T05:21:15.4183436Z I/HoyoungDeviceProof( 1711): HOYOUNG_RESTART_RECOVERED phase=boot; actual-native-draft-and-identity; foreground-service; offline-model-ready-ms=15; actual-512D-unit-vector; no-24-hour-or-S24-claim"
+    }
+  },
+  "actualNeuralEncoder": {
+    "modelId": "sentence-transformers/distiluse-base-multilingual-cased-v2@bfe45d0732ca50787611c0fe107ba278c7f3f889|bert-wordpiece-cased-v1|mean-dense-tanh512|query-overlap110-v1",
+    "dimensions": 512,
+    "readyMillis": 502,
+    "fourEmbeddingsMillis": 70,
+    "koreanParaphraseCosine": 0.6993165044409766,
+    "koreanEnglishCosine": 0.814342814824652,
+    "unrelatedCosine": 0.09307882640893467,
+    "applicationOwnedEncoder": true,
+    "actualHostReferenceCompared": true,
+    "physicalPhoneBenchmark": false,
+    "textSentToService": false
+  },
+  "actualNativeANN": {
+    "actualAndroidJniExecuted": true,
+    "vectors": 256,
+    "dimensions": 512,
+    "querySelfTop1": true,
+    "excludedLabelAbsent": true,
+    "shaCacheRoundTrip": true,
+    "corruptCacheRejected": true,
+    "nonfiniteVectorRejected": true,
+    "elapsedMillis": 19,
+    "fullNeuralQualityMeasured": false,
+    "realUserPhoneMeasured": false
+  },
+  "proofMarkers": {
+    "HOYOUNG_PROCESS_DEATH_PROBE": "android\tTest real Android runtime and ONNX on accelerated emulator\t2026-10-14T05:20:09.4057626Z HOYOUNG_PROCESS_DEATH_PROBE oldPid=2926; finalPid=3060; five-minute-bound; exact-system-FGS-required",
+    "HOYOUNG_JAVA_CLEAN_BASELINE_READY": "android\tTest real Android runtime and ONNX on accelerated emulator\t2026-10-14T05:20:19.6362681Z HOYOUNG_JAVA_CLEAN_BASELINE_READY oldPid=3060; newPid=3194; exact-OS-FGS; actual-automatic-restart; no-post-restart-test-harness-launch",
+    "HOYOUNG_JAVA_CRASH_PROBE": "android\tTest real Android runtime and ONNX on accelerated emulator\t2026-10-14T05:20:35.9953340Z HOYOUNG_JAVA_CRASH_PROBE oldPid=3194; finalPid=3321; two-minute-observation-bound; OS-dialog-wait-is-not-proof-of-service-defect",
+    "HOYOUNG_SYSTEM_FGS phase=bootReceiver;": "android\tTest real Android runtime and ONNX on accelerated emulator\t2026-10-14T05:21:11.9891957Z HOYOUNG_SYSTEM_FGS phase=bootReceiver; real-dumpsys-foreground-before-test-Activity",
+    "HOYOUNG_DEVICE_TOKEN_OPTIMIZATION": "android\tTest real Android runtime and ONNX on accelerated emulator\t2026-10-14T05:20:40.5598861Z I/HoyoungDeviceProof( 2095): HOYOUNG_DEVICE_TOKEN_OPTIMIZATION native-API35-policy-and-SQLite; owner-Fast; memory-Medium-floor; Light-effects-promoted; usage-goal-advisory; exact-dedup-correction-gate; no-live-model-or-quota-claim",
+    "HOYOUNG_DEVICE_PORTABLE_OWNER_POLICY_CORRUPTION": "android\tTest real Android runtime and ONNX on accelerated emulator\t2026-10-14T05:20:40.5602588Z I/HoyoungDeviceProof( 2095): HOYOUNG_DEVICE_PORTABLE_OWNER_POLICY_CORRUPTION actual-SAF-completed-document-corruption; no-fallback-policy-loss; local-exclusion-retained",
+    "HOYOUNG_DEVICE_PORTABLE_OWNER_POLICY": "android\tTest real Android runtime and ONNX on accelerated emulator\t2026-10-14T05:20:40.5603432Z I/HoyoungDeviceProof( 2095): HOYOUNG_DEVICE_PORTABLE_OWNER_POLICY actual-SAF-persistable-grant; verified-provider-IO-and-rename; streaming-V3-backup; isolated-target-private-reset; latest-policy-before-old-ZIP; deleted-source-absent; other-source-preserved; no-real-uninstall-or-Samsung-claim",
+    "HOYOUNG_DEVICE_FIVE_LAYER_GATE": "android\tTest real Android runtime and ONNX on accelerated emulator\t2026-10-14T05:20:40.5597852Z I/HoyoungDeviceProof( 2095): HOYOUNG_DEVICE_FIVE_LAYER_GATE actual-API35-readonly-SQLite; five-layer-query-receipts; canonical-evidence; one-use-final-payload; withdrawal-rejects-stale-scope; no-live-model-or-S24-claim",
+    "HOYOUNG_DEVICE_PHOTO_UI": "android\tTest real Android runtime and ONNX on accelerated emulator\t2026-10-14T05:20:40.5593883Z I/HoyoungDeviceProof( 2095): HOYOUNG_DEVICE_PHOTO_UI actual-private-PNG-decoded; immutable-source-thumbnail; native-viewer-opened; no-cloud-upload-claimed",
+    "HOYOUNG_DEVICE_REPLY_NOTIFICATION": "android\tTest real Android runtime and ONNX on accelerated emulator\t2026-10-14T05:20:40.5596103Z I/HoyoungDeviceProof( 2095): HOYOUNG_DEVICE_REPLY_NOTIFICATION actual-Android-post; real-SystemUI-tap; older-source-page-anchor; exact-visible-source-hash; no-human-read-claim",
+    "HOYOUNG_DEVICE_SCREEN_OFF": "android\tTest real Android runtime and ONNX on accelerated emulator\t2026-10-14T05:20:40.5590661Z I/HoyoungDeviceProof( 2095): HOYOUNG_DEVICE_SCREEN_OFF foreground-service-alive-after-65s; no 24-hour or physical-phone guarantee",
+    "HOYOUNG_SYSTEM_FORCE_STOP": "android\tTest real Android runtime and ONNX on accelerated emulator\t2026-10-14T05:20:02.6846971Z HOYOUNG_SYSTEM_FORCE_STOP actual-process-and-FGS-absent; explicit-user-reopen-required"
+  },
+  "fixtureLauncherRecoveries": [],
+  "rawLog": {
+    "path": "/workspace/artifacts/hoyoung-v032-phase1-ci.log",
+    "bytes": 539172,
+    "sha256": "3c52f8c30984c841cadf8137158eda3b84131ccffe02a689e06456c459ab1ce8"
+  },
+  "scopeLimits": {
+    "physicalS24Measured": false,
+    "continuous24HourMeasured": false,
+    "liveAuthenticatedWorkMeasured": false,
+    "realUninstallMeasured": false
+  },
+  "actionsByThisAudit": {
+    "repoEdits": false,
+    "gitMutations": false,
+    "builds": false,
+    "paidServices": false
+  }
+}
