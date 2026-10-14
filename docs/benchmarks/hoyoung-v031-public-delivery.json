@@ -1,0 +1,47 @@
+{
+  "verifiedAtUTC": "2026-10-14T03:56:15.857678+00:00",
+  "artifactCommit": "a69e46c00022b8265d6123b8f5e98c9736d25366",
+  "allPublicDownloadsMatch": true,
+  "files": [
+    {
+      "name": "hoyoung-0.3.1.apk",
+      "url": "https://raw.githubusercontent.com/dog898996/be3hyu/a69e46c00022b8265d6123b8f5e98c9736d25366/release-assets/v0.3.1/hoyoung-0.3.1.apk",
+      "bytes": 78792664,
+      "sha256": "8ec587535cc1d66afbe4aff4065e7990810ebde975cc31a3ccca025916b22388",
+      "matchesVerifiedLocalArtifact": true
+    },
+    {
+      "name": "hoyoung-0.3.1-source.zip",
+      "url": "https://raw.githubusercontent.com/dog898996/be3hyu/a69e46c00022b8265d6123b8f5e98c9736d25366/release-assets/v0.3.1/hoyoung-0.3.1-source.zip",
+      "bytes": 53013738,
+      "sha256": "741b28f4b57454694c05e4962832579385cf460615c164b2c02a07b4aa57c1b1",
+      "matchesVerifiedLocalArtifact": true
+    },
+    {
+      "name": "hoyoung-0.3.1-SHA256SUMS.txt",
+      "url": "https://raw.githubusercontent.com/dog898996/be3hyu/a69e46c00022b8265d6123b8f5e98c9736d25366/release-assets/v0.3.1/hoyoung-0.3.1-SHA256SUMS.txt",
+      "bytes": 273,
+      "sha256": "e3bcca5684e9a6788478a48cdf931c7d88751896a03df1c248ccd1a3d5285c28",
+      "matchesVerifiedLocalArtifact": true
+    },
+    {
+      "name": "hoyoung-0.3.1-verification.json",
+      "url": "https://raw.githubusercontent.com/dog898996/be3hyu/a69e46c00022b8265d6123b8f5e98c9736d25366/release-assets/v0.3.1/hoyoung-0.3.1-verification.json",
+      "bytes": 2177,
+      "sha256": "1f8301cee0e684c3ddbcfe8888e212636d8160149810d948184e63a367669b80",
+      "matchesVerifiedLocalArtifact": true
+    }
+  ],
+  "sourceCodeCommit": "1606ca6871056b223a749ec2c5d01218ae71e58c",
+  "sourceArchiveCommit": "232dbad28e51106e964c458c53a8b69be40d9177",
+  "paidServicesUsed": false,
+  "release": {
+    "isDraft": false,
+    "isPrerelease": false,
+    "publishedAt": "2026-10-14T03:57:00Z",
+    "tagName": "v0.3.1",
+    "targetCommitish": "232dbad28e51106e964c458c53a8b69be40d9177",
+    "url": "https://github.com/dog898996/be3hyu/releases/tag/v0.3.1"
+  },
+  "finalPublicationGatePassed": true
+}
