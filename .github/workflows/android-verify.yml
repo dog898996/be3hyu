@@ -71,6 +71,9 @@ jobs:
           echo "HOYOUNG_ANDROID_TOOLS_DIR=$tools_dir" >> "$GITHUB_ENV"
           echo "HOYOUNG_SEMANTIC_MODEL_DIR=$model_dir" >> "$GITHUB_ENV"
 
+      - name: Verify foreground-service proof parser
+        run: python3 -m unittest discover -s mobile/tests -p foreground_service_probe_test.py -v
+
       - name: Prepare pinned build tools
         run: ./mobile/tools/build-android.sh --prepare ./mobile
 
