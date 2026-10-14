@@ -72,14 +72,45 @@ public final class SourcePrivacyLedger {
     public JSONObject snapshot()throws IOException{return capture().toJson();}
     public long version()throws IOException{return capture().version;}
     public String fingerprint()throws IOException{return capture().fingerprint;}
+    /** Owner-authorized portable restore is a union, never a replacement of newer controls.
+     * One linear pass and one atomic publication; duplicate/older backups cause no write. */
+    public Snapshot mergeSnapshot(JSONObject incoming)throws IOException {
+        Snapshot imported=parse(incoming);
+        synchronized(CONTROL_LOCK){
+            ensureSafeRoot();
+            if(Files.isSymbolicLink(lock.toPath()))throw new IOException("Privacy control lock is unsafe");
+            try(FileChannel channel=FileChannel.open(lock.toPath(),StandardOpenOption.CREATE,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS);FileLock control=channel.lock()){
+                Snapshot previous=read();JSONObject next=previous.toJson();JSONArray entries=next.optJSONArray("exclusions");
+                Set<String> seen=new HashSet<>(previous.excluded);JSONArray additions=imported.toJson().optJSONArray("exclusions");
+                for(int i=0;i<additions.length();i++){
+                    JSONObject entry=additions.optJSONObject(i);String key=identity(entry.optString("type"),entry.optLong("id"),entry.optString("hash"));
+                    if(seen.add(key))entries.put(entry);
+                }
+                if(seen.size()==previous.exclusionCount)return previous;
+                if(seen.size()>MAX_EXCLUSIONS)throw new IOException("Merged privacy controls exceed their capacity; previous policy is retained");
+                next.remove("fingerprint");put(next,"version",seen.size());put(next,"fingerprint",fingerprintFor(next));
+                Snapshot merged=parse(next);write(merged);return merged;
+            }
+        }
+    }
     /** Convenience live read. A multi-step retrieval should capture once and compare its fingerprint later. */
     public boolean allowedSource(String type,long id,String hash)throws IOException{return capture().allowedSource(type,id,hash);}
     public static Snapshot fromSnapshot(JSONObject frozen)throws IOException{return parse(frozen);}
+    public static JSONObject unionSnapshots(JSONObject first,JSONObject second)throws IOException {
+        Snapshot left=parse(first),right=parse(second);JSONObject combined=left.toJson();JSONArray entries=combined.optJSONArray("exclusions");
+        Set<String> seen=new HashSet<>(left.excluded);JSONArray additions=right.toJson().optJSONArray("exclusions");
+        for(int i=0;i<additions.length();i++){JSONObject entry=additions.optJSONObject(i);
+            if(seen.add(identity(entry.optString("type"),entry.optLong("id"),entry.optString("hash"))))entries.put(entry);
+        }
+        if(seen.size()>MAX_EXCLUSIONS)throw new IOException("Merged privacy controls exceed their capacity");
+        combined.remove("fingerprint");put(combined,"version",seen.size());put(combined,"fingerprint",fingerprintFor(combined));return parse(combined).toJson();
+    }
     public static boolean allowedSource(JSONObject frozen,String type,long id,String hash){
         try{return parse(frozen).allowedSource(type,id,hash);}catch(IOException invalid){return false;}
     }
     public JSONObject diagnostics(){
-        JSONObject result=new JSONObject();put(result,"scope",RETRIEVAL_EXCLUDE);put(result,"payloadDeletionSupported",false);put(result,"includedInBackup",false);
+        JSONObject result=new JSONObject();put(result,"scope",RETRIEVAL_EXCLUDE);put(result,"payloadDeletionSupported",false);put(result,"includedInBackup",true);
+        put(result,"backupRepresentation","portable_owner_controls");put(result,"localAnchorIncludedInBackup",false);
         try{Snapshot current=capture();put(result,"available",true);put(result,"version",current.version);put(result,"fingerprint",current.fingerprint);put(result,"exclusionCount",current.exclusionCount);}
         catch(IOException unavailable){put(result,"available",false);put(result,"retrievalBlocked",true);put(result,"failure",unavailable.getMessage());}
         return result;

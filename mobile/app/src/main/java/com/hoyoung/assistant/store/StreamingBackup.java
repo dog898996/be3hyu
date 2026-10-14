@@ -21,10 +21,11 @@ final class StreamingBackup {
     static final int MAX_ENTRIES = 100_000;
     static final class PreparedBackup {
         final File databaseFile, projectsDirectory, originalsDirectory;
-        final JSONObject manifest, legacySnapshot;
-        PreparedBackup(File database, File projects, File originals, JSONObject manifest, JSONObject legacy) {
+        final JSONObject manifest, legacySnapshot, ownerControls;
+        PreparedBackup(File database, File projects, File originals, JSONObject manifest, JSONObject legacy, JSONObject controls) {
             this.databaseFile=database; this.projectsDirectory=projects; this.originalsDirectory=originals;
             this.manifest=manifest; this.legacySnapshot=legacy;
+            this.ownerControls=controls;
         }
     }
 
@@ -59,6 +60,12 @@ final class StreamingBackup {
                 put(counts, table, rows); checksum(indexOutput, path, content.bytes, content.hash()); entries[0]++;
             }
             }
+            // Portable owner decisions travel with the memory snapshot. Private HMAC keys
+            // and captured erasure paths deliberately remain local to each installation.
+            JSONObject controls=OwnerPolicyBackup.capture(store.ownerControlContext(),store);
+            zip.putNextEntry(new ZipEntry(OwnerPolicyBackup.ARCHIVE_PATH));EntryOutput policyContent=new EntryOutput(zip,total,policy.maxArchiveBytes);
+            policyContent.write(controls.toString().getBytes(StandardCharsets.UTF_8));zip.closeEntry();
+            checksum(indexOutput,OwnerPolicyBackup.ARCHIVE_PATH,policyContent.bytes,policyContent.hash());entries[0]++;
             for (String namespace : new String[]{"projects", "originals"}) {
                 File root = new File(filesRoot, namespace);
                 if (root.exists()) exportFiles(root, root, namespace, zip, indexOutput, total, entries, 0,policy,space);
@@ -69,7 +76,7 @@ final class StreamingBackup {
             zip.putNextEntry(new ZipEntry("checksums.ndjson")); EntryOutput checksums = new EntryOutput(zip, total,policy.maxArchiveBytes);
             try (InputStream input = new BufferedInputStream(new FileInputStream(index))) { copy(input, checksums, policy.maxArchiveBytes); }
             zip.closeEntry();
-            JSONObject manifest = new JSONObject(); put(manifest, "format", "hoyoung-private-backup"); put(manifest, "version", 2);
+            JSONObject manifest = new JSONObject(); put(manifest, "format", "hoyoung-private-backup"); put(manifest, "version", 3);
             put(manifest, "storeVersion", HoyoungStore.SNAPSHOT_VERSION); put(manifest, "createdAt", System.currentTimeMillis());
             put(manifest, "rowCounts", counts); put(manifest, "entryCount", entries[0]);
             put(manifest,"archiveLimitBytes",policy.maxArchiveBytes); put(manifest,"providerCapacityKnown",false);
@@ -158,10 +165,14 @@ final class StreamingBackup {
                     try { HoyoungStore.populateSnapshotDatabase(database,snapshot); database.setTransactionSuccessful(); }
                     finally { database.endTransaction(); }
                 } catch (RuntimeException invalid) { throw new IOException("Invalid legacy backup provenance",invalid); }
-                return new PreparedBackup(databaseFile,projects,originals,manifest,snapshot);
+                if(new File(stagingRoot,OwnerPolicyBackup.ARCHIVE_PATH).exists())throw new IOException("Legacy archive cannot declare portable owner controls");
+                return new PreparedBackup(databaseFile,projects,originals,manifest,snapshot,null);
             }
-            if (manifest.optInt("version")!=2 || manifest.optInt("storeVersion")!=HoyoungStore.SNAPSHOT_VERSION) throw new IOException("Unsupported backup version");
+            if ((manifest.optInt("version")!=2&&manifest.optInt("version")!=3) || manifest.optInt("storeVersion")!=HoyoungStore.SNAPSHOT_VERSION) throw new IOException("Unsupported backup version");
             verifyChecksums(database,stagingRoot,manifest);
+            File controlsFile=new File(stagingRoot,OwnerPolicyBackup.ARCHIVE_PATH);
+            if(manifest.optInt("version")==3){try(InputStream controls=new FileInputStream(controlsFile)){OwnerPolicyBackup.read(controls);}}
+            else if(controlsFile.exists())throw new IOException("Version 2 archive cannot declare portable owner controls");
             HoyoungStore.createSchema(database);
             database.beginTransaction();
             try {
@@ -180,7 +191,9 @@ final class StreamingBackup {
         } catch(BackupFailure failure){throw failure;}
         catch(IOException failure){throw space.failure(space.phase().equals("restore_validate")?"backup_invalid_archive":"backup_restore_io","Backup staging or validation did not finish; active data is unchanged",failure);}
         catch(RuntimeException failure){throw space.failure("backup_restore_database","Backup staging database could not be written",failure);}
-        return new PreparedBackup(databaseFile,projects,originals,manifest,null);
+        JSONObject controls=null;
+        if(manifest.optInt("version")==3)try(InputStream input=new FileInputStream(new File(stagingRoot,OwnerPolicyBackup.ARCHIVE_PATH))){controls=OwnerPolicyBackup.read(input);}
+        return new PreparedBackup(databaseFile,projects,originals,manifest,null,controls);
     }
 
     private static void verifyChecksums(SQLiteDatabase database, File root, JSONObject manifest) throws IOException {
@@ -195,7 +208,7 @@ final class StreamingBackup {
             while ((line=HoyoungStore.boundedLine(reader,8192))!=null) {
                 JSONObject expected;
                 try { expected=new JSONObject(line); } catch (JSONException invalid) { throw new IOException("Invalid checksum row",invalid); }
-                String path=expected.optString("path"); if (!(path.startsWith("store/")||path.startsWith("projects/")||path.startsWith("originals/")||path.startsWith("device-journal/"))) throw new IOException("Invalid checksum path");
+                String path=expected.optString("path"); if (!(path.startsWith("store/")||path.startsWith("projects/")||path.startsWith("originals/")||path.startsWith("device-journal/")||path.equals(OwnerPolicyBackup.ARCHIVE_PATH))) throw new IOException("Invalid checksum path");
                 try (Cursor actual=database.rawQuery("SELECT bytes,sha256,checked FROM backup_entries WHERE path=?",new String[]{path})) {
                     if (!actual.moveToFirst()||actual.getInt(2)!=0||actual.getLong(0)!=expected.optLong("bytes",-1)
                             || !actual.getString(1).equals(expected.optString("sha256"))) throw new IOException("Backup entry checksum mismatch");
@@ -211,11 +224,13 @@ final class StreamingBackup {
 
     private static boolean allowed(String path) {
         if (path.equals("manifest.json")||path.equals("checksums.ndjson")||path.equals("hoyoung/store.json")) return true;
+        if(path.equals(OwnerPolicyBackup.ARCHIVE_PATH))return true;
         if (path.startsWith("projects/")||path.startsWith("originals/")||path.startsWith("device-journal/")) return true;
         for (String table:HoyoungStore.tables()) if (path.equals("store/"+table+".ndjson")) return true;
         return false;
     }
     private static long entryLimit(String path,long archiveLimit){
+        if(path.equals(OwnerPolicyBackup.ARCHIVE_PATH))return OwnerPolicyBackup.MAX_BYTES;
         if(path.startsWith("store/")||path.equals("checksums.ndjson"))return archiveLimit;
         if(path.startsWith("projects/")&&!path.startsWith("projects/"+AttachmentOriginals.PREFIX+"/"))return InternalFiles.MAX_FILE_BYTES;
         if(path.startsWith("originals/"))return OriginalTextFiles.MAX_BYTES;

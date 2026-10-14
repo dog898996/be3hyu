@@ -52,7 +52,8 @@ public final class MainActivity extends Activity {
     private static final int INK = Color.rgb(24, 30, 44);
     private static final int SUBTLE = Color.rgb(103, 112, 132);
     private static final int BG = Color.rgb(247, 249, 253);
-    private static final int PICK_FILES = 201, EXPORT_BACKUP = 202, IMPORT_BACKUP = 203, WORK_FILE_PICKER = 204, EXPORT_FILE = 205;
+    private static final int PICK_FILES = 201, EXPORT_BACKUP = 202, IMPORT_BACKUP = 203, WORK_FILE_PICKER = 204, EXPORT_FILE = 205, OWNER_FOLDER = 206;
+    private TextView ownerFolderState;
     private final Handler main = new Handler(Looper.getMainLooper());
     private final ExecutorService io = Executors.newSingleThreadExecutor();
     private final ExecutorService commands = Executors.newSingleThreadExecutor();
@@ -591,6 +592,7 @@ public final class MainActivity extends Activity {
             };
             text += "\n외부 제공자·클라우드 사본과 추적되지 않은 작업 사본의 삭제는 확인하지 않아. 삭제 요청의 식별 기록은 남아 있어.";
         }
+        text+="\n"+ownerFolderDescription();
         AlertDialog.Builder dialog = new AlertDialog.Builder(this).setTitle("원문 " + id + " 처리 상태").setMessage(text).setNegativeButton("닫기", null);
         if (deletePayload && !verified) dialog.setPositiveButton("같은 삭제 요청 다시 확인", (view, which) -> controlStoredSource(type, id, hash, true));
         dialog.show();
@@ -711,6 +713,19 @@ public final class MainActivity extends Activity {
         panel.addView(label("파일은 폰의 앱 내부 저장소에 보관해. 일반 캐시 삭제에는 남아. 앱 삭제·데이터 삭제 전에 백업을 내보내야 해.", 14, SUBTLE));
         panel.addView(button("사진·파일 가져오기", () -> pickDocuments(PICK_FILES, "*/*")));
         panel.addView(button("대화·기억·파일 백업 내보내기", () -> createDocument(EXPORT_BACKUP, "application/zip", "hoyoung-backup.zip")));
+        panel.addView(label("재설치 보존 폴더",18,INK));
+        panel.addView(label("Documents/호영 같은 일반 폴더를 선택해. 삭제·제외 기록은 변경할 때 자동 보존하고, 전체 대화·파일은 백업 저장 버튼으로 보관해. 재설치 뒤에는 같은 폴더를 먼저 다시 연결한 다음 ZIP을 복원해.",14,SUBTLE));
+        ownerFolderState=label(ownerFolderDescription(),14,SUBTLE);panel.addView(ownerFolderState);
+        panel.addView(button("보존 폴더 선택·다시 연결",()->startActivityForResult(new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
+                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION|Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION|Intent.FLAG_GRANT_PREFIX_URI_PERMISSION),OWNER_FOLDER)));
+        panel.addView(button("보존 폴더에 대화·기억·파일 백업 저장",()->{
+            if(!app.ownerPolicyFolderStatus().optBoolean("connected")){notice("먼저 재설치 보존 폴더를 선택해 줘.");return;}
+            notice("선택한 폴더에 백업을 저장하고 실제 파일을 확인하고 있어.");
+            io.execute(()->{
+                try{String name=app.exportBackupToOwnerFolder();main.post(()->{if(!isDestroyed()){notice("보존 폴더에 백업을 저장했어: "+name);showFiles();}});}
+                catch(Exception failed){main.post(()->{if(!isDestroyed())notice("보존 폴더 백업을 완료하지 못했어. 폴더 접근과 여유 공간을 확인해 줘. 미완성 파일은 복원하지 마.");});}
+            });
+        }));
         panel.addView(button("백업 용량 확인", () -> io.execute(() -> {
             try {
                 JSONObject capacity = app.getFiles().backupPreflight(app.getStore());
@@ -868,6 +883,7 @@ public final class MainActivity extends Activity {
     }
 
     private void refreshStatus() {
+        if("파일".equals(tab)&&ownerFolderState!=null)ownerFolderState.setText(ownerFolderDescription());
         if (connection == null) return;
         JSONObject state = app.getRuntime().state();
         JSONObject web = state.optJSONObject("webState");
@@ -912,6 +928,14 @@ public final class MainActivity extends Activity {
         startActivityForResult(new Intent(Intent.ACTION_CREATE_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType(mime).putExtra(Intent.EXTRA_TITLE, name), code);
     }
 
+    private String ownerFolderDescription(){
+        JSONObject status=app.ownerPolicyFolderStatus();
+        if(!status.optBoolean("connected"))return "보존 폴더 미연결 · 앱 삭제 전에 외부 백업을 저장해 줘.";
+        if(!status.optString("lastError").isEmpty())return "삭제·제외 기록 외부 보존 대기 · 폴더 접근을 확인하고 다시 연결해 줘.";
+        if(status.optBoolean("pending"))return "삭제·제외 기록을 외부 폴더에 보존 중 · 완료 전에 앱 데이터를 지우지 마.";
+        return "삭제·제외 기록 외부 보존 확인됨 · 전체 대화·파일 백업은 별도로 저장해 줘.";
+    }
+
     @Override protected void onActivityResult(int code, int result, Intent data) {
         super.onActivityResult(code, result, data);
         if (code == WORK_FILE_PICKER) {
@@ -919,6 +943,14 @@ public final class MainActivity extends Activity {
             app.getWebController().receiveFileChooser(items.isEmpty() ? null : items.toArray(new Uri[0])); return;
         }
         if (result != RESULT_OK || data == null) return;
+        if(code==OWNER_FOLDER){
+            Uri tree=data.getData();if(tree==null)return;int flags=data.getFlags();
+            notice("보존 폴더의 삭제·제외 기록을 확인하고 있어.");
+            io.execute(()->{
+                try{app.connectOwnerPolicyFolder(tree,flags);main.post(()->{if(!isDestroyed()){notice("보존 폴더를 연결했어. 외부 보존 완료 표시를 확인해 줘.");showFiles();}});}
+                catch(Exception failed){main.post(()->{if(!isDestroyed())notice("보존 폴더를 연결하지 못했어. 진행 중 작업과 폴더 권한을 확인해 줘. 삭제·제외 기록이 잘못된 폴더는 복원에 사용하지 않아.");});}
+            });return;
+        }
         if (code == PICK_FILES) {
             java.util.ArrayList<Uri> uris = selectedUris(result, data);
             if (uris.size() > 8 || attachments.length() + uris.size() > 8) {

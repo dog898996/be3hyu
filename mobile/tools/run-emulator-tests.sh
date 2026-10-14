@@ -146,7 +146,7 @@ echo 'Testing a fresh API 35 AOSP emulator offline, with synthetic data and real
 "$ADB" -s "$SERIAL" logcat -c
 primary_passed=true
 if ! timeout 720 "$ADB" -s "$SERIAL" shell am instrument -w -r \
-  -e class com.hoyoung.assistant.DeviceRuntimeIntegrationTest,com.hoyoung.assistant.phone.PhoneDeviceIntegrationTest,com.hoyoung.assistant.memory.NativeAnnDeviceTest,com.hoyoung.assistant.memory.local.LocalNeuralDeviceTest \
+  -e class com.hoyoung.assistant.DeviceRuntimeIntegrationTest,com.hoyoung.assistant.phone.PhoneDeviceIntegrationTest,com.hoyoung.assistant.memory.NativeAnnDeviceTest,com.hoyoung.assistant.memory.local.LocalNeuralDeviceTest,com.hoyoung.assistant.OwnerPolicyDeviceTest \
   -e fixtureModelPath /data/local/tmp/hoyoung-semantic-model \
   "$TEST_RUNNER" | tee "$LOG_DIR/instrumentation.log"; then primary_passed=false; fi
 # BEGIN INSTRUMENTATION PROOF DECODER

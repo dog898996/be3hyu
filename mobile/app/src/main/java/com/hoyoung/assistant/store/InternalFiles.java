@@ -546,6 +546,9 @@ public final class InternalFiles {
                     // the incoming snapshot is small; include that existing footprint too.
                     commitEstimate=saturatedAdd(commitEstimate,saturatedMultiply(liveBytes,2));
                     space.checkpoint("restore_precommit","",saturatedAdd(commitEstimate,64L*1024));
+                    // Publish a conservative union before swapping any authoritative originals.
+                    // A crash/rollback may leave stricter controls, never a privacy rollback.
+                    if(prepared.ownerControls!=null)OwnerPolicyBackup.merge(context,store,prepared.ownerControls);
                     writeRestoreJournal(token, staging, oldProjects, oldOriginals, oldDeviceJournal);
                     journalWritten = true;
                     atomicMove(projects, oldProjects);

@@ -1,0 +1,12 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <!-- Synthetic provider in the TEST APK only; never packaged in the personal release. -->
+        <provider android:name="com.hoyoung.assistant.OwnerPolicyFixtureDocumentsProvider"
+            android:authorities="com.hoyoung.assistant.test.ownerpolicy"
+            android:exported="true" android:grantUriPermissions="true"
+            android:permission="android.permission.MANAGE_DOCUMENTS" />
+        <activity android:name="com.hoyoung.assistant.OwnerPolicyFixtureGrantActivity"
+            android:exported="true" android:noHistory="true"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+    </application>
+</manifest>

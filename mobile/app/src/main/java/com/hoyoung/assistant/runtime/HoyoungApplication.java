@@ -25,6 +25,9 @@ public final class HoyoungApplication extends Application {
     private MemoryRetriever memoryRetriever;
     private AssistantReplyNotifications replyNotifications;
     private final java.util.concurrent.ExecutorService maintenance = java.util.concurrent.Executors.newSingleThreadExecutor();
+    private final java.util.concurrent.ExecutorService policyMirror = java.util.concurrent.Executors.newSingleThreadExecutor();
+    private final java.util.concurrent.atomic.AtomicBoolean policyMirroring = new java.util.concurrent.atomic.AtomicBoolean();
+    private volatile long policyMirrorAttemptAt;
     private final java.util.concurrent.atomic.AtomicBoolean indexing = new java.util.concurrent.atomic.AtomicBoolean();
     private final java.util.concurrent.atomic.AtomicBoolean sourceControlPending = new java.util.concurrent.atomic.AtomicBoolean();
     private final android.os.Handler main = new android.os.Handler(android.os.Looper.getMainLooper());
@@ -56,6 +59,7 @@ public final class HoyoungApplication extends Application {
             maintenance.execute(()->{
                 Throwable failed=null;
                 try {
+                    com.hoyoung.assistant.store.OwnerPolicyBackup.reconcile(HoyoungApplication.this,store);
                     new SourcePayloadDeletion(this,store).reconcileDeletionRequests();
                     AssistantRuntime.reconcileOwnerSourceAuthority(store);
                 }catch(java.io.IOException|RuntimeException failure){failed=failure;}
@@ -78,7 +82,7 @@ public final class HoyoungApplication extends Application {
     }
 
     private boolean hasSourceDeletionState() {
-        for(String name:new String[]{"source-deletions.anchor.json","source-deletions.key","source-deletions"}) {
+        for(String name:new String[]{"source-deletions.anchor.json","source-deletions.key","source-deletions","owner-policy-portable.json","owner-policy-portable.anchor.json"}) {
             java.io.File path=new java.io.File(getFilesDir(),name);
             if(path.exists()||java.nio.file.Files.isSymbolicLink(path.toPath()))return true;
         }
@@ -113,6 +117,8 @@ public final class HoyoungApplication extends Application {
         startupReady = true;
         startupState = state(true, "ready", "");
         webController.start();
+        com.hoyoung.assistant.store.ExternalOwnerPolicyFolder folder=new com.hoyoung.assistant.store.ExternalOwnerPolicyFolder(this);
+        if(folder.connected()){folder.markPending();scheduleOwnerPolicyMirror(true);}
     }
 
     /** Native owner UI only, called on an IO worker. Serializes index maintenance and backups. */
@@ -122,7 +128,11 @@ public final class HoyoungApplication extends Application {
         try {
             java.util.concurrent.Future<org.json.JSONObject> work=maintenance.submit(()->
                     files.withExclusiveStorageMaintenance(()->runtime.controlStoredSource(type,id,hash,deletePayload)));
-            try {return work.get();}
+            try {org.json.JSONObject result=work.get();
+                com.hoyoung.assistant.store.ExternalOwnerPolicyFolder folder=new com.hoyoung.assistant.store.ExternalOwnerPolicyFolder(this);
+                if(folder.connected()){folder.markPending();scheduleOwnerPolicyMirror(true);}
+                try{result.put("externalPolicy",folder.status());}catch(org.json.JSONException impossible){throw new IllegalStateException(impossible);}
+                return result;}
             catch(InterruptedException interrupted){Thread.currentThread().interrupt();throw new java.io.IOException("Source control remains unconfirmed; do not claim deletion",interrupted);}
             catch(java.util.concurrent.ExecutionException failed){
                 Throwable cause=failed.getCause();
@@ -131,6 +141,44 @@ public final class HoyoungApplication extends Application {
                 throw new java.io.IOException("Source control failed",cause);
             }
         } finally {sourceControlPending.set(false);}
+    }
+
+    /** The owner must select a shared folder again after reinstall because Android drops SAF grants. */
+    public org.json.JSONObject connectOwnerPolicyFolder(android.net.Uri tree,int flags)throws java.io.IOException {
+        if(!startupReady)throw new java.io.IOException("Private memory storage is not ready");
+        if(!sourceControlPending.compareAndSet(false,true))throw new java.io.IOException("Another owner memory control is running");
+        try{
+            java.util.concurrent.Future<org.json.JSONObject> work=maintenance.submit(()->{
+                com.hoyoung.assistant.store.ExternalOwnerPolicyFolder folder=new com.hoyoung.assistant.store.ExternalOwnerPolicyFolder(this);
+                org.json.JSONObject controls=folder.readFromFolder(tree);
+                if(controls!=null)files.withExclusiveStorageMaintenance(()->runtime.importOwnerControls(controls));
+                folder.rememberFolder(tree,flags);folder.markPending();return folder.status();
+            });
+            try{return work.get();}
+            catch(InterruptedException interrupted){Thread.currentThread().interrupt();throw new java.io.IOException("Owner-folder reconnection remains unconfirmed",interrupted);}
+            catch(java.util.concurrent.ExecutionException failure){Throwable cause=failure.getCause();if(cause instanceof java.io.IOException)throw (java.io.IOException)cause;if(cause instanceof RuntimeException)throw (RuntimeException)cause;throw new java.io.IOException("Owner-folder connection failed",cause);}
+        }finally{sourceControlPending.set(false);scheduleOwnerPolicyMirror(true);}
+    }
+    public org.json.JSONObject ownerPolicyFolderStatus(){return new com.hoyoung.assistant.store.ExternalOwnerPolicyFolder(this).status();}
+    public String exportBackupToOwnerFolder()throws java.io.IOException {
+        com.hoyoung.assistant.store.ExternalOwnerPolicyFolder folder=new com.hoyoung.assistant.store.ExternalOwnerPolicyFolder(this);
+        long generation=folder.requestedGeneration();
+        org.json.JSONObject controls=files.withExclusiveStorageMaintenance(()->com.hoyoung.assistant.store.OwnerPolicyBackup.capture(this,store));
+        folder.sync(controls,generation);return folder.exportMemoryBackup(files,store);
+    }
+    private void scheduleOwnerPolicyMirror(boolean immediate){
+        if(!startupReady)return;
+        com.hoyoung.assistant.store.ExternalOwnerPolicyFolder folder=new com.hoyoung.assistant.store.ExternalOwnerPolicyFolder(this);
+        if(!folder.connected()||!folder.pending()||!immediate&&android.os.SystemClock.elapsedRealtime()-policyMirrorAttemptAt<60_000||!policyMirroring.compareAndSet(false,true))return;
+        policyMirrorAttemptAt=android.os.SystemClock.elapsedRealtime();
+        policyMirror.execute(()->{
+            try{
+                long generation=folder.requestedGeneration();
+                org.json.JSONObject controls=files.withExclusiveStorageMaintenance(()->com.hoyoung.assistant.store.OwnerPolicyBackup.capture(this,store));
+                folder.sync(controls,generation);
+            }catch(java.io.IOException|RuntimeException failure){folder.failure(failure);}
+            finally{policyMirroring.set(false);}
+        });
     }
 
     public boolean isStartupReady() { return startupReady; }
@@ -155,6 +203,7 @@ public final class HoyoungApplication extends Application {
     public AssistantReplyNotifications getReplyNotifications() { return replyNotifications; }
 
     public void maintainMemory() {
+        scheduleOwnerPolicyMirror(false);
         if (!startupReady||sourceControlPending.get()||runtime.isRestoringBackup()) return;
         boolean enabled = "true".equals(store.getSetting("semanticSearchEnabled", "true"));
         memoryRetriever.setSemanticEnabled(enabled);

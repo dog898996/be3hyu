@@ -56,6 +56,20 @@ public final class SourcePayloadDeletion {
             if(!page.optBoolean("hasMore"))break;String next=page.optString("nextAfterKey");if(next.compareTo(after)<=0)throw new IOException("Deletion reconcile cursor did not advance");after=next;
         }put(summary,"processed",processed);put(summary,"pending",pending);put(summary,"hasMore",false);put(summary,"receipts",visible);put(summary,"receiptsTruncated",processed>visible.length());return summary;
     }
+    /** Portable owner intent only. Authenticate the durable identity inventory, but never
+     * export the signing key, paths, captured file manifests or a claimed completion. */
+    public JSONArray portableDeletionControls()throws IOException {
+        synchronized(LOCK){
+            verifyIntentInventory(false);JSONArray result=new JSONArray();List<String> names=intentKeys();
+            if(names.size()>100_000)throw new IOException("Portable deletion controls exceed their capacity");
+            // The authenticated inventory binds the exact immutable source identities.
+            // Do not repeatedly read large descendant/file manifests just to mirror three fields.
+            for(String name:names){String[] parts=name.substring(0,name.length()-5).split("-",3);JSONObject ref=new JSONObject();
+                put(ref,"type",parts[0]);put(ref,"id",Long.parseLong(parts[1]));put(ref,"hash",parts[2]);result.put(ref);
+            }
+            return result;
+        }
+    }
     /** Invoke after backup recovery and before exposing restored sources. Completed jobs are inspected again. */
     public JSONObject reconcileDeletionRequests(int limit)throws IOException{
         return reconcileDeletionRequests("",limit);

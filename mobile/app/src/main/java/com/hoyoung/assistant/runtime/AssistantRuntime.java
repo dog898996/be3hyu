@@ -663,6 +663,31 @@ public final class AssistantRuntime {
         });
     }
 
+    /** Explicit native owner folder reconnect, never an autonomous model action. */
+    public JSONObject importOwnerControls(JSONObject controls)throws IOException {
+        synchronized(this){
+            if(restoringBackup||storageRecoveryBlocked||active!=null||completing||incomingPreparations>0)
+                throw new IllegalStateException("진행 중 작업이 끝난 뒤 재설치 보존 폴더를 연결해 줘.");
+            restoringBackup=true;
+        }
+        AssistantReplyNotifications notifications=replyNotifications;boolean barrier=false,wasEnabled=autonomyEnabled(),failed=false;
+        try{
+            if(notifications!=null){notifications.beginRestore();barrier=true;}
+            context.stopService(new Intent(context,AutonomyService.class));serviceRunning=false;
+            if(phoneContext!=null)phoneContext.stop("owner_policy_reconnect");phoneTools.pauseForBackupRestore();
+            com.hoyoung.assistant.store.OwnerPolicyBackup.merge(context,store,controls);
+            for(String requestId:preparedMemory.keySet())dispatchPayloads.forget(requestId);
+            preparedMemory.clear();preparedReviews.clear();
+            JSONObject result=com.hoyoung.assistant.store.OwnerPolicyBackup.reconcile(context,store);
+            new SourcePayloadDeletion(context,store).reconcileDeletionRequests();reconcileOwnerSourceAuthority(store);
+            receipts.ensureIndex(true);recomputeUncertainty();return result;
+        }catch(IOException|RuntimeException failure){failed=true;storageRecoveryBlocked=true;throw failure;}
+        finally{
+            try{if(phoneContext!=null)phoneContext.afterBackupRestore();else phoneTools.afterBackupRestore();}
+            finally{if(barrier)notifications.endRestore();synchronized(this){restoringBackup=false;}changed();if(wasEnabled&&!failed&&!storageRecoveryBlocked)startAutonomy();}
+        }
+    }
+
     public void restoreBackup(InputStream input) throws IOException {
         synchronized (this) {
             if (restoringBackup || active != null || completing || incomingPreparations > 0) throw new IllegalStateException("현재 작업이 진행 중이어서 백업을 복원할 수 없어.");
@@ -680,10 +705,12 @@ public final class AssistantRuntime {
         context.stopService(new Intent(context, AutonomyService.class));
         if (phoneContext != null) phoneContext.stop("backup_restore");
         phoneTools.pauseForBackupRestore();
+        JSONObject externalControls=new com.hoyoung.assistant.store.ExternalOwnerPolicyFolder(context).readConnectedFolder();
+        if(externalControls!=null)com.hoyoung.assistant.store.OwnerPolicyBackup.merge(context,store,externalControls);
         files.importBackup(input, store);
         for(String requestId:preparedMemory.keySet())dispatchPayloads.forget(requestId);
         preparedMemory.clear();preparedReviews.clear();
-        try {new SourcePayloadDeletion(context,store).reconcileDeletionRequests();reconcileOwnerSourceAuthority(store);}
+        try {com.hoyoung.assistant.store.OwnerPolicyBackup.reconcile(context,store);new SourcePayloadDeletion(context,store).reconcileDeletionRequests();reconcileOwnerSourceAuthority(store);}
         catch(IOException|RuntimeException failure){deletionRecoveryFailed=true;throw failure;}
         store.withTransaction(db -> {
             JSONArray queued = new JSONArray();

@@ -40,6 +40,7 @@ public final class HoyoungStore extends SQLiteOpenHelper {
     private static final int SQL_MESSAGE_EXCERPT_CHARS = 200_000;
     private final OriginalTextFiles originalFiles;
     private final SourcePrivacyLedger privacyLedger;
+    private final Context applicationContext;
     private volatile boolean storageClosed;
     private volatile boolean deviceSearchBootstrapRunning;
     private volatile String deviceSearchError = "";
@@ -49,6 +50,7 @@ public final class HoyoungStore extends SQLiteOpenHelper {
 
     public HoyoungStore(Context context) {
         super(context.getApplicationContext(), DATABASE_NAME, null, SCHEMA_VERSION);
+        applicationContext=context.getApplicationContext();
         // SQLiteOpenHelper's constructor has not opened the database yet. Preserve a
         // pending generation before OriginalTextFiles can create a missing namespace.
         InternalFiles.requireNoPendingRestore(context.getApplicationContext().getFilesDir());
@@ -60,6 +62,7 @@ public final class HoyoungStore extends SQLiteOpenHelper {
         recoverInterruptedRequests();
     }
     public SourcePrivacyLedger getPrivacyLedger(){return privacyLedger;}
+    Context ownerControlContext(){return applicationContext;}
 
     @Override public void onConfigure(SQLiteDatabase db) {
         super.onConfigure(db);
