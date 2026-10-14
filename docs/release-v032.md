@@ -1,6 +1,6 @@
 # 호영 0.3.2 사용량 최적화
 
-[GitHub Release](https://github.com/dog898996/be3hyu/releases/tag/v0.3.2)에서 안정 서명 APK·전체 소스·검증 기록과 체크섬을 제공한다. 사용자 응답은 Fast, 무변화 정기 판단은 Light/Standard 후보, 기억 추출은 Medium 이상으로 요청한다. 실제 실행은 Medium/High로 넘긴다. 10%는 사용량 화면 전체 공유 한도의 일평균 절약 목표이며 강제 차단 한도가 아니다.
+[GitHub Release](https://github.com/dog898996/be3hyu/releases/tag/v0.3.2)에 [안정 서명 APK](https://raw.githubusercontent.com/dog898996/be3hyu/c93d0f7a63ef6212d50c8e720df11c1028848a69/release-assets/v0.3.2/hoyoung-0.3.2.apk), [소스 ZIP](https://raw.githubusercontent.com/dog898996/be3hyu/c93d0f7a63ef6212d50c8e720df11c1028848a69/release-assets/v0.3.2/hoyoung-0.3.2-source.zip), [체크섬](https://raw.githubusercontent.com/dog898996/be3hyu/c93d0f7a63ef6212d50c8e720df11c1028848a69/release-assets/v0.3.2/hoyoung-0.3.2-SHA256SUMS.txt), [검증 JSON](https://raw.githubusercontent.com/dog898996/be3hyu/c93d0f7a63ef6212d50c8e720df11c1028848a69/release-assets/v0.3.2/hoyoung-0.3.2-verification.json)을 공개했다. 네 파일을 인증 없이 다시 다운로드했고 로컬 빌드 파일과 크기·SHA-256이 모두 같았다. [공개 배포 영수증](benchmarks/hoyoung-v032-public-delivery.json)을 보관한다. 사용자 응답은 Fast, 무변화 정기 판단은 Light/Standard 후보, 기억 추출은 Medium 이상으로 요청한다. 실제 실행은 Medium/High로 넘긴다. 10%는 사용량 화면 전체 공유 한도의 일평균 절약 목표이며 강제 차단 한도가 아니다.
 
 ## 적용과 기억 보호
 
@@ -27,3 +27,5 @@ Work 탭에서 계정의 실제 사용량 화면을 열고 **설정 → 열린 W
 검증 코드 `36c2af8fbb7de2f912e8b068a6ae29f1f96b4495`, APK SHA256 `222ef280ee17aab64107e522ad7171e6db7977e27e1d4dd7005fe3940c0d4a3e`, 공개 서명 인증서 SHA256 `5b634dac5d4538f871ff0bfdbe1b31b2baa02dbe4390d11d7f6af235b2df1e3e`를 구분한다. 서명 개인키·실사용 DB·브라우저 쿠키는 공개 소스에 넣지 않는다.
 
 실제 Galaxy S24 Ultra 지연·24시간 연속 운용, 실계정 Work UI·서버 적용 모델, Light/Medium 답변 동등성, 일평균10%는 아직 측정하지 않았다. Fast 선택은 즉답 보장이 아니다. 추가 유료 API·사설 VM·유료 CI를 사용하지 않았다.
+
+문서 포함 소스 ZIP과 v0.3.2 태그는 `43dd9cbe563eb052cd8ae91261e61de3e09ef8be`, 배포 파일은 별도 커밋 `c93d0f7a63ef6212d50c8e720df11c1028848a69`에 있다. 소스 ZIP SHA256은 `7603be667968999ed9455dd2f77f4ec6d35339675f3c1338d8867dc522cff784`다. main의 최종 배포 기록 추가 뒤에도 코드·설정225개는 검증본과 모두 같다. 업로드 호스트 대신 Git 브랜치의 고정 원본 URL을 사용했다.
