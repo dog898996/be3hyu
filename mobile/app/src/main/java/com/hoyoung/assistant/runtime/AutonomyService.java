@@ -114,7 +114,7 @@ public final class AutonomyService extends Service {
         PendingIntent open = launch == null ? null : PendingIntent.getActivity(this, 0, launch, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         PendingIntent stop = PendingIntent.getService(this, 1, new Intent(this, AutonomyService.class).setAction(ACTION_STOP), PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         Notification.Builder builder = new Notification.Builder(this, CHANNEL)
-                .setSmallIcon(android.R.drawable.ic_dialog_info).setContentTitle("호영 자율 실행 중")
+                .setSmallIcon(android.R.drawable.ic_dialog_info).setContentTitle(com.hoyoung.assistant.store.AssistantIdentity.name(((HoyoungApplication)getApplication()).getStore())+" 자율 실행 중")
                 .setContentText(effectiveWakeMode.equals("continuous") ? "지속 확인 · CPU를 깨어 있게 유지해 배터리를 더 사용함 · OS 제한 적용" : "작업 중 CPU 유지 · 대기·절전 중 주기 확인이 지연될 수 있음")
                 .setOngoing(true).setOnlyAlertOnce(true).addAction(new Notification.Action.Builder(android.R.drawable.ic_media_pause, "자동 실행 중지", stop).build());
         if (open != null) builder.setContentIntent(open);

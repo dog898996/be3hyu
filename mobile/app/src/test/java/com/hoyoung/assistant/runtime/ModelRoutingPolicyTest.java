@@ -63,10 +63,10 @@ public final class ModelRoutingPolicyTest {
     }
 
     @Test public void onlyQuietAutonomyWithoutMemoryMayEnterLightDecisionLane() throws Exception {
-        JSONObject route=choose(new JSONObject(),"autonomy","autonomy",false,false,"");
+        JSONObject route=choose(object("autonomousEffort","low"),"autonomy","autonomy",false,false,"");
         assertRoute(route,"low","standard","autonomy_decision",true);
         assertEquals("bounded_decision_candidate",route.getString("reason"));
-        assertRoute(choose(new JSONObject(),"autonomy","autonomy",false,false,"low"),"low","standard","autonomy_decision",true);
+        assertRoute(choose(object("autonomousEffort","low"),"autonomy","autonomy",false,false,"low"),"low","standard","autonomy_decision",true);
     }
 
     @Test public void dueGoalOrDoubtRetainsMediumWithoutFirstTryingLight() throws Exception {

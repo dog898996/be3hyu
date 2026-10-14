@@ -1,0 +1,89 @@
+{
+  "version": "0.4.1",
+  "dateUtc": "2026-10-14T11:47:19.774012+00:00",
+  "scope": "Focused native Java/Robolectric tests for routing, lifecycle, identity, settings and backup; deterministic local provider transports, no paid model calls.",
+  "totals": {
+    "tests": 100,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "suites": [
+    {
+      "class": "com.hoyoung.assistant.MainActivityAccountsUiTest",
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 11.768
+    },
+    {
+      "class": "com.hoyoung.assistant.MainActivityChatUiTest",
+      "tests": 12,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 3.043
+    },
+    {
+      "class": "com.hoyoung.assistant.MainActivityRoutingProfileTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 11.462
+    },
+    {
+      "class": "com.hoyoung.assistant.MainActivityUsageBudgetTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 1.383
+    },
+    {
+      "class": "com.hoyoung.assistant.runtime.AssistantRuntimeRoutingTest",
+      "tests": 22,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 2.55
+    },
+    {
+      "class": "com.hoyoung.assistant.runtime.ForegroundRoutingIntegrationTest",
+      "tests": 11,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 1.112
+    },
+    {
+      "class": "com.hoyoung.assistant.runtime.ModelRoutingPolicyTest",
+      "tests": 23,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.737
+    },
+    {
+      "class": "com.hoyoung.assistant.runtime.RuntimeModelPreferencesTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 1.227
+    },
+    {
+      "class": "com.hoyoung.assistant.store.AssistantIdentityBackupTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.43
+    }
+  ],
+  "fullSuiteRepeated": false,
+  "fiveYearMemorySimulationRepeated": false,
+  "physicalSamsungVerified": false,
+  "realWorkProviderVerified": false
+}

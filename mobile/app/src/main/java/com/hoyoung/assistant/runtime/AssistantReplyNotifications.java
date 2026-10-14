@@ -220,7 +220,8 @@ public final class AssistantReplyNotifications implements AutoCloseable {
                 .setData(Uri.parse("hoyoung://assistant/message/"+id)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_SINGLE_TOP)
                 .putExtra(EXTRA_SOURCE_ID,id).putExtra(EXTRA_SOURCE_HASH,hash).putExtra(EXTRA_OPEN_CONVERSATION,true);
         PendingIntent content = PendingIntent.getActivity(context,(int)(id^(id>>>32)),open,PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
-        String title = "quota".equals(stage)||"quota_exhausted".equals(stage)?"호영 · 한도 안내":"error".equals(stage)||"blocked".equals(stage)||"uncertain".equals(stage)?"호영 · 확인할 내용":"호영";
+        String name=com.hoyoung.assistant.store.AssistantIdentity.name(store);
+        String title = "quota".equals(stage)||"quota_exhausted".equals(stage)?name+" · 한도 안내":"error".equals(stage)||"blocked".equals(stage)||"uncertain".equals(stage)?name+" · 확인할 내용":name;
         EmojiReactionReply.decorate(source, store.getSetting("answerSources:" + id, null));
         JSONObject reaction = EmojiReactionReply.fromStoredMessage(source);
         String replyText = reaction == null ? source.optString("text") : "내 메시지에 " + reaction.optString("emoji") + " 반응했어";
@@ -235,7 +236,7 @@ public final class AssistantReplyNotifications implements AutoCloseable {
                 .setWhen(source.optLong("created_at",System.currentTimeMillis())).setShowWhen(true);
         if (!lockscreenContent) {
             Notification publicVersion = new Notification.Builder(context,CHANNEL).setSmallIcon(android.R.drawable.ic_dialog_info)
-                    .setContentTitle("호영").setContentText("새로운 메시지가 있어. 앱에서 확인해.")
+                    .setContentTitle(name).setContentText("새로운 메시지가 있어. 앱에서 확인해.")
                     .setVisibility(Notification.VISIBILITY_PUBLIC).build();
             builder.setPublicVersion(publicVersion);
         }

@@ -65,6 +65,8 @@ public final class AssistantRuntime {
     private final MemoryGateway memoryGateway;
     private final AutonomyTickPolicy autonomyTicks;
     private final UsageBudgetLedger usageBudget;
+    private final ForegroundRoutingSession foregroundRouting = new ForegroundRoutingSession();
+    private final com.hoyoung.assistant.store.AssistantIdentity identity;
     private String configuredUsageBudget="";
     private final java.util.concurrent.ConcurrentHashMap<String,JSONObject> preparedRoutes=new java.util.concurrent.ConcurrentHashMap<>();
     private final DispatchPayloadRegistry dispatchPayloads=new DispatchPayloadRegistry();
@@ -114,6 +116,7 @@ public final class AssistantRuntime {
         this.context = context.getApplicationContext();
         this.store = store;
         this.files = files;
+        this.identity = new com.hoyoung.assistant.store.AssistantIdentity(this.context,store,files);
         this.phoneTools = phoneTools;
         this.accountTools = new com.hoyoung.assistant.store.AccountTools(this.context,store,phoneTools);
         this.promptExecutor = promptExecutor;
@@ -125,6 +128,7 @@ public final class AssistantRuntime {
         this.memoryGateway=new MemoryGateway(store,store.getPrivacyLedger(),phoneTools::canUseImplicitMemorySource);
         this.autonomyTicks=new AutonomyTickPolicy(store);
         this.usageBudget=new UsageBudgetLedger(this.context);
+        migrateAutonomyDefault();
         configureUsageBudget();
         // Large legacy journals reconcile off the UI thread. No provider dispatch until ready.
         promptExecutor.execute(() -> {
@@ -183,6 +187,31 @@ public final class AssistantRuntime {
         return receive(text, attachments, UUID.randomUUID().toString(), -1);
     }
 
+    private void migrateAutonomyDefault() {
+        store.withTransaction(db->{
+            if(!"1".equals(store.getSetting("routing.mediumDefaultMigration",""))) {
+                // v0.4.0 shipped Low; the owner explicitly requested Medium for the upgrade.
+                String previous=store.getSetting("autonomousEffort",null);
+                if(previous==null||"low".equals(previous))store.putSetting("autonomousEffort","medium");
+                store.putSetting("routing.mediumDefaultMigration","1");
+            }
+            return null;
+        });
+    }
+
+    public synchronized void enterForegroundRouting() { foregroundRouting.enter(); changed(); }
+    public synchronized void leaveForegroundRouting() { foregroundRouting.leave(); changed(); }
+    public synchronized JSONObject foregroundRoutingState() { return foregroundRouting.snapshot(); }
+    public synchronized JSONObject selectForegroundRouting(String sessionId,long revision,String model,String effort,boolean reset) {
+        JSONObject result=foregroundRouting.select(sessionId,revision,model,effort,reset);
+        if(result.optBoolean("ok"))changed(); return result;
+    }
+    public JSONObject assistantIdentity() { return identity.snapshot(); }
+    public synchronized JSONObject updateAssistantIdentity(String name,String fileId,boolean useDefault,String expectedRevision)throws IOException {
+        if(isRestoringBackup())throw new IOException("복원 완료 후 프로필을 변경해 줘.");
+        JSONObject result=identity.update(name,fileId,useDefault,expectedRevision);changed();return result;
+    }
+
     /** A durable client cohort makes process recreation and repeated taps one owner intent. */
     public JSONObject receive(String text, JSONArray attachments, String clientInputId, long draftRevision) {
         String actor=store.getSetting("inputActor:"+clientInputId,UiAutomationProvenance.OWNER);
@@ -195,6 +224,10 @@ public final class AssistantRuntime {
 
     /** Own-app automation is allowed but does not manufacture a new human-owner instruction. */
     public JSONObject receive(String text, JSONArray attachments, String clientInputId, long draftRevision, String inputActor) {
+        return receive(text,attachments,clientInputId,draftRevision,inputActor,foregroundRouting.snapshot());
+    }
+    public JSONObject receive(String text, JSONArray attachments, String clientInputId, long draftRevision, String inputActor, JSONObject submittedSelection) {
+        final JSONObject acceptedSelection=copy(submittedSelection==null?foregroundRouting.snapshot():submittedSelection);
         final String actor=UiAutomationProvenance.normalize(inputActor);
         final boolean humanOwner=UiAutomationProvenance.isOwner(actor);
         if (clientInputId == null || !clientInputId.matches("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}") || draftRevision < -1)
@@ -240,6 +273,11 @@ public final class AssistantRuntime {
                 if(humanOwner){
                     store.putSetting("ownerInputRevision", String.valueOf(message.optLong("id")));
                     store.putSetting("latestOwnerRequestId", externalId);
+                    JSONObject session=acceptedSelection;
+                    store.putSetting("ownerSettingsAuthority:"+externalId,store.getSetting("personalSettingsRevision","0"));
+                    store.putSetting("ownerRoutingSessionId:"+externalId,session.optString("sessionId"));
+                    store.putSetting("ownerRoutingAuthority:"+externalId,String.valueOf(session.optLong("revision")));
+                    if(session.optBoolean("selected"))store.putSetting("ownerRouteOverride:"+externalId,session.toString());
                     if(!UiAutomationProvenance.OWNER.equals(actor)){
                         JSONObject origin=object("type","native_input_origin","sourceMessageId",message.optLong("id"),"sourceHash",message.optString("content_hash"),"inputActor",actor,"authoredBy",authoredBy,"submittedBy",submittedBy,"humanOwnerAuthorized",true,"allTextAuthoredByOwner",false);
                         JSONObject evidence=store.addMessage("system",origin.toString(),externalId);
@@ -518,6 +556,7 @@ public final class AssistantRuntime {
         store.markRequest(reserved.optLong("id"), "dispatching", null);
         JSONObject selected=preparedRoutes.get(reserved.optString("external_id"));
         store.putSetting("dispatchModelPreferences:"+reserved.optString("external_id"),selected.toString());
+        store.putSetting("dispatchIdentityRevision:"+reserved.optString("external_id"),store.getSetting("preparedIdentityRevision:"+reserved.optString("external_id"),"default"));
         recordUsageSafely(()->usageBudget.recordStaged(reserved.optString("external_id"),reserved.optString("kind"),selected.optString("model"),selected.optString("effort"),selected.optString("speed"),prompt.length(),nowMillis()));
         recordUsageSafely(()->usageBudget.recordSelectionObserved(reserved.optString("external_id"),webState,nowMillis()));
         put(active, "status", "dispatching"); dispatchStartedAt = nowMillis();
@@ -816,6 +855,7 @@ public final class AssistantRuntime {
             recomputeUncertainty();
             if (uncertaintyBlocked()) throw new IllegalStateException("결과가 확인되지 않은 기존 작업을 먼저 확인하거나 제외해야 백업을 복원할 수 있어.");
             restoringBackup = true;
+            foregroundRouting.resetSelection();
         }
         AssistantReplyNotifications notifications = replyNotifications;
         boolean notificationBarrier = false;
@@ -830,6 +870,7 @@ public final class AssistantRuntime {
         JSONObject externalControls=new com.hoyoung.assistant.store.ExternalOwnerPolicyFolder(context).readConnectedFolder();
         if(externalControls!=null)com.hoyoung.assistant.store.OwnerPolicyBackup.merge(context,store,externalControls);
         files.importBackup(input, store);
+        migrateAutonomyDefault();
         for(String requestId:preparedMemory.keySet())dispatchPayloads.forget(requestId);
         preparedMemory.clear();preparedReviews.clear();
         try {com.hoyoung.assistant.store.OwnerPolicyBackup.reconcile(context,store);reconcileOwnerSourceAuthority(store);}
@@ -923,7 +964,7 @@ public final class AssistantRuntime {
                 "activeStoreId", active == null ? JSONObject.NULL : active.optLong("id"),
                 "steeringVerified", false, "cloudPermanent", false, "receiptIndexReady", receiptsReady, "resources", AutonomyService.resourceState(),
                 "model", store.getSetting("requiredModel", "gpt-6.1-sol"), "effort", store.getSetting("requiredEffort", "medium"), "speed", store.getSetting("requiredSpeed", "fast"),
-                "requestModelPreferences",preferencesForState(),"usageBudget",usageBudget.snapshot(nowMillis()),
+                "foregroundRouting",foregroundRouting.snapshot(),"assistantIdentity",identity.snapshot(),"requestModelPreferences",preferencesForState(),"usageBudget",usageBudget.snapshot(nowMillis()),
                 "selectionFieldsAreRequiredChoices", true, "activeOwnerReply", active == null ? completing && completingOwnerReply : ownerPurpose(active),
                 "activePhase", active == null ? completing ? "saving_result" : "idle" : active.optString("status"),
                 "activeWaitingMillis", active == null ? 0 : Math.max(0, nowMillis() - ("preparing".equals(active.optString("status")) ? active.optLong("preparationStartedAt", nowMillis()) : dispatchStartedAt)));
@@ -1006,7 +1047,17 @@ public final class AssistantRuntime {
         boolean newDevice="autonomy".equals(request.optString("kind"))&&!String.valueOf(store.lastDeviceEventId()).equals(
                 store.getSetting("routingDeviceWatermark:"+id,store.getSetting("autonomy.lastObservedDeviceId","0")));
         boolean doubt=!owner&&(uncertaintyBlocked()||newDevice||hasDueGoalOrUnreadable(nowMillis()));
-        return ModelRoutingPolicy.choose(routingSettings(),request.optString("kind"),purpose,review,doubt,minimum);
+        JSONObject route=ModelRoutingPolicy.choose(routingSettings(),request.optString("kind"),purpose,review,doubt,minimum);
+        if(owner) {
+            JSONObject selected=parseObject(store.getSetting("ownerRouteOverride:"+root,"{}"));
+            if(selected.optBoolean("selected")) {
+                validateModelPreferences(selected.optString("model"),selected.optString("effort"),"fast");
+                put(route,"model",selected.optString("model"));put(route,"effort",selected.optString("effort"));
+                put(route,"speed","fast");put(route,"decisionOnly",false);put(route,"explicitOwnerSelection",true);
+                put(route,"reason","accepted_owner_task_selection");
+            }
+        }
+        return route;
     }
     private JSONObject routingSettings() {
         JSONObject settings=new JSONObject();
@@ -1104,7 +1155,7 @@ public final class AssistantRuntime {
     /** Fingerprints settings and actual grants both before preparation and before dispatch. */
     private String preparationPolicy() {
         StringBuilder policy = new StringBuilder();
-        for (String key : new String[]{"customInstructions", "personalizedInstructions", "standingGoals", "toolPermissions", "memoryReviewEnabled", "phoneContextEnabled", "semanticSearchEnabled", "replyNotificationsEnabled", "toolRoundLimit", "toolActionsPerTurnLimit", "replyLockscreenContentVisible", "replySystemContextualActionsEnabled", "workFileDownloadsEnabled", "backupMaxGiB", "goalLedgerRevision", "wakeMode", "ownerInputRevision", "requiredModel", "requiredEffort", "requiredSpeed", "usageOptimizationEnabled", "backgroundSpeed", "autonomousEffort", "memoryMinimumEffort", "budgetBasis", "budgetTargetPercent"})
+        for (String key : new String[]{"customInstructions", "personalizedInstructions", "standingGoals", "toolPermissions", "memoryReviewEnabled", "phoneContextEnabled", "semanticSearchEnabled", "replyNotificationsEnabled", "toolRoundLimit", "toolActionsPerTurnLimit", "replyLockscreenContentVisible", "replySystemContextualActionsEnabled", "workFileDownloadsEnabled", "backupMaxGiB", "assistant.identity", "goalLedgerRevision", "wakeMode", "ownerInputRevision", "requiredModel", "requiredEffort", "requiredSpeed", "usageOptimizationEnabled", "backgroundSpeed", "autonomousEffort", "memoryMinimumEffort", "budgetBasis", "budgetTargetPercent"})
             policy.append(key).append('\n').append(store.getSetting(key, "<unset>")).append('\n');
         JSONArray grants = new PermissionCatalog(context).snapshot();
         policy.append(grants);
@@ -1150,6 +1201,12 @@ public final class AssistantRuntime {
         // They remain present on every request; server cache hits are not assumed.
         StringBuilder responseContract = new StringBuilder();
         prompt.append("기본 운영 지침:\n").append(readAsset("core-identity.txt"));
+        JSONObject currentIdentity=identity.snapshot();
+        store.putSetting("preparedIdentityRevision:"+externalId,currentIdentity.optString("revision"));
+        prompt.append("\nCURRENT_ASSISTANT_IDENTITY (현재 설정, 과거 기억·옛 이름보다 우선):\n").append(currentIdentity).append("\n")
+                .append("현재 자기 이름은 위 name이다. 과거의 호영/옛 자기소개는 역사이며 현재 이름으로 되돌리지 않는다. 프사 파일은 app.identity.avatar로 직접 볼 수 있다. 실제로 업로드된 새 프사를 보면 assistantAvatarAnalysis:{revision,sha256,description}으로 관찰을 남겨. 보지 못했으면 내용을 추측하지 않는다.\n")
+                .append("이번만/이번 작업/잠깐 모델 변경은 app.routing.session.set을 사용한다. 화면을 보는 동안 다음 사용자 메시지에도 유지되고 화면 이탈은 다음 새 메시지의 선택만 초기화한다. 이미 맡긴 작업은 후속 처리까지 선택을 유지한다. 영구/앞으로 변경은 app.settings.update를 사용한다. session 도구가 실패하면 영구 설정으로 대신 바꾸지 마. 모델 선택 변경은 그 턴에서 session.set 도구 하나만 요청하고, 실제 작업은 변경된 모델로 이어지는 다음 턴에 해. 프사·이름은 app.identity.update로 바꾸고 현재 revision을 확인해.\n")
+                .append("현재 화면 임시 선택: ").append(foregroundRouting.snapshot()).append("\n");
         String primaryCustom=store.getSetting("customInstructions",null);
         String customKey=primaryCustom==null?"personalizedInstructions":"customInstructions";
         String custom=primaryCustom==null?store.getSetting("personalizedInstructions","<unset>"):primaryCustom;
@@ -1216,6 +1273,17 @@ public final class AssistantRuntime {
         prompt.append("현재 시각 epochMillis=").append(nowMillis()).append(" 휴대폰 시간대=").append(java.util.TimeZone.getDefault().getID()).append("\n");
         store.recordEvent("prompt_static_prefix_prepared",object("requestId",externalId,"staticPrefixChars",staticPrefixChars,"instructionsRepeatedInEveryRequest",true,"providerCacheHitMeasured",false));
         long originalId = parseLong(store.getSetting("requestSource:" + externalId, "0"));
+        if(ownerPurpose(request)&&!currentIdentity.has("avatarDescription")) try {
+            JSONArray supplied=parseArray(store.getSetting("attachmentMetadata:"+externalId,"[]"));
+            JSONObject profile=identity.avatarForUpload();boolean found=false;
+            for(int i=0;i<supplied.length();i++)if(profile.optString("id").equals(supplied.optJSONObject(i).optString("id")))found=true;
+            if(!found&&supplied.length()<8) {
+                put(profile,"sourceMessageId",0);supplied.put(profile);validateAttachments(supplied);
+                JSONArray ids=new JSONArray();for(int i=0;i<supplied.length();i++)ids.put(supplied.optJSONObject(i).optString("id"));
+                store.putSetting("attachments:"+externalId,ids.toString());store.putSetting("attachmentMetadata:"+externalId,supplied.toString());
+            }
+        }
+        catch(IOException unavailable){prompt.append("현재 프로필 사진 원본을 열지 못했다. 프사 내용을 추측하지 말고 필요하면 사용자에게 사진 재선택을 안내해.\n");}
         prompt.append("첨부 메타데이터:\n").append(store.getSetting("attachmentMetadata:" + externalId, "[]")).append("\n");
         if (prompt.length() > MAX_PROMPT_CHARS-8192) {
             if(!decisionOnly&&!deferredSchemas&&permissionAllowed("app.tools.describe"))return buildPrompt(request,true);
@@ -1354,6 +1422,11 @@ public final class AssistantRuntime {
         catalog.put(object("name", "app.settings.get", "arguments", "{}"));
         catalog.put(object("name", "app.tools.describe", "arguments", "names:string[]; return each complete exact tool definition, including all constraints"));
         catalog.put(object("name", "app.work.pause", "arguments", "reason:string; hold current root's new local effects and request remote cancellation without claiming it stopped"));
+        catalog.put(object("name","app.routing.session.get","arguments",""));
+        catalog.put(object("name","app.routing.session.set","arguments","model?:gpt-model-id,effort?:low|medium|high|xhigh|max|ultra,reset?:boolean"));
+        catalog.put(object("name","app.identity.get","arguments",""));
+        catalog.put(object("name","app.identity.update","arguments","name?:string,avatarFileId?:string,useDefaultAvatar?:boolean,expectedRevision?:string"));
+        catalog.put(object("name","app.identity.avatar","arguments",""));
         catalog.put(object("name", "app.settings.update", "arguments", "customInstructions?:string,standingGoals?:string,toolPermissions?:{catalogTool:boolean},autonomyEnabled?:boolean,heartbeatSeconds?:60..86400,memoryReviewEnabled?:boolean,phoneContextEnabled?:boolean,semanticSearchEnabled?:boolean,replyNotificationsEnabled?:boolean,toolRoundLimit?:integer>=0(0=unlimited),toolActionsPerTurnLimit?:integer>=0(0=unlimited),replyLockscreenContentVisible?:boolean,replySystemContextualActionsEnabled?:boolean,workFileDownloadsEnabled?:boolean,backupMaxGiB?:1..64,wakeMode?:continuous|while_working|charging,requiredModel?:gpt-model-id,requiredEffort?:low|medium|high|xhigh|max|ultra,requiredSpeed?:fast|standard,usageOptimizationEnabled?:boolean,backgroundSpeed?:fast|standard,autonomousEffort?:low|medium|high|xhigh|max|ultra,memoryMinimumEffort?:medium|high|xhigh|max|ultra,budgetBasis?:pool_per_day|daily_share,budgetTargetPercent?:number(0..100]"));
         append(catalog, accountTools.catalog());
         append(catalog, files.catalog());
@@ -1404,6 +1477,10 @@ public final class AssistantRuntime {
                 localNotice("reply_context_changed","새 입력·정정·권한 변경 때문에 이전 응답을 그대로 사용하지 않았어. 최신 원문을 기준으로 이어서 판단할게.");
                 return;
             }
+            String dispatchedIdentity=store.getSetting("dispatchIdentityRevision:"+externalId,identity.snapshot().optString("revision"));
+            if(!dispatchedIdentity.equals(identity.snapshot().optString("revision"))) {
+                enqueueIdentityRefresh(completed,text);return;
+            }
             JSONObject envelope = parseEnvelope(structuredText.isEmpty() ? rawEligible ? text : "" : structuredText, externalId);
             JSONObject route=requiredModelPreferences(externalId);
             if(route.optBoolean("decisionOnly")) {
@@ -1419,7 +1496,7 @@ public final class AssistantRuntime {
                 return;
             }
             JSONObject routing=envelope==null?null:envelope.optJSONObject("routing");
-            if(routing!=null&&"ESCALATE_HIGH".equals(routing.optString("decision"))&&ModelRoutingPolicy.rank(route.optString("effort"))<ModelRoutingPolicy.rank("high")) {
+            if(!route.optBoolean("explicitOwnerSelection")&&routing!=null&&"ESCALATE_HIGH".equals(routing.optString("decision"))&&ModelRoutingPolicy.rank(route.optString("effort"))<ModelRoutingPolicy.rank("high")) {
                 enqueueRoutingPromotion(completed,envelope,text,"high");return;
             }
             boolean reviewOnly = "memory-review".equals(purpose);
@@ -1497,6 +1574,7 @@ public final class AssistantRuntime {
                 // A fully grounded automatic review can finish independently of
                 // unrelated actions. A review requiring those tools remains pending.
                 recordAssetAnalyses(completed, envelope);
+                recordAvatarAnalysis(completed,envelope);
                 boolean reviewAcknowledged=false;
                 if(!hasActions||(automatic&&envelope.optJSONObject("review")!=null&&!pendingReviewWrite(actions)))
                     reviewAcknowledged=memoryReview.acknowledge(expected,envelope.optJSONObject("review"),memoriesAccepted&&!hadRejected&&permissionAllowed("memory.save"),reviewedSaved);
@@ -1620,6 +1698,25 @@ public final class AssistantRuntime {
         }
     }
 
+    /** A profile edited during inference takes precedence over that turn's old self-description.
+     * Keep its observed cloud output and immutable task route; never replay completed cloud actions. */
+    private void enqueueIdentityRefresh(JSONObject completed,String raw) {
+        String id=completed.optString("external_id"),root=store.getSetting("requestRoot:"+id,id),nextId=UUID.randomUUID().toString();
+        if(requestPaused(id)) {store.markRequest(completed.optLong("id"),"completed",raw);finishAutomaticTick(id,false,"");return;}
+        store.withTransaction(db->{
+            JSONObject observation=store.addMessage("system",object("type","identity_changed_during_inference","previousRequestId",id,"observedProviderOutput",raw,
+                    "nativeActionsExecuted",false,"instruction","프로필 변경 전의 모델 출력이다. 이미 수행된 클라우드 행동은 재실행하지 말고 결과만 이어받아 현재 이름과 프사로 답변하라. 이전 출력의 폰 도구는 아직 실행되지 않았다.").toString(),id);
+            store.enqueueRequest("작업 중 이름 또는 프사가 바뀌었다. 현재 CURRENT_ASSISTANT_IDENTITY를 따르고, 원문 "+observation.optLong("id")+"의 이전 Work 결과를 읽어 원 요청을 이어서 마쳐. 이미 끝난 클라우드 작업은 다시 실행하지 마. 이 작업의 모델 선택은 그대로 유지된다.","tool-continuation",nextId);
+            putRequestMetadata(nextId,root,store.getSetting("requestSource:"+id,"0"),store.getSetting("toolRound:"+id,"0"),store.getSetting("attachments:"+id,"[]"),store.getSetting("attachmentMetadata:"+id,"[]"));
+            store.putSetting("requestPurpose:"+nextId,store.getSetting("requestPurpose:"+id,completed.optString("kind")));
+            for(String prefix:new String[]{"memoryReview:","memoryReviewSavedCount:","memoryReviewHadRejected:","autonomyTick:"}){String value=store.getSetting(prefix+id,"");if(!value.isEmpty())store.putSetting(prefix+nextId,value);}
+            store.markRequest(completed.optLong("id"),"completed",raw);
+            store.recordEvent("identity_refresh_queued",object("requestId",nextId,"rootRequestId",root,"previousRequestId",id,"modelSelectionPreserved",true));return null;
+        });
+        recordUsageSafely(()->usageBudget.recordOutcome(id,"identity_refresh",nowMillis()));
+        store.putSetting("runtime.lastCode","identity_refresh");store.putSetting("runtime.progress","바뀐 이름·프사를 반영해서 기존 작업 결과를 이어받는 중");
+    }
+
     /** A proposed action from a cheap decision is data only; the stronger turn re-evaluates it. */
     private void enqueueRoutingPromotion(JSONObject completed,JSONObject envelope,String raw,String requestedEffort) {
         String id=completed.optString("external_id"),root=store.getSetting("requestRoot:"+id,id);
@@ -1677,6 +1774,7 @@ public final class AssistantRuntime {
             if (envelope.has("actions") && !(envelope.opt("actions") instanceof JSONArray)) return null;
             if (envelope.has("memories") && !(envelope.opt("memories") instanceof JSONArray)) return null;
             if (envelope.has("assetAnalyses") && !(envelope.opt("assetAnalyses") instanceof JSONArray)) return null;
+            if (envelope.has("assistantAvatarAnalysis") && !(envelope.opt("assistantAvatarAnalysis") instanceof JSONObject)) return null;
             if (envelope.has("routing") && !(envelope.opt("routing") instanceof JSONObject)) return null;
             if (envelope.has("message") && !(envelope.opt("message") instanceof String)) return null;
             if (envelope.has("status") && !matchesOne(envelope.optString("status"), "idle", "working", "completed", "blocked", "awaiting_result")) return null;
@@ -1704,6 +1802,18 @@ public final class AssistantRuntime {
         if (notifications == null || message == null) return;
         try { notifications.publish(message, stage); }
         catch (RuntimeException unavailable) { store.recordEvent("assistant_reply_notification_deferred", object("sourceMessageId", message.optLong("id"))); }
+    }
+
+    private void recordAvatarAnalysis(JSONObject completed,JSONObject envelope) {
+        JSONObject analysis=envelope.optJSONObject("assistantAvatarAnalysis");if(analysis==null)return;
+        String id=completed.optString("external_id"),sha=analysis.optString("sha256");
+        JSONArray observed=parseArray(store.getSetting("uploadedAssetsObserved:"+id,"[]"));
+        for(int i=0;i<observed.length();i++) {
+            JSONObject asset=observed.optJSONObject(i);
+            if(asset!=null&&sha.equals(asset.optString("sha256"))) {
+                identity.acceptObservation(analysis.optString("revision"),sha,analysis.optString("description"),id);return;
+            }
+        }
     }
 
     private void recordAssetAnalyses(JSONObject completed, JSONObject envelope) {
@@ -1810,11 +1920,16 @@ public final class AssistantRuntime {
         Set<String> names = new HashSet<>();
         JSONArray catalog = catalog();
         for (int i = 0; i < catalog.length(); i++) names.add(catalog.optJSONObject(i).optString("name"));
+        boolean selectionBatch=false;
+        for(int i=0;i<actions.length();i++){JSONObject action=actions.optJSONObject(i);if(action!=null&&"app.routing.session.set".equals(action.optString("name")))selectionBatch=true;}
         for (int i = 0; i < actions.length(); i++) {
             JSONObject action = actions.optJSONObject(i);
             String actionId = action == null ? "" : action.optString("id");
             String name = action == null ? "" : action.optString("name");
             JSONObject arguments = action == null ? null : action.optJSONObject("arguments");
+            if(selectionBatch&&!"app.routing.session.set".equals(name)){
+                results.put(object("id",actionId,"name",name,"ok",false,"code","wait_for_selected_model","started",false,"replayed",false));continue;
+            }
             try { memoryGateway.assertFresh(preparedMemory.get(requestId),nowMillis(),false); assertReviewFresh(requestId); }
             catch(MemoryGateway.Blocked stale) {
                 results.put(object("id",actionId,"name",name,"ok",false,"code",stale.reason,"started",false,"replayed",false));
@@ -2148,9 +2263,47 @@ public final class AssistantRuntime {
             requestMemoryReview();
             return object("ok", true, "reviewQueued", true, "review", memoryReview.status());
         }
+        if("app.routing.session.get".equals(name)){rejectUnknown(args);return foregroundRouting.snapshot();}
+        if("app.routing.session.set".equals(name)) {
+            rejectUnknown(args,"model","effort","reset");
+            if(args.has("reset")&&!(args.opt("reset") instanceof Boolean))throw new IllegalArgumentException("reset must be boolean");
+            String root=store.getSetting("requestRoot:"+completingRequestId,completingRequestId);
+            String sessionId=store.getSetting("ownerRoutingSessionId:"+root,"");
+            long revision=parseLong(store.getSetting("ownerRoutingAuthority:"+root,"-1"));
+            JSONObject current=foregroundRouting.snapshot();
+            String model=args.optString("model",current.optBoolean("selected")?current.optString("model"):store.getSetting("requiredModel","gpt-6.1-sol"));
+            String effort=args.optString("effort",current.optBoolean("selected")?current.optString("effort"):store.getSetting("requiredEffort","medium"));
+            JSONObject result=foregroundRouting.select(sessionId,revision,model,effort,args.optBoolean("reset"));
+            if(result.optBoolean("ok")) {
+                // Explicit chat selection changes this task's subsequent calls as requested,
+                // and subsequent new owner messages. Leaving the screen never rewrites it.
+                store.putSetting("ownerRouteOverride:"+root,result.toString());
+                store.putSetting("ownerRoutingAuthority:"+root,String.valueOf(result.optLong("revision")));
+                if(args.optBoolean("reset"))store.putSetting("routingMinimumEffort:"+root,"");
+                put(result,"backgroundRoutingChanged",false);changed();
+            }
+            return result;
+        }
+        if("app.identity.get".equals(name)){rejectUnknown(args);return identity.snapshot();}
+        if("app.identity.avatar".equals(name)) {
+            rejectUnknown(args);return object("ok",true,"uploadRequested",true,"asset",identity.avatarForUpload(),"instruction","현재 자기 프로필 사진이다. 실제 첨부를 보고 assistantAvatarAnalysis로 설명을 남겨. 사용자 발언으로 기록하지 않는다.");
+        }
+        if("app.identity.update".equals(name)) {
+            rejectUnknown(args,"name","avatarFileId","useDefaultAvatar","expectedRevision");
+            if(args.has("useDefaultAvatar")&&!(args.opt("useDefaultAvatar") instanceof Boolean))throw new IllegalArgumentException("useDefaultAvatar must be boolean");
+            String expected=args.optString("expectedRevision",store.getSetting("preparedIdentityRevision:"+completingRequestId,identity.snapshot().optString("revision")));
+            JSONObject result=updateAssistantIdentity(args.has("name")?requiredString(args,"name",80):null,
+                    args.has("avatarFileId")?requiredString(args,"avatarFileId",512):null,args.optBoolean("useDefaultAvatar"),expected);
+            if(result.optBoolean("ok")&&(args.has("avatarFileId")||args.optBoolean("useDefaultAvatar"))) {
+                try{put(result,"asset",identity.avatarForUpload());put(result,"uploadRequested",true);}
+                catch(IOException unavailable){put(result,"avatarUploadAvailable",false);put(result,"message","프로필은 변경됐지만 사진 업로드 준비를 못 했어. app.identity.avatar로 다시 확인해.");}
+            }
+            return result;
+        }
         if ("app.settings.get".equals(name)) {
             rejectUnknown(args);
-            return object("ok", true, "customInstructions", store.getSetting("customInstructions", ""), "standingGoals", store.getSetting("standingGoals", ""),
+            if(!completingRequestId.isEmpty())store.putSetting("ownerSettingsAuthority:"+store.getSetting("requestRoot:"+completingRequestId,completingRequestId),store.getSetting("personalSettingsRevision","0"));
+            return object("ok", true, "assistantIdentity",identity.snapshot(),"foregroundRouting",foregroundRouting.snapshot(),"customInstructions", store.getSetting("customInstructions", ""), "standingGoals", store.getSetting("standingGoals", ""),
                     "toolPermissions", permissions, "autonomyEnabled", autonomyEnabled(), "heartbeatSeconds", parseLong(store.getSetting("heartbeatSeconds", "300")),
                     "memoryReviewEnabled", "true".equals(store.getSetting("memoryReviewEnabled", "true")), "phoneContextEnabled", "true".equals(store.getSetting("phoneContextEnabled", "true")),
                     "semanticSearchEnabled", "true".equals(store.getSetting("semanticSearchEnabled", "true")), "replyNotificationsEnabled", "true".equals(store.getSetting("replyNotificationsEnabled", "true")),
@@ -2160,11 +2313,56 @@ public final class AssistantRuntime {
                     "workFileDownloadsEnabled", workFileDownloadsEnabled(),
                     "backupMaxGiB", parseLong(store.getSetting("backupMaxGiB", "64")), "wakeMode", store.getSetting("wakeMode", "continuous"),
                     "requiredModel", store.getSetting("requiredModel", "gpt-6.1-sol"), "requiredEffort", store.getSetting("requiredEffort", "medium"), "requiredSpeed", store.getSetting("requiredSpeed", "fast"), "usageOptimizationEnabled", "true".equals(store.getSetting("usageOptimizationEnabled", "true")),
-                    "backgroundSpeed",store.getSetting("backgroundSpeed","standard"),"autonomousEffort",store.getSetting("autonomousEffort","low"),
+                    "backgroundSpeed",store.getSetting("backgroundSpeed","standard"),"autonomousEffort",store.getSetting("autonomousEffort","medium"),
                     "memoryMinimumEffort",store.getSetting("memoryMinimumEffort","medium"),"budgetBasis",store.getSetting("budgetBasis","pool_per_day"),
                     "budgetTargetPercent",Double.parseDouble(store.getSetting("budgetTargetPercent","10")),"usageBudget",usageBudget.snapshot(nowMillis()),"resources", AutonomyService.resourceState());
         }
-        if ("app.settings.update".equals(name)) {
+        if ("app.settings.update".equals(name)) return updateSettingsFromChat(args);
+
+        throw new IllegalArgumentException("Unsupported tool");
+    }
+
+    private synchronized JSONObject updateSettingsFromChat(JSONObject args)throws Exception {
+            String root=store.getSetting("requestRoot:"+completingRequestId,completingRequestId);
+            if(!completingRequestId.isEmpty()&&!store.getSetting("ownerSettingsAuthority:"+root,"0").equals(store.getSetting("personalSettingsRevision","0")))
+                return object("ok",false,"code","settings_changed","message","더 최근의 설정 변경이 있어. 이전 요청으로 덮어쓰지 않았어.");
+            JSONObject result=applyPersonalSettings(args);
+            if(!completingRequestId.isEmpty())store.putSetting("ownerSettingsAuthority:"+root,store.getSetting("personalSettingsRevision","0"));
+            return result;
+    }
+
+    private void validateSources(JSONArray sources) {
+        if (sources == null || sources.length() < 1 || sources.length() > 100) throw new IllegalArgumentException("Actual source message ids are required");
+        for (int i = 0; i < sources.length(); i++) {
+            Object raw = sources.opt(i);
+            if (!(raw instanceof Number) || ((Number) raw).doubleValue() != ((Number) raw).longValue()
+                    || ((Number) raw).longValue() <= 0 || store.getMessage(((Number) raw).longValue()) == null) throw new IllegalArgumentException("Unknown source message");
+        }
+    }
+
+    public JSONObject personalSettingsBaseline() {
+        JSONObject result=new JSONObject();
+        for(String key:PERSONAL_SETTING_KEYS)put(result,key,store.getSetting(key,null)==null?JSONObject.NULL:store.getSetting(key,null));
+        return result;
+    }
+    private static final String[] PERSONAL_SETTING_KEYS={"customInstructions","standingGoals","heartbeatSeconds","requiredModel","requiredEffort","requiredSpeed","usageOptimizationEnabled","autonomousEffort","memoryMinimumEffort","backgroundSpeed","budgetBasis","budgetTargetPercent","backupMaxGiB","wakeMode","memoryReviewEnabled","phoneContextEnabled","semanticSearchEnabled","replyNotificationsEnabled","toolRoundLimit","toolActionsPerTurnLimit","replyLockscreenContentVisible","replySystemContextualActionsEnabled","workFileDownloadsEnabled","toolPermissions"};
+
+    /** UI patches only edited fields and compares their original raw values atomically. */
+    public synchronized JSONObject updatePersonalSettings(JSONObject patch,JSONObject baseline)throws Exception {
+        if(isRestoringBackup())throw new IllegalStateException("복원 완료 후 설정을 변경해 줘.");
+        return store.withTransaction(db->{
+            if(baseline!=null)for(java.util.Iterator<String> it=patch.keys();it.hasNext();) {
+                String key=it.next(),actual=store.getSetting(key,null);
+                Object expected=baseline.opt(key);
+                if(expected==null||!java.util.Objects.equals(actual,expected==JSONObject.NULL?null:String.valueOf(expected)))
+                    return object("ok",false,"code","settings_changed","message","이 항목이 다른 화면이나 대화에서 바뀌었어. 최신 설정을 다시 열어 줘.","key",key);
+            }
+            try{return applyPersonalSettings(patch);}catch(RuntimeException failure){throw failure;}catch(Exception failure){throw new IllegalStateException(failure);}
+        });
+    }
+
+    private JSONObject applyPersonalSettings(JSONObject args)throws Exception {
+            if(args.length()==0)return object("ok",true,"unchanged",true);
             rejectUnknown(args, "customInstructions", "standingGoals", "toolPermissions", "autonomyEnabled", "heartbeatSeconds", "memoryReviewEnabled", "phoneContextEnabled", "semanticSearchEnabled", "replyNotificationsEnabled", "toolRoundLimit", "toolActionsPerTurnLimit", "replyLockscreenContentVisible", "replySystemContextualActionsEnabled", "workFileDownloadsEnabled", "backupMaxGiB", "wakeMode", "requiredModel", "requiredEffort", "requiredSpeed", "usageOptimizationEnabled", "backgroundSpeed", "autonomousEffort", "memoryMinimumEffort", "budgetBasis", "budgetTargetPercent");
             String desiredModel = args.has("requiredModel") ? requiredString(args, "requiredModel", 80) : store.getSetting("requiredModel", "gpt-6.1-sol");
             String desiredEffort = args.has("requiredEffort") ? requiredString(args, "requiredEffort", 20) : store.getSetting("requiredEffort", "medium");
@@ -2204,12 +2402,12 @@ public final class AssistantRuntime {
                     String key = keys.optString(i);
                     if (!allowed.contains(key) || !(updates.opt(key) instanceof Boolean)) throw new IllegalArgumentException("Invalid tool permission");
                 }
-                if (keys != null) for (int i = 0; i < keys.length(); i++) { String key = keys.optString(i); put(permissions, key, updates.optBoolean(key)); }
             }
             for (String key : new String[]{"memoryReviewEnabled", "phoneContextEnabled", "semanticSearchEnabled", "replyNotificationsEnabled", "replyLockscreenContentVisible", "replySystemContextualActionsEnabled", "workFileDownloadsEnabled", "usageOptimizationEnabled"})
                 if (args.has(key) && !(args.opt(key) instanceof Boolean)) throw new IllegalArgumentException("Invalid " + key);
             // Validate the complete settings contract before any persisted mutation.
             store.withTransaction(db -> {
+            store.putSetting("personalSettingsRevision",UUID.randomUUID().toString());
             if (instructions != null) store.putSetting("customInstructions", instructions);
             if (goals != null) store.putSetting("standingGoals", goals);
             if (seconds != null) store.putSetting("heartbeatSeconds", String.valueOf(seconds));
@@ -2247,17 +2445,6 @@ public final class AssistantRuntime {
             }
             changed();
             return object("ok", true, "message", "앱 설정을 변경했어. 운영체제 권한 승인은 자동 변경하지 않아.");
-        }
-        throw new IllegalArgumentException("Unsupported tool");
-    }
-
-    private void validateSources(JSONArray sources) {
-        if (sources == null || sources.length() < 1 || sources.length() > 100) throw new IllegalArgumentException("Actual source message ids are required");
-        for (int i = 0; i < sources.length(); i++) {
-            Object raw = sources.opt(i);
-            if (!(raw instanceof Number) || ((Number) raw).doubleValue() != ((Number) raw).longValue()
-                    || ((Number) raw).longValue() <= 0 || store.getMessage(((Number) raw).longValue()) == null) throw new IllegalArgumentException("Unknown source message");
-        }
     }
 
     private JSONObject persistMemory(JSONObject proposal) {

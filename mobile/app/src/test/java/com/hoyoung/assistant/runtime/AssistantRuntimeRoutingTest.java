@@ -45,6 +45,7 @@ public final class AssistantRuntimeRoutingTest {
         store.putSetting("autonomy.enabled","false");
         clock=new AtomicLong(System.currentTimeMillis());
         runtime=new AssistantRuntime(context,store,new InternalFiles(context),new PhoneTools(context,store),Runnable::run,clock::get);
+        store.putSetting("autonomousEffort","low"); // Explicit opt-in tests for the retained Light decision path.
         transport=new Transport();runtime.attachTransport(transport);drain();
     }
     @After public void after() throws Exception {

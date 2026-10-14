@@ -34,7 +34,7 @@ public final class ModelRoutingPolicy {
                 effort=atLeast(config.optString("memoryMinimumEffort","medium"),"medium",explicitFloor,minimumEffort);
                 lane="memory";reason="memory_writer_quality_floor";
             } else if("autonomy".equals(kind)&&"autonomy".equals(purpose)&&!dueGoalOrDoubt&&rank(minimumEffort)<=rank("low")) {
-                effort=atLeast(config.optString("autonomousEffort","low"),explicitFloor,minimumEffort);
+                effort=atLeast(config.optString("autonomousEffort","medium"),explicitFloor,minimumEffort);
                 decisionOnly="low".equals(effort);lane=decisionOnly?"autonomy_decision":"background";
                 reason=decisionOnly?"bounded_decision_candidate":"configured_autonomy_effort";
             } else {

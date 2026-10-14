@@ -84,12 +84,13 @@ public class MainActivityUsageBudgetTest {
             assertFalse(speed.isEnabled());
             assertEquals("fast", speed.getSelectedItem());
             requireText(root, "설정 저장").performClick();
-            assertEquals("fast", app.getStore().getSetting("requiredSpeed", ""));
+            assertEquals("standard", app.getStore().getSetting("requiredSpeed", "")); // Untouched form fields do not overwrite stored choices.
+            assertEquals("fast", app.getRuntime().requiredModelPreferences().optString("speed"));
             assertEquals("high", app.getStore().getSetting("requiredEffort", ""));
-            assertEquals("standard", app.getStore().getSetting("backgroundSpeed", ""));
-            assertEquals("low", app.getStore().getSetting("autonomousEffort", ""));
-            assertEquals("medium", app.getStore().getSetting("memoryMinimumEffort", ""));
-            assertEquals("300", app.getStore().getSetting("heartbeatSeconds", ""));
+            assertEquals("standard", app.getStore().getSetting("backgroundSpeed", "standard"));
+            assertEquals("medium", app.getStore().getSetting("autonomousEffort", ""));
+            assertEquals("medium", app.getStore().getSetting("memoryMinimumEffort", "medium"));
+            assertEquals("300", app.getStore().getSetting("heartbeatSeconds", "300"));
         } finally { controller.pause().stop().destroy(); }
     }
 

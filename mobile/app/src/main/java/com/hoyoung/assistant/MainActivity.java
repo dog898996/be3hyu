@@ -36,6 +36,7 @@ import com.hoyoung.assistant.ui.TypingIndicatorView;
 import com.hoyoung.assistant.phone.PermissionOnboarding;
 import com.hoyoung.assistant.store.EmojiReactionReply;
 import com.hoyoung.assistant.store.AccountStore;
+import com.hoyoung.assistant.store.AssistantIdentity;
 import com.hoyoung.assistant.ui.AttachmentPreview;
 import com.hoyoung.assistant.ui.ChatAttachmentPreviews;
 import com.hoyoung.assistant.runtime.AssistantReplyNotifications;
@@ -63,7 +64,7 @@ public final class MainActivity extends Activity {
     private static final int INK = Color.rgb(31, 30, 40);
     private static final int SUBTLE = Color.rgb(125, 122, 139);
     private static final int BG = Color.rgb(250, 249, 252);
-    private static final int PICK_FILES = 201, EXPORT_BACKUP = 202, IMPORT_BACKUP = 203, WORK_FILE_PICKER = 204, EXPORT_FILE = 205, OWNER_FOLDER = 206;
+    private static final int PICK_FILES = 201, EXPORT_BACKUP = 202, IMPORT_BACKUP = 203, WORK_FILE_PICKER = 204, EXPORT_FILE = 205, OWNER_FOLDER = 206, PICK_PROFILE = 207;
     private TextView ownerFolderState;
     private TextView usageBudgetState;
     private final Handler main = new Handler(Looper.getMainLooper());
@@ -96,7 +97,14 @@ public final class MainActivity extends Activity {
     private String tab = "대화", exportFileId;
     private JSONArray attachments = new JSONArray();
     private EditText composer;
-    private TextView attachmentLabel;
+    private TextView attachmentLabel, modelSelector;
+    private String renderedIdentity = "", pendingProfileRevision;
+    private boolean screenReceiverRegistered;
+    private final android.content.BroadcastReceiver screenReceiver = new android.content.BroadcastReceiver() {
+        @Override public void onReceive(android.content.Context context,Intent intent) {
+            if(Intent.ACTION_SCREEN_OFF.equals(intent.getAction()) && app.getRuntime()!=null)app.getRuntime().leaveForegroundRouting();
+        }
+    };
     private long displayedMessageId = -1;
     private boolean sending;
     private final Runnable refresh = new Runnable() {
@@ -113,6 +121,11 @@ public final class MainActivity extends Activity {
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
         app = (HoyoungApplication) getApplication();
+        if(state!=null)pendingProfileRevision=state.getString("pendingProfileRevision");
+        android.content.IntentFilter screenFilter=new android.content.IntentFilter(Intent.ACTION_SCREEN_OFF);
+        if(android.os.Build.VERSION.SDK_INT>=33)registerReceiver(screenReceiver,screenFilter,android.content.Context.RECEIVER_NOT_EXPORTED);
+        else registerReceiver(screenReceiver,screenFilter);
+        screenReceiverRegistered=true;
         if (!app.isStartupReady()) { showStartupRecovery(); return; }
         initializeReadyUi();
     }
@@ -170,7 +183,7 @@ public final class MainActivity extends Activity {
         header.addView(icon(LineIconDrawable.Icon.MENU, "메뉴 열기", this::openDrawer), new LinearLayout.LayoutParams(dp(44), dp(48)));
         headerAvatar = new HoyoungAvatarView(this);
         LinearLayout.LayoutParams avatarParams = new LinearLayout.LayoutParams(dp(42), dp(42)); avatarParams.setMargins(dp(6),0,dp(12),0); header.addView(headerAvatar,avatarParams);
-        LinearLayout titles=column(); screenTitle=label("호영",19,INK);screenTitle.setTypeface(android.graphics.Typeface.create("sans-serif-medium",Typeface.NORMAL));titles.addView(screenTitle);
+        LinearLayout titles=column(); screenTitle=identityLabel("",19,INK);screenTitle.setTypeface(android.graphics.Typeface.create("sans-serif-medium",Typeface.NORMAL));titles.addView(screenTitle);
         LinearLayout status=row();status.setGravity(Gravity.CENTER_VERTICAL);
         statusDot=new View(this);statusDot.setBackground(round(Color.rgb(177,171,191)));LinearLayout.LayoutParams dot=new LinearLayout.LayoutParams(dp(5),dp(5));dot.setMargins(0,0,dp(5),0);status.addView(statusDot,dot);
         connection=label("연결 준비 중",11,SUBTLE);connection.setSingleLine(true);connection.setEllipsize(android.text.TextUtils.TruncateAt.END);status.addView(connection,new LinearLayout.LayoutParams(-1,-2));titles.addView(status);
@@ -192,7 +205,7 @@ public final class MainActivity extends Activity {
         int width=Math.min(dp(328),getResources().getDisplayMetrics().widthPixels-dp(40));
         FrameLayout.LayoutParams panelParams=new FrameLayout.LayoutParams(width,-1,Gravity.START);android.widget.ScrollView drawerScroll=new android.widget.ScrollView(this);drawerScroll.setFillViewport(true);drawerScroll.setVerticalScrollBarEnabled(false);drawerScroll.setBackgroundColor(BG);drawerScroll.addView(drawer,new android.widget.ScrollView.LayoutParams(-1,-1));drawerOverlay.addView(drawerScroll,panelParams);
         LinearLayout top=row();top.setGravity(Gravity.CENTER_VERTICAL);top.addView(new HoyoungAvatarView(this),new LinearLayout.LayoutParams(dp(52),dp(52)));
-        LinearLayout identity=column();identity.setPadding(dp(14),0,0,0);TextView name=label("호영",24,INK);name.setTypeface(null,Typeface.BOLD);identity.addView(name);identity.addView(label("우리의 대화, 이어지는 기억",12,SUBTLE));top.addView(identity,new LinearLayout.LayoutParams(0,-2,1));
+        LinearLayout identity=column();identity.setPadding(dp(14),0,0,0);TextView name=identityLabel("",24,INK);name.setTypeface(null,Typeface.BOLD);identity.addView(name);identity.addView(label("우리의 대화, 이어지는 기억",12,SUBTLE));top.addView(identity,new LinearLayout.LayoutParams(0,-2,1));
         top.addView(icon(LineIconDrawable.Icon.CLOSE,"메뉴 닫기",this::closeDrawer),new LinearLayout.LayoutParams(dp(40),dp(48)));drawer.addView(top);
         TextView section=label("MY SPACE",10,SUBTLE);section.setLetterSpacing(.12f);section.setPadding(dp(12),dp(32),0,dp(12));drawer.addView(section);
         String[] names={"대화","Work","기억","계정","파일","권한","설정"};
@@ -232,7 +245,7 @@ public final class MainActivity extends Activity {
     private void showConnectionDetails() {
         if(permissionBlocked){showPermissionOnboarding();return;}
         JSONObject state=app.getRuntime().state();
-        new ObservedDialogBuilder(this).setTitle("호영의 현재 상태").setMessage(connection.getContentDescription()+"\n\n모델 "+state.optString("model")+"\n추론 "+state.optString("effort")+" · 응답 "+state.optString("speed"))
+        new ObservedDialogBuilder(this).setTitle(assistantName()+"의 현재 상태").setMessage(connection.getContentDescription()+"\n\n모델 "+state.optString("model")+"\n추론 "+state.optString("effort")+" · 응답 "+state.optString("speed"))
                 .setPositiveButton("Work 열기",(d,w)->showTab("Work")).setNegativeButton("닫기",null).show();
     }
 
@@ -329,6 +342,7 @@ public final class MainActivity extends Activity {
 
     private void resumeReadyUi() {
         if(permissionBlocked)return;
+        app.getRuntime().enterForegroundRouting();
         if (app.getReplyNotifications() != null) app.getReplyNotifications().setConversationVisible(drawerOverlay==null && "대화".equals(tab) && !app.getRuntime().isRestoringBackup());
         app.getWebController().bindActivity(this);
         main.removeCallbacks(refresh); main.post(refresh);
@@ -368,7 +382,19 @@ public final class MainActivity extends Activity {
         main.removeCallbacks(refresh); super.onPause();
     }
 
+    @Override protected void onStop() {
+        // Configuration recreation is still the same visible-app session. Home, another app,
+        // the document picker and screen-off end only the selection for FUTURE submissions.
+        if(!isChangingConfigurations() && app.getRuntime()!=null)app.getRuntime().leaveForegroundRouting();
+        super.onStop();
+    }
+
+    @Override protected void onSaveInstanceState(Bundle state) {
+        super.onSaveInstanceState(state);state.putString("pendingProfileRevision",pendingProfileRevision);
+    }
+
     @Override protected void onDestroy() {
+        if(screenReceiverRegistered){unregisterReceiver(screenReceiver);screenReceiverRegistered=false;}
         main.removeCallbacks(refresh);
         if (app.getRuntime() != null) app.getRuntime().clearListener(runtimeRefreshListener);
         if (photoPreviews != null) photoPreviews.close();
@@ -394,8 +420,8 @@ public final class MainActivity extends Activity {
         if (photoPreviews != null) photoPreviews.clear();
         replyViews.clear(); messageRows.clear(); messageSignatures.clear();
         if(typingDots!=null)typingDots.setActive(false);typingDots=null;typingRow=null;
-        detachWebView(); content.removeAllViews(); composer = null; sendButton=null;attachmentLabel=null;tab = name;
-        screenTitle.setText("대화".equals(name)?"호영":name);
+        detachWebView(); content.removeAllViews(); composer = null; modelSelector=null; sendButton=null;attachmentLabel=null;tab = name;
+        screenTitle.setText("대화".equals(name)?assistantName():name);
         headerAvatar.setVisibility("대화".equals(name)?View.VISIBLE:View.GONE);
         if (app.getReplyNotifications() != null) app.getReplyNotifications().setConversationVisible(resumed && "대화".equals(name));
         switch (name) {
@@ -432,9 +458,8 @@ public final class MainActivity extends Activity {
         LinearLayout composerArea=column();composerArea.setBackgroundColor(Color.WHITE);composerArea.setPadding(dp(12),dp(10),dp(12),dp(12));
         attachmentLabel=label(attachmentSummary(),12,BLUE);attachmentLabel.setPadding(dp(12),dp(8),dp(12),dp(8));attachmentLabel.setBackground(round(Color.rgb(241,237,255)));composerArea.addView(attachmentLabel);
         attachmentLabel.setOnClickListener(v->{if(attachments.length()==0)return;new ObservedDialogBuilder(this).setMessage("선택한 첨부를 입력창에서 지울까? 보관된 원본은 남아 있어.").setPositiveButton("첨부 선택 지우기",(d,w)->{attachments=new JSONArray();persistDraft();updateComposerState();}).setNegativeButton("유지",null).show();});
-        LinearLayout entry=row();entry.setGravity(Gravity.BOTTOM);entry.setPadding(dp(4),dp(3),dp(4),dp(3));entry.setBackground(ChatPalette.rounded(this,Color.rgb(245,243,249),28));
-        entry.addView(icon(LineIconDrawable.Icon.ATTACHMENT,"사진 또는 파일 첨부",this::showAttachmentChoices),new LinearLayout.LayoutParams(dp(44),dp(48)));
-        composer=new EditText(this);composer.setTextSize(15);composer.setTextColor(INK);composer.setHintTextColor(SUBTLE);composer.setHint("메시지 보내기…");composer.setBackgroundColor(Color.TRANSPARENT);composer.setPadding(dp(4),dp(13),dp(4),dp(12));
+        LinearLayout entry=column();entry.setPadding(dp(10),dp(4),dp(6),dp(5));entry.setBackground(ChatPalette.rounded(this,Color.rgb(245,243,249),28));
+        composer=new EditText(this);composer.setTextSize(15);composer.setTextColor(INK);composer.setHintTextColor(SUBTLE);composer.setHint("메시지 보내기…");composer.setBackgroundColor(Color.TRANSPARENT);composer.setPadding(dp(8),dp(10),dp(8),dp(6));
         composer.setInputType(android.text.InputType.TYPE_CLASS_TEXT|android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE|android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
         composer.setMaxLines(5);composer.setText(draftState.text);composer.setContentDescription("메시지 입력");
         composer.addTextChangedListener(new android.text.TextWatcher(){
@@ -442,9 +467,16 @@ public final class MainActivity extends Activity {
             @Override public void onTextChanged(CharSequence s,int start,int before,int count){if(!applyingDraft)persistDraft();updateComposerState();}
             @Override public void afterTextChanged(android.text.Editable s){}
         });
-        entry.addView(composer,new LinearLayout.LayoutParams(0,-2,1));
+        entry.addView(composer,new LinearLayout.LayoutParams(-1,-2));
+        LinearLayout composerControls=row();composerControls.setGravity(Gravity.CENTER_VERTICAL);
+        composerControls.addView(icon(LineIconDrawable.Icon.ATTACHMENT,"사진 또는 파일 첨부",this::showAttachmentChoices),new LinearLayout.LayoutParams(dp(44),dp(48)));
+        composerControls.addView(new View(this),new LinearLayout.LayoutParams(0,1,1));
+        modelSelector=label("",12,INK);modelSelector.setSingleLine(true);modelSelector.setEllipsize(android.text.TextUtils.TruncateAt.END);modelSelector.setMaxWidth(dp(222));
+        modelSelector.setGravity(Gravity.CENTER);modelSelector.setPadding(dp(10),dp(12),dp(10),dp(12));modelSelector.setMinimumHeight(dp(48));
+        modelSelector.setBackground(ChatPalette.ripple(this,Color.TRANSPARENT,16));modelSelector.setOnClickListener(v->showForegroundModelPicker());
+        composerControls.addView(modelSelector,new LinearLayout.LayoutParams(-2,dp(48)));
         sendButton=ChatPalette.iconButton(this,LineIconDrawable.Icon.SEND,"메시지 보내기",Color.WHITE);sendButton.setBackground(ChatPalette.outgoing(this));sendButton.setOnClickListener(v->send());
-        LinearLayout.LayoutParams sendParams=new LinearLayout.LayoutParams(dp(48),dp(48));sendParams.setMargins(dp(6),dp(3),dp(3),dp(3));entry.addView(sendButton,sendParams);composerArea.addView(entry);
+        LinearLayout.LayoutParams sendParams=new LinearLayout.LayoutParams(dp(48),dp(48));sendParams.setMargins(dp(6),dp(3),dp(3),dp(3));composerControls.addView(sendButton,sendParams);entry.addView(composerControls);composerArea.addView(entry);refreshModelSelector();
         content.addView(composerArea);displayedMessageId=-1;refreshMessages();updateComposerState();
         if(draftState.recoveryRequired)composerArea.addView(label(draftState.recoveryReason,12,SUBTLE));
     }
@@ -472,10 +504,11 @@ public final class MainActivity extends Activity {
         final String clientId = draftState.clientInputId;
         final long revision = draftState.revision;
         final String inputActor=UiAutomationProvenance.submittedActor(draftState.inputActor,UiAutomationProvenance.currentActor(this));
+        final JSONObject submittedSelection=app.getRuntime().foregroundRoutingState();
         sending = true; updateComposerState();
         commands.execute(() -> {
             try {
-                app.getRuntime().receive(text, new JSONArray(attached), clientId, revision,inputActor);
+                app.getRuntime().receive(text, new JSONArray(attached), clientId, revision,inputActor,submittedSelection);
                 OwnerDraftStore.Snapshot current = draftStore.read();
                 main.post(() -> {
                     sending = false; updateComposerState();
@@ -538,7 +571,7 @@ public final class MainActivity extends Activity {
             for(View old:messageRows.values())releaseChatRow(old);replyViews.clear();
             messageList.removeAllViews();messageRows.clear();messageSignatures.clear();LinearLayout welcome=column();welcome.setGravity(Gravity.CENTER);welcome.setPadding(dp(20),dp(74),dp(20),dp(36));
             welcome.addView(new HoyoungAvatarView(this),new LinearLayout.LayoutParams(dp(78),dp(78)));
-            TextView title=label("호영과 나의 대화",23,INK);title.setTypeface(null,Typeface.BOLD);title.setPadding(0,dp(20),0,dp(8));welcome.addView(title);
+            TextView title=identityLabel("과 나의 대화",23,INK);title.setTypeface(null,Typeface.BOLD);title.setPadding(0,dp(20),0,dp(8));welcome.addView(title);
             TextView subtitle=label("일상의 한마디부터, 맡기고 싶은 일까지.\n사진과 파일도 편하게 보내 줘.",14,SUBTLE);subtitle.setGravity(Gravity.CENTER);welcome.addView(subtitle);
             Button connect=button("Work 연결하기",()->showTab("Work"));LinearLayout.LayoutParams link=new LinearLayout.LayoutParams(-2,dp(48));link.setMargins(0,dp(22),0,0);welcome.addView(connect,link);messageList.addView(welcome);return;
         }
@@ -585,7 +618,7 @@ public final class MainActivity extends Activity {
         group.addView(bubble,new LinearLayout.LayoutParams(-2,-2));
         if(reactions!=null&&!reactions.isEmpty()){
             LinearLayout badges=row();badges.setGravity(Gravity.END);badges.setPadding(dp(4),0,dp(4),0);
-            for(JSONObject reply:reactions){JSONObject mark=EmojiReactionReply.fromStoredMessage(reply);if(mark==null)continue;TextView badge=label(mark.optString("emoji"),19,INK);badge.setGravity(Gravity.CENTER);badge.setMinWidth(dp(44));badge.setMinHeight(dp(36));badge.setPadding(dp(10),dp(2),dp(10),dp(2));badge.setBackground(ChatPalette.outlined(this,Color.WHITE,Color.rgb(229,225,238),18));badge.setContentDescription("호영이 이 메시지에 "+mark.optString("emoji")+" 이모지로 응답함");badge.setOnClickListener(v->notice("호영이 "+mark.optString("emoji")+" 이모지로 응답했어. 이 반응도 대화와 기억에 함께 보관돼."));badges.addView(badge);replyViews.put(badge,reply);}
+            for(JSONObject reply:reactions){JSONObject mark=EmojiReactionReply.fromStoredMessage(reply);if(mark==null)continue;TextView badge=label(mark.optString("emoji"),19,INK);badge.setGravity(Gravity.CENTER);badge.setMinWidth(dp(44));badge.setMinHeight(dp(36));badge.setPadding(dp(10),dp(2),dp(10),dp(2));badge.setBackground(ChatPalette.outlined(this,Color.WHITE,Color.rgb(229,225,238),18));badge.setTag("assistant-reaction:"+mark.optString("emoji"));badge.setContentDescription(assistantName()+"이 이 메시지에 "+mark.optString("emoji")+" 이모지로 응답함");badge.setOnClickListener(v->notice(assistantName()+"이 "+mark.optString("emoji")+" 이모지로 응답했어. 이 반응도 대화와 기억에 함께 보관돼."));badges.addView(badge);replyViews.put(badge,reply);}
             LinearLayout.LayoutParams badgeParams=new LinearLayout.LayoutParams(-2,-2);badgeParams.topMargin=-dp(3);group.addView(badges,badgeParams);
         }
         TextView time=label(clockLabel(message.optLong("created_at")),10,SUBTLE);time.setGravity(owner?Gravity.END:Gravity.START);time.setPadding(dp(4),dp(5),dp(4),0);group.addView(time);
@@ -868,10 +901,7 @@ public final class MainActivity extends Activity {
         CheckBox check = new CheckBox(this); check.setText(title);
         check.setChecked("true".equals(app.getStore().getSetting(key, String.valueOf(defaultValue))));
         check.setOnCheckedChangeListener((view, enabled) -> {
-            app.getStore().putSetting(key, String.valueOf(enabled));
-            applyPhonePolicy();
-            app.getPhoneContext().reconcilePermissions();
-            app.maintainMemory();
+            saveImmediateSetting(key,enabled);
         }); panel.addView(check);
     }
 
@@ -887,7 +917,7 @@ public final class MainActivity extends Activity {
         content.removeAllViews();
         LinearLayout panel = scrollPanel();
         panel.addView(label("접근과 허용",25,INK));
-        panel.addView(label("폰의 접근 권한과 호영이 실행할 기능을 따로 관리해.",14,SUBTLE));
+        panel.addView(label("폰의 접근 권한과 비서가 실행할 기능을 따로 관리해.",14,SUBTLE));
         PermissionOnboarding.Snapshot permissionState=permissionOnboarding.snapshot();
         LinearLayout systemPermissions=new com.hoyoung.assistant.ui.FormColumn(this);
         for(PermissionOnboarding.Item permission:permissionState.items){
@@ -897,8 +927,8 @@ public final class MainActivity extends Activity {
             systemPermissions.addView(label(permission.detail,12,SUBTLE));
         }
         panel.addView(disclosure("Android 권한 · "+permissionState.grantedCount+" / "+permissionState.requiredCount,systemPermissions,false));
-        panel.addView(label("호영이가 사용할 기능", 20, INK));
-        panel.addView(label("Android 권한을 유지하면서 호영이의 특정 기능만 끌 수 있어. 대화에서도 이 설정을 바꿀 수 있어.", 13, SUBTLE));
+        panel.addView(label("비서가 사용할 기능", 20, INK));
+        panel.addView(label("Android 권한을 유지하면서 비서의 특정 기능만 끌 수 있어. 대화에서도 이 설정을 바꿀 수 있어.", 13, SUBTLE));
         JSONArray tools = app.getRuntime().toolCatalog();
         JSONObject allowed;
         final String rawPermissions = app.getStore().getSetting("toolPermissions", "{}");
@@ -911,7 +941,7 @@ public final class MainActivity extends Activity {
             panel.addView(label("앱 기능 권한 설정을 읽지 못해 실행을 멈춘 상태야. 기존 설정을 원문으로 보관한 뒤 기본값으로 복구할 수 있어.", 14, INK));
             panel.addView(button("앱 기능을 모두 허용으로 복구", () -> {
                 try {
-                    app.getStore().withTransaction(db -> { app.getStore().addMessage("system", "앱 기능 권한 설정 복구 전 원문:\n" + rawPermissions, null); app.getStore().putSetting("toolPermissions", "{}"); return null; });
+                    app.getStore().withTransaction(db -> { app.getStore().addMessage("system", "앱 기능 권한 설정 복구 전 원문:\n" + rawPermissions, null); app.getStore().putSetting("toolPermissions", "{}"); app.getStore().putSetting("personalSettingsRevision",java.util.UUID.randomUUID().toString()); return null; });
                     applyPhonePolicy(); app.getPhoneContext().reconcilePermissions(); showPermissions();
                 } catch (RuntimeException failed) { notice("이전 설정을 보관하지 못해 변경하지 않았어."); }
             }));
@@ -923,7 +953,7 @@ public final class MainActivity extends Activity {
             String name = tool.optString("name");
             CheckBox check = new CheckBox(this); check.setTag(name); check.setText(toolLabel(name)); check.setChecked(allowed.optBoolean(name, true));
             check.setOnCheckedChangeListener((button, enabled) -> {
-                try { app.getStore().withTransaction(db -> { JSONObject current = parseObject(app.getStore().getSetting("toolPermissions", "{}")); try { current.put(name, enabled); } catch (Exception invalid) { throw new IllegalStateException(invalid); } app.getStore().putSetting("toolPermissions", current.toString()); return null; }); applyPhonePolicy(); app.getPhoneContext().reconcilePermissions(); }
+                try { app.getRuntime().updatePersonalSettings(settingsObject("toolPermissions",settingsObject(name,enabled)),null); }
                 catch (Exception ignored) { }
             });
             String category=toolCategory(name);
@@ -941,7 +971,7 @@ public final class MainActivity extends Activity {
         behavior.addView(button("실행 한도 저장",()->{try{
             int roundCount=Integer.parseInt(rounds.getText().toString());int actionCount=Integer.parseInt(actions.getText().toString());
             if(roundCount<0||actionCount<0)throw new IllegalArgumentException();
-            app.getStore().withTransaction(db->{app.getStore().putSetting("toolRoundLimit",String.valueOf(roundCount));app.getStore().putSetting("toolActionsPerTurnLimit",String.valueOf(actionCount));return null;});
+            app.getRuntime().updatePersonalSettings(settingsObject("toolRoundLimit",roundCount,"toolActionsPerTurnLimit",actionCount),null);
             notice("네가 정한 실행 한도를 저장했어. 0은 제한 없이 실행해.");
         }catch(Exception invalid){notice("0 이상의 정수를 입력해.");}}));
         panel.addView(disclosure("알림·다운로드·실행 방식",behavior,false));
@@ -1162,6 +1192,8 @@ public final class MainActivity extends Activity {
 
     private void showSettings() {
         content.removeAllViews(); LinearLayout panel = scrollPanel();
+        JSONObject baseline=app.getRuntime().personalSettingsBaseline();
+        addIdentitySettings(panel);
         panel.addView(label("자율 모드", 20, INK));
         panel.addView(label("폰이 켜져 있고 인터넷과 Work 연결이 준비된 동안 주기적으로 판단해. 화면이 꺼져도 호출을 이어가려면 배터리 최적화 예외를 켜야 해. 자율 모드는 배터리 사용을 늘릴 수 있어.", 14, SUBTLE));
         panel.addView(button("자율 모드 켜기", this::startAutonomy));
@@ -1170,11 +1202,11 @@ public final class MainActivity extends Activity {
         interval.setText(app.getStore().getSetting("heartbeatSeconds", "300")); panel.addView(interval);
         EditText goals = new EditText(this); goals.setHint("계속 맡길 일과 목표"); goals.setMinLines(3); goals.setText(app.getStore().getSetting("standingGoals", "")); panel.addView(goals);
         panel.addView(label("맞춤 지침", 20, INK));
-        panel.addView(button("호영의 기본 운영 지침 보기", () -> {
+        panel.addView(button("비서의 기본 운영 지침 보기", () -> {
             try (InputStream input = getAssets().open("core-identity.txt")) {
                 ByteArrayOutputStream output = new ByteArrayOutputStream(); byte[] buffer = new byte[4096]; int count;
                 while ((count = input.read(buffer)) != -1) output.write(buffer, 0, count);
-                new ObservedDialogBuilder(this).setTitle("호영의 기본 운영 지침").setMessage(output.toString(StandardCharsets.UTF_8.name())).setPositiveButton("닫기", null).show();
+                new ObservedDialogBuilder(this).setTitle(assistantName()+"의 기본 운영 지침").setMessage(output.toString(StandardCharsets.UTF_8.name())).setPositiveButton("닫기", null).show();
             } catch (Exception failure) { notice("기본 지침을 불러오지 못했어."); }
         }));
         panel.addView(label("실행 방식", 17, INK));
@@ -1183,17 +1215,20 @@ public final class MainActivity extends Activity {
         String[] wakeModes = {"continuous", "while_working", "charging"}, wakeLabels = {"계속 실행 · 자율 판단 우선", "작업 중 실행 · 배터리 우선", "충전 중 계속 실행"};
         String currentWake = app.getStore().getSetting("wakeMode", "continuous");
         for (int i = 0; i < wakeModes.length; i++) { android.widget.RadioButton option = new android.widget.RadioButton(this); option.setId(6000 + i); option.setText(wakeLabels[i]); wakeGroup.addView(option); if (wakeModes[i].equals(currentWake)) option.setChecked(true); }
-        wakeGroup.setOnCheckedChangeListener((group, id) -> { int choice = id - 6000; if (choice >= 0 && choice < wakeModes.length) { app.getStore().putSetting("wakeMode", wakeModes[choice]); AutonomyService.reevaluateActiveService(); } }); panel.addView(wakeGroup);
+        wakeGroup.setOnCheckedChangeListener((group, id) -> { int choice = id - 6000; if (choice >= 0 && choice < wakeModes.length) { saveImmediateSetting("wakeMode",wakeModes[choice]); AutonomyService.reevaluateActiveService(); } }); panel.addView(wakeGroup);
+        panel.addView(label("기억과 백업",17,INK));
+        panel.addView(label("전체 백업에 대화·기억·계정뿐 아니라 이름·프사 원본·영구 라우팅·사용자 지침·개인 설정을 함께 담아. 현재 화면의 임시 선택은 복원하지 않아.",12,SUBTLE));
+        panel.addView(button("백업과 복원 열기",()->showTab("파일")));
         addSettingToggle(panel, "자동 기억 검토", "memoryReviewEnabled", true);
         addSettingToggle(panel, "허용한 휴대폰 정보 활용", "phoneContextEnabled", true);
         addSettingToggle(panel, "폰 내부 의미 검색", "semanticSearchEnabled", true);
-        addSettingToggle(panel, "호영의 답장·선톡 알림", "replyNotificationsEnabled", true);
+        addSettingToggle(panel, "비서의 답장·선톡 알림", "replyNotificationsEnabled", true);
         EditText backupLimit = new EditText(this); backupLimit.setInputType(android.text.InputType.TYPE_CLASS_NUMBER); backupLimit.setHint("백업 용량 한도(GiB, 1~64)");
         backupLimit.setText(app.getStore().getSetting("backupMaxGiB", "64")); panel.addView(backupLimit);
         panel.addView(label("사용량 절약 · 하루 10% 목표", 17, INK));
         CheckBox optimize = new CheckBox(this); optimize.setText("판단·기억 처리에 맞춰 실행 옵션 분리");
         optimize.setChecked("true".equals(app.getStore().getSetting("usageOptimizationEnabled", "true"))); panel.addView(optimize);
-        panel.addView(label("네 대화와 지시의 응답은 Fast를 유지해. 정기 판단은 기본 Light·Standard, 기억 검토는 최소 Medium으로 분리해. 판단 간격과 기억 보관량은 줄이지 않아. Fast 선택이 실제로 확인되어야 전송하며, 즉시 답변 완료를 보장하는 설정은 아니야.", 12, SUBTLE));
+        panel.addView(label("네 대화와 지시의 응답은 Fast를 유지해. 정기 판단은 기본 Medium·Standard, 기억 검토는 최소 Medium으로 분리해. 판단 간격과 기억 보관량은 줄이지 않아. Fast 선택이 실제로 확인되어야 전송하며, 즉시 답변 완료를 보장하는 설정은 아니야.", 12, SUBTLE));
         usageBudgetState = label(usageBudgetDescription(app.getRuntime().state().optJSONObject("usageBudget")), 13, INK);
         panel.addView(usageBudgetState);
         panel.addView(label("공개된 고정 하루 토큰 한도는 없어. 아래 목표는 사용량 화면의 한도 비율을 기준으로 해. 실제 사용량을 확인하지 못하면 10% 달성으로 표시하지 않아. 다른 ChatGPT·Codex 작업도 같은 계정 한도를 사용할 수 있어.", 12, SUBTLE));
@@ -1208,18 +1243,20 @@ public final class MainActivity extends Activity {
                 new String[]{"사용량 화면의 전체 한도 중 하루 목표 비율", "고급 · 전체 한도를 7일로 나눈 하루 몫 중 목표 비율"}));
         budgetBasisChoice.setSelection("daily_share".equals(app.getStore().getSetting("budgetBasis", "pool_per_day")) ? 1 : 0); panel.addView(budgetBasisChoice);
         panel.addView(label("10%는 평균 사용량을 줄이는 목표야. 목표에 도달해도 대화·자율 판단·기억 처리를 중단하지 않아. 두 번째 기준은 전체 한도를 7로 나누므로 같은 10%여도 7배 엄격해.", 12, SUBTLE));
+        panel.addView(label("정기 판단과 기억 모델",17,INK));
         android.widget.Spinner autonomyEffortChoice = new android.widget.Spinner(this), memoryEffortChoice = new android.widget.Spinner(this), backgroundSpeedChoice = new android.widget.Spinner(this);
         String[] autonomyEfforts = {"low", "medium", "high", "xhigh", "max", "ultra"}, memoryEfforts = {"medium", "high", "xhigh", "max", "ultra"}, backgroundSpeeds = {"standard", "fast"};
         panel.addView(label("정기 판단 추론 강도 · Low는 Work의 Light", 12, SUBTLE));
         autonomyEffortChoice.setAdapter(new android.widget.ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, autonomyEfforts));
-        autonomyEffortChoice.setSelection(Math.max(0, java.util.Arrays.asList(autonomyEfforts).indexOf(app.getStore().getSetting("autonomousEffort", "low")))); panel.addView(autonomyEffortChoice);
+        autonomyEffortChoice.setSelection(Math.max(0, java.util.Arrays.asList(autonomyEfforts).indexOf(app.getStore().getSetting("autonomousEffort", "medium")))); panel.addView(autonomyEffortChoice);
         panel.addView(label("기억 검토 최소 추론 강도", 12, SUBTLE));
         memoryEffortChoice.setAdapter(new android.widget.ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, memoryEfforts));
         memoryEffortChoice.setSelection(Math.max(0, java.util.Arrays.asList(memoryEfforts).indexOf(app.getStore().getSetting("memoryMinimumEffort", "medium")))); panel.addView(memoryEffortChoice);
         panel.addView(label("백그라운드 작업 속도 · Standard 권장", 12, SUBTLE));
         backgroundSpeedChoice.setAdapter(new android.widget.ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, backgroundSpeeds));
         backgroundSpeedChoice.setSelection(Math.max(0, java.util.Arrays.asList(backgroundSpeeds).indexOf(app.getStore().getSetting("backgroundSpeed", "standard")))); panel.addView(backgroundSpeedChoice);
-        panel.addView(label("사용할 모델과 사용자 응답 옵션", 17, INK));
+        panel.addView(label("기본 모델과 응답 속도", 17, INK));
+        panel.addView(label("여기서 저장한 값은 영구 설정이야. 채팅에서도 ‘앞으로 계속’이라고 바꿀 수 있어. 이번 화면에서만 바꿀 때는 보내기 옆 모델 버튼을 사용해.",12,SUBTLE));
         panel.addView(label("기본값은 GPT-6.1 Sol · Medium · Fast야. 추론 강도는 사용자 응답의 품질 기준이야. 사용량 절약을 켜면 응답 속도는 Fast로 고정하고, 백그라운드 선택을 별도로 사용해. 모델이 바뀌면 여기서 요구값을 수정해. Work에서 선택이 확인될 때만 전송해.", 12, SUBTLE));
         EditText modelChoice = new EditText(this); modelChoice.setSingleLine(true); modelChoice.setHint("gpt-6.1-sol"); modelChoice.setText(app.getStore().getSetting("requiredModel", "gpt-6.1-sol")); panel.addView(modelChoice);
         android.widget.Spinner effortChoice = new android.widget.Spinner(this), speedChoice = new android.widget.Spinner(this);
@@ -1236,29 +1273,32 @@ public final class MainActivity extends Activity {
         });
         EditText instructions = new EditText(this); instructions.setMinLines(8); instructions.setGravity(Gravity.TOP);
         instructions.setText(app.getStore().getSetting("customInstructions", bundledInstructions())); panel.addView(instructions);
+        java.util.function.Supplier<JSONObject> formValues=()->settingsObject(
+            "heartbeatSeconds",interval.getText().toString(),"backupMaxGiB",backupLimit.getText().toString(),"budgetTargetPercent",budgetTarget.getText().toString(),
+            "standingGoals",goals.getText().toString(),"customInstructions",instructions.getText().toString(),
+            "requiredModel",modelChoice.getText().toString().trim(),"requiredEffort",efforts[effortChoice.getSelectedItemPosition()],"requiredSpeed",optimize.isChecked()?"fast":speeds[speedChoice.getSelectedItemPosition()],
+            "usageOptimizationEnabled",optimize.isChecked(),"autonomousEffort",autonomyEfforts[autonomyEffortChoice.getSelectedItemPosition()],
+            "memoryMinimumEffort",memoryEfforts[memoryEffortChoice.getSelectedItemPosition()],"backgroundSpeed",backgroundSpeeds[backgroundSpeedChoice.getSelectedItemPosition()],"budgetBasis",budgetBases[budgetBasisChoice.getSelectedItemPosition()]);
+        JSONObject initialForm=formValues.get();
         panel.addView(button("설정 저장", () -> {
             try {
                 int seconds = Integer.parseInt(interval.getText().toString()); if (seconds < 60 || seconds > 86400) throw new IllegalArgumentException();
                 int backupGiB = Integer.parseInt(backupLimit.getText().toString()); if (backupGiB < 1 || backupGiB > 64) throw new IllegalArgumentException();
-                int targetPercent = Integer.parseInt(budgetTarget.getText().toString()); if (targetPercent < 1 || targetPercent > 100) throw new IllegalArgumentException();
+                double targetPercent = Double.parseDouble(budgetTarget.getText().toString()); if (!Double.isFinite(targetPercent) || targetPercent < 1 || targetPercent > 100) throw new IllegalArgumentException();
                 String chosenModel = modelChoice.getText().toString().trim(), chosenEffort = efforts[effortChoice.getSelectedItemPosition()], chosenSpeed = optimize.isChecked() ? "fast" : speeds[speedChoice.getSelectedItemPosition()];
                 com.hoyoung.assistant.runtime.AssistantRuntime.validateModelPreferences(chosenModel, chosenEffort, chosenSpeed);
                 String goalText = goals.getText().toString(), instructionText = instructions.getText().toString();
                 if (goalText.length() > 50_000 || instructionText.length() > 50_000) throw new IllegalArgumentException();
-                app.getStore().withTransaction(db -> {
-                    app.getStore().putSetting("heartbeatSeconds", String.valueOf(seconds));
-                    app.getStore().putSetting("standingGoals", goalText);
-                    app.getStore().putSetting("customInstructions", instructionText);
-                    app.getStore().putSetting("requiredModel", chosenModel); app.getStore().putSetting("requiredEffort", chosenEffort); app.getStore().putSetting("requiredSpeed", chosenSpeed);
-                    app.getStore().putSetting("usageOptimizationEnabled", String.valueOf(optimize.isChecked()));
-                    app.getStore().putSetting("autonomousEffort", autonomyEfforts[autonomyEffortChoice.getSelectedItemPosition()]);
-                    app.getStore().putSetting("memoryMinimumEffort", memoryEfforts[memoryEffortChoice.getSelectedItemPosition()]);
-                    app.getStore().putSetting("backgroundSpeed", backgroundSpeeds[backgroundSpeedChoice.getSelectedItemPosition()]);
-                    app.getStore().putSetting("budgetBasis", budgetBases[budgetBasisChoice.getSelectedItemPosition()]);
-                    app.getStore().putSetting("budgetTargetPercent", String.valueOf(targetPercent));
-                    app.getStore().putSetting("backupMaxGiB", String.valueOf(backupGiB)); return null;
-                });
-                notice("지침과 실행 옵션을 저장했어. 10% 목표 달성 여부는 실제 사용량 확인이 필요해.");
+                JSONObject desired=formValues.get(),patch=new JSONObject();
+                for(java.util.Iterator<String> keys=desired.keys();keys.hasNext();){String key=keys.next();if(!java.util.Objects.equals(desired.opt(key),initialForm.opt(key)))patch.put(key,desired.opt(key));}
+                for(String key:new String[]{"heartbeatSeconds","backupMaxGiB"})if(patch.has(key))patch.put(key,Integer.parseInt(patch.optString(key)));
+                if(patch.has("budgetTargetPercent"))patch.put("budgetTargetPercent",targetPercent);
+                JSONObject result=app.getRuntime().updatePersonalSettings(patch,baseline);
+                if(!result.optBoolean("ok")){notice(result.optString("message"));return;}
+                JSONObject saved=app.getRuntime().personalSettingsBaseline();
+                for(java.util.Iterator<String> keys=patch.keys();keys.hasNext();){String key=keys.next();baseline.put(key,saved.opt(key));initialForm.put(key,desired.opt(key));}
+                AutonomyService.reevaluateActiveService();refreshModelSelector();
+                notice("변경한 지침과 영구 설정을 저장했어.");
             } catch (Exception e) { notice("판단 간격은 60~86,400초, 백업 한도는 1~64GiB, 사용량 목표는 1~100%, 모델은 gpt-… 형식, 지침과 목표는 각각 50,000자 이내로 입력해."); }
         }));
         panel.addView(button("한도·연결 상태 다시 확인", () -> { app.getWebController().manualRetryCheck(); refreshStatus(); }));
@@ -1405,7 +1445,55 @@ public final class MainActivity extends Activity {
         return !state.isNull("activeRequestId") && !state.optString("activeRequestId").isEmpty();
     }
 
+    private String assistantName(){return AssistantIdentity.name(app.getStore());}
+    private TextView identityLabel(String suffix,int size,int color){TextView view=label(assistantName()+suffix,size,color);view.setTag("assistant-name:"+suffix);return view;}
+    private void refreshIdentityViews(View view,String name){
+        if(view instanceof HoyoungAvatarView)((HoyoungAvatarView)view).refreshIdentity();
+        if(view instanceof TextView&&view.getTag() instanceof String&&((String)view.getTag()).startsWith("assistant-name:"))
+            ((TextView)view).setText(name+((String)view.getTag()).substring("assistant-name:".length()));
+        if(view.getTag() instanceof String tag&&tag.startsWith("assistant-reaction:"))view.setContentDescription(name+"이 이 메시지에 "+tag.substring("assistant-reaction:".length())+" 이모지로 응답함");
+        if(view instanceof ViewGroup group)for(int i=0;i<group.getChildCount();i++)refreshIdentityViews(group.getChildAt(i),name);
+    }
+    private void refreshModelSelector(){
+        if(modelSelector==null)return;
+        JSONObject current=app.getRuntime().foregroundRoutingState();boolean selected=current.optBoolean("selected");
+        String model=selected?current.optString("model"):app.getStore().getSetting("requiredModel","gpt-6.1-sol");
+        String effort=selected?current.optString("effort"):app.getStore().getSetting("requiredEffort","medium");
+        String speed="fast";
+        modelSelector.setText(model.replace("gpt-","").replace("-sol"," Sol")+" · "+effortLabel(effort)+"⌄");
+        modelSelector.setTextColor(selected?BLUE:INK);
+        modelSelector.setContentDescription("이번 화면의 모델 선택 · "+model+" · "+effort+" · "+speed+(selected?" · 임시 선택":" · 기본 설정"));
+    }
+    private static String effortLabel(String effort){return switch(effort){case "low"->"Light";case "xhigh"->"XHigh";default->effort.isEmpty()?"Medium":Character.toUpperCase(effort.charAt(0))+effort.substring(1);};}
+    private void showForegroundModelPicker(){
+        JSONObject opening=app.getRuntime().foregroundRoutingState();if(!opening.optBoolean("visible"))return;
+        LinearLayout panel=new com.hoyoung.assistant.ui.FormColumn(this);panel.setPadding(dp(20),dp(8),dp(20),dp(8));
+        panel.addView(label("바꾸기 전까지 다음 메시지와 작업에 계속 적용해. 화면을 나가면 새 메시지는 영구 설정으로 돌아가고, 이미 맡긴 작업은 선택을 유지해. 정기 판단은 별도 설정을 따라.",13,SUBTLE));
+        EditText model=new EditText(this);model.setSingleLine(true);model.setHint("gpt-6.1-sol");model.setContentDescription("이번 화면 모델");
+        model.setText(opening.optBoolean("selected")?opening.optString("model"):app.getStore().getSetting("requiredModel","gpt-6.1-sol"));panel.addView(model);
+        String[] efforts={"low","medium","high","xhigh","max","ultra"};
+        android.widget.Spinner effort=new android.widget.Spinner(this);effort.setContentDescription("이번 화면 추론 강도");effort.setAdapter(new android.widget.ArrayAdapter<>(this,android.R.layout.simple_spinner_dropdown_item,new String[]{"Light","Medium","High","XHigh","Max","Ultra"}));
+        effort.setSelection(Math.max(0,java.util.Arrays.asList(efforts).indexOf(opening.optBoolean("selected")?opening.optString("effort"):app.getStore().getSetting("requiredEffort","medium"))));panel.addView(effort);
+        panel.addView(label("Fast · 응답과 작업에 적용",13,BLUE));
+        AlertDialog dialog=new ObservedDialogBuilder(this).setTitle("이번 화면의 모델").setView(panel).setPositiveButton("적용",null).setNeutralButton("기본 설정으로",null).setNegativeButton("닫기",null).create();
+        dialog.show();UiAutomationProvenance.observeWindow(this,dialog.getWindow());
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v->applyForegroundChoice(dialog,opening,model.getText().toString().trim(),efforts[effort.getSelectedItemPosition()],false));
+        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(v->applyForegroundChoice(dialog,opening,"","",true));
+    }
+    private void applyForegroundChoice(AlertDialog dialog,JSONObject opening,String model,String effort,boolean reset){
+        try{JSONObject result=app.getRuntime().selectForegroundRouting(opening.optString("sessionId"),opening.optLong("revision"),model,effort,reset);
+            if(!result.optBoolean("ok")){dialog.dismiss();notice(result.optString("message"));return;}dialog.dismiss();refreshModelSelector();
+        }catch(RuntimeException invalid){notice("모델은 gpt-… 형식으로 입력해 줘. 실제 Work에서 사용 가능한 모델이어야 해.");}
+    }
+
     private void refreshStatus() {
+        if(app==null||app.getRuntime()==null)return;
+        refreshModelSelector();
+        String currentIdentity=app.getRuntime().assistantIdentity().toString();
+        if(!currentIdentity.equals(renderedIdentity)){
+            renderedIdentity=currentIdentity;if(shell!=null)refreshIdentityViews(shell,assistantName());
+            if(screenTitle!=null)screenTitle.setText("대화".equals(tab)?assistantName():tab);
+        }
         if("파일".equals(tab)&&ownerFolderState!=null)ownerFolderState.setText(ownerFolderDescription());
         if (connection == null || permissionBlocked) return;
         JSONObject state = app.getRuntime().state();
@@ -1491,6 +1579,16 @@ public final class MainActivity extends Activity {
                 catch(Exception failed){main.post(()->{if(!isDestroyed())notice("보존 폴더를 연결하지 못했어. 진행 중 작업과 폴더 권한을 확인해 줘. 삭제·제외 기록이 잘못된 폴더는 복원에 사용하지 않아.");});}
             });return;
         }
+        if(code==PICK_PROFILE){
+            Uri uri=data.getData();if(uri==null)return;
+            final String expected=pendingProfileRevision;pendingProfileRevision=null;
+            if(expected==null){notice("프로필 선택을 다시 열어 줘.");return;}
+            io.execute(()->{
+                try{JSONObject file=app.getFiles().saveFromUri(uri,null);JSONObject update=app.getRuntime().updateAssistantIdentity(null,file.optString("id"),false,expected);
+                    main.post(()->{if(!isDestroyed()){refreshStatus();notice(update.optBoolean("ok")?"프로필 사진을 바꿨어. 새 사진도 전체 백업에 포함돼.":update.optString("message"));}});
+                }catch(Exception failure){main.post(()->notice("사진을 읽지 못했어. 열 수 있는 이미지 파일을 다시 선택해 줘."));}
+            });return;
+        }
         if (code == PICK_FILES) {
             java.util.ArrayList<Uri> uris = selectedUris(result, data);
             if (uris.size() > 8 || attachments.length() + uris.size() > 8) {
@@ -1559,6 +1657,34 @@ public final class MainActivity extends Activity {
         heading.setContentDescription(title+(expanded?" 접기":" 펼치기"));heading.setOnClickListener(v->{boolean open=body.getVisibility()!=View.VISIBLE;body.setVisibility(open?View.VISIBLE:View.GONE);chevron.animate().rotation(open?90:0).setDuration(ChatPalette.animationsEnabled()?160:0).start();heading.setContentDescription(title+(open?" 접기":" 펼치기"));});return card;
     }
 
+    private static JSONObject settingsObject(Object...pairs){JSONObject value=new JSONObject();try{for(int i=0;i<pairs.length;i+=2)value.put((String)pairs[i],pairs[i+1]);}catch(org.json.JSONException bad){throw new IllegalStateException(bad);}return value;}
+    private void saveImmediateSetting(String key,Object value){
+        try{JSONObject result=app.getRuntime().updatePersonalSettings(settingsObject(key,value),null);if(!result.optBoolean("ok"))notice(result.optString("message"));}
+        catch(Exception failure){notice("설정을 저장하지 못했어. 현재 값을 다시 확인해 줘.");}
+    }
+    private void addIdentitySettings(LinearLayout panel){
+        panel.addView(label("프로필과 이름",20,INK));
+        JSONObject opening=app.getRuntime().assistantIdentity();
+        LinearLayout profile=row();profile.setGravity(Gravity.CENTER_VERTICAL);profile.addView(new HoyoungAvatarView(this),new LinearLayout.LayoutParams(dp(64),dp(64)));
+        TextView current=identityLabel("",20,INK);current.setPadding(dp(16),0,0,0);profile.addView(current);panel.addView(profile);
+        panel.addView(label("현재 이름과 프사가 기억 속 예전 이름보다 우선해. 사진 원본은 폰에 저장하고 비서도 읽을 수 있어.",12,SUBTLE));
+        EditText name=new EditText(this);name.setSingleLine(true);name.setHint("비서 이름");name.setContentDescription("비서 이름 편집");name.setText(opening.optString("name"));panel.addView(name);
+        panel.addView(button("이름 저장",()->{
+            try{JSONObject latest=app.getRuntime().assistantIdentity();
+                String expected=opening.optString("name").equals(latest.optString("name"))?latest.optString("revision"):opening.optString("revision");
+                JSONObject result=app.getRuntime().updateAssistantIdentity(name.getText().toString(),null,false,expected);
+                if(result.optBoolean("ok")){opening.put("revision",result.optJSONObject("identity").optString("revision"));opening.put("name",result.optJSONObject("identity").optString("name"));}
+                refreshStatus();notice(result.optBoolean("ok")?"이름을 바꿨어. 새 이름으로 대화를 이어 갈게.":result.optString("message"));
+            }catch(Exception invalid){notice("이름은 한 줄, 1~80자로 입력해 줘.");}
+        }));
+        panel.addView(button("프로필 사진 변경",()->{pendingProfileRevision=app.getRuntime().assistantIdentity().optString("revision");startActivityForResult(new Intent(Intent.ACTION_OPEN_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("image/*"),PICK_PROFILE);}));
+        panel.addView(button("기본 고양이 사진으로",()->{
+            try{JSONObject currentIdentity=app.getRuntime().assistantIdentity();JSONObject result=app.getRuntime().updateAssistantIdentity(null,null,true,currentIdentity.optString("revision"));
+                refreshStatus();notice(result.optBoolean("ok")?"기본 고양이 사진으로 바꿨어.":result.optString("message"));
+            }catch(Exception failure){notice("프로필을 저장하지 못했어.");}
+        }));
+    }
+
     private void organizeSettings(LinearLayout panel,EditText instructions){
         java.util.LinkedHashMap<String,LinearLayout> sections=new java.util.LinkedHashMap<>();
         String current="자율 모드";Button save=null;java.util.ArrayList<View> children=new java.util.ArrayList<>();
@@ -1570,12 +1696,12 @@ public final class MainActivity extends Activity {
             if(view instanceof Button&&"한도·연결 상태 다시 확인".contentEquals(((Button)view).getText()))current="연결과 진단";
             sections.computeIfAbsent(current,key->new com.hoyoung.assistant.ui.FormColumn(this)).addView(view);
         }
-        panel.addView(label("나에게 맞는 호영",25,INK));panel.addView(label("말투부터 모델까지, 원하는 방식으로.",13,SUBTLE));
+        panel.addView(label("내 비서 설정",25,INK));panel.addView(label("말투부터 모델까지, 원하는 방식으로.",13,SUBTLE));
         LinearLayout custom=sections.remove("맞춤 지침");if(custom==null)custom=new com.hoyoung.assistant.ui.FormColumn(this);
-        instructions.setHint("호영에게 알려 둘 말투와 사용자 지침");instructions.setMinLines(6);instructions.setMaxLines(9);instructions.setVerticalScrollBarEnabled(true);instructions.setContentDescription("사용자 지침 편집");
-        custom.addView(instructions,0);panel.addView(disclosure("사용자 지침",custom,true));
-        String[] order={"사용할 모델과 사용자 응답 옵션","자율 모드","실행 방식","사용량 절약 · 하루 10% 목표","연결과 진단","확인되지 않은 작업"};
-        for(String title:order){LinearLayout body=sections.remove(title);if(body!=null)panel.addView(disclosure(title.equals("사용할 모델과 사용자 응답 옵션")?"모델과 응답 속도":title,body,false));}
+        instructions.setHint("비서에게 알려 둘 말투와 사용자 지침");instructions.setMinLines(6);instructions.setMaxLines(9);instructions.setVerticalScrollBarEnabled(true);instructions.setContentDescription("사용자 지침 편집");
+        custom.addView(instructions,0);sections.put("사용자 지침",custom);
+        String[] order={"프로필과 이름","기본 모델과 응답 속도","정기 판단과 기억 모델","사용자 지침","자율 모드","실행 방식","기억과 백업","사용량 절약 · 하루 10% 목표","연결과 진단","확인되지 않은 작업"};
+        for(String title:order){LinearLayout body=sections.remove(title);if(body!=null)panel.addView(disclosure(title,body,"프로필과 이름".equals(title)));}
         for(java.util.Map.Entry<String,LinearLayout> section:sections.entrySet())panel.addView(disclosure(section.getKey(),section.getValue(),false));
         if(save!=null){save.setTextColor(Color.WHITE);save.setBackground(ChatPalette.outgoing(this));panel.addView(save);}
     }
@@ -1639,6 +1765,8 @@ public final class MainActivity extends Activity {
             case "phone_ui_tap" -> "화면 터치"; case "phone_ui_swipe" -> "화면 밀기"; case "phone_brightness_set" -> "화면 밝기 변경"; case "phone_dial_open" -> "전화번호 입력 화면 열기";
             case "phone_files_list" -> "휴대폰 공유 파일 목록"; case "phone_files_read" -> "휴대폰 공유 파일 읽기"; case "phone_files_write" -> "휴대폰 공유 파일 쓰기";
             case "accounts.list" -> "계정 목록 확인"; case "accounts.get" -> "최신 로그인 정보 읽기"; case "accounts.save" -> "계정 추가·정정"; case "accounts.history" -> "계정 수정 이력 읽기"; case "accounts.delete" -> "계정 보관함 복사본 삭제";
+            case "app.routing.session.get" -> "이번 화면 모델 선택 읽기"; case "app.routing.session.set" -> "이번 화면 모델 선택 변경";
+            case "app.identity.get" -> "현재 비서 이름·프사 확인"; case "app.identity.update" -> "비서 이름·프사 변경"; case "app.identity.avatar" -> "현재 비서 프사 직접 보기";
             case "files.list" -> "작업 파일 목록"; case "files.read" -> "작업 파일 읽기"; case "files.write" -> "작업 파일 쓰기";
             case "memory.search" -> "저장된 기억 검색"; case "memory.save" -> "기억 추가·수정"; case "app.settings.get" -> "앱 설정 확인"; case "app.settings.update" -> "대화에서 앱 설정 변경";
             case "memory.source.enumerate" -> "조건에 맞는 저장 원문 목록 확인";
