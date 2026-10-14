@@ -1,0 +1,893 @@
+{
+  "version": "0.4.2",
+  "versionCode": 9,
+  "archiveSourceCommit": "3c72a1c4871bdf5f02fa93228e905d726adbf8bc",
+  "apkBuildSourceCommit": "9d1de774b8ee722b4b6f20078cdcb22d4956aa61",
+  "productionAppSourceIdenticalBetweenBuildAndArchive": true,
+  "artifactFiles": [
+    {
+      "name": "hoyoung-0.4.2.apk",
+      "bytes": 79055686,
+      "sha256": "3732c2c4d211d44f553da681daa2b5069574766256b309b72f3ce2c5e0edaabb"
+    },
+    {
+      "name": "hoyoung-0.4.2-source.zip",
+      "bytes": 54920591,
+      "sha256": "b98dd75620cc6be1a17628df0b3f6b6c0b54c6fab6d36fe4885bf5c18ab8b566"
+    }
+  ],
+  "apkVerification": {
+    "scope": "Static APK signature, source identity, complete manifest permissions, and native packaging only.",
+    "applicationId": "com.hoyoung.assistant",
+    "label": "호영",
+    "versionName": "0.4.2",
+    "versionCode": 9,
+    "targetSdk": 35,
+    "debuggable": false,
+    "releaseIdentityVerified": true,
+    "certificateSha256": "5b634dac5d4538f871ff0bfdbe1b31b2baa02dbe4390d11d7f6af235b2df1e3e",
+    "apkSha256": "3732c2c4d211d44f553da681daa2b5069574766256b309b72f3ce2c5e0edaabb",
+    "apkBytes": 79055686,
+    "sourcePermissionDeclarationsExactlyMatch": true,
+    "permissionCount": 48,
+    "permissions": [
+      {
+        "name": "android.permission.ACCESS_BACKGROUND_LOCATION",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.ACCESS_COARSE_LOCATION",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.ACCESS_FINE_LOCATION",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.ACCESS_NETWORK_STATE",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.ACCESS_NOTIFICATION_POLICY",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.ACCESS_WIFI_STATE",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.ACTIVITY_RECOGNITION",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.BLUETOOTH",
+        "maxSdkVersion": "30",
+        "flags": null
+      },
+      {
+        "name": "android.permission.BLUETOOTH_ADMIN",
+        "maxSdkVersion": "30",
+        "flags": null
+      },
+      {
+        "name": "android.permission.BLUETOOTH_CONNECT",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.BLUETOOTH_SCAN",
+        "maxSdkVersion": null,
+        "flags": "neverForLocation"
+      },
+      {
+        "name": "android.permission.CALL_PHONE",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.CAMERA",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.CHANGE_WIFI_STATE",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.FOREGROUND_SERVICE",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.FOREGROUND_SERVICE_MICROPHONE",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.FOREGROUND_SERVICE_SPECIAL_USE",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.INTERNET",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.MANAGE_EXTERNAL_STORAGE",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.MODIFY_AUDIO_SETTINGS",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.NEARBY_WIFI_DEVICES",
+        "maxSdkVersion": null,
+        "flags": "neverForLocation"
+      },
+      {
+        "name": "android.permission.PACKAGE_USAGE_STATS",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.POST_NOTIFICATIONS",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.QUERY_ALL_PACKAGES",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.READ_CALENDAR",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.READ_CALL_LOG",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.READ_CONTACTS",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.READ_EXTERNAL_STORAGE",
+        "maxSdkVersion": "32",
+        "flags": null
+      },
+      {
+        "name": "android.permission.READ_MEDIA_AUDIO",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.READ_MEDIA_IMAGES",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.READ_MEDIA_VIDEO",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.READ_MEDIA_VISUAL_USER_SELECTED",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.READ_PHONE_NUMBERS",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.READ_PHONE_STATE",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.READ_SMS",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.RECEIVE_BOOT_COMPLETED",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.RECEIVE_SMS",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.RECORD_AUDIO",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.SCHEDULE_EXACT_ALARM",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.SEND_SMS",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.SYSTEM_ALERT_WINDOW",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.VIBRATE",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.WAKE_LOCK",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.WRITE_CALENDAR",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.WRITE_CALL_LOG",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.WRITE_CONTACTS",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.WRITE_EXTERNAL_STORAGE",
+        "maxSdkVersion": "29",
+        "flags": null
+      },
+      {
+        "name": "android.permission.WRITE_SETTINGS",
+        "maxSdkVersion": null,
+        "flags": null
+      }
+    ],
+    "nativeLibraries": [
+      {
+        "name": "lib/arm64-v8a/libhoyoung_ann.so",
+        "bytes": 1051000,
+        "elfLoadAlignments": [
+          16384,
+          16384,
+          16384
+        ],
+        "zip16KiBAligned": true
+      },
+      {
+        "name": "lib/arm64-v8a/libonnxruntime.so",
+        "bytes": 34208672,
+        "elfLoadAlignments": [
+          16384,
+          16384,
+          16384
+        ],
+        "zip16KiBAligned": true
+      },
+      {
+        "name": "lib/arm64-v8a/libonnxruntime4j_jni.so",
+        "bytes": 92064,
+        "elfLoadAlignments": [
+          16384,
+          16384
+        ],
+        "zip16KiBAligned": true
+      },
+      {
+        "name": "lib/x86_64/libhoyoung_ann.so",
+        "bytes": 1040008,
+        "elfLoadAlignments": [
+          16384,
+          16384,
+          16384
+        ],
+        "zip16KiBAligned": true
+      },
+      {
+        "name": "lib/x86_64/libonnxruntime.so",
+        "bytes": 40827936,
+        "elfLoadAlignments": [
+          16384,
+          16384,
+          16384
+        ],
+        "zip16KiBAligned": true
+      },
+      {
+        "name": "lib/x86_64/libonnxruntime4j_jni.so",
+        "bytes": 88584,
+        "elfLoadAlignments": [
+          16384,
+          16384
+        ],
+        "zip16KiBAligned": true
+      }
+    ],
+    "modelWeightsBundled": false,
+    "physicalPhoneInstallationMeasured": false,
+    "realChatGPTAccountMeasured": false,
+    "continuous24HourRuntimeMeasured": false
+  },
+  "localVerification": {
+    "version": "0.4.2",
+    "sourceCommit": "9d1de774b8ee722b4b6f20078cdcb22d4956aa61",
+    "focusedUnitTotals": {
+      "tests": 227,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "focusedUnitSuiteCount": 23,
+    "testReceipts": "android-v042-focused.json",
+    "releaseBuild": "passed",
+    "releaseLint": {
+      "errors": 0,
+      "warnings": 29
+    },
+    "apkVerification": "android-v042-apk.json",
+    "samePublicCertificateAsV041": true,
+    "completeAndroidPermissionDeclarations": 48,
+    "runtimeCatalogTools": 122,
+    "fullSuiteRepeated": false,
+    "fiveYearMemorySimulationRepeated": false,
+    "newEmulatorRun": false,
+    "physicalSamsungRun": false,
+    "realModelCalls": 0,
+    "dateUtc": "2026-10-14T12:39:46.044217+00:00",
+    "soloFinalReview": "Reviewed integrated changes; fixed live-control growth from historical goals/pauses and held-request context overflow; focused gateway/route/autonomy regressions passed."
+  },
+  "focusedTests": {
+    "version": "0.4.2",
+    "dateUtc": "2026-10-14T12:38:02.576579+00:00",
+    "summary": {
+      "tests": 227,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "suiteCount": 23,
+    "suites": [
+      {
+        "name": "com.hoyoung.assistant.MainActivityFinalAuditTest",
+        "tests": "9",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "10.163"
+      },
+      {
+        "name": "com.hoyoung.assistant.MainActivityRoutingProfileTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "4.262"
+      },
+      {
+        "name": "com.hoyoung.assistant.memory.MemoryHistoryProvenanceTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.075"
+      },
+      {
+        "name": "com.hoyoung.assistant.memory.SemanticIndexPendingVisibilityTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.046"
+      },
+      {
+        "name": "com.hoyoung.assistant.phone.PhoneArchivedResultVisibilityTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "5.711"
+      },
+      {
+        "name": "com.hoyoung.assistant.phone.PhoneContextTest",
+        "tests": "19",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "2.049"
+      },
+      {
+        "name": "com.hoyoung.assistant.phone.PhoneNotificationStartupTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.058"
+      },
+      {
+        "name": "com.hoyoung.assistant.phone.PhoneNotificationVisibilityTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.17"
+      },
+      {
+        "name": "com.hoyoung.assistant.phone.PhoneProviderMutationReceiptTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.047"
+      },
+      {
+        "name": "com.hoyoung.assistant.phone.PhoneScreenCaptureTest",
+        "tests": "0",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.0"
+      },
+      {
+        "name": "com.hoyoung.assistant.runtime.AssistantRuntimeAutonomyRecoveryTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "5.744"
+      },
+      {
+        "name": "com.hoyoung.assistant.runtime.AssistantRuntimeRoutingStabilityRegressionTest",
+        "tests": "7",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "1.092"
+      },
+      {
+        "name": "com.hoyoung.assistant.runtime.AssistantRuntimeTest",
+        "tests": "54",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "4.366"
+      },
+      {
+        "name": "com.hoyoung.assistant.runtime.ForegroundRoutingIntegrationTest",
+        "tests": "11",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.681"
+      },
+      {
+        "name": "com.hoyoung.assistant.runtime.ModelRoutingPolicyTest",
+        "tests": "27",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.355"
+      },
+      {
+        "name": "com.hoyoung.assistant.runtime.OwnerDraftStoreTest",
+        "tests": "27",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.949"
+      },
+      {
+        "name": "com.hoyoung.assistant.runtime.StartupRecoveryBootTest",
+        "tests": "8",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.371"
+      },
+      {
+        "name": "com.hoyoung.assistant.store.AccountMutationConsistencyTest",
+        "tests": "7",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.297"
+      },
+      {
+        "name": "com.hoyoung.assistant.store.AssistantIdentityBackupTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.481"
+      },
+      {
+        "name": "com.hoyoung.assistant.store.MemoryGatewayPrivacyScaleTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.503"
+      },
+      {
+        "name": "com.hoyoung.assistant.store.MemoryGatewayTest",
+        "tests": "27",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "1.41"
+      },
+      {
+        "name": "com.hoyoung.assistant.store.RecoveryReservationSnapshotTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.04"
+      },
+      {
+        "name": "com.hoyoung.assistant.web.WorkResponseCaptureLifecycleTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.048"
+      }
+    ],
+    "runs": [
+      {
+        "phase": "initial_focused",
+        "suites": [
+          {
+            "name": "com.hoyoung.assistant.MainActivityFinalAuditTest",
+            "tests": "8",
+            "failures": "1",
+            "errors": "0",
+            "skipped": "0",
+            "time": "18.075"
+          },
+          {
+            "name": "com.hoyoung.assistant.MainActivityRoutingProfileTest",
+            "tests": "5",
+            "failures": "0",
+            "errors": "0",
+            "skipped": "0",
+            "time": "4.262"
+          },
+          {
+            "name": "com.hoyoung.assistant.memory.MemoryHistoryProvenanceTest",
+            "tests": "1",
+            "failures": "0",
+            "errors": "0",
+            "skipped": "0",
+            "time": "0.075"
+          },
+          {
+            "name": "com.hoyoung.assistant.memory.SemanticIndexPendingVisibilityTest",
+            "tests": "1",
+            "failures": "0",
+            "errors": "0",
+            "skipped": "0",
+            "time": "0.046"
+          },
+          {
+            "name": "com.hoyoung.assistant.phone.PhoneArchivedResultVisibilityTest",
+            "tests": "5",
+            "failures": "0",
+            "errors": "0",
+            "skipped": "0",
+            "time": "5.711"
+          },
+          {
+            "name": "com.hoyoung.assistant.phone.PhoneContextTest",
+            "tests": "19",
+            "failures": "0",
+            "errors": "0",
+            "skipped": "0",
+            "time": "2.049"
+          },
+          {
+            "name": "com.hoyoung.assistant.phone.PhoneNotificationStartupTest",
+            "tests": "2",
+            "failures": "0",
+            "errors": "0",
+            "skipped": "0",
+            "time": "0.058"
+          },
+          {
+            "name": "com.hoyoung.assistant.phone.PhoneNotificationVisibilityTest",
+            "tests": "5",
+            "failures": "0",
+            "errors": "0",
+            "skipped": "0",
+            "time": "0.17"
+          },
+          {
+            "name": "com.hoyoung.assistant.phone.PhoneProviderMutationReceiptTest",
+            "tests": "2",
+            "failures": "0",
+            "errors": "0",
+            "skipped": "0",
+            "time": "0.047"
+          },
+          {
+            "name": "com.hoyoung.assistant.runtime.AssistantRuntimeAutonomyRecoveryTest",
+            "tests": "1",
+            "failures": "0",
+            "errors": "0",
+            "skipped": "0",
+            "time": "0.113"
+          },
+          {
+            "name": "com.hoyoung.assistant.runtime.AssistantRuntimeRoutingStabilityRegressionTest",
+            "tests": "7",
+            "failures": "0",
+            "errors": "0",
+            "skipped": "0",
+            "time": "0.448"
+          },
+          {
+            "name": "com.hoyoung.assistant.runtime.AssistantRuntimeTest",
+            "tests": "54",
+            "failures": "1",
+            "errors": "0",
+            "skipped": "0",
+            "time": "3.167"
+          },
+          {
+            "name": "com.hoyoung.assistant.runtime.ForegroundRoutingIntegrationTest",
+            "tests": "11",
+            "failures": "0",
+            "errors": "0",
+            "skipped": "0",
+            "time": "0.681"
+          },
+          {
+            "name": "com.hoyoung.assistant.runtime.ModelRoutingPolicyTest",
+            "tests": "26",
+            "failures": "0",
+            "errors": "0",
+            "skipped": "0",
+            "time": "0.292"
+          },
+          {
+            "name": "com.hoyoung.assistant.runtime.OwnerDraftStoreTest",
+            "tests": "27",
+            "failures": "0",
+            "errors": "0",
+            "skipped": "0",
+            "time": "0.872"
+          },
+          {
+            "name": "com.hoyoung.assistant.runtime.StartupRecoveryBootTest",
+            "tests": "8",
+            "failures": "0",
+            "errors": "0",
+            "skipped": "0",
+            "time": "0.371"
+          },
+          {
+            "name": "com.hoyoung.assistant.store.AccountMutationConsistencyTest",
+            "tests": "7",
+            "failures": "0",
+            "errors": "0",
+            "skipped": "0",
+            "time": "0.297"
+          },
+          {
+            "name": "com.hoyoung.assistant.store.AssistantIdentityBackupTest",
+            "tests": "4",
+            "failures": "0",
+            "errors": "0",
+            "skipped": "0",
+            "time": "0.481"
+          },
+          {
+            "name": "com.hoyoung.assistant.store.MemoryGatewayPrivacyScaleTest",
+            "tests": "1",
+            "failures": "0",
+            "errors": "0",
+            "skipped": "0",
+            "time": "0.617"
+          },
+          {
+            "name": "com.hoyoung.assistant.store.MemoryGatewayTest",
+            "tests": "26",
+            "failures": "0",
+            "errors": "0",
+            "skipped": "0",
+            "time": "0.938"
+          },
+          {
+            "name": "com.hoyoung.assistant.store.RecoveryReservationSnapshotTest",
+            "tests": "2",
+            "failures": "0",
+            "errors": "0",
+            "skipped": "0",
+            "time": "0.04"
+          },
+          {
+            "name": "com.hoyoung.assistant.web.WorkResponseCaptureLifecycleTest",
+            "tests": "2",
+            "failures": "0",
+            "errors": "0",
+            "skipped": "0",
+            "time": "0.048"
+          }
+        ]
+      },
+      {
+        "phase": "fixes_rechecked",
+        "suites": [
+          {
+            "name": "com.hoyoung.assistant.MainActivityFinalAuditTest",
+            "tests": "9",
+            "failures": "0",
+            "errors": "0",
+            "skipped": "0",
+            "time": "10.163"
+          },
+          {
+            "name": "com.hoyoung.assistant.phone.PhoneScreenCaptureTest",
+            "tests": "0",
+            "failures": "0",
+            "errors": "0",
+            "skipped": "0",
+            "time": "0.0"
+          },
+          {
+            "name": "com.hoyoung.assistant.runtime.AssistantRuntimeRoutingStabilityRegressionTest",
+            "tests": "7",
+            "failures": "0",
+            "errors": "0",
+            "skipped": "0",
+            "time": "0.461"
+          },
+          {
+            "name": "com.hoyoung.assistant.runtime.AssistantRuntimeTest",
+            "tests": "54",
+            "failures": "0",
+            "errors": "0",
+            "skipped": "0",
+            "time": "4.366"
+          },
+          {
+            "name": "com.hoyoung.assistant.runtime.ModelRoutingPolicyTest",
+            "tests": "27",
+            "failures": "0",
+            "errors": "0",
+            "skipped": "0",
+            "time": "0.355"
+          },
+          {
+            "name": "com.hoyoung.assistant.runtime.OwnerDraftStoreTest",
+            "tests": "27",
+            "failures": "0",
+            "errors": "0",
+            "skipped": "0",
+            "time": "0.949"
+          }
+        ]
+      },
+      {
+        "phase": "final_solo_scan_regressions",
+        "suites": [
+          {
+            "name": "com.hoyoung.assistant.runtime.AssistantRuntimeAutonomyRecoveryTest",
+            "tests": "1",
+            "failures": "0",
+            "errors": "0",
+            "skipped": "0",
+            "time": "5.744"
+          },
+          {
+            "name": "com.hoyoung.assistant.runtime.AssistantRuntimeRoutingStabilityRegressionTest",
+            "tests": "7",
+            "failures": "0",
+            "errors": "0",
+            "skipped": "0",
+            "time": "1.092"
+          },
+          {
+            "name": "com.hoyoung.assistant.store.MemoryGatewayPrivacyScaleTest",
+            "tests": "1",
+            "failures": "0",
+            "errors": "0",
+            "skipped": "0",
+            "time": "0.503"
+          },
+          {
+            "name": "com.hoyoung.assistant.store.MemoryGatewayTest",
+            "tests": "27",
+            "failures": "0",
+            "errors": "0",
+            "skipped": "0",
+            "time": "1.41"
+          }
+        ]
+      }
+    ],
+    "initialTestCompileIssue": "Four Files.readString calls replaced with Android-compatible readAllBytes/UTF-8 before any tests ran.",
+    "initialFailuresExplained": [
+      "Account editor test clicked before Dialog.onShow installed the handler; fixed fixture timing and asserted explicit conflict message.",
+      "Previous steering regression expected old work to be dropped; updated to verify held effects, source-bound reassessment, newest owner input first, and cancellation without creating a file."
+    ],
+    "aggregation": "Latest passing receipt per selected class; repeats are not counted again. Changed runtime/UI/policy paths rerun after corrections. Final solo-scan storage changes rechecked with gateway/routing/autonomy tests.",
+    "paidModelCalls": 0,
+    "fiveYearSimulationRepeated": false,
+    "physicalDeviceTested": false,
+    "changedAppFilesSha256": {
+      "mobile/app/build.gradle": "6e43dbd26cb27e0d95dfbe12d926a171ac93af2c2cd3a231e808f6f18489d45f",
+      "mobile/app/src/main/java/com/hoyoung/assistant/MainActivity.java": "513713293a21129dd86cb5324e5a893b75bc6a5e213c3cbab2d926646ad64561",
+      "mobile/app/src/main/java/com/hoyoung/assistant/memory/MemoryHistory.java": "69dc4d3a9074c6786f6463f3f0516f19a09f0f4e99fda34ffd4b8bd443accf8c",
+      "mobile/app/src/main/java/com/hoyoung/assistant/memory/SemanticIndex.java": "41f4cc109b126a2eb153e6fb28de93c42adb46c4e63ad206196ad20065cc577f",
+      "mobile/app/src/main/java/com/hoyoung/assistant/phone/HoyoungNotificationListener.java": "ac722d0d245b2c4a0e3749a61868cd21ab9d52ad92f61abd8fc42514eef4e198",
+      "mobile/app/src/main/java/com/hoyoung/assistant/phone/PhoneProviderTools.java": "5c7f01fc6ea2800f6666805f91eda222670637a041444fb323a199dbe6a5a16f",
+      "mobile/app/src/main/java/com/hoyoung/assistant/phone/PhoneTools.java": "198d8894a4256806ea17d1f72ebbab0317535a213cdad9c48e9c364fdbf58c36",
+      "mobile/app/src/main/java/com/hoyoung/assistant/runtime/AssistantRuntime.java": "565e2691b68449ee0c41688699a94d9806a4ed1ebbc332fad7eaec5200899b2a",
+      "mobile/app/src/main/java/com/hoyoung/assistant/runtime/HoyoungApplication.java": "557161f3baea96b2c1990e0683842525cf1e0a1d5509657b987ce0a6d821992a",
+      "mobile/app/src/main/java/com/hoyoung/assistant/runtime/ModelRoutingPolicy.java": "6862189b4b90d484f92c01b6702bb1c6ae5454131401652ad7b3dbed77bec173",
+      "mobile/app/src/main/java/com/hoyoung/assistant/runtime/OwnerDraftStore.java": "71c2baf52382e80344953b89941f56390a394eb64c1026da23291de301621b28",
+      "mobile/app/src/main/java/com/hoyoung/assistant/store/AccountMfaTools.java": "90ff6cce1692940a00b6bd72138527c0d9c15af38f0fc5c3d32aa5e258706a4b",
+      "mobile/app/src/main/java/com/hoyoung/assistant/store/AccountStore.java": "225de0a92884d412f8ae55bfc115c1f2e45f319f465058f454ece9cd7ff8c3eb",
+      "mobile/app/src/main/java/com/hoyoung/assistant/store/AssistantIdentity.java": "392f013dc3c7f4af22cfe5ec479d39152ffab7f647508b952c6ec22d00a3d2d6",
+      "mobile/app/src/main/java/com/hoyoung/assistant/store/HoyoungStore.java": "e0d3ba5075cec90c86e1a7aa563a594c9f8157cd4069e34f131ee35d8228f104",
+      "mobile/app/src/main/java/com/hoyoung/assistant/store/MemoryGateway.java": "803ce8a93e425544762cddbb245e2960053de65ca8f2b4e891ad1820703e0107",
+      "mobile/app/src/main/java/com/hoyoung/assistant/store/RecoveryCodeLedger.java": "f87f625fad8d3d6f858e25e5a5ee687bf09c452a903981b1a43c5af562a40d58",
+      "mobile/app/src/main/java/com/hoyoung/assistant/web/WorkWebController.java": "6f909055e86a4bf9b5215091c909cad1baeb6ad583a6e78b1a3d3553d5632a58",
+      "mobile/app/src/test/java/com/hoyoung/assistant/MainActivityFinalAuditTest.java": "2194d945c99d8a8c8ac4d2132f36039ffcab0f8d1d10790a8a5967bd7d295e4b",
+      "mobile/app/src/test/java/com/hoyoung/assistant/memory/MemoryHistoryProvenanceTest.java": "8a716ad3c89d4a60a1a42b3dc1afcd2713bf6d671a37f7e709e7e8d43d1f61b5",
+      "mobile/app/src/test/java/com/hoyoung/assistant/memory/SemanticIndexPendingVisibilityTest.java": "7ee89b65040771faf64a10cbd9e23ede2328e2d455e362dfada8112c3492255c",
+      "mobile/app/src/test/java/com/hoyoung/assistant/phone/PhoneArchivedResultVisibilityTest.java": "65fdbffd45d7117386b873fa40ad5f6da181583a6d87544ee3aee439f4138038",
+      "mobile/app/src/test/java/com/hoyoung/assistant/phone/PhoneContextTest.java": "98f0620869f4d42af6e690ccc6ea20c43a6e0a8f909d1cb70200041de3aa9d1b",
+      "mobile/app/src/test/java/com/hoyoung/assistant/phone/PhoneNotificationStartupTest.java": "75a2ebf4b96ec3a50909f1311e7d257cf8e1cfbf33373935480ea98628c3a387",
+      "mobile/app/src/test/java/com/hoyoung/assistant/phone/PhoneNotificationVisibilityTest.java": "4a8c38ef95bb6279eb35b61c4256e7ef618aa6e3d6ed2347d565989e12c5946e",
+      "mobile/app/src/test/java/com/hoyoung/assistant/phone/PhoneProviderMutationReceiptTest.java": "70c4b31b362dafa7d5c2e267578d616f3a26fe541ce961f2474e23dec9ba6429",
+      "mobile/app/src/test/java/com/hoyoung/assistant/runtime/AssistantRuntimeAutonomyRecoveryTest.java": "38e391eb074a4185d572936a502356366bd18317a6f70f5d722e2af4a262c3e8",
+      "mobile/app/src/test/java/com/hoyoung/assistant/runtime/AssistantRuntimeRoutingStabilityRegressionTest.java": "fa9a8d70e3501354cdb4cea46a2cfd6c52153be006d596bcf114b9f912e9729e",
+      "mobile/app/src/test/java/com/hoyoung/assistant/runtime/AssistantRuntimeTest.java": "5db327fae8992ea618f69be33dfcfd0abefd63119f219487bef8a9d25d0cba44",
+      "mobile/app/src/test/java/com/hoyoung/assistant/runtime/ModelRoutingPolicyTest.java": "a5d782530cd3e549a94d1aa45df3e3c605d09b3aca3da966a4bb4ac777a9311f",
+      "mobile/app/src/test/java/com/hoyoung/assistant/store/AccountMutationConsistencyTest.java": "a42f3004ce08e697b591cb7aeaf8eefbaec627d40e1b524321eb7a5b777bc45f",
+      "mobile/app/src/test/java/com/hoyoung/assistant/store/AssistantIdentityBackupTest.java": "a5d424438d5dac308754eaa3b113f9bebe44fae79cc5dee60f19fce32de07310",
+      "mobile/app/src/test/java/com/hoyoung/assistant/store/MemoryGatewayPrivacyScaleTest.java": "c656c8e27f95d7e7b9c275b1b7ec3968858eb1c581564a5e0ac3aa2168b6bd23",
+      "mobile/app/src/test/java/com/hoyoung/assistant/store/MemoryGatewayTest.java": "823efb865272690eba1126c6f8b76a162519e80db7abce183b5c0e4b7f86afce",
+      "mobile/app/src/test/java/com/hoyoung/assistant/store/RecoveryReservationSnapshotTest.java": "cffe001ca261a32bf2c5ceb56f4f1a70605cea84dcb63410f4d0df1c3c155393",
+      "mobile/app/src/test/java/com/hoyoung/assistant/web/WorkResponseCaptureLifecycleTest.java": "49c2913e54c55944e1158572108186b22ca5c77172658b666195ff80ed89278b"
+    }
+  },
+  "realWorkProviderVerified": false,
+  "physicalSamsungVerified": false,
+  "paidModelCalls": 0,
+  "notes": [
+    "Focused deterministic tests only; the older full native/long-memory suites were not repeated.",
+    "No real passwords, cookies, owner database or private signing material is bundled.",
+    "Existing accepted task model selection is preserved; this does not guarantee uninterrupted cloud-task recovery after Android termination."
+  ]
+}
