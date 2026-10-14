@@ -36,12 +36,25 @@ public final class AssistantReplyNotificationsTest {
         JSONObject accepted=worker.publish(source,"completed");assertTrue(accepted.getBoolean("queued"));assertFalse(accepted.getBoolean("notificationPosted"));assertFalse(accepted.getBoolean("readConfirmed"));assertEquals(0,manager.getActiveNotifications().length);
         worker.setConversationVisible(true);while(!queue.isEmpty())queue.remove().run();assertEquals(0,manager.getActiveNotifications().length);assertEquals("conversation_visible",worker.state().getString("lastCode"));
     }
-    @Test public void actualReplyIsPrivateAndPublicVersionHasNoMessageBody()throws Exception{
-        JSONObject source=assistant("private-message-42");replies.publish(source,"completed");Notification notification=active(source).getNotification();
-        assertEquals(Notification.VISIBILITY_PRIVATE,notification.visibility);assertEquals("private-message-42",notification.extras.getCharSequence(Notification.EXTRA_TEXT).toString());assertNotNull(notification.publicVersion);
-        assertFalse(notification.publicVersion.extras.getCharSequence(Notification.EXTRA_TEXT).toString().contains("private-message-42"));assertEquals(Notification.VISIBILITY_PUBLIC,notification.publicVersion.visibility);
+    @Test public void actualReplyIsPublicByDefaultAndKeepsExactSourceProvenance()throws Exception{
+        JSONObject source=assistant("message-42");replies.publish(source,"completed");Notification notification=active(source).getNotification();
+        assertEquals(Notification.VISIBILITY_PUBLIC,notification.visibility);assertEquals("message-42",notification.extras.getCharSequence(Notification.EXTRA_TEXT).toString());assertNull(notification.publicVersion);
+        assertEquals(Notification.VISIBILITY_PUBLIC,manager.getNotificationChannel(AssistantReplyNotifications.CHANNEL).getLockscreenVisibility());
         assertEquals("assistant_reply",notification.extras.getString(AssistantReplyNotifications.EXTRA_SOURCE_KIND));assertEquals(source.getLong("id"),notification.extras.getLong(AssistantReplyNotifications.EXTRA_SOURCE_ID));assertEquals(source.getString("content_hash"),notification.extras.getString(AssistantReplyNotifications.EXTRA_SOURCE_HASH));
         assertTrue(replies.state().getBoolean("notificationPosted"));assertFalse(replies.state().getBoolean("readConfirmed"));assertTrue(replies.state().getBoolean("postingDoesNotMeanRead"));
+    }
+    @Test public void ownerCanHideLockscreenContentAndReenableItForSubsequentReplies()throws Exception{
+        store.putSetting("replyLockscreenContentVisible","false");JSONObject hidden=assistant("owner-hidden-message-42");replies.publish(hidden,"completed");Notification notification=active(hidden).getNotification();
+        assertEquals(Notification.VISIBILITY_PRIVATE,notification.visibility);assertNotNull(notification.publicVersion);
+        assertFalse(notification.publicVersion.extras.getCharSequence(Notification.EXTRA_TEXT).toString().contains("owner-hidden-message-42"));
+        assertEquals(Notification.VISIBILITY_PUBLIC,notification.publicVersion.visibility);
+        store.putSetting("replyLockscreenContentVisible","true");JSONObject visible=assistant("owner-visible-next-message");replies.publish(visible,"completed");
+        assertEquals(Notification.VISIBILITY_PUBLIC,active(visible).getNotification().visibility);assertNull(active(visible).getNotification().publicVersion);
+    }
+    @Test @Config(sdk=29) public void systemContextualActionsDefaultToAllowedAndRespectOwnerSwitch()throws Exception{
+        JSONObject first=assistant("system-suggestion-default");replies.publish(first,"completed");assertTrue(active(first).getNotification().getAllowSystemGeneratedContextualActions());
+        store.putSetting("replySystemContextualActionsEnabled","false");JSONObject second=assistant("system-suggestion-owner-disabled");replies.publish(second,"completed");assertFalse(active(second).getNotification().getAllowSystemGeneratedContextualActions());
+        store.putSetting("replySystemContextualActionsEnabled","true");JSONObject third=assistant("system-suggestion-owner-enabled");replies.publish(third,"completed");assertTrue(active(third).getNotification().getAllowSystemGeneratedContextualActions());
     }
     @Test public void contentIntentOpensSpecificConversationSourceWithoutMutableRemoteInput()throws Exception{
         JSONObject source=assistant("open this reply");replies.publish(source,"proactive");Notification notification=active(source).getNotification();Intent open=Shadows.shadowOf(notification.contentIntent).getSavedIntent();

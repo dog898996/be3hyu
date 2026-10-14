@@ -57,7 +57,7 @@ final class PhoneObservationSpool {
         String id = UUID.randomUUID().toString();
         JSONObject record = PhoneEventJournal.object("version", 1, "spoolId", id, "category", category, "source", source, "payload", payload,
             "observedAt", observedAt, "capturedAt", System.currentTimeMillis(), "captureSequence", ++sequence, "dedupeKey", dedupeKey == null ? "phone-spool:" + id : dedupeKey,
-            "receiptRequired", dedupeKey != null && (dedupeKey.startsWith("location-request:") || dedupeKey.startsWith("voice-request:")));
+            "receiptRequired", dedupeKey != null && (dedupeKey.startsWith("location-request:") || dedupeKey.startsWith("voice-request:") || dedupeKey.startsWith("screen-request:")));
         checksum(record);
         String filename = String.format(java.util.Locale.ROOT, "%019d-%010d-%s.json", Math.max(0, System.currentTimeMillis()), sequence, id);
         atomicWrite(new File(pending, filename), record);

@@ -68,6 +68,22 @@ public final class PermissionOnboarding {
                 } else if ("restricted".equals(kind) || !allDeclared) {
                     required = false;
                     unsupported = "이 앱에 부여할 수 없는 역할·설치 관리자 제한 권한이야.";
+                } else if (entry.optBoolean("installerRestricted") && unsupported.isEmpty()) {
+                    String eligibility = entry.optString("grantEligibility", "unknown");
+                    boolean knownGranted = false, deniedWithoutPrompt = true;
+                    SharedPreferences history = context.getSharedPreferences(REQUEST_HISTORY, Context.MODE_PRIVATE);
+                    for (String permission : permissions) {
+                        knownGranted |= history.getBoolean("ever_granted." + permission, false);
+                        deniedWithoutPrompt &= history.getBoolean("conditional_denied_no_prompt." + permission, false);
+                        if (probe.has(permission) && !history.getBoolean("ever_granted." + permission, false)) history.edit().putBoolean("ever_granted." + permission, true).apply();
+                    }
+                    if (!allGranted && "installer_blocked".equals(eligibility)) {
+                        required = false;
+                        unsupported = "Android에서 확인한 설치 관리자 허용 목록에 없어 현재 부여할 수 없어. 허용된 권한으로 계산하지 않아.";
+                    } else if (!allGranted && "unknown".equals(eligibility) && deniedWithoutPrompt && !knownGranted) {
+                        required = false;
+                        unsupported = "Android가 미허용으로 반환했고 추가 권한 창을 제공하지 않아. 설치 관리자 제한 여부는 확인할 수 없으며, 허용된 것으로 취급하지 않아. 앱 설정에서 다시 확인할 수 있어.";
+                    }
                 } else if ("media_selected".equals(id)) {
                     // Selected-only access is an alternative scope, not an extra grant that
                     // must remain enabled after the owner grants the full media library.
@@ -109,7 +125,11 @@ public final class PermissionOnboarding {
     public RequestResult request(Activity activity, String id) {
         Snapshot state = snapshot();
         Item item = state.find(id);
-        if (item == null || !item.required) return new RequestResult(false, "이 기기에서 별도로 허용할 항목이 아니야.");
+        if (item == null) return new RequestResult(false, "이 기기에서 별도로 허용할 항목이 아니야.");
+        if (!item.required) {
+            if (isConditionalId(id) && probe.unavailableReason(id).isEmpty()) return settings(activity, id, item.detail);
+            return new RequestResult(false, "이 기기에서 별도로 허용할 항목이 아니야.");
+        }
         if (item.granted) return new RequestResult(false, "이미 허용된 권한이야.");
         if ("background_location".equals(id)) {
             Item foreground = state.find("location");
@@ -163,6 +183,31 @@ public final class PermissionOnboarding {
                 : new RequestResult(false, "설정 화면을 열 수 없어. 휴대폰 설정 → 앱 → 호영에서 직접 허용해 줘. 허용 상태는 아직 미완료야.");
     }
 
+    /** Records an actual completed Android result, never just a prompt launch. */
+    public void recordRequestResult(Activity activity, String[] names, int[] results) {
+        if (names == null || results == null) return;
+        SharedPreferences.Editor update = context.getSharedPreferences(REQUEST_HISTORY, Context.MODE_PRIVATE).edit();
+        for (int i = 0; i < names.length && i < results.length; i++) {
+            String permission = names[i]; if (!isConditionalPermission(permission)) continue;
+            if (results[i] == PackageManager.PERMISSION_GRANTED) {
+                update.putBoolean("ever_granted." + permission, true).remove("conditional_denied_no_prompt." + permission);
+            } else {
+                update.putBoolean("conditional_denied_no_prompt." + permission,
+                        !activity.shouldShowRequestPermissionRationale(permission));
+            }
+        }
+        update.apply();
+    }
+    private static boolean isConditionalPermission(String permission) {
+        return Manifest.permission.READ_SMS.equals(permission) || Manifest.permission.SEND_SMS.equals(permission)
+                || Manifest.permission.RECEIVE_SMS.equals(permission) || Manifest.permission.READ_CALL_LOG.equals(permission)
+                || Manifest.permission.WRITE_CALL_LOG.equals(permission);
+    }
+    private static boolean isConditionalId(String id) {
+        return "sms_read".equals(id) || "sms_send".equals(id) || "sms_receive".equals(id)
+                || "call_log_read".equals(id) || "call_log_write".equals(id);
+    }
+
     private static Snapshot unavailableSnapshot() {
         return new Snapshot(Collections.singletonList(new Item("verification_failed", "권한 상태 다시 확인",
                 "Android에서 권한 상태를 읽지 못했어. 앱 설정을 확인한 뒤 다시 시도해 줘.",
@@ -190,9 +235,14 @@ public final class PermissionOnboarding {
             case "camera": return "채팅에서 사진을 찍고 이미지 작업에 사용할 수 있어.";
             case "microphone": return "요청한 음성 녹음에 사용할 수 있어.";
             case "phone_state": return "휴대폰이 제공하는 전화·SIM 상태를 확인할 수 있어.";
-            case "calls": return "전화 기능 권한이야. 현재 전화 도구는 다이얼 화면을 열어.";
+            case "calls": return "다이얼 화면을 열거나 요청한 번호로 전화를 걸 수 있어. 실제 연결 여부는 별도로 확인해야 해.";
+            case "sms_read": return "설치 관리자가 허용한 기기에서 SMS를 읽을 수 있어. Android의 실제 권한 창에서 확인해 줘.";
+            case "sms_send": return "설치 관리자가 허용한 기기에서 요청한 SMS를 보낼 수 있어. 통신사 SMS 요금이 적용될 수 있어.";
+            case "sms_receive": return "실제 수신한 SMS를 기기 관찰 기록으로 보관할 수 있어. 사용자 명령과는 구분해.";
+            case "call_log_read": return "설치 관리자가 허용한 기기에서 통화 기록을 읽을 수 있어.";
+            case "call_log_write": return "설치 관리자가 허용한 기기에서 요청한 통화 기록을 삭제할 수 있어.";
             case "nearby": return "Bluetooth 등 주변 기기를 확인할 수 있어.";
-            case "nearby_wifi": return "휴대폰이 제공하는 Wi-Fi 정보를 확인할 수 있어.";
+            case "nearby_wifi": return "휴대폰 Wi-Fi 정보와 요청한 로컬 핫스팟을 다룰 수 있어. 인터넷 공유와는 별개야.";
             case "activity_recognition": return "지원 센서의 걸음 수와 활동 정보를 기록할 수 있어.";
             case "media_images": case "media_video": return "‘모든 사진 및 동영상 허용’을 선택해 줘. 일부 사진만 허용하면 아직 미완료야.";
             case "media_audio": return "공유 저장소의 오디오 파일을 확인할 수 있어.";
@@ -274,7 +324,8 @@ public final class PermissionOnboarding {
                 case "camera": supported = pm.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY); break;
                 case "microphone": supported = pm.hasSystemFeature(PackageManager.FEATURE_MICROPHONE); break;
                 case "location": case "background_location": supported = pm.hasSystemFeature(PackageManager.FEATURE_LOCATION); break;
-                case "phone_state": case "calls": supported = pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY); break;
+                case "phone_state": case "calls": case "sms_read": case "sms_send": case "sms_receive":
+                case "call_log_read": case "call_log_write": supported = pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY); break;
                 case "nearby": supported = pm.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH) || pm.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE); break;
                 case "nearby_wifi": supported = pm.hasSystemFeature(PackageManager.FEATURE_WIFI); break;
                 case "device_admin": supported = pm.hasSystemFeature(PackageManager.FEATURE_DEVICE_ADMIN); break;

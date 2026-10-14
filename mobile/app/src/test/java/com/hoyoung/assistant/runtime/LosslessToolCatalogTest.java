@@ -7,6 +7,7 @@ import androidx.test.core.app.ApplicationProvider;
 
 import com.hoyoung.assistant.phone.PhoneTools;
 import com.hoyoung.assistant.store.InternalFiles;
+import com.hoyoung.assistant.store.HoyoungStore;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -23,12 +24,10 @@ import static org.junit.Assert.*;
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 28, application = Application.class)
 public final class LosslessToolCatalogTest {
-    @Test public void allFiftyNineToolsKeepEveryDefinitionAndSaveCharactersIncludingHeader() throws Exception {
+    @Test public void wholeExpandedProductionCatalogKeepsEveryDefinitionAndSavesCharactersIncludingHeader() throws Exception {
         Context context = ApplicationProvider.getApplicationContext();
-        JSONArray catalog = runtimeDefinitions();
-        append(catalog, new InternalFiles(context).catalog());
-        append(catalog, new PhoneTools(context).catalog());
-        assertEquals(59, catalog.length());
+        JSONArray catalog = productionCatalog(context);
+        assertTrue("A complete actual catalog is required", catalog.length() > 0);
         String before = catalog.toString();
 
         LosslessToolCatalog.Result result = LosslessToolCatalog.formatResult(catalog);
@@ -40,12 +39,15 @@ public final class LosslessToolCatalogTest {
                 result.packedCharacters < result.baselineCharacters * 0.80);
         JSONArray restored = LosslessToolCatalog.decode(rowsFrom(result.text));
         assertSameJson(catalog, restored);
+        for(JSONArray nativeCatalog:new JSONArray[]{new PhoneTools(context).catalog(),new InternalFiles(context).catalog()})
+            for(int i=0;i<nativeCatalog.length();i++){JSONObject definition=nativeCatalog.getJSONObject(i);assertSameJson(definition,named(restored,definition.getString("name")));}
         assertEquals(before, catalog.toString());
-        assertEquals("phone_voice_record_read", restored.getJSONObject(58).getString("name"));
-        assertEquals("Relative id from files.list; not a host path.", restored.getJSONObject(15)
+        assertNotNull(named(restored,"phone_voice_record_read"));assertNotNull(named(restored,"phone_call_place"));
+        for(String name:new String[]{"accounts.list","accounts.get","accounts.save","accounts.history","accounts.delete"})assertNotNull(named(restored,name));
+        assertEquals("Relative id from files.list; not a host path.", named(restored,"files.read")
                 .getJSONObject("inputSchema").getJSONObject("properties")
                 .getJSONObject("fileId").getString("description"));
-        System.out.println("LosslessToolCatalog full catalog: tools=59 baseline_chars="
+        System.out.println("LosslessToolCatalog full catalog: tools=" + catalog.length() + " baseline_chars="
                 + result.baselineCharacters + " packed_chars=" + result.packedCharacters
                 + " framing_chars=" + LosslessToolCatalog.HEADER.length());
     }
@@ -68,10 +70,24 @@ public final class LosslessToolCatalogTest {
         JSONArray encoded = LosslessToolCatalog.encode(input);
         assertEquals(1, encoded.getJSONArray(0).getInt(0));
         assertEquals("string", encoded.getJSONArray(0).getJSONObject(3).get("plain"));
-        assertTrue(encoded.getJSONArray(0).getJSONObject(3).get("described") instanceof JSONObject);
+        assertEquals("[\"integer\",\"0–24,000\"]", encoded.getJSONArray(0).getJSONObject(3).getJSONArray("described").toString());
         assertTrue(encoded.getJSONArray(0).getJSONObject(3).get("unknown") instanceof JSONObject);
         assertSameJson(complex, encoded.getJSONArray(0).getJSONObject(3).get("complex"));
         assertSameJson(input, LosslessToolCatalog.decode(new JSONArray(encoded.toString())));
+    }
+
+    @Test public void describedTypesSaveOnlyRepeatedKeysAndKeepUnicodeEscapesAndExtraFields() throws Exception {
+        String description="정확히 \"a\\b\"\n💙\t 원문";
+        JSONObject plain=new JSONObject().put("type","string").put("description",description);
+        JSONObject extended=new JSONObject(plain.toString()).put("minLength",3);
+        JSONObject nullable=new JSONObject().put("type","string").put("description",JSONObject.NULL);
+        JSONObject future=new JSONObject().put("type","future-kind").put("description",description);
+        JSONArray original=new JSONArray().put(nativeTool("described","exact",new JSONObject()
+                .put("plain",plain).put("extended",extended).put("nullable",nullable).put("future",future),new JSONArray().put("plain")));
+        JSONArray encoded=LosslessToolCatalog.encode(original);JSONObject properties=encoded.getJSONArray(0).getJSONObject(3);
+        assertEquals(description,properties.getJSONArray("plain").getString(1));
+        assertTrue(properties.get("extended") instanceof JSONObject);assertTrue(properties.get("nullable") instanceof JSONObject);assertTrue(properties.get("future") instanceof JSONObject);
+        assertSameJson(original,LosslessToolCatalog.decode(new JSONArray(encoded.toString())));
     }
 
     @Test public void exactArgumentStringsAndUnicodeQuotesAreNeverSummarizedOrNormalized() throws Exception {
@@ -170,7 +186,7 @@ public final class LosslessToolCatalogTest {
         JSONArray input = new JSONArray().put(nativeDefinition).put(fallback);
         JSONArray encoded = LosslessToolCatalog.encode(input);
         JSONArray decoded = LosslessToolCatalog.decode(encoded);
-        encoded.getJSONArray(0).getJSONObject(3).getJSONObject("a").put("description", "changed encoded");
+        encoded.getJSONArray(0).getJSONObject(3).getJSONArray("a").put(1, "changed encoded");
         encoded.getJSONArray(1).getJSONObject(1).getJSONObject("extra").put("value", "changed encoded");
         decoded.getJSONObject(0).getJSONObject("inputSchema").getJSONArray("required").put("other");
         assertEquals("original", property.getString("description"));
@@ -214,7 +230,9 @@ public final class LosslessToolCatalogTest {
         String[] malformed = {"[null]", "[[0,\"x\"]]", "[[0,\"x\",{}]]", "[[0,\"x\",\"{}\",\"extra\"]]",
                 "[[\"0\",\"x\",\"{}\"]]", "[[0.5,\"x\",\"{}\"]]", "[[3,{}]]", "[[2]]", "[[2,{},{}]]",
                 "[[1,\"x\",\"desc\",{},null]]", "[[1,\"x\",\"desc\",{\"a\":false},[]]]",
-                "[[1,\"x\",\"desc\",{\"a\":\"future-kind\"},[]]]", "[[1,\"x\",true,{},[]]]"};
+                "[[1,\"x\",\"desc\",{\"a\":\"future-kind\"},[]]]", "[[1,\"x\",true,{},[]]]",
+                "[[1,\"x\",\"desc\",{\"a\":[\"string\"]},[]]]", "[[1,\"x\",\"desc\",{\"a\":[\"string\",17]},[]]]",
+                "[[1,\"x\",\"desc\",{\"a\":[\"future-kind\",\"x\"]},[]]]", "[[1,\"x\",\"desc\",{\"a\":[\"string\",\"x\",\"extra\"]},[]]]"};
         for (String rows : malformed) {
             assertThrows(rows, IllegalArgumentException.class,
                     () -> LosslessToolCatalog.decode(new JSONArray(rows)));
@@ -260,26 +278,20 @@ public final class LosslessToolCatalogTest {
         }
     }
 
-    /** The fourteen runtime argument definitions accompanying the 45 real native tools. */
-    private static JSONArray runtimeDefinitions() throws Exception {
-        String[][] definitions = {
-                {"memory.search", "query:string,limit:1..50,entities?:string[],fromInclusive?:epochMillis,toExclusive?:epochMillis,asOf?:epochMillis,includeHistory?:boolean,maxChars?:integer"},
-                {"memory.save", "key:string,content:string,kind:string,sourceMessageIds?:integer[],sourceRefs?:{type:message|device_event,id:integer,quote?:string,offsetChars?:integer}[],metadata?:{factKey,aliases,entities,pinned,confidence,validFrom,validTo,evidenceState}"},
-                {"memory.asset.analyze", "messageId:integer,assetId:string"},
-                {"memory.source.read", "messageId:integer,offsetChars?:integer,maxChars?:1..24000"},
-                {"memory.source.enumerate", "type:message|device_event,fromInclusive?:epochMillis,toExclusive?:epochMillis,containsLiteral?:string,afterId?:integer,cutoffId?:integer,expectedScopeFingerprint?:string,limit?:1..100,maxExcerptChars?:1..4000,maxChars?:4096..100000"},
-                {"memory.history", "key:string,limit?:1..100"},
-                {"memory.review", "fromMessageId?:integer,throughMessageId?:integer,reason?:string"},
-                {"actions.receipt.read", "rootRequestId:string,actionId:string,offsetChars?:integer,maxChars?:1..24000"},
-                {"tasks.list", "scope?:active|reported_archive,afterRootRequestId?:string,limit?:1..100,stage?:string,dueBefore?:epochMillis"},
-                {"tasks.update", "rootRequestId:string,stage:working|awaiting_result|blocked,progress:string,nextCheckAt?:epochMillis"},
-                {"tasks.report_completed", "rootRequestId:string,progress:string; archive an observed completion report only after native effects reconcile; overall success stays unverified"},
-                {"app.settings.get", "{}"},
-                {"app.work.pause", "reason:string; hold current root's new local effects and request remote cancellation without claiming it stopped"},
-                {"app.settings.update", "customInstructions?:string,standingGoals?:string,toolPermissions?:{catalogTool:boolean},autonomyEnabled?:boolean,heartbeatSeconds?:60..86400,memoryReviewEnabled?:boolean,phoneContextEnabled?:boolean,semanticSearchEnabled?:boolean,replyNotificationsEnabled?:boolean,backupMaxGiB?:1..64,wakeMode?:continuous|while_working|charging,requiredModel?:gpt-model-id,requiredEffort?:low|medium|high|xhigh|max|ultra,requiredSpeed?:fast|standard,usageOptimizationEnabled?:boolean,backgroundSpeed?:fast|standard,autonomousEffort?:low|medium|high|xhigh|max|ultra,memoryMinimumEffort?:medium|high|xhigh|max|ultra,budgetBasis?:pool_per_day|daily_share,budgetTargetPercent?:number(0..100]"}
-        };
-        JSONArray catalog = new JSONArray();
-        for (String[] definition : definitions) catalog.put(new JSONObject().put("name", definition[0]).put("arguments", definition[1]));
-        return catalog;
+    private static JSONArray productionCatalog(Context context) throws Exception {
+        HoyoungStore store=new HoyoungStore(context);
+        AssistantRuntime runtime=new AssistantRuntime(context,store,new InternalFiles(context),new PhoneTools(context,store),Runnable::run);
+        try {
+            java.lang.reflect.Method catalog=AssistantRuntime.class.getDeclaredMethod("catalog");catalog.setAccessible(true);
+            return new JSONArray(((JSONArray)catalog.invoke(runtime)).toString());
+        } finally {
+            java.lang.reflect.Field budget=AssistantRuntime.class.getDeclaredField("usageBudget");budget.setAccessible(true);
+            ((UsageBudgetLedger)budget.get(runtime)).close();store.close();
+        }
+    }
+
+    private static JSONObject named(JSONArray catalog,String name) throws Exception {
+        for(int i=0;i<catalog.length();i++){JSONObject item=catalog.getJSONObject(i);if(name.equals(item.optString("name")))return item;}
+        return null;
     }
 }

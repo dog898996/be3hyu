@@ -225,15 +225,22 @@ public final class AssistantReplyNotifications implements AutoCloseable {
         JSONObject reaction = EmojiReactionReply.fromStoredMessage(source);
         String replyText = reaction == null ? source.optString("text") : "내 메시지에 " + reaction.optString("emoji") + " 반응했어";
         String body = preview(replyText,400), expanded = preview(replyText,1_200);
-        Notification publicVersion = new Notification.Builder(context,CHANNEL).setSmallIcon(android.R.drawable.ic_dialog_info)
-                .setContentTitle("호영").setContentText("새로운 메시지가 있어. 앱에서 확인해.").setVisibility(Notification.VISIBILITY_PUBLIC).build();
+        boolean lockscreenContent = "true".equals(store.getSetting("replyLockscreenContentVisible", "true"));
         Bundle extras = new Bundle(); extras.putString(EXTRA_SOURCE_KIND,"assistant_reply");extras.putLong(EXTRA_SOURCE_ID,id);extras.putString(EXTRA_SOURCE_HASH,hash);extras.putString(EXTRA_STAGE,stage);
         Notification.Builder builder = new Notification.Builder(context,CHANNEL).setSmallIcon(android.R.drawable.ic_dialog_info)
                 .setContentTitle(title).setContentText(body).setStyle(new Notification.BigTextStyle().bigText(expanded))
-                .setContentIntent(content).setAutoCancel(true).setOnlyAlertOnce(true).setVisibility(Notification.VISIBILITY_PRIVATE)
-                .setPublicVersion(publicVersion).setCategory(Notification.CATEGORY_MESSAGE).addExtras(extras)
+                .setContentIntent(content).setAutoCancel(true).setOnlyAlertOnce(true)
+                .setVisibility(lockscreenContent ? Notification.VISIBILITY_PUBLIC : Notification.VISIBILITY_PRIVATE)
+                .setCategory(Notification.CATEGORY_MESSAGE).addExtras(extras)
                 .setWhen(source.optLong("created_at",System.currentTimeMillis())).setShowWhen(true);
-        if (Build.VERSION.SDK_INT>=29) builder.setAllowSystemGeneratedContextualActions(false);
+        if (!lockscreenContent) {
+            Notification publicVersion = new Notification.Builder(context,CHANNEL).setSmallIcon(android.R.drawable.ic_dialog_info)
+                    .setContentTitle("호영").setContentText("새로운 메시지가 있어. 앱에서 확인해.")
+                    .setVisibility(Notification.VISIBILITY_PUBLIC).build();
+            builder.setPublicVersion(publicVersion);
+        }
+        if (Build.VERSION.SDK_INT>=29) builder.setAllowSystemGeneratedContextualActions(
+                "true".equals(store.getSetting("replySystemContextualActionsEnabled", "true")));
         return builder.build();
     }
 
@@ -241,7 +248,9 @@ public final class AssistantReplyNotifications implements AutoCloseable {
         if (manager == null || manager.getNotificationChannel(CHANNEL) != null) return;
         NotificationChannel channel = new NotificationChannel(CHANNEL,"호영의 답장과 선톡",NotificationManager.IMPORTANCE_DEFAULT);
         channel.setDescription("답장·필요한 선톡·한도와 오류 안내. 게시되었다고 읽음으로 처리하지 않음.");
-        channel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE); manager.createNotificationChannel(channel);
+        channel.setLockscreenVisibility("true".equals(store.getSetting("replyLockscreenContentVisible", "true"))
+                ? Notification.VISIBILITY_PUBLIC : Notification.VISIBILITY_PRIVATE);
+        manager.createNotificationChannel(channel);
     }
     private String blockedReason() {
         if (!"true".equals(store.getSetting("replyNotificationsEnabled","true"))) return "reply_notifications_disabled";

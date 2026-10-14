@@ -35,6 +35,12 @@ if gateway_path in paths and b'import com.hoyoung.assistant.runtime.GoalLedger;'
 action_path='mobile/app/src/main/java/com/hoyoung/assistant/runtime/ActionReceiptJournal.java'
 if goal_path in paths and b'new ActionReceiptJournal(' in production_bytes(goal_path) and action_path not in paths:
  paths.append(action_path)
+native_completion_path='mobile/app/src/main/java/com/hoyoung/assistant/runtime/NativeAsyncCompletion.java'
+if action_path in paths and b'new NativeAsyncCompletion(' in production_bytes(action_path) and native_completion_path not in paths:
+ paths.append(native_completion_path)
+ui_provenance_path='mobile/app/src/main/java/com/hoyoung/assistant/runtime/UiAutomationProvenance.java'
+if action_path in paths and b'UiAutomationProvenance.' in production_bytes(action_path) and ui_provenance_path not in paths:
+ paths.append(ui_provenance_path)
 manifest={}
 for relative in paths:
  if not relative.endswith('.java'):continue

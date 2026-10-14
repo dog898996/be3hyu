@@ -187,6 +187,67 @@ public final class PermissionOnboardingTest {
         assertEquals("contacts", actual.snapshot().pending().get(0).id);
     }
 
+    @Test public void unknownInstallerEligibilityRequiresAnActualRequestBeforeAnyConditionalExclusion() throws Exception {
+        probe.conditional("sms_read", Manifest.permission.READ_SMS, "unknown");
+        Activity activity = Robolectric.buildActivity(Activity.class).setup().get();
+        assertFalse(gate.snapshot().ready()); assertTrue(gate.request(activity, "sms_read").launched);
+        assertArrayEquals(new String[]{Manifest.permission.READ_SMS}, Shadows.shadowOf(activity).getLastRequestedPermission().requestedPermissions);
+        assertFalse("Launching a prompt is not a returned denial", gate.snapshot().ready());
+        gate.recordRequestResult(activity, new String[]{Manifest.permission.READ_SMS}, new int[]{android.content.pm.PackageManager.PERMISSION_DENIED});
+        PermissionOnboarding.Item conditional = gate.snapshot().find("sms_read");
+        assertFalse(conditional.required); assertFalse(conditional.granted); assertTrue(conditional.detail.contains("확인할 수 없"));
+        assertTrue(gate.request(activity, "sms_read").launched);
+        assertEquals(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Shadows.shadowOf(activity).getNextStartedActivity().getAction());
+    }
+
+    @Test public void knownAllowlistedPermissionStillBlocksAfterNoPromptDenial() throws Exception {
+        probe.conditional("sms_send", Manifest.permission.SEND_SMS, "eligible");
+        Activity activity = Robolectric.buildActivity(Activity.class).setup().get();
+        gate.recordRequestResult(activity, new String[]{Manifest.permission.SEND_SMS}, new int[]{android.content.pm.PackageManager.PERMISSION_DENIED});
+        assertTrue(gate.snapshot().find("sms_send").required); assertFalse(gate.snapshot().ready());
+    }
+
+    @Test public void previouslyObservedConditionalGrantRemainsRequiredAfterActualRevocation() throws Exception {
+        probe.conditional("call_log_read", Manifest.permission.READ_CALL_LOG, "unknown");
+        probe.grants.add(Manifest.permission.READ_CALL_LOG); assertTrue(gate.snapshot().ready());
+        probe.grants.remove(Manifest.permission.READ_CALL_LOG);
+        Activity activity = Robolectric.buildActivity(Activity.class).setup().get();
+        gate.recordRequestResult(activity, new String[]{Manifest.permission.READ_CALL_LOG}, new int[]{android.content.pm.PackageManager.PERMISSION_DENIED});
+        PermissionOnboarding restarted = new PermissionOnboarding(context, probe);
+        assertFalse(restarted.snapshot().ready()); assertTrue(restarted.snapshot().find("call_log_read").required);
+    }
+
+    @Test public void installerBlockedPermissionDoesNotHideAnotherEligibleGrantOrPretendItGranted() throws Exception {
+        probe.conditional("sms_read", Manifest.permission.READ_SMS, "installer_blocked");
+        probe.conditional("sms_send", Manifest.permission.SEND_SMS, "eligible");
+        assertFalse(gate.snapshot().find("sms_read").required); assertFalse(gate.snapshot().find("sms_read").granted);
+        assertEquals("sms_send", gate.snapshot().pending().get(0).id); assertFalse(gate.snapshot().ready());
+        probe.grants.add(Manifest.permission.SEND_SMS); assertTrue(gate.snapshot().ready());
+    }
+
+    @Test public void actualGrantWinsOverStaleInstallerMetadataAndIsStillCounted() throws Exception {
+        probe.conditional("sms_receive", Manifest.permission.RECEIVE_SMS, "installer_blocked"); probe.grants.add(Manifest.permission.RECEIVE_SMS);
+        assertTrue(gate.snapshot().ready()); assertTrue(gate.snapshot().find("sms_receive").required);
+        assertEquals(1, gate.snapshot().grantedCount);
+    }
+
+    @Test public void unknownEligibilityWithAndroidRationaleRemainsRequestableAndRequired() throws Exception {
+        probe.conditional("call_log_write", Manifest.permission.WRITE_CALL_LOG, "unknown");
+        Activity activity = Robolectric.buildActivity(RationaleActivity.class).setup().get();
+        gate.recordRequestResult(activity, new String[]{Manifest.permission.WRITE_CALL_LOG}, new int[]{android.content.pm.PackageManager.PERMISSION_DENIED});
+        assertFalse(gate.snapshot().ready()); assertTrue(gate.snapshot().find("call_log_write").required);
+    }
+
+    @Test public void conditionalResultHandlingNeverMakesOrdinaryCameraDenialOptional() throws Exception {
+        probe.runtime("camera", Manifest.permission.CAMERA);
+        gate.recordRequestResult(Robolectric.buildActivity(Activity.class).setup().get(), new String[]{Manifest.permission.CAMERA}, new int[]{android.content.pm.PackageManager.PERMISSION_DENIED});
+        assertFalse(gate.snapshot().ready()); assertTrue(gate.snapshot().find("camera").required);
+    }
+
+    public static class RationaleActivity extends Activity {
+        @Override public boolean shouldShowRequestPermissionRationale(String permission) { return true; }
+    }
+
     public static class RejectingSettingsActivity extends Activity {
         @Override public void startActivity(Intent intent) { throw new android.content.ActivityNotFoundException("Synthetic settings unavailable"); }
     }
@@ -205,6 +266,9 @@ public final class PermissionOnboardingTest {
             declared.addAll(Arrays.asList(permissions));
             entries.put(new JSONObject().put("id", id).put("kind", "runtime").put("label", id)
                     .put("runtimePermissions", new JSONArray(Arrays.asList(permissions))).put("granted", false));
+        }
+        void conditional(String id, String permission, String eligibility) throws Exception {
+            runtime(id, permission); entries.getJSONObject(entries.length() - 1).put("installerRestricted", true).put("grantEligibility", eligibility);
         }
         void special(String id, boolean granted) throws Exception {
             entries.put(new JSONObject().put("id", id).put("kind", "special").put("label", id).put("granted", granted));

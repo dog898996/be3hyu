@@ -47,6 +47,7 @@ public final class ExternalOwnerPolicyFolder {
     public boolean pending(){return preferences.getBoolean("pending",false);}
     public long requestedGeneration(){return preferences.getLong("generation",0);}
     public void markPending(){synchronized(STATE_LOCK){long generation=requestedGeneration();preferences.edit().putLong("generation",generation==Long.MAX_VALUE?generation:generation+1).putBoolean("pending",true).apply();}}
+    public void markPendingDurably()throws IOException {synchronized(STATE_LOCK){long generation=requestedGeneration();if(!preferences.edit().putLong("generation",generation==Long.MAX_VALUE?generation:generation+1).putBoolean("pending",true).commit())throw new IOException("Owner-control backup retry could not be persisted");}}
     public void failure(Exception failure){preferences.edit().putBoolean("pending",true).putString("error",failure.getClass().getSimpleName()).apply();}
     public JSONObject status(){JSONObject result=new JSONObject();put(result,"connected",connected());put(result,"pending",pending());
         put(result,"lastSyncedAt",preferences.getLong("syncedAt",0));put(result,"lastError",preferences.getString("error",""));put(result,"automaticFullMemoryBackup",false);return result;}

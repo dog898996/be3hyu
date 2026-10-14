@@ -97,6 +97,10 @@ TEST_RUNNER=fixture.runner
 LOG_DIR="$FIXTURE_LOG_DIR"
 primary_passed=true
 explicit_recovery_passed=true
+isolate_emulator_network() {
+  echo 'FIXTURE_NETWORK_ISOLATION_REACHED'
+  [[ "${FAKE_OFFLINE_FAIL:-false}" != true ]]
+}
 '''
             environment.update(FIXTURE_ADB=str(adb), FIXTURE_LOG_DIR=str(directory))
 
@@ -143,6 +147,80 @@ explicit_recovery_passed=true
             self.assertNotIn('FIXTURE_PROCESS_SIGNAL', result.stdout)
             self.assertIn('FIXTURE_REBOOT_REACHED', result.stdout)
             self.assertIn('boot=true; bootstrapAndProofInfrastructure=false', result.stdout)
+
+            result = run(phase_driver, FAKE_OFFLINE_FAIL='true')
+            self.assertEqual(1, result.returncode, result.stdout + result.stderr)
+            self.assertIn('FIXTURE_NETWORK_ISOLATION_REACHED', result.stdout)
+            self.assertNotIn('FIXTURE_INSTRUMENT_PHASE boot', result.stdout)
+            self.assertIn('boot=false', result.stdout)
+
+    def test_offline_isolation_requires_owned_debuggable_qemu_and_real_framework_proof(self):
+        source = DRIVER.read_text()
+        helpers = (section(source, 'OFFLINE FIXTURE HELPERS')
+                   + section(source, 'INSTRUMENTATION PROOF DECODER')
+                   + section(source, 'OFFLINE FRAMEWORK PROBE'))
+        with tempfile.TemporaryDirectory(prefix='hoyoung-offline-driver-') as temporary:
+            directory = pathlib.Path(temporary)
+            adb = directory / 'fixture-adb'
+            adb.write_text('''#!/usr/bin/env python3
+import os,pathlib,sys
+args=sys.argv[1:]
+assert args[:2]==['-s','emulator-owned-fixture']
+args=args[2:]
+with pathlib.Path(os.environ['FAKE_CALLS']).open('a') as out: out.write(repr(args)+'\\n')
+if args[:2]==['shell','getprop']:
+    key=args[2]
+    print({'ro.kernel.qemu':os.environ.get('FAKE_QEMU','1'),'ro.build.version.sdk':'35','ro.debuggable':os.environ.get('FAKE_DEBUGGABLE','1')}[key])
+elif args==['shell','id','-u']: print('0')
+elif args==['shell','dumpsys','connectivity']:
+    print('Active default network: 100\\nTransports: ETHERNET')
+elif args==['shell','ip','-o','link','show']:
+    print('1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536\\n2: eth0: <BROADCAST,MULTICAST,UP> mtu 1500')
+elif args[:3]==['shell','am','instrument']:
+    print('OK (1 test)')
+    if os.environ.get('FAKE_MISSING_PROOF')!='true':
+        print('INSTRUMENTATION_STATUS: stream=HOYOUNG_FIXTURE_FRAMEWORK_OFFLINE actual-activeNetwork=null; actual-getAllNetworks=0; five-consecutive-observations; no-production-bypass')
+    if os.environ.get('FAKE_FAIL_PROBE')=='true': sys.exit(23)
+elif args[:1]==['shell'] and 'HOYOUNG_FIXTURE_GUEST_ADAPTERS_DOWN' in args[1]:
+    if os.environ.get('FAKE_FAIL_ADAPTERS')=='true': sys.exit(24)
+    assert 'ip link set dev "$iface" down' in args[1]
+    assert 'lo) continue' in args[1]
+    print('HOYOUNG_FIXTURE_GUEST_ADAPTERS_DOWN')
+''')
+            adb.chmod(0o755)
+            calls = directory / 'calls.txt'
+            environment = dict(os.environ, FIXTURE_ADB=str(adb), FIXTURE_LOG_DIR=str(directory), FAKE_CALLS=str(calls))
+            prefix = 'set -euo pipefail\n' + helpers + '''
+ADB="$FIXTURE_ADB"
+SERIAL=emulator-owned-fixture
+TEST_RUNNER=fixture.runner
+LOG_DIR="$FIXTURE_LOG_DIR"
+emulator_pid=$$
+'''
+
+            def run(body, **variables):
+                calls.write_text('')
+                return subprocess.run(['bash', '-c', prefix + body], env=dict(environment, **variables),
+                                      text=True, capture_output=True, timeout=10)
+
+            result = run('isolate_emulator_network initial && verify_framework_offline\n')
+            self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+            self.assertIn('ETHERNET', result.stdout)
+            self.assertIn('HOYOUNG_FIXTURE_FRAMEWORK_OFFLINE', result.stdout)
+            for variables in ({'FAKE_QEMU':'0'}, {'FAKE_DEBUGGABLE':'0'}):
+                with self.subTest(variables=variables):
+                    result = run('isolate_emulator_network initial\n', **variables)
+                    self.assertNotEqual(0, result.returncode)
+                    self.assertNotIn("['root']", calls.read_text())
+                    self.assertNotIn('ip link set', calls.read_text())
+            result = run('isolate_emulator_network initial && verify_framework_offline\n', FAKE_FAIL_ADAPTERS='true')
+            self.assertNotEqual(0, result.returncode)
+            self.assertNotIn("'am', 'instrument'", calls.read_text())
+            for variables in ({'FAKE_MISSING_PROOF':'true'}, {'FAKE_FAIL_PROBE':'true'}):
+                with self.subTest(variables=variables):
+                    result = run('verify_framework_offline\n', **variables)
+                    self.assertNotEqual(0, result.returncode, result.stdout + result.stderr)
+                    self.assertIn('OK (1 test)', result.stdout)
 
 
 if __name__ == '__main__':

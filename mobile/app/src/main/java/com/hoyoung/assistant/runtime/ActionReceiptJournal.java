@@ -94,8 +94,24 @@ public final class ActionReceiptJournal {
                         nativeWithoutOwner=true;
                     }
                 }else{
-                    try(Cursor row=db.rawQuery("SELECT role,request_id FROM messages WHERE id=?",new String[]{String.valueOf(id)})){if(!row.moveToFirst()||!"user".equals(row.getString(0))||!root.equals(row.getString(1)))return false;}
                     String hash=value(db,"requestSourceHash:"+root);if(hash!=null&&!hash.matches("[a-f0-9]{64}"))return false;
+                    try(Cursor row=db.rawQuery("SELECT role,request_id,text,content_hash FROM messages WHERE id=?",new String[]{String.valueOf(id)})){
+                        if(!row.moveToFirst()||!root.equals(row.getString(1)))return false;
+                        if(!"user".equals(row.getString(0))){
+                            if(!"system".equals(row.getString(0))||hash==null||!hash.equals(row.getString(3))
+                                    ||!UiAutomationProvenance.AGENT.equals(value(db,"inputActor:"+root)))return false;
+                            JSONObject nativeInput;try{nativeInput=new JSONObject(row.getString(2));}catch(org.json.JSONException invalid){return false;}
+                            if(!"agent_authored_input".equals(nativeInput.optString("type"))
+                                    ||!UiAutomationProvenance.AGENT.equals(nativeInput.optString("submittedBy"))
+                                    ||!UiAutomationProvenance.AGENT.equals(nativeInput.optString("inputActor"))
+                                    ||!Boolean.FALSE.equals(nativeInput.opt("naturalLanguageOwnerUtterance"))
+                                    ||!(nativeInput.opt("text") instanceof String))return false;
+                            try(Cursor request=db.rawQuery("SELECT kind,text FROM requests WHERE external_id=?",new String[]{root})){
+                                if(!request.moveToFirst()||!"agent-authored".equals(request.getString(0))
+                                        ||!nativeInput.optString("text").equals(request.getString(1)))return false;
+                            }
+                        }
+                    }
                     if(!source("message",id,hash==null?boundHashes.getOrDefault("message:"+id,""):hash))return false;
                 }
             }catch(NumberFormatException invalid){return false;}}
@@ -197,9 +213,16 @@ public final class ActionReceiptJournal {
 
     /** Actual stored native receipts only. A provider's overall goal claim is not verified here. */
     public JSONObject completionSummary(String rootId,Predicate<String> mutatingTool,Predicate<JSONObject> confirmedNativeReceipt) {
+        return completionSummary(rootId,mutatingTool,confirmedNativeReceipt,null);
+    }
+    public JSONObject completionSummary(String rootId,Predicate<String> mutatingTool,Predicate<JSONObject> confirmedNativeReceipt,Predicate<JSONObject> deviceVisibility) {
         validateRoot(rootId);
         if(mutatingTool==null||confirmedNativeReceipt==null)throw new IllegalArgumentException("Trusted native receipt classifiers required");
         return store.withTransaction(db->{
+            SourcePrivacyLedger.Snapshot privacy;
+            try { privacy=store.getPrivacyLedger().capture(); } catch(IOException unavailable) { throw new IllegalStateException("Native completion source policy unavailable",unavailable); }
+            NativeAsyncCompletion callbacks=new NativeAsyncCompletion();
+            forRoot(db,rootId,(key,raw)->{try{JSONObject receipt=strict(raw);if(new ReceiptRead(db,privacy,deviceVisibility).allowed(rootId,receipt))callbacks.observe(receipt);}catch(RuntimeException invalid){/* Never certify malformed callback evidence. */}});
             long[] counts=new long[12];MessageDigest snapshot=newDigest();snapshot.update(("native-receipts-v1:"+rootId).getBytes(StandardCharsets.UTF_8));
             forRoot(db,rootId,(key,raw)->{
                 counts[0]++;hashReceipt(snapshot,key,raw);
@@ -208,19 +231,23 @@ public final class ActionReceiptJournal {
                     if(name.isEmpty())throw new IllegalArgumentException("Native receipt name missing");
                     boolean mutation=mutatingTool.test(name);
                     if(mutation)counts[4]++;else counts[8]++;
+                    if(!new ReceiptRead(db,privacy,deviceVisibility).allowed(rootId,receipt)){counts[11]++;return;}
                     if(!"completed".equals(receipt.optString("status"))){counts[3]++;return;}
                     JSONObject result=receipt.optJSONObject("result");
                     if(result==null||!(result.opt("ok") instanceof Boolean)){counts[10]++;return;}
                     if(Boolean.TRUE.equals(result.opt("ok"))){
                         counts[1]++;
-                        if(mutation){if(confirmedNativeReceipt.test(receipt))counts[5]++;else counts[6]++;}
+                        if(mutation){if(confirmedNativeReceipt.test(receipt)||callbacks.confirms(receipt))counts[5]++;else counts[6]++;}
                     }else{counts[2]++;if(mutation)counts[7]++;else counts[9]++;}
                 }catch(RuntimeException corruptOrClassifierFailed){counts[10]++;}
             });
-            boolean ready=counts[3]==0&&counts[6]==0&&counts[7]==0&&counts[10]==0;
+            boolean privacyCurrent;
+            try { privacyCurrent=privacy.fingerprint.equals(store.getPrivacyLedger().fingerprint()); } catch(IOException unavailable) { privacyCurrent=false; }
+            boolean ready=counts[3]==0&&counts[6]==0&&counts[7]==0&&counts[10]==0&&counts[11]==0&&privacyCurrent;
             return object("ready",ready,"rootRequestId",rootId,"receiptCount",counts[0],"successfulCount",counts[1],"failedCount",counts[2],
                     "unfinishedCount",counts[3],"mutationCount",counts[4],"confirmedMutationCount",counts[5],"unconfirmedMutationCount",counts[6],
                     "failedMutationCount",counts[7],"readOnlyCount",counts[8],"failedReadOnlyCount",counts[9],"corruptCount",counts[10],
+                    "sourceUnavailableCount",counts[11],
                     "snapshotHash",hex(snapshot.digest()),"proofScope","native_receipts_only","overallOutcomeVerified",false,"automaticReplay",false);
         });
     }

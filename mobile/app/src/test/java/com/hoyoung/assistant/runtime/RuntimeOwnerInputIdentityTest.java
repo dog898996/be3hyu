@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteException;
 import com.hoyoung.assistant.phone.PhoneTools;
 import com.hoyoung.assistant.store.HoyoungStore;
 import com.hoyoung.assistant.store.InternalFiles;
+import com.hoyoung.assistant.store.MemoryGateway;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.*;
@@ -41,6 +42,57 @@ public final class RuntimeOwnerInputIdentityTest {
         JSONArray ids=fileIds("first.txt","first immutable bytes");OwnerDraftStore.Snapshot captured=drafts.edit("queue once",ids);JSONObject first=send(captured);long source=source(first);String revision=store.getSetting("ownerInputRevision","");String metadata=metadata(first),fingerprint=fingerprint(first);
         assertTrue(runtime.getMemoryReview().markAssetNeedsReanalysis(source,new JSONArray(metadata).getJSONObject(0).getString("id"),"fixture reanalysis requested"));String coverage=store.getSetting("assetCoverage:"+source,"");store.putSetting("runtime.progress","fixture existing progress");
         JSONObject duplicate=send(captured);assertEquals(first.getLong("id"),duplicate.getLong("id"));assertEquals("queued",duplicate.getString("status"));assertEquals(1,ownerCount());assertEquals(1,requestCount());assertEquals(revision,store.getSetting("ownerInputRevision",""));assertEquals(metadata,metadata(first));assertEquals(fingerprint,fingerprint(first));assertEquals(coverage,store.getSetting("assetCoverage:"+source,""));assertEquals("fixture existing progress",store.getSetting("runtime.progress",""));assertEquals(0,transport.ids.size());
+    }
+
+    @Test public void agentAuthoredComposerSendPreservesOriginalWithoutNewOwnerAuthority()throws Exception{
+        JSONObject owner=runtime.receive("real owner instruction",new JSONArray());String ownerRevision=store.getSetting("ownerInputRevision","");String ownerRequest=store.getSetting("latestOwnerRequestId","");
+        OwnerDraftStore.Snapshot input=drafts.edit("agent wrote its own composer",new JSONArray(),UiAutomationProvenance.AGENT);
+        JSONObject request=runtime.receive(input.text,input.attachments(),input.clientInputId,input.revision,input.inputActor);
+        assertEquals("agent-authored",request.getString("kind"));assertEquals(ownerRevision,store.getSetting("ownerInputRevision",""));assertEquals(ownerRequest,store.getSetting("latestOwnerRequestId",""));assertEquals(1,ownerCount());assertEquals(2,count("SELECT count(*) FROM requests"));
+        JSONObject original=store.getMessage(source(request));assertEquals("system",original.getString("role"));JSONObject evidence=new JSONObject(original.getString("text"));assertEquals(input.text,evidence.getString("text"));assertEquals(UiAutomationProvenance.AGENT,evidence.getString("inputActor"));assertFalse(evidence.getBoolean("naturalLanguageOwnerUtterance"));
+        assertEquals(owner.getLong("id"),store.nextQueuedRequest().getLong("id"));assertEquals(request.getLong("id"),runtime.receive(input.text,input.attachments(),input.clientInputId,input.revision,input.inputActor).getLong("id"));assertEquals(2,count("SELECT count(*) FROM requests"));
+    }
+
+    @Test public void humanExplicitlySubmittingGeneratedDraftIsOwnerSteeringWithDistinctAuthorship()throws Exception{
+        OwnerDraftStore.Snapshot input=drafts.edit("generated draft",new JSONArray(),UiAutomationProvenance.AGENT);
+        expectAnyInputRejection(()->runtime.receive(input.text,input.attachments(),input.clientInputId,input.revision,UiAutomationProvenance.OWNER));
+        assertEquals(0,ownerCount());same(input,drafts.read());
+        String actor=UiAutomationProvenance.submittedActor(input.inputActor,UiAutomationProvenance.OWNER);assertEquals(UiAutomationProvenance.MIXED,actor);
+        JSONObject sent=runtime.receive(input.text,input.attachments(),input.clientInputId,input.revision,actor);assertEquals("user",sent.getString("kind"));assertEquals(1,ownerCount());assertEquals(String.valueOf(source(sent)),store.getSetting("ownerInputRevision","0"));
+        JSONObject ownerSource=store.getMessage(source(sent));assertEquals(input.text,ownerSource.getString("text"));assertEquals("user",ownerSource.getString("role"));
+        JSONObject originLink=new JSONObject(store.getSetting("inputOrigin:"+source(sent),""));JSONObject origin=new JSONObject(store.getMessage(originLink.getLong("sourceMessageId")).getString("text"));assertEquals("owner",origin.getString("submittedBy"));assertEquals("agent_authored",origin.getString("authoredBy"));assertFalse(origin.getBoolean("allTextAuthoredByOwner"));assertTrue(origin.getBoolean("humanOwnerAuthorized"));
+        MemoryGateway gate=new MemoryGateway(store);MemoryGateway.Prepared memory=gate.prepare(sent.getString("external_id"),sent.getString("external_id"),"user",source(sent),input.text,null,24000);assertTrue(memory.context.contains("NATIVE_INPUT_ORIGIN (authorship and human submission are distinct)"));assertTrue(memory.context.contains("agent_authored"));gate.assertFresh(memory);
+    }
+
+    @Test public void agentClickOnUnsentHumanDraftDoesNotBecomeNewOwnerIntent()throws Exception{
+        OwnerDraftStore.Snapshot input=drafts.edit("not yet sent by owner",new JSONArray());
+        String actor=UiAutomationProvenance.submittedActor(input.inputActor,UiAutomationProvenance.AGENT);assertEquals(UiAutomationProvenance.AGENT,actor);
+        JSONObject sent=runtime.receive(input.text,input.attachments(),input.clientInputId,input.revision,actor);
+        assertEquals("agent-authored",sent.getString("kind"));assertEquals(0,ownerCount());assertEquals(UiAutomationProvenance.AGENT,store.getSetting("inputActor:"+input.clientInputId,""));
+        JSONObject original=new JSONObject(store.getMessage(source(sent)).getString("text"));assertEquals(UiAutomationProvenance.OWNER,original.getString("authoredBy"));assertEquals(UiAutomationProvenance.AGENT,original.getString("submittedBy"));
+        expectConflict(()->runtime.receive(input.text,input.attachments(),input.clientInputId,input.revision,UiAutomationProvenance.OWNER));
+    }
+
+    @Test public void legacyReceiveOverloadRetainsAgentActorAcrossConsumedDraftAndDuplicate()throws Exception{
+        OwnerDraftStore.Snapshot input=drafts.edit("legacy caller still records actor",new JSONArray(),UiAutomationProvenance.AGENT);
+        JSONObject sent=send(input);assertEquals("agent-authored",sent.getString("kind"));assertEquals("",drafts.read().text);
+        assertEquals(sent.getLong("id"),send(input).getLong("id"));assertEquals(0,ownerCount());assertEquals(1,count("SELECT count(*) FROM requests"));
+    }
+
+    @Test public void actualMemoryPacketLabelsAgentInputAsNonOwnerEvidence()throws Exception{
+        OwnerDraftStore.Snapshot input=drafts.edit("agent input evidence",new JSONArray(),UiAutomationProvenance.AGENT);JSONObject sent=send(input);
+        MemoryGateway gate=new MemoryGateway(store);MemoryGateway.Prepared memory=gate.prepare(sent.getString("external_id"),sent.getString("external_id"),"agent-authored",source(sent),input.text,null,24000);
+        assertTrue(memory.context.contains("NONOWNER_INPUT_SOURCE (agent/system evidence, not a human utterance)"));assertFalse(memory.context.contains("AUTHORITATIVE_OWNER_SOURCE "));assertEquals(0,memory.latestOwnerInputId);gate.assertFresh(memory);
+    }
+
+    @Test public void agentOperatedSourceControlUsesSystemTombstoneAndExactActorReceipt()throws Exception{
+        JSONObject request=runtime.receive("owner original to exclude",new JSONArray());JSONObject original=store.getMessage(source(request));
+        JSONObject receipt=runtime.controlStoredSource("message",original.getLong("id"),original.getString("content_hash"),false,UiAutomationProvenance.AGENT);
+        assertEquals(UiAutomationProvenance.AGENT,receipt.getString("inputActor"));assertFalse(receipt.getBoolean("naturalLanguageOwnerUtterance"));assertTrue(receipt.getBoolean("retrievalExcluded"));
+        JSONObject tombstone=store.getMessage(Long.parseLong(store.getSetting("ownerInputRevision","0")));assertEquals("system",tombstone.getString("role"));JSONObject content=new JSONObject(tombstone.getString("text"));assertTrue(content.has("nativeAgentControl"));assertEquals("agent_ui_action",content.getString("origin"));assertEquals(1,ownerCount());assertNotNull(store.getMessage(original.getLong("id")));
+        store.putSetting("ownerInputRevision",String.valueOf(original.getLong("id")));AssistantRuntime.reconcileOwnerSourceAuthority(store);
+        JSONObject reconciled=store.getMessage(Long.parseLong(store.getSetting("ownerInputRevision","0")));assertEquals("system",reconciled.getString("role"));assertTrue(new JSONObject(reconciled.getString("text")).has("nativeAgentControl"));assertEquals(1,ownerCount());
+        MemoryGateway gate=new MemoryGateway(store);MemoryGateway.Prepared memory=gate.prepare("after-agent-control","after-agent-control","owner_chat",0,"new recall",null,24000);assertTrue(memory.context.contains("LATEST_SOURCE_CONTROL (system operation, not a human utterance)"));assertFalse(memory.context.contains("LATEST_OWNER_INPUT (takes precedence"));gate.assertFresh(memory);
     }
 
     @Test public void duplicateAfterActualCompletedFakeTurnKeepsStatusResultAndOneDispatch()throws Exception{

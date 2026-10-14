@@ -46,12 +46,12 @@ public final class PhoneArchivedResultVisibilityTest {
         store.putSetting("toolPermissions", "{}"); store.putSetting("phoneContextEnabled", "false"); assertFalse(tools.canReadArchivedToolResult("phone_location_last", saved));
         assertTrue(tools.canReadArchivedToolResult("phone_device_info", new JSONObject().put("model", "synthetic-device"))); assertFalse(tools.canReadArchivedToolResult("phone_unknown_future_tool", new JSONObject()));
     }
-    @Test public void historicalContactMutationsNeedCurrentReadWriteGrantsAndClipboardNeedsActualForeground() throws Exception {
+    @Test public void historicalContactMutationsNeedReadWriteGrantsButClipboardHasNoAppForegroundVeto() throws Exception {
         Shadows.shadowOf((Application) context).grantPermissions(Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_CONTACTS);
         assertTrue(tools.canReadArchivedToolResult("phone_contact_update", new JSONObject()));
         Shadows.shadowOf((Application) context).denyPermissions(Manifest.permission.READ_CONTACTS); assertFalse(tools.canReadArchivedToolResult("phone_contact_update", new JSONObject()));
         ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE); ActivityManager.RunningAppProcessInfo process = new ActivityManager.RunningAppProcessInfo(); process.pid = Process.myPid(); process.uid = Process.myUid(); process.importance = ActivityManager.RunningAppProcessInfo.IMPORTANCE_BACKGROUND;
-        Shadows.shadowOf(manager).setProcesses(java.util.Collections.singletonList(process)); assertFalse(tools.canReadArchivedToolResult("phone_clipboard_read", new JSONObject().put("text", "synthetic clipboard")));
+        Shadows.shadowOf(manager).setProcesses(java.util.Collections.singletonList(process)); assertTrue(tools.canReadArchivedToolResult("phone_clipboard_read", new JSONObject().put("text", "synthetic clipboard")));
         process.importance = ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND; Shadows.shadowOf(manager).setProcesses(java.util.Collections.singletonList(process)); assertTrue(tools.canReadArchivedToolResult("phone_clipboard_read", new JSONObject().put("text", "synthetic clipboard")));
     }
     @Test @Config(sdk = 35) public void selectedPhotoGrantCannotExposeAnUnverifiedHistoricalFullLibraryResult() throws Exception {

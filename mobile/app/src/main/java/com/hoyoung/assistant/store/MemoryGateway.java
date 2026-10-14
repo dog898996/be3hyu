@@ -108,13 +108,18 @@ public final class MemoryGateway {
                     .append("CURRENT_INPUT dispatch=").append(dispatchId).append(" purpose=").append(purpose).append(" source=").append(inputId)
                     .append("\n").append(currentInputText).append("\n");
             if(inputId>0) {
-                JSONObject input=selected.message(inputId,0,100_000,true);
+                boolean nativeAgentInput="agent-authored".equals(purpose)&&"agent_authored".equals(setting(db,"inputActor:"+rootId,"owner"));
+                if(nativeAgentInput&&inputId!=number(setting(db,"requestSource:"+rootId,"0")))throw new Blocked("nonowner_input_scope_invalid");
+                JSONObject input=selected.message(inputId,0,100_000,!nativeAgentInput);
                 if(currentInputText.equals(input.optString("text"))){input.remove("text");put(input,"exactTextProvidedIn","CURRENT_INPUT");}
-                required.append("AUTHORITATIVE_OWNER_SOURCE ").append(input).append('\n');
+                required.append("user".equals(input.optString("role"))?"AUTHORITATIVE_OWNER_SOURCE ":"NONOWNER_INPUT_SOURCE (agent/system evidence, not a human utterance) ").append(input).append('\n');
+                appendInputOrigin(db,inputId,input,selected,required);
             }
             if(latestOwner>0&&latestOwner!=inputId) {
-                JSONObject latest=selected.message(latestOwner,0,100_000,true);
-                required.append("LATEST_OWNER_INPUT (takes precedence for corrections/cancellations) ").append(latest).append('\n');
+                boolean nativeAgentControl=setting(db,"nativeAgentControl:"+latestOwner,null)!=null;
+                JSONObject latest=selected.message(latestOwner,0,100_000,!nativeAgentControl);
+                required.append("user".equals(latest.optString("role"))?"LATEST_OWNER_INPUT (takes precedence for corrections/cancellations) ":"LATEST_SOURCE_CONTROL (system operation, not a human utterance) ").append(latest).append('\n');
+                appendInputOrigin(db,latestOwner,latest,selected,required);
             }
             LayerRead verbatim=verbatim(db,terms,readMemory,readPhone,visibility,hybridCandidates,selected);
             layers.add(verbatim);
@@ -200,7 +205,7 @@ public final class MemoryGateway {
                 }else if("memory_revision".equals(type)) {
                     JSONObject current=checker.historical(dependency.optString("key"),dependency.optLong("revision"),false);
                     if(current==null||!dependency.optString("hash").equals(current.optString("snapshotEvidenceHash")))throw new Blocked("memory_revision_changed");
-                }else if("goal_source_setting".equals(type)) {
+                }else if("goal_source_setting".equals(type)||"native_account_projection".equals(type)) {
                     JSONObject current=one(db,"SELECT value FROM settings WHERE setting_key=?",new String[]{dependency.optString("key")});
                     if(current==null||!dependency.optString("hash").equals(digest(current.optString("value"))))throw new Blocked("memory_control_changed");
                 }else throw new Blocked("memory_dependency_invalid");
@@ -279,7 +284,7 @@ public final class MemoryGateway {
             if(emitted.size()>=64){capped|=ranked.size()>emitted.size();break;}
         }
         JSONArray recent=query(db,"SELECT id FROM messages WHERE "+privacy.sql("message","id","content_hash")+" AND "+(enabled?"1":"0")+" ORDER BY id DESC LIMIT 8",Collections.emptyList(),result);
-        for(int i=0;i<recent.length();i++){long id=recent.optJSONObject(i).optLong("id");if(!emitted.contains("message:"+id)&&!selected.authoritativeIds.contains(id)&&selected.messageAllowed(id))result.payload.put(selected.message(id,0,1200,false));}
+        for(int i=0;i<recent.length();i++){long id=recent.optJSONObject(i).optLong("id");if(!emitted.contains("message:"+id)&&!selected.authoritativeIds.contains(id)&&selected.messageAllowed(id))result.payload.put(selected.recentMessage(id));}
         result.candidateScope=object("backend","snapshot_fts_ids_plus_canonical_hydration","perTermPerTypeLimit",64,"candidateIds",candidates.size(),"candidateLimitReached",capped,
                 "ranking","capped_term_rarity_plus_canonical_literal_matches_then_hybrid_rank","deviceBootstrapComplete",deviceState[2]!=0,"completeHistoryEnumerated",false);
         for(long id:selected.authoritativeIds){
@@ -322,6 +327,21 @@ public final class MemoryGateway {
             for(long revision:historicalRevisions){JSONObject past=selected.historical(key,revision,true);if(past!=null)result.payload.put(past);}
         }
         result.exclusion=enabled?"none":"memory_search_excluded_by_owner";return result;
+    }
+
+    /** A human may adopt generated wording. Its immutable native origin receipt is mandatory
+     * alongside that owner instruction so later recall distinguishes authorship and approval. */
+    private static void appendInputOrigin(SQLiteDatabase db,long inputId,JSONObject input,Accumulator selected,StringBuilder required)throws IOException {
+        String encoded=setting(db,"inputOrigin:"+inputId,null);
+        if(encoded==null)return;
+        JSONObject link=json(encoded);long originId=link.optLong("sourceMessageId",0);String hash=link.optString("sourceHash");
+        if(originId<=0||!hash.matches("[a-f0-9]{64}"))throw new Blocked("input_origin_binding_invalid");
+        JSONObject source=selected.message(originId,0,12000,false);
+        if(!hash.equals(source.optString("recordHash"))||!"system".equals(source.optString("role")))throw new Blocked("input_origin_source_invalid");
+        JSONObject evidence=json(source.optString("text"));
+        if(!"native_input_origin".equals(evidence.optString("type"))||evidence.optLong("sourceMessageId")!=inputId
+                ||!input.optString("recordHash").equals(evidence.optString("sourceHash"))||!evidence.optBoolean("humanOwnerAuthorized"))throw new Blocked("input_origin_scope_invalid");
+        required.append("NATIVE_INPUT_ORIGIN (authorship and human submission are distinct) ").append(source).append('\n');
     }
 
     private LayerRead procedural(SQLiteDatabase db,List<String> terms,boolean enabled,PrivacyView privacy,
@@ -382,6 +402,28 @@ public final class MemoryGateway {
             put(original,"type","message");put(original,"role",row.optString("role"));put(original,"recordedAt",row.optLong("created_at"));
             JSONObject dependency=object("type","message","id",id,"hash",original.optString("recordHash"),"offsetChars",original.optLong("offsetChars"),"lengthChars",original.optString("text").length(),"rangeHash",digest(original.optString("text")));
             dependencies.put("message:"+id+":"+offset+":"+maximum,dependency);return original;
+        }
+        /** Only the additional last-eight recent projection uses native account metadata.
+         * Search matches, owner originals, source.read and account lookup keep their full text. */
+        JSONObject recentMessage(long id)throws IOException {
+            JSONObject original=message(id,0,1200,false);
+            if(!"system".equals(original.optString("role")))return original;
+            String key="nativeAccountInput:"+id;
+            JSONObject index=one(snapshot.database,"SELECT value FROM settings WHERE setting_key=?",new String[]{key});
+            if(index==null)return original;
+            JSONObject marker;
+            try {marker=new JSONObject(index.optString("value"));}catch(org.json.JSONException malformed){return original;}
+            JSONObject account=marker.optJSONObject("account");
+            if(marker.optInt("version")!=1||!"native_account_input".equals(marker.optString("type"))
+                    ||marker.optLong("sourceMessageId")!=id||!original.optString("recordHash").equals(marker.optString("sourceMessageHash"))
+                    ||account==null||!(account.opt("accountId") instanceof String))return original;
+            JSONObject metadata=new JSONObject();
+            for(String field:new String[]{"accountId","service","username","label","loginUrl","origin","inputActor","revision","createdAt","updatedAt","loginVerified","hasPassword","extraFieldCount"})
+                if(account.has(field))put(metadata,field,account.opt(field));
+            dependencies.put("native_account_projection:"+id,object("type","native_account_projection","key",key,"hash",digest(index.optString("value"))));
+            return object("type","account_metadata","sourceType","message","id",id,"role","system","recordedAt",original.optLong("recordedAt"),
+                    "recordHash",original.optString("recordHash"),"projectionOnly",true,"historicalInputMetadata",true,"exactCredentialsPreservedInOriginal",true,
+                    "account",metadata,"exactAccountReadTool","accounts.get","exactOriginalReadTool","memory.source.read");
         }
         JSONObject device(long id) {
             JSONObject row=one(snapshot.database,"SELECT * FROM device_events WHERE id=?",new String[]{String.valueOf(id)});

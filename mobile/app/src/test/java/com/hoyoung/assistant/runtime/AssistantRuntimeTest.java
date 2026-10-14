@@ -466,7 +466,8 @@ public class AssistantRuntimeTest {
         assertTrue(transport.prompts.get(2).contains("저장한 코딩 목표"));
     }
 
-    @Test public void toolContinuationsStopAtPersistedRoundLimit() throws Exception {
+    @Test public void toolContinuationsStopOnlyAtOwnerConfiguredRoundLimit() throws Exception {
+        store.putSetting("toolRoundLimit", "24");
         ready();
         JSONObject request = runtime.receive("연속 도구 요청", new JSONArray());
         store.putSetting("toolRound:" + request.optString("external_id"), "23");
@@ -477,6 +478,54 @@ public class AssistantRuntimeTest {
         assertEquals(2, transport.ids.size());
         assertTrue(runtime.state().isNull("activeRequestId"));
         assertTrue(store.events(100).toString().contains("tool_round_limit"));
+        assertTrue(store.events(100).toString().contains("owner_tool_execution_limit"));
+    }
+
+    @Test public void defaultToolLimitsContinuePastLegacyRoundAndActionCaps() throws Exception {
+        ready();
+        JSONObject request = runtime.receive("연속 도구 요청", new JSONArray());
+        String root = request.getString("external_id");
+        store.putSetting("toolRound:" + root, "24");
+        JSONArray actions = new JSONArray();
+        for (int i=0;i<13;i++) actions.put(action("read-"+i,"app.settings.get",new JSONObject()));
+        complete(request,envelope("도구 읽기",actions,null));
+        assertEquals(2,transport.ids.size());
+        for(int i=0;i<13;i++) assertNotNull(store.getSetting("actionReceipt:"+root+":read-"+i,null));
+        JSONObject next=store.getRequest(runtime.state().optLong("activeStoreId"));
+        assertEquals("25",store.getSetting("toolRound:"+next.getString("external_id"),""));
+        complete(next,envelope("다음 도구 읽기",new JSONArray().put(action("next-read","app.settings.get",new JSONObject())),null));
+        assertEquals(3,transport.ids.size());
+        assertFalse(store.events(100).toString().contains("owner_tool_execution_limit"));
+        JSONObject receipt=new JSONObject(store.getSetting("actionReceipt:"+root+":read-0",""));
+        assertEquals(0,receipt.getJSONObject("result").getLong("toolRoundLimit"));
+        assertEquals(0,receipt.getJSONObject("result").getLong("toolActionsPerTurnLimit"));
+        assertTrue(receipt.getJSONObject("result").getBoolean("replyLockscreenContentVisible"));
+        assertTrue(receipt.getJSONObject("result").getBoolean("replySystemContextualActionsEnabled"));
+        assertTrue(receipt.getJSONObject("result").getBoolean("workFileDownloadsEnabled"));
+    }
+
+    @Test public void ownerActionCountLimitStopsBeforeAnyOfThatBatchExecutes() throws Exception {
+        store.putSetting("toolActionsPerTurnLimit","2");ready();
+        JSONObject request=runtime.receive("도구 세 개",new JSONArray());String root=request.getString("external_id");
+        JSONArray actions=new JSONArray();for(int i=0;i<3;i++)actions.put(action("read-"+i,"app.settings.get",new JSONObject()));
+        complete(request,envelope("도구 세 개 읽기",actions,null));
+        assertEquals(1,transport.ids.size());assertTrue(runtime.state().isNull("activeRequestId"));
+        for(int i=0;i<3;i++)assertNull(store.getSetting("actionReceipt:"+root+":read-"+i,null));
+        assertTrue(store.events(100).toString().contains("owner_tool_execution_limit"));
+    }
+
+    @Test public void executionAndNotificationSettingsValidateAtomicallyAndPersistOwnerChoices() throws Exception {
+        ready();JSONObject request=runtime.receive("권한 설정",new JSONArray());
+        complete(request,envelope("설정",new JSONArray().put(action("bad-policy","app.settings.update",object(
+                "replyLockscreenContentVisible",false,"toolRoundLimit",-1))),null));
+        assertNull(store.getSetting("replyLockscreenContentVisible",null));assertNull(store.getSetting("toolRoundLimit",null));
+        JSONObject next=store.getRequest(runtime.state().optLong("activeStoreId"));
+        complete(next,envelope("설정",new JSONArray().put(action("policy","app.settings.update",object(
+                "replyLockscreenContentVisible",false,"replySystemContextualActionsEnabled",false,"workFileDownloadsEnabled",false,"toolRoundLimit",0,"toolActionsPerTurnLimit",30))),null));
+        assertEquals("false",store.getSetting("replyLockscreenContentVisible",""));assertEquals("false",store.getSetting("replySystemContextualActionsEnabled",""));
+        assertEquals("0",store.getSetting("toolRoundLimit",""));assertEquals("30",store.getSetting("toolActionsPerTurnLimit",""));
+        assertFalse(runtime.workFileDownloadsEnabled());
+        assertEquals(3,transport.ids.size());
     }
 
     @Test public void autonomousTicksDoNotOverlapOrCatchUpMissedMinutes() throws Exception {

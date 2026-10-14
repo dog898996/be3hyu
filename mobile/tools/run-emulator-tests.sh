@@ -121,6 +121,68 @@ fi
 if [[ "$("$ADB" -s "$SERIAL" shell getprop ro.build.version.sdk | tr -d '\r')" != 35 ]]; then
   echo 'Instrumentation requires the declared API 35 fixture.' >&2; exit 1
 fi
+# BEGIN OFFLINE FIXTURE HELPERS
+capture_network_fixture() {
+  local phase="$1"
+  [[ "$phase" =~ ^[A-Za-z0-9_]+$ ]] || return 1
+  timeout 8 "$ADB" -s "$SERIAL" shell dumpsys connectivity > "$LOG_DIR/network-$phase.txt" || return 1
+  timeout 8 "$ADB" -s "$SERIAL" shell ip -o link show > "$LOG_DIR/interfaces-$phase.txt" || return 1
+  python3 - "$LOG_DIR/network-$phase.txt" "$LOG_DIR/interfaces-$phase.txt" "$phase" <<'PY'
+import json,pathlib,re,sys
+text=pathlib.Path(sys.argv[1]).read_text()
+default=re.findall(r'Active default network:\s*([^\r\n]+)',text)
+transports=sorted(set(re.findall(r'Transports:\s*([A-Z_| ]+)',text)))
+interfaces=[]
+for line in pathlib.Path(sys.argv[2]).read_text().splitlines():
+    match=re.match(r'\d+:\s+([^:@ ]+)(?:@[^: ]+)?:\s+<([^>]+)>',line)
+    if match: interfaces.append({'name':match.group(1),'flags':match.group(2).split(',')})
+print('HOYOUNG_FIXTURE_NETWORK_DIAGNOSTIC '+json.dumps({'phase':sys.argv[3],'activeDefaultNetwork':default,'transports':transports,'interfaces':interfaces,'absenceVerifiedByThisDiagnostic':False},sort_keys=True))
+PY
+}
+
+isolate_emulator_network() {
+  local phase="$1"
+  # The driver owns the freshly wiped virtual device and reserved emulator port.
+  # No root, adapter, route, or firewall command is ever sent to the host/phone.
+  [[ -n "${emulator_pid:-}" ]] && kill -0 "$emulator_pid" 2>/dev/null || return 1
+  [[ "$(timeout 8 "$ADB" -s "$SERIAL" shell getprop ro.kernel.qemu | tr -d '\r')" == 1 ]] || return 1
+  [[ "$(timeout 8 "$ADB" -s "$SERIAL" shell getprop ro.build.version.sdk | tr -d '\r')" == 35 ]] || return 1
+  [[ "$(timeout 8 "$ADB" -s "$SERIAL" shell getprop ro.debuggable | tr -d '\r')" == 1 ]] || return 1
+  capture_network_fixture "${phase}_before" || return 1
+  timeout 20 "$ADB" -s "$SERIAL" root || return 1
+  timeout 20 "$ADB" -s "$SERIAL" wait-for-device || return 1
+  [[ "$(timeout 8 "$ADB" -s "$SERIAL" shell id -u | tr -d '\r')" == 0 ]] || return 1
+  timeout 8 "$ADB" -s "$SERIAL" shell cmd connectivity airplane-mode enable || return 1
+  timeout 8 "$ADB" -s "$SERIAL" shell svc wifi disable || return 1
+  timeout 8 "$ADB" -s "$SERIAL" shell svc data disable || return 1
+  # Modern emulator images can expose Ethernet independently of Wi-Fi/cellular.
+  # Enumerate actual guest adapters, disable all except loopback, and verify IFF_UP.
+  timeout 20 "$ADB" -s "$SERIAL" shell '
+    for attempt in 1 2 3; do
+      for path in /sys/class/net/*; do
+        iface=${path##*/}
+        case "$iface" in lo) continue ;; ""|*[!A-Za-z0-9_.:-]*) exit 1 ;; esac
+        ip link set dev "$iface" down || exit 1
+      done
+      remaining=0
+      for path in /sys/class/net/*; do
+        [ "${path##*/}" = lo ] && continue
+        flags=$(cat "$path/flags") || exit 1
+        case "$flags" in 0x[0-9a-fA-F]*) ;; *) exit 1 ;; esac
+        if [ "$((flags & 1))" != 0 ]; then remaining=1; fi
+      done
+      if [ "$remaining" = 0 ]; then echo HOYOUNG_FIXTURE_GUEST_ADAPTERS_DOWN; exit 0; fi
+      sleep 1
+    done
+    exit 1
+  ' || return 1
+  capture_network_fixture "${phase}_after" || return 1
+}
+# END OFFLINE FIXTURE HELPERS
+if ! isolate_emulator_network initial; then
+  echo '::error::The owned offline AVD could not isolate every external adapter; no Android test will run.' >&2
+  exit 1
+fi
 "$ADB" -s "$SERIAL" shell input keyevent 224
 "$ADB" -s "$SERIAL" shell input keyevent 82
 "$ADB" -s "$SERIAL" shell wm dismiss-keyguard
@@ -158,6 +220,24 @@ print('Verified real Android instrumentation:', success.group(1), 'passing tests
 PY
 }
 # END INSTRUMENTATION PROOF DECODER
+# BEGIN OFFLINE FRAMEWORK PROBE
+# Verify real framework state, not a shell command's exit status. This probe is
+# fixture validation and is not counted as a product test or a permission pass.
+verify_framework_offline() {
+  if ! timeout 90 "$ADB" -s "$SERIAL" shell am instrument -w -r \
+    -e class com.hoyoung.assistant.OfflineFixtureDeviceTest \
+    "$TEST_RUNNER" | tee "$LOG_DIR/offline-fixture.log"; then return 1; fi
+  verify_instrumentation "$LOG_DIR/offline-fixture.log" 1 || return 1
+  python3 - "$LOG_DIR/offline-fixture.log" <<'PY'
+import pathlib,sys
+if 'HOYOUNG_FIXTURE_FRAMEWORK_OFFLINE actual-activeNetwork=null; actual-getAllNetworks=0;' not in pathlib.Path(sys.argv[1]).read_text():
+    raise SystemExit('Actual ConnectivityManager absence was not verified.')
+PY
+}
+# END OFFLINE FRAMEWORK PROBE
+if ! verify_framework_offline; then
+  echo '::error::Framework offline fixture verification failed; no product tests are counted.' >&2; exit 1
+fi
 # The setup-screen test precedes every real runtime grant. It observes actual
 # denied contacts permission and cannot revoke an instrumentation UID in flight.
 if ! timeout 180 "$ADB" -s "$SERIAL" shell am instrument -w -r \
@@ -176,7 +256,7 @@ if ! verify_instrumentation "$LOG_DIR/phone-permissions.log" 4; then primary_pas
 # bypass; the following instrumentation asserts PermissionOnboarding.ready().
 for permission in READ_CONTACTS WRITE_CONTACTS READ_CALENDAR WRITE_CALENDAR \
   ACCESS_COARSE_LOCATION ACCESS_FINE_LOCATION ACCESS_BACKGROUND_LOCATION CAMERA RECORD_AUDIO \
-  READ_PHONE_STATE READ_PHONE_NUMBERS CALL_PHONE BLUETOOTH_CONNECT BLUETOOTH_SCAN \
+  READ_PHONE_STATE READ_PHONE_NUMBERS CALL_PHONE READ_SMS SEND_SMS RECEIVE_SMS READ_CALL_LOG WRITE_CALL_LOG BLUETOOTH_CONNECT BLUETOOTH_SCAN \
   READ_MEDIA_IMAGES READ_MEDIA_VIDEO READ_MEDIA_AUDIO READ_MEDIA_VISUAL_USER_SELECTED \
   POST_NOTIFICATIONS ACTIVITY_RECOGNITION NEARBY_WIFI_DEVICES; do
   "$ADB" -s "$SERIAL" shell pm grant "$APP_ID" "android.permission.$permission"
@@ -192,11 +272,12 @@ done
 "$ADB" -s "$SERIAL" shell dpm set-active-admin "$APP_ID/.phone.HoyoungDeviceAdminReceiver"
 
 if ! timeout 720 "$ADB" -s "$SERIAL" shell am instrument -w -r \
-  -e class com.hoyoung.assistant.DeviceRuntimeIntegrationTest,com.hoyoung.assistant.memory.NativeAnnDeviceTest,com.hoyoung.assistant.memory.local.LocalNeuralDeviceTest,com.hoyoung.assistant.OwnerPolicyDeviceTest,com.hoyoung.assistant.NativeChatUiDeviceTest \
+  -e class com.hoyoung.assistant.DeviceRuntimeIntegrationTest,com.hoyoung.assistant.memory.NativeAnnDeviceTest,com.hoyoung.assistant.memory.local.LocalNeuralDeviceTest,com.hoyoung.assistant.OwnerPolicyDeviceTest,com.hoyoung.assistant.NativeChatUiDeviceTest,com.hoyoung.assistant.NativePasswordEntryDeviceTest,com.hoyoung.assistant.NativeScreenCaptureDeviceTest,com.hoyoung.assistant.NativeAlarmDeviceTest \
   -e fixtureModelPath /data/local/tmp/hoyoung-semantic-model \
   "$TEST_RUNNER" | tee "$LOG_DIR/instrumentation.log"; then primary_passed=false; fi
-# Keep the original 18 checks, plus 1 denied-setup and 3 native UI checks = 22.
-if ! verify_instrumentation "$LOG_DIR/instrumentation.log" 17; then
+# Product checks: 1 denied-setup + 4 provider + 20 full-grant = 25.
+# The independent framework-offline preflight is not counted as a product check.
+if ! verify_instrumentation "$LOG_DIR/instrumentation.log" 20; then
   primary_passed=false
   echo '::error::Primary Android checks failed; independent real restart checks will still run, and this job remains failed.' >&2
 fi
@@ -518,9 +599,7 @@ if timeout 8 "$ADB" -s "$SERIAL" reboot; then
       if timeout 8 "$ADB" -s "$SERIAL" shell input keyevent 224 \
           && timeout 8 "$ADB" -s "$SERIAL" shell input keyevent 82 \
           && timeout 8 "$ADB" -s "$SERIAL" shell wm dismiss-keyguard \
-          && timeout 8 "$ADB" -s "$SERIAL" shell cmd connectivity airplane-mode enable \
-          && timeout 8 "$ADB" -s "$SERIAL" shell svc wifi disable \
-          && timeout 8 "$ADB" -s "$SERIAL" shell svc data disable \
+          && isolate_emulator_network reboot \
           && await_system_foreground bootReceiver && run_restart_phase boot; then
         boot_passed=true
       fi
@@ -549,6 +628,9 @@ import pathlib, sys
 text = pathlib.Path(sys.argv[1]).read_text()
 for marker in ('HOYOUNG_REAL_ANDROID_NN', 'HOYOUNG_REAL_ANDROID_ANN', 'HOYOUNG_DEVICE_SCREEN_OFF', 'HOYOUNG_DEVICE_PERMISSION_GATE',
                'HOYOUNG_DEVICE_PERMISSION_BLOCK', 'HOYOUNG_DEVICE_PROFILE_UI', 'HOYOUNG_DEVICE_TYPING_UI', 'HOYOUNG_DEVICE_DRAWER_UI',
+               'HOYOUNG_DEVICE_PASSWORD_ENTRY actual-native-password-EditText',
+               'HOYOUNG_DEVICE_SCREEN_CAPTURE actual-accessibility-Binder-pixels',
+               'HOYOUNG_DEVICE_EXACT_ALARM actual-AlarmManager-to-receiver',
                'HOYOUNG_DEVICE_RECOVERY verified-after-explicit-force-stop', 'HOYOUNG_DEVICE_APP_JOURNAL_BACKUP',
                'HOYOUNG_DEVICE_PHOTO_UI', 'HOYOUNG_DEVICE_PAGED_CHAT', 'HOYOUNG_DEVICE_REPLY_NOTIFICATION', 'HOYOUNG_DEVICE_FIVE_LAYER_GATE',
                'HOYOUNG_RESTART_RECOVERED phase=forceReopen', 'HOYOUNG_RESTART_RECOVERED phase=processDeath',

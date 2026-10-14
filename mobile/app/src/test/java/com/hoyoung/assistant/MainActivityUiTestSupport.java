@@ -12,10 +12,12 @@ public final class MainActivityUiTestSupport {
         View root = activity.findViewById(android.R.id.content);
         View menu = description(root, "메뉴 열기");
         assertNotNull("Visible menu control", menu); assertTrue(menu.performClick());
-        View label = text(root, destination); assertNotNull("Drawer destination: " + destination, label);
+        View drawer = description(root, "메뉴"); assertNotNull("Visible drawer overlay", drawer);
+        View label = text(drawer, destination); assertNotNull("Drawer destination: " + destination, label);
         View target = label;
         while (!target.isClickable() && target.getParent() instanceof View) target = (View) target.getParent();
         assertTrue("Clickable drawer destination: " + destination, target.performClick());
+        assertNull("Navigation dismisses the actual drawer", description(root, "메뉴"));
     }
     static TextView text(View view, String value) {
         if (view instanceof TextView && value.contentEquals(((TextView)view).getText())) return (TextView)view;

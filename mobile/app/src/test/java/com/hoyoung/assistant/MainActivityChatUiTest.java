@@ -80,12 +80,12 @@ public final class MainActivityChatUiTest {
         assertEquals("권한 확인 도중에도 이 초안은 보존돼야 해",((EditText)MainActivityUiTestSupport.description(root(),"메시지 입력")).getText().toString());
     }
 
-    @Test public void sidebarHasAllSixDestinationsAndPreservesDraft() throws Exception {
+    @Test public void sidebarHasAllSevenDestinationsAndPreservesDraft() throws Exception {
         start(true);
         EditText composer=(EditText)MainActivityUiTestSupport.description(root(),"메시지 입력");
         composer.setText("돌아와도 그대로 남아 있는 초안");
         assertNull("Old top-level settings button is gone",MainActivityUiTestSupport.text(root(),"설정"));
-        for(String destination:new String[]{"Work","기억","파일","권한","설정","대화"}) {
+        for(String destination:new String[]{"Work","기억","계정","파일","권한","설정","대화"}) {
             MainActivityUiTestSupport.navigate(activity,destination);
             assertEquals(destination,get(activity,"tab"));assertNull(get(activity,"drawerOverlay"));
             if("설정".equals(destination))assertNotNull("The actual writable instructions retain their accessible identity",MainActivityUiTestSupport.description(root(),"사용자 지침 편집"));

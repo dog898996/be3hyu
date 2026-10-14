@@ -42,6 +42,28 @@ public final class OwnerDraftStoreTest {
         for(OwnerDraftStore.Snapshot snapshot:snapshots)same(snapshots.get(0),snapshot);assertEquals(0,snapshots.get(0).revision);
     }
 
+    @Test public void actorIsPersistedWithDraftAndHumanEditDoesNotEraseAgentContribution()throws Exception{
+        OwnerDraftStore.Snapshot agent=drafts.edit("agent original",new JSONArray(),UiAutomationProvenance.AGENT);assertEquals(UiAutomationProvenance.AGENT,agent.inputActor);
+        store.close();store=new HoyoungStore(context);drafts=new OwnerDraftStore(store);assertEquals(agent.clientInputId,drafts.read().clientInputId);assertEquals(UiAutomationProvenance.AGENT,drafts.read().inputActor);
+        OwnerDraftStore.Snapshot mixed=drafts.edit("agent original + owner edit",new JSONArray(),UiAutomationProvenance.OWNER);assertEquals(UiAutomationProvenance.MIXED,mixed.inputActor);
+        assertEquals(UiAutomationProvenance.OWNER,drafts.edit("",new JSONArray(),UiAutomationProvenance.OWNER).inputActor);
+        assertEquals(UiAutomationProvenance.OWNER,drafts.edit("fresh actual owner input",new JSONArray(),UiAutomationProvenance.OWNER).inputActor);
+    }
+
+    @Test public void actorIsPartOfIntegrityTupleAndTamperingCannotTurnAgentDraftIntoOwner()throws Exception{
+        OwnerDraftStore.Snapshot agent=drafts.edit("preserved generated input",new JSONArray(),UiAutomationProvenance.AGENT);JSONObject state=new JSONObject(store.getSetting(OwnerDraftStore.STATE_KEY,""));state.put("inputActor",UiAutomationProvenance.OWNER);store.putSetting(OwnerDraftStore.STATE_KEY,state.toString());
+        assertTrue(drafts.read().recoveryRequired);assertEquals(agent.text,drafts.read().text);
+    }
+
+    @Test public void oldSchemaOneRetainsExactInputIdRevisionAndOwnerOrigin()throws Exception{
+        OwnerDraftStore.Snapshot original=drafts.edit("old schema exact input",attachments("old"));JSONObject state=new JSONObject(store.getSetting(OwnerDraftStore.STATE_KEY,""));state.put("schemaVersion",1);state.remove("inputActor");
+        String identity=field(original.text)+field(original.attachmentsJson)+field(original.clientInputId)+field(String.valueOf(original.revision))+field(String.valueOf(original.recoveryRequired))+field(original.recoveryKey)+field(original.recoveryReason);
+        MessageDigest digest=MessageDigest.getInstance("SHA-256");String payload="utf16be-code-units-v1\u0000"+identity;byte[] bytes=new byte[payload.length()*2];for(int i=0;i<payload.length();i++){bytes[2*i]=(byte)(payload.charAt(i)>>>8);bytes[2*i+1]=(byte)payload.charAt(i);}StringBuilder hash=new StringBuilder();for(byte b:digest.digest(bytes))hash.append(String.format(java.util.Locale.ROOT,"%02x",b&255));state.put("tupleSha256",hash.toString());store.putSetting(OwnerDraftStore.STATE_KEY,state.toString());
+        OwnerDraftStore.Snapshot restored=drafts.read();same(original,restored);assertFalse(restored.recoveryRequired);assertEquals(UiAutomationProvenance.OWNER,restored.inputActor);
+    }
+
+    private static String field(String value){return value.length()+":"+value;}
+
     @Test public void sameTupleIsStableButAToBToAIsANewInputCohort()throws Exception{
         OwnerDraftStore.Snapshot a=drafts.edit("A",attachments("one")),sameA=drafts.edit("A",attachments("one"));same(a,sameA);
         OwnerDraftStore.Snapshot b=drafts.edit("B",attachments("one")),againA=drafts.edit("A",attachments("one"));

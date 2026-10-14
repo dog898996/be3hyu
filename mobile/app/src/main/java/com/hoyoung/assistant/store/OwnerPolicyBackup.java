@@ -16,7 +16,8 @@ import java.util.*;
  * or file-erasure paths. It is merged outside restored namespaces before originals are exposed.
  * No code here calls a model or changes retrieval ranking. */
 public final class OwnerPolicyBackup {
-    public static final String FORMAT="hoyoung-owner-controls-v1";
+    public static final String FORMAT="hoyoung-owner-controls-v2";
+    public static final String LEGACY_FORMAT="hoyoung-owner-controls-v1";
     public static final String ARCHIVE_PATH="owner-policy/controls.json";
     public static final long MAX_BYTES=32L*1024*1024;
     private static final String SAVED="owner-policy-portable.json",ANCHOR="owner-policy-portable.anchor.json";
@@ -25,10 +26,10 @@ public final class OwnerPolicyBackup {
 
     public static JSONObject capture(Context context,HoyoungStore store)throws IOException {
         synchronized(LOCK){
-            JSONObject saved=readSaved(context),privacy=store.getPrivacyLedger().snapshot();JSONArray deletions=new JSONArray();
-            if(saved!=null){privacy=SourcePrivacyLedger.unionSnapshots(privacy,saved.optJSONObject("privacy"));deletions=saved.optJSONArray("deletions");}
+            JSONObject saved=readSaved(context),privacy=store.getPrivacyLedger().snapshot(),recovery=new RecoveryCodeLedger(context).snapshot();JSONArray deletions=new JSONArray();
+            if(saved!=null){privacy=SourcePrivacyLedger.unionSnapshots(privacy,saved.optJSONObject("privacy"));deletions=saved.optJSONArray("deletions");recovery=RecoveryCodeLedger.unionSnapshots(recovery,recovery(saved));}
             deletions=unionDeletions(deletions,new SourcePayloadDeletion(context,store).portableDeletionControls());
-            return create(privacy,deletions);
+            return create(privacy,deletions,recovery);
         }
     }
 
@@ -43,8 +44,10 @@ public final class OwnerPolicyBackup {
             if(existing==null||!existing.optString("checksum").equals(combined.optString("checksum"))){
                 atomic(root,new File(root,SAVED),combined.toString());
                 JSONObject anchor=new JSONObject();put(anchor,"count",combined.optJSONArray("deletions").length());
-                put(anchor,"prefixHash",hash(combined.optJSONArray("deletions").toString()));atomic(root,new File(root,ANCHOR),anchor.toString());
+                put(anchor,"prefixHash",hash(combined.optJSONArray("deletions").toString()));JSONArray reservations=recovery(combined).optJSONArray("reservations");
+                put(anchor,"recoveryCount",reservations.length());put(anchor,"recoveryPrefixHash",hash(reservations.toString()));atomic(root,new File(root,ANCHOR),anchor.toString());
             }
+            new RecoveryCodeLedger(context).mergeSnapshot(recovery(combined));
             store.getPrivacyLedger().mergeSnapshot(combined.optJSONObject("privacy"));
             return combined;
         }
@@ -58,6 +61,7 @@ public final class OwnerPolicyBackup {
         synchronized(LOCK){
             JSONObject saved=readSaved(context);JSONObject result=new JSONObject();int checked=0,pending=0,different=0;
             if(saved!=null){
+                new RecoveryCodeLedger(context).mergeSnapshot(recovery(saved));
                 store.getPrivacyLedger().mergeSnapshot(saved.optJSONObject("privacy"));
                 JSONArray controls=saved.optJSONArray("deletions");
                 for(int i=0;i<controls.length();i++){
@@ -81,7 +85,7 @@ public final class OwnerPolicyBackup {
     public static JSONObject union(JSONObject first,JSONObject second)throws IOException {
         JSONObject a=validate(first),b=validate(second);
         return create(SourcePrivacyLedger.unionSnapshots(a.optJSONObject("privacy"),b.optJSONObject("privacy")),
-                unionDeletions(a.optJSONArray("deletions"),b.optJSONArray("deletions")));
+                unionDeletions(a.optJSONArray("deletions"),b.optJSONArray("deletions")),RecoveryCodeLedger.unionSnapshots(recovery(a),recovery(b)));
     }
 
     public static JSONObject read(InputStream input)throws IOException {
@@ -98,7 +102,8 @@ public final class OwnerPolicyBackup {
     public static JSONObject validate(JSONObject supplied)throws IOException {
         if(supplied==null)throw new IOException("Portable owner controls are missing");
         JSONObject object;try{object=new JSONObject(supplied.toString());}catch(JSONException malformed){throw new IOException("Invalid owner controls",malformed);}
-        if(!FORMAT.equals(object.optString("format"))||object.length()!=4||object.optJSONObject("privacy")==null||object.optJSONArray("deletions")==null)
+        boolean legacy=LEGACY_FORMAT.equals(object.optString("format"));
+        if(!(legacy||FORMAT.equals(object.optString("format")))||object.length()!=(legacy?4:5)||object.optJSONObject("privacy")==null||object.optJSONArray("deletions")==null||!legacy&&object.optJSONObject("recoveryReservations")==null)
             throw new IOException("Invalid portable owner control schema");
         String checksum=object.optString("checksum");if(!checksum.matches("[a-f0-9]{64}"))throw new IOException("Invalid owner control checksum");
         object.remove("checksum");
@@ -109,12 +114,14 @@ public final class OwnerPolicyBackup {
             JSONObject ref=refs.optJSONObject(i);String key=identity(ref);
             if(!identities.add(key)||privacy.allowedSource(ref.optString("type"),ref.optLong("id"),ref.optString("hash")))throw new IOException("Unexcluded or duplicate portable deletion control");
         }
+        if(!legacy)RecoveryCodeLedger.validate(object.optJSONObject("recoveryReservations"));
         put(object,"checksum",checksum);if(object.toString().getBytes(StandardCharsets.UTF_8).length>MAX_BYTES)throw new IOException("Portable owner controls exceed their byte limit");return object;
     }
 
-    private static JSONObject create(JSONObject privacy,JSONArray deletions)throws IOException {
-        JSONObject result=new JSONObject();put(result,"format",FORMAT);put(result,"privacy",privacy);put(result,"deletions",deletions);put(result,"checksum",hash(result.toString()));return validate(result);
+    private static JSONObject create(JSONObject privacy,JSONArray deletions,JSONObject recovery)throws IOException {
+        JSONObject result=new JSONObject();put(result,"format",FORMAT);put(result,"privacy",privacy);put(result,"deletions",deletions);put(result,"recoveryReservations",RecoveryCodeLedger.validate(recovery));put(result,"checksum",hash(result.toString()));return validate(result);
     }
+    private static JSONObject recovery(JSONObject controls)throws IOException {return LEGACY_FORMAT.equals(controls.optString("format"))?RecoveryCodeLedger.emptySnapshot():RecoveryCodeLedger.validate(controls.optJSONObject("recoveryReservations"));}
     private static JSONArray unionDeletions(JSONArray first,JSONArray second)throws IOException {
         Map<String,JSONObject> unique=new LinkedHashMap<>();
         for(JSONArray refs:new JSONArray[]{first,second})for(int i=0;i<refs.length();i++){JSONObject ref=refs.optJSONObject(i);unique.putIfAbsent(identity(ref),ref);}
@@ -140,6 +147,13 @@ public final class OwnerPolicyBackup {
                 if(count<0||count>controls.length())throw new IOException("Portable deletion controls were rolled back");
                 for(int i=0;i<count;i++)prefix.put(controls.opt(i));
                 if(!hash(prefix.toString()).equals(expected.optString("prefixHash")))throw new IOException("Portable deletion control history changed");
+                if(expected.has("recoveryCount")||expected.has("recoveryPrefixHash")){
+                    Object rawCount=expected.opt("recoveryCount");if(!(rawCount instanceof Number)||((Number)rawCount).doubleValue()!=((Number)rawCount).longValue())throw new IOException("Portable recovery anchor count is invalid");
+                    long recoveryCount=((Number)rawCount).longValue();JSONArray reservations=recovery(saved).optJSONArray("reservations"),recoveryPrefix=new JSONArray();
+                    if(recoveryCount<0||recoveryCount>reservations.length())throw new IOException("Portable recovery reservations were rolled back");
+                    for(int i=0;i<recoveryCount;i++)recoveryPrefix.put(reservations.opt(i));
+                    if(!hash(recoveryPrefix.toString()).equals(expected.optString("recoveryPrefixHash")))throw new IOException("Portable recovery reservation history changed");
+                }
             }catch(JSONException invalid){throw new IOException("Portable policy anchor is malformed",invalid);}
         }
         return saved;

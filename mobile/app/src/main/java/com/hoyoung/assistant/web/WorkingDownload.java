@@ -9,25 +9,35 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.UUID;
+import java.util.function.Function;
 
 /** Download generated files to private storage. Auth cookies never cross their origin. */
 public final class WorkingDownload {
     private WorkingDownload() { }
     public static boolean allowed(Uri uri) {
-        if (uri == null || !"https".equals(uri.getScheme()) || (uri.getPort() != -1 && uri.getPort() != 443)) return false;
+        if (uri == null || !("https".equalsIgnoreCase(uri.getScheme()) || "http".equalsIgnoreCase(uri.getScheme()))) return false;
         String host = uri.getHost();
-        return "chatgpt.com".equals(host) || "files.oaiusercontent.com".equals(host)
-            || "oaiusercontent.com".equals(host) || (host != null && host.endsWith(".oaiusercontent.com"));
+        int port = uri.getPort();
+        return host != null && !host.isEmpty() && (port == -1 || port > 0 && port <= 65535);
     }
     public static JSONObject save(String rawUrl, String disposition, String mime, InternalFiles files) throws Exception {
         return save(rawUrl, disposition, mime, files, null);
     }
     public static JSONObject save(String rawUrl, String disposition, String mime, InternalFiles files, String browserUserAgent) throws Exception {
+        return save(rawUrl, disposition, mime, files, browserUserAgent,
+                url -> (HttpURLConnection) url.openConnection(), url -> CookieManager.getInstance().getCookie(url));
+    }
+
+    interface Connections { HttpURLConnection open(URL url) throws Exception; }
+
+    /** Test seam keeps the actual redirect/cookie/write logic while avoiding real accounts or network. */
+    static JSONObject save(String rawUrl, String disposition, String mime, InternalFiles files, String browserUserAgent,
+            Connections connections, Function<String, String> cookiesForUrl) throws Exception {
         URL current = new URL(rawUrl);
         for (int redirects = 0; redirects <= 5; redirects++) {
             Uri uri = Uri.parse(current.toString());
-            if (!allowed(uri)) throw new IllegalArgumentException("Unsupported file origin");
-            HttpURLConnection connection = (HttpURLConnection) current.openConnection();
+            if (!allowed(uri)) throw new IllegalArgumentException("Use a valid HTTP or HTTPS file URL");
+            HttpURLConnection connection = connections.open(current);
             connection.setConnectTimeout(20000); connection.setReadTimeout(30000);
             connection.setInstanceFollowRedirects(false);
             connection.setRequestProperty("Accept-Encoding", "identity");
@@ -35,10 +45,11 @@ public final class WorkingDownload {
             // a desktop/browser identity to get past a blocked authentication flow.
             if (browserUserAgent != null && browserUserAgent.length() <= 512 && !browserUserAgent.contains("\r") && !browserUserAgent.contains("\n"))
                 connection.setRequestProperty("User-Agent", browserUserAgent);
-            if ("chatgpt.com".equals(uri.getHost())) {
-                String cookies = CookieManager.getInstance().getCookie(current.toString());
-                if (cookies != null) connection.setRequestProperty("Cookie", cookies);
-            }
+            // Lookup cookies for this exact URL every time. A redirect starts a new
+            // connection: no Cookie header from the previous host is forwarded.
+            String cookies = cookiesForUrl.apply(current.toString());
+            if (cookies != null && !cookies.isEmpty() && !cookies.contains("\r") && !cookies.contains("\n"))
+                connection.setRequestProperty("Cookie", cookies);
             try {
                 int status = connection.getResponseCode();
                 if (status >= 300 && status <= 399) {

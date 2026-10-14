@@ -24,7 +24,7 @@ import java.util.Comparator;
 import java.util.Locale;
 import java.util.UUID;
 
-/** Requested-only access to shared external storage, never another app's private filesystem. */
+/** Requested access within shared external storage; Android grants decide reachability. */
 public final class PhoneSharedFiles {
     private static final int MAX_READ_BYTES = 1024 * 1024;
     private final Context context;
@@ -46,7 +46,7 @@ public final class PhoneSharedFiles {
             }
         } catch (SecurityException denied) { return error("permission_missing", "Android denied shared-storage access."); }
         catch (IllegalArgumentException | JSONException invalid) { return error("invalid_arguments", "Use a relative shared-storage path and supported argument types and limits."); }
-        catch (PathDenied denied) { return error("path_access_denied", "Protected paths, traversal and symlinks are not allowed."); }
+        catch (PathDenied denied) { return error("path_access_denied", "Use a path within shared storage without traversal or symlinks."); }
         catch (CharacterCodingException binary) { return error("invalid_utf8", "The file is not valid UTF-8 text."); }
         catch (IOException unavailable) { return error("operation_failed", "The shared file could not be accessed; no write success is assumed."); }
     }
@@ -118,7 +118,8 @@ public final class PhoneSharedFiles {
         if (path.isEmpty()) { if (!allowRoot) throw new PathDenied(); return root; }
         String[] parts = path.split("/", -1);
         for (String part : parts) if (part.isEmpty() || part.equals(".") || part.equals("..") || part.chars().anyMatch(value -> value < 32)) throw new PathDenied();
-        if (parts[0].equalsIgnoreCase("Android") && parts.length > 1 && (parts[1].equalsIgnoreCase("data") || parts[1].equalsIgnoreCase("obb"))) throw new PathDenied();
+        // Do not invent an app-level Android/data or Android/obb ban. Android's
+        // storage grants, scoped storage and the real filesystem determine access.
         File candidate = root;
         for (String part : parts) { candidate = new File(candidate, part); if (Files.isSymbolicLink(candidate.toPath())) throw new PathDenied(); }
         File canonical = candidate.getCanonicalFile();

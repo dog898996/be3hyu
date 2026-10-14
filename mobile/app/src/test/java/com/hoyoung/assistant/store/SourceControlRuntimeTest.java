@@ -123,7 +123,8 @@ public final class SourceControlRuntimeTest {
     private JSONObject portableExclusion(JSONObject source)throws Exception {
         Context remote=new android.content.ContextWrapper(context){@Override public Context getApplicationContext(){return this;}@Override public File getFilesDir(){File root=new File(context.getFilesDir(),"remote-owner-controls");root.mkdirs();return root;}};
         SourcePrivacyLedger ledger=new SourcePrivacyLedger(remote);ledger.excludeSource("message",source.getLong("id"),source.getString("content_hash"),"retrieval_exclude","explicit remote owner folder policy");
-        JSONObject body=object("format",OwnerPolicyBackup.FORMAT,"privacy",ledger.snapshot(),"deletions",new JSONArray());
+        // This historical portable record intentionally has the original four-field schema.
+        JSONObject body=object("format",OwnerPolicyBackup.LEGACY_FORMAT,"privacy",ledger.snapshot(),"deletions",new JSONArray());
         body.put("checksum",OriginalTextFiles.hex(OriginalTextFiles.digest().digest(body.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8))));return OwnerPolicyBackup.validate(body);
     }
     private JSONObject completedOwner(String text)throws Exception {

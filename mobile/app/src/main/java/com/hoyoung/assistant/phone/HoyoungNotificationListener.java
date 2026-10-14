@@ -13,8 +13,10 @@ import org.json.JSONObject;
 /** Append-only private history; no network path, silent ring eviction, or permission auto-enable. */
 public final class HoyoungNotificationListener extends NotificationListenerService {
     private static volatile boolean connected;
+    private static volatile HoyoungNotificationListener instance;
     private static final java.util.concurrent.ConcurrentHashMap<PhoneEventJournal, Boolean> MIGRATING = new java.util.concurrent.ConcurrentHashMap<>();
     @Override public void onListenerConnected() {
+        instance = this;
         connected = true;
         if (startupUnavailable(this)) return;
         PhoneEventJournal journal = PhoneEventJournal.forContext(this);
@@ -36,6 +38,7 @@ public final class HoyoungNotificationListener extends NotificationListenerServi
     @Override public void onListenerDisconnected() { disconnected("listener_disconnected"); }
     @Override public void onDestroy() { disconnected("listener_destroyed"); super.onDestroy(); }
     private void disconnected(String reason) {
+        if (instance == this) instance = null;
         connected = false; if (startupUnavailable(this)) return;
         PhoneEventJournal journal = PhoneEventJournal.forContext(this); long now = System.currentTimeMillis();
         if (number(journal.get("notification.gapSince", "0")) == 0) journal.put("notification.gapSince", String.valueOf(now));
@@ -45,6 +48,11 @@ public final class HoyoungNotificationListener extends NotificationListenerServi
     @Override public void onNotificationRemoved(StatusBarNotification notification) { retain(notification, "removed", 0); }
     @Override public void onNotificationRemoved(StatusBarNotification notification, RankingMap ranking, int reason) { retain(notification, "removed", reason); }
     public static boolean isConnected() { return connected; }
+    /** The live Android connection only; durable history is not an executable notification. */
+    public static HoyoungNotificationListener connectedInstance() {
+        HoyoungNotificationListener current = instance;
+        return current != null && connected && !startupUnavailable(current) ? current : null;
+    }
     private static boolean startupUnavailable(Context context) {
         Context app = context.getApplicationContext();
         return app instanceof com.hoyoung.assistant.runtime.HoyoungApplication

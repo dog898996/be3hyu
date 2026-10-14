@@ -41,17 +41,33 @@ public final class PhoneTools {
     private final PhoneUsageTools usageTools;
     private final PhoneProviderTools providerTools;
     private final PhoneEnvironmentTools environmentTools;
+    private final PhoneExtendedTools extendedTools;
+    private final PhoneRadioTools radioTools;
+    private final PhoneAlarmTools alarmTools;
+    private final PhoneOverlayTools overlayTools;
+    private final PhoneFileTransferTools fileTransferTools;
+    private final PhoneCommunicationTools communicationTools;
     private PhoneEventJournal eventJournal;
     private PhoneActivityTracker activityTracker;
     private PhoneLocationRequests locationRequests;
     private PhoneVoiceRecorder voiceRecorder;
-    public PhoneTools(Context context) { this.context = context.getApplicationContext(); this.permissions = new PermissionCatalog(this.context); this.sharedFiles = new PhoneSharedFiles(this.context); this.usageTools = new PhoneUsageTools(this.context); this.providerTools = new PhoneProviderTools(this.context); this.environmentTools = new PhoneEnvironmentTools(this.context); }
+    private PhoneScreenCapture screenCapture;
+    public PhoneTools(Context context) { this.context = context.getApplicationContext(); this.permissions = new PermissionCatalog(this.context); this.sharedFiles = new PhoneSharedFiles(this.context); this.usageTools = new PhoneUsageTools(this.context); this.providerTools = new PhoneProviderTools(this.context); this.environmentTools = new PhoneEnvironmentTools(this.context); this.extendedTools = new PhoneExtendedTools(this.context); this.radioTools = new PhoneRadioTools(this.context); this.alarmTools = new PhoneAlarmTools(this.context); this.overlayTools = new PhoneOverlayTools(this.context); this.fileTransferTools = new PhoneFileTransferTools(this.context); this.communicationTools = new PhoneCommunicationTools(this.context); }
     public PhoneTools(Context context, HoyoungStore store) { this(context); eventJournal = PhoneEventJournal.bind(this.context, store); }
     void setActivityTracker(PhoneActivityTracker tracker) { activityTracker = tracker; }
     private PhoneEventJournal journal() { if (eventJournal == null) eventJournal = PhoneEventJournal.forContext(context); return eventJournal; }
     public void applyPermissionPolicyFromOwner(String toolPermissionsJson, boolean phoneContextEnabled) { journal().applyPermissionPolicyFromOwner(toolPermissionsJson, phoneContextEnabled); }
-    public void pauseForBackupRestore() { journal().pauseForBackupRestore(); }
-    public void afterBackupRestore() { journal().afterBackupRestore(); }
+    public void pauseForBackupRestore() {
+        if (!com.hoyoung.assistant.runtime.VoiceCaptureService.stopAndAwaitForRestore()) throw new IllegalStateException("Microphone capture did not finish before backup restore");
+        if (screenCapture != null) screenCapture.cancelAll("backup_restore");
+        radioTools.pauseForBackupRestore();
+        alarmTools.pauseForBackupRestore();
+        overlayTools.pauseForBackupRestore();
+        fileTransferTools.pauseForBackupRestore();
+        communicationTools.pauseForBackupRestore();
+        journal().pauseForBackupRestore();
+    }
+    public void afterBackupRestore() { journal().afterBackupRestore(); radioTools.afterBackupRestore(); alarmTools.afterBackupRestore(); overlayTools.afterBackupRestore(); fileTransferTools.afterBackupRestore(); communicationTools.afterBackupRestore(); }
 
     public JSONArray catalog() {
         JSONArray tools = new JSONArray();
@@ -66,10 +82,10 @@ public final class PhoneTools {
         tool(tools, "phone_location_last", "Read only a sufficiently recent last-known location. Does not start continuous tracking.", properties("maxAgeMs", "integer"));
         tool(tools, "phone_volume_set", "Set music/ring/alarm volume within that stream's actual range.", properties("stream", "string", "level", "integer"), "stream", "level");
         tool(tools, "phone_flashlight_set", "Request the back camera flashlight after CAMERA grant.", properties("enabled", "boolean"), "enabled");
-        tool(tools, "phone_clipboard_read", "Read text clipboard only while this app is foreground, subject to Android restrictions.", new JSONObject());
-        tool(tools, "phone_ui_snapshot", "Take an on-demand bounded visible UI tree; password nodes and editable text are omitted.", new JSONObject());
+        tool(tools, "phone_clipboard_read", "Read Android-exposed clipboard text; OS may withhold it. No app foreground veto.", new JSONObject());
+        tool(tools, "phone_ui_snapshot", "Read bounded visible UI, including Android-exposed editable/password metadata and text.", new JSONObject());
         tool(tools, "phone_ui_click", "Click a nodeId from the latest UI snapshot, or a unique exact visible text.", properties("nodeId", "string", "text", "string"));
-        tool(tools, "phone_ui_type", "Set at most20000 UTF-16 units of supplied text in a fresh editable nonpassword node. Requires actual Accessibility access; settings/permission/installer controls stay manual. Existing input text is not returned.", properties("nodeId", "string", "text", "string"), "nodeId", "text");
+        tool(tools, "phone_ui_type", "Set supplied text up to20000 UTF-16 units in a fresh editable node, including passwords. Requires Accessibility and tool permission. Password input acceptance does not prove login; results do not echo text.", properties("nodeId", "string", "text", "string"), "nodeId", "text");
         tool(tools, "phone_ui_global", "Request home/back/recents/notifications navigation using a user-enabled accessibility service.", properties("action", "string"), "action");
         tool(tools, "phone_ui_tap", "Request an on-screen accessibility tap. Android's accepted status is not completion.", properties("x", "number", "y", "number"), "x", "y");
         tool(tools, "phone_ui_swipe", "Request an on-screen accessibility swipe; duration 40–1500 ms.", properties("x1", "number", "y1", "number", "x2", "number", "y2", "number", "durationMs", "integer"), "x1", "y1", "x2", "y2");
@@ -95,8 +111,17 @@ public final class PhoneTools {
         tool(tools, "phone_location_refresh", "Request a bounded one-shot fix asynchronously. Android may return a recent cached fix. maxAgeMs defaults to60000 and caps at900000. Background access requires actual background-location grant.", properties("timeoutMs", "integer", "maxAgeMs", "integer"));
         tool(tools, "phone_location_refresh_read", "Read a specific one-shot location request receipt. Process interruption is reported as unknown, not silently retried.", properties("requestId", "string"), "requestId");
         tool(tools, "phone_camera_open", "Request opening the system camera UI, where a user or permitted UI tool can take a photo. This does not claim a photo was already captured.", new JSONObject());
-        tool(tools, "phone_voice_record", "Explicitly record 2–30 seconds of voice into private working files while this app is foreground. Returns a receipt; never ambient monitoring or automatic upload.", properties("durationMs", "integer"));
-        tool(tools, "phone_voice_record_read", "Read the receipt/fileId of one bounded voice capture. Does not send audio bytes to any service.", properties("requestId", "string"), "requestId");
+        tool(tools, "phone_voice_record", "Request microphone FGS capture; durationMs>=0,0=until stopped. Android may deny background starts. Receipts distinguish request, recording and saved audio.", properties("durationMs", "integer"));
+        tool(tools, "phone_voice_record_read", "Read a voice capture receipt/fileId; audio is local and not automatically uploaded.", properties("requestId", "string"), "requestId");
+        tool(tools, "phone_voice_record_stop", "Stop one microphone request; read its receipt for saved audio and actual stop state.", properties("requestId", "string"), "requestId");
+        extendedTools.appendCatalog(tools);
+        radioTools.appendCatalog(tools);
+        alarmTools.appendCatalog(tools);
+        overlayTools.appendCatalog(tools);
+        fileTransferTools.appendCatalog(tools);
+        communicationTools.appendCatalog(tools);
+        JSONArray captureTools = PhoneScreenCapture.catalog();
+        for (int i = 0; i < captureTools.length(); i++) tools.put(captureTools.optJSONObject(i));
         return tools;
     }
 
@@ -107,6 +132,19 @@ public final class PhoneTools {
             if (schema == null) return failure("unsupported", "No such native phone tool is installed.");
             validate(args, schema);
             if ("phone_context_read".equals(name) || "phone_context_search".equals(name)) journal().refreshPolicyBlocking();
+            if (extendedTools.supports(name)) {
+                journal().refreshPolicyBlocking();
+                if (!journal().toolAllowed(name)) return failure("permission_disabled", "This phone tool is disabled in app settings.");
+                return extendedTools.execute(name, args);
+            }
+            if (radioTools.supports(name) || alarmTools.supports(name) || overlayTools.supports(name) || fileTransferTools.supports(name) || communicationTools.supports(name)) {
+                journal().refreshPolicyBlocking();
+                if (!journal().toolAllowed(name)) return failure("permission_disabled", "This phone tool is disabled in app settings.");
+                if (radioTools.supports(name)) return radioTools.execute(name, args);
+                if (alarmTools.supports(name)) return alarmTools.execute(name, args);
+                if (overlayTools.supports(name)) return overlayTools.execute(name, args);
+                return fileTransferTools.supports(name) ? fileTransferTools.execute(name, args) : communicationTools.execute(name, args);
+            }
             switch (name == null ? "" : name) {
                 case "phone_device_info": return deviceInfo();
                 case "phone_apps_list": return apps(args);
@@ -149,12 +187,45 @@ public final class PhoneTools {
                     if (camera.resolveActivity(context.getPackageManager()) == null) return failure("unsupported", "No system camera is available.");
                     context.startActivity(camera); return success().put("requested", true).put("photoCaptured", false).put("completionConfirmed", false);
                 case "phone_voice_record": if (voiceRecorder == null) voiceRecorder = new PhoneVoiceRecorder(context, journal()); return voiceRecorder.start(args);
-                case "phone_voice_record_read": if (voiceRecorder == null) voiceRecorder = new PhoneVoiceRecorder(context, journal()); return voiceRecorder.read(args);
+                case "phone_voice_record_read":
+                    journal().refreshPolicyBlocking();
+                    if (!permissions.has(Manifest.permission.RECORD_AUDIO)) return missing("microphone");
+                    if (!journal().toolAllowed(name) || !journal().toolAllowed("phone_voice_record")) return failure("permission_disabled", "Microphone capture is disabled in app settings.");
+                    if (voiceRecorder == null) voiceRecorder = new PhoneVoiceRecorder(context, journal()); return voiceRecorder.read(args);
+                case "phone_voice_record_stop":
+                    journal().refreshPolicyBlocking();
+                    if (!permissions.has(Manifest.permission.RECORD_AUDIO)) return missing("microphone");
+                    if (!journal().toolAllowed(name)) return failure("permission_disabled", "This phone tool is disabled in app settings.");
+                    if (voiceRecorder == null) voiceRecorder = new PhoneVoiceRecorder(context, journal()); return voiceRecorder.stop(args);
+                case "phone_screen_capture": case "phone_screen_capture_read": case "phone_screen_capture_cancel":
+                    journal().refreshPolicyBlocking();
+                    if (screenCapture == null) screenCapture = PhoneScreenCapture.forContext(context, journal());
+                    return screenCapture.execute(name, args);
                 default: return failure("unsupported", "No such native phone tool is installed.");
             }
         } catch (SecurityException denied) { return failure("permission_missing", "Android denied this operation. Check the current grant, role and device policy."); }
         catch (JSONException | IllegalArgumentException invalid) { return failure("invalid_arguments", "Arguments are missing or outside the supported range."); }
         catch (Exception unavailable) { return failure("operation_failed", "Android could not complete this operation; no success is assumed."); }
+    }
+
+    /** Native effect classification shares this registry with runtime scheduling. */
+    public static boolean isReadOnly(String name) {
+        if (name == null) return false;
+        switch (name) {
+            case "phone_device_info": case "phone_apps_list": case "phone_contacts_read":
+            case "phone_calendar_read": case "phone_notifications_read": case "phone_location_last":
+            case "phone_clipboard_read": case "phone_ui_snapshot": case "phone_files_list": case "phone_files_read":
+            case "phone_activity_read": case "phone_usage_read": case "phone_usage_events": case "phone_app_state":
+            case "phone_contact_get": case "phone_bluetooth_bonded": case "phone_network_state": case "phone_call_state":
+            case "phone_media_list": case "phone_context_search": case "phone_context_read":
+            case "phone_location_refresh_read": case "phone_voice_record_read":
+            case "phone_notifications_active": case "phone_dnd_read": case "phone_numbers_read":
+            case "phone_device_admin_state": case "phone_screen_capture_read":
+            case "phone_bluetooth_scan_read": case "phone_wifi_scan_read": case "phone_wifi_hotspot_read":
+            case "phone_alarm_list": return true;
+            case "phone_files_transfer_read": case "phone_sms_read": case "phone_sms_get": case "phone_sms_send_read": case "phone_call_log_read": return true;
+            default: return false;
+        }
     }
 
     private JSONObject deviceInfo() throws JSONException {
@@ -292,13 +363,12 @@ public final class PhoneTools {
     }
 
     private JSONObject clipboard() throws JSONException {
-        ActivityManager.RunningAppProcessInfo process = new ActivityManager.RunningAppProcessInfo(); ActivityManager.getMyMemoryState(process);
-        if (process.importance != ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND) return failure("foreground_required", "Android limits clipboard reading to the foreground app or permitted IME.");
         ClipboardManager manager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-        ClipData data = manager == null ? null : manager.getPrimaryClip(); if (data == null || data.getItemCount() == 0) return success().put("text", "");
+        if (manager == null) return failure("unsupported", "Clipboard service is unavailable.");
+        ClipData data = manager.getPrimaryClip(); if (data == null || data.getItemCount() == 0) return success().put("text", "").put("readableClipPresent", false).put("coverage", "empty_or_withheld_by_android");
         // Do not coerce arbitrary URI clipboard data into a provider read.
         CharSequence value = data.getItemAt(0).getText(); String text = value == null ? "" : value.toString();
-        return success().put("text", text.length() > 8000 ? text.substring(0, 8000) : text).put("truncated", text.length() > 8000);
+        return success().put("text", text.length() > 8000 ? text.substring(0, 8000) : text).put("readableClipPresent", true).put("truncated", text.length() > 8000).put("coverage", "os_exposed_plain_text");
     }
 
     private JSONObject brightness(JSONObject args) throws JSONException {
@@ -382,6 +452,12 @@ public final class PhoneTools {
     public boolean canReadArchivedToolResult(String name, JSONObject result) {
         PhoneEventJournal journal = journal(); journal.refreshPolicyBlocking();
         if (name == null || definition(name) == null || result == null || !journal.toolAllowed(name)) return false;
+        if (extendedTools.supports(name)) return extendedTools.canReadArchivedResult(name, result);
+        if (radioTools.supports(name)) return radioTools.canReadArchivedResult(name, result);
+        if (alarmTools.supports(name)) return alarmTools.canReadArchivedResult(name, result);
+        if (overlayTools.supports(name)) return overlayTools.canReadArchivedResult(name, result);
+        if (fileTransferTools.supports(name)) return fileTransferTools.canReadArchivedResult(name, result);
+        if (communicationTools.supports(name)) return communicationTools.canReadArchivedResult(name, result);
         switch (name) {
             case "phone_device_info": case "phone_apps_list": case "phone_app_launch": case "phone_url_open": case "phone_dial_open": case "phone_volume_set": return true;
             case "phone_network_state": return (result.isNull("ssid") && result.isNull("bssid")) || permissions.has(Manifest.permission.ACCESS_WIFI_STATE) && permissions.has(Manifest.permission.ACCESS_FINE_LOCATION);
@@ -389,10 +465,11 @@ public final class PhoneTools {
             case "phone_ui_snapshot": case "phone_ui_click": case "phone_ui_type": case "phone_ui_global": case "phone_ui_tap": case "phone_ui_swipe": return permissions.accessibilityAccess();
             case "phone_flashlight_set": case "phone_camera_open": return permissions.has(Manifest.permission.CAMERA);
             case "phone_files_list": case "phone_files_read": case "phone_files_write": return Build.VERSION.SDK_INT >= 30 ? android.os.Environment.isExternalStorageManager() : permissions.has(Manifest.permission.READ_EXTERNAL_STORAGE) && (!"phone_files_write".equals(name) || permissions.has(Manifest.permission.WRITE_EXTERNAL_STORAGE));
-            case "phone_clipboard_read": {
-                ActivityManager.RunningAppProcessInfo process = new ActivityManager.RunningAppProcessInfo(); ActivityManager.getMyMemoryState(process);
-                return process.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND;
-            }
+            case "phone_clipboard_read": return true;
+            case "phone_screen_capture": case "phone_screen_capture_read": case "phone_screen_capture_cancel":
+                return Build.VERSION.SDK_INT >= 30 && permissions.accessibilityAccess() && journal.toolAllowed("phone_screen_capture") && journal.toolAllowed("phone_screen_capture_read");
+            case "phone_voice_record": case "phone_voice_record_read": case "phone_voice_record_stop":
+                return permissions.has(Manifest.permission.RECORD_AUDIO) && journal.toolAllowed("phone_voice_record");
             default: if (!journal.collectionEnabled()) return false;
         }
         switch (name) {
@@ -405,7 +482,6 @@ public final class PhoneTools {
             case "phone_app_state": return !result.has("inactive") && !result.has("package") || permissions.usageAccess();
             case "phone_call_state": return permissions.has(Manifest.permission.READ_PHONE_STATE);
             case "phone_bluetooth_bonded": return permissions.has(Build.VERSION.SDK_INT >= 31 ? Manifest.permission.BLUETOOTH_CONNECT : Manifest.permission.BLUETOOTH);
-            case "phone_voice_record": case "phone_voice_record_read": return permissions.has(Manifest.permission.RECORD_AUDIO) && journal.toolAllowed("phone_voice_record");
             case "phone_media_list": {
                 String kind = result.optString("kind"); String permission = "images".equals(kind) ? Build.VERSION.SDK_INT >= 33 ? Manifest.permission.READ_MEDIA_IMAGES : Manifest.permission.READ_EXTERNAL_STORAGE : "video".equals(kind) ? Build.VERSION.SDK_INT >= 33 ? Manifest.permission.READ_MEDIA_VIDEO : Manifest.permission.READ_EXTERNAL_STORAGE : "audio".equals(kind) ? Build.VERSION.SDK_INT >= 33 ? Manifest.permission.READ_MEDIA_AUDIO : Manifest.permission.READ_EXTERNAL_STORAGE : "";
                 // A selected-media grant cannot verify that every item in a historical result
@@ -428,6 +504,12 @@ public final class PhoneTools {
             synchronized(canonical){if(!com.hoyoung.assistant.store.SourceRecordVisibility.allowed(canonical.getReadableDatabase(),scope,"device_event",row))return false;}
         }catch(java.io.IOException|RuntimeException unavailable){return false;}
         String source = row.optString("source"), category = row.optString("category"); PhoneEventJournal journal = journal();
+        if (source.equals("android.accessibility_screenshot")) return Build.VERSION.SDK_INT >= 30 && permissions.accessibilityAccess() && journal.toolAllowed("phone_screen_capture") && journal.toolAllowed("phone_screen_capture_read");
+        if (source.contains("media_recorder")) return permissions.has(Manifest.permission.RECORD_AUDIO) && journal.toolAllowed("phone_voice_record") && journal.toolAllowed("phone_voice_record_read");
+        if (source.equals("android.bluetooth_discovery") || source.equals("android.wifi_scan_cache") || source.equals("android.local_only_hotspot")) return radioTools.canReadStoredEvent(row);
+        if (source.equals("android.alarm_receiver")) return journal.toolAllowed("phone_alarm_list");
+        if (source.equals("android.shared_storage_import") || source.equals("android.media_store_import")) return fileTransferTools.canReadStoredEvent(row);
+        if (source.equals("android.sms_received") || source.equals("android.sms_manager_result")) return communicationTools.canReadStoredEvent(row);
         if (!journal.collectionEnabled()) return false;
         if (source.contains("notification")) return permissions.notificationAccess() && journal.toolAllowed("phone_notifications_read");
         if (source.contains("step_sensor")) return (Build.VERSION.SDK_INT < 29 || permissions.has(Manifest.permission.ACTIVITY_RECOGNITION)) && journal.toolAllowed("phone_activity_read");
@@ -435,7 +517,6 @@ public final class PhoneTools {
         if (source.contains("contacts")) return permissions.has(Manifest.permission.READ_CONTACTS) && journal.toolAllowed("phone_contacts_read") && journal.toolAllowed("phone_contact_get");
         if (source.contains("calendar")) return permissions.has(Manifest.permission.READ_CALENDAR) && journal.toolAllowed("phone_calendar_read");
         if (source.contains("usage")) return permissions.usageAccess() && journal.toolAllowed("phone_usage_events");
-        if (source.contains("media_recorder")) return permissions.has(Manifest.permission.RECORD_AUDIO) && journal.toolAllowed("phone_voice_record");
         return (category.equals("collector_state") || category.equals("collector_gap") || source.equals("android.device_state")) && journal.toolAllowed("phone_app_state");
     }
     String contextSummary(String query, int maximum) {
@@ -468,7 +549,7 @@ public final class PhoneTools {
         }
         return text.substring(0, Math.min(maximum, text.length()));
     }
-    void cancelOutstandingLocation(String reason) { if (locationRequests != null) locationRequests.cancelAll(reason); if (voiceRecorder != null) voiceRecorder.finish(reason == null ? "collector_stopped" : reason); }
+    void cancelOutstandingLocation(String reason) { if (locationRequests != null) locationRequests.cancelAll(reason); }
     private static JSONObject missing(String id) { JSONObject result = failure("permission_missing", "Enable the required permission in the app's permission page or Android Settings."); try { result.put("permissionId", id); } catch (JSONException impossible) { } return result; }
     private static JSONObject failure(String code, String message) { return object(false, code, message); }
     private static JSONObject object(boolean ok, String code, String message) { try { return new JSONObject().put("ok", ok).put("code", code).put("message", message); } catch (JSONException impossible) { throw new IllegalStateException(impossible); } }

@@ -155,11 +155,11 @@ public final class NativeChatUiDeviceTest {
             UiObject2 acknowledgement = DeviceFixtureHealth.waitFor(device, Until.findObject(By.text("확인")), 10_000);
             assertNotNull("The real native Save click must open its acknowledgement", acknowledgement); acknowledgement.click();
             assertEquals("The actual editor must persist the exact multiline user instruction", fixture, store.getSetting("customInstructions", ""));
-            for (String destination : new String[]{"대화", "기억", "파일", "권한", "Work", "설정"}) DeviceFixtureHealth.openPage(device, destination);
+            for (String destination : new String[]{"대화", "기억", "계정", "파일", "권한", "Work", "설정"}) DeviceFixtureHealth.openPage(device, destination);
             UiObject2 reopened = DeviceFixtureHealth.waitFor(device, Until.findObject(By.desc("사용자 지침 편집").clazz(EditText.class)), 10_000);
             assertNotNull(reopened); assertEquals(fixture, reopened.getText());
             DevicePermissionFixture.assertReady(context);
-            android.util.Log.i("HoyoungDeviceProof", "HOYOUNG_DEVICE_DRAWER_UI six-native-destinations; real-editor-touch-save-reopen; full-permission-gate-ready; offline-no-authenticated-Work");
+            android.util.Log.i("HoyoungDeviceProof", "HOYOUNG_DEVICE_DRAWER_UI seven-native-destinations; real-editor-touch-save-reopen; full-permission-gate-ready; offline-no-authenticated-Work");
         } finally { store.putSetting("customInstructions", saved); }
     }
 

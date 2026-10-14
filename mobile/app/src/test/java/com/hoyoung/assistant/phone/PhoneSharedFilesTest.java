@@ -17,6 +17,8 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import static org.junit.Assert.*;
 
@@ -28,6 +30,7 @@ public final class PhoneSharedFilesTest {
     private File root;
     private File ownDirectory;
     private String ownPath;
+    private final List<File> additionalFixtureDirectories = new ArrayList<>();
 
     @Before public void setUp() throws Exception {
         context = ApplicationProvider.getApplicationContext();
@@ -37,7 +40,10 @@ public final class PhoneSharedFilesTest {
         assertTrue(ownDirectory.mkdirs() || ownDirectory.isDirectory());
         Shadows.shadowOf((Application) context).denyPermissions(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE);
     }
-    @After public void cleanUp() throws Exception { if (ownDirectory != null) deleteOwnTree(ownDirectory); }
+    @After public void cleanUp() throws Exception {
+        if (ownDirectory != null) deleteOwnTree(ownDirectory);
+        for (File directory : additionalFixtureDirectories) deleteOwnTree(directory);
+    }
     private void grantStorage() { Shadows.shadowOf((Application) context).grantPermissions(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE); }
 
     @Test public void missingPermissionsPreventReadAndWriteWithoutTouchingTheFile() throws Exception {
@@ -60,13 +66,60 @@ public final class PhoneSharedFilesTest {
         assertEquals(1, listed.getJSONArray("entries").length()); assertEquals("directory", listed.getJSONArray("entries").getJSONObject(0).getString("type"));
     }
 
-    @Test public void traversalAbsoluteAndProtectedPathsCannotBeWritten() throws Exception {
+    @Test public void traversalAndAbsolutePathsCannotEscapeSharedStorage() throws Exception {
         grantStorage();
-        for (String path : Arrays.asList("../outside.txt", "/tmp/host.txt", "nested/../../outside.txt", "a\\..\\host.txt", "C:/host.txt", "Android/data/other.app/private.txt", "Android/obb/other.app/file.txt", "android/DATA/other.app/file.txt")) {
+        for (String path : Arrays.asList("../outside.txt", "/tmp/host.txt", "nested/../../outside.txt", "a\\..\\host.txt", "C:/host.txt")) {
             JSONObject response = tools.execute("phone_files_write", new JSONObject().put("path", path).put("content", "blocked"));
             assertFalse(path, response.getBoolean("ok")); assertEquals(path, "path_access_denied", response.getString("code"));
         }
         assertEquals(0, ownDirectory.listFiles().length);
+    }
+
+    @Test public void legacyOsAccessibleAndroidDirectoriesAreNotBlockedByAnAppPolicy() throws Exception {
+        grantStorage();
+        // Android 8/9 storage is a synthetic OS-visible shared tree in this test.
+        // This checks our policy, not actual Android 11+ scoped-storage access.
+        for (String base : Arrays.asList("Android/data/", "Android/obb/", "android/DATA/")) {
+            String directoryPath = base + ownPath;
+            File directory = new File(root, directoryPath);
+            additionalFixtureDirectories.add(directory);
+            String path = directoryPath + "/account-note.txt";
+            JSONObject written = tools.execute("phone_files_write", new JSONObject().put("path", path).put("content", "synthetic only 🌙"));
+            assertTrue(written.toString(), written.getBoolean("ok"));
+            assertTrue(written.getBoolean("atomic"));
+            assertEquals("synthetic only 🌙", tools.execute("phone_files_read", new JSONObject().put("path", path)).getString("text"));
+            JSONObject listed = tools.execute("phone_files_list", new JSONObject().put("path", directoryPath));
+            assertTrue(listed.toString(), listed.getBoolean("ok"));
+            assertEquals(path, listed.getJSONArray("entries").getJSONObject(0).getString("path"));
+        }
+    }
+
+    @Test public void inaccessibleAndroidDirectoryWriteReportsFailureWithoutChangingExistingData() throws Exception {
+        grantStorage();
+        String directoryPath = "Android/data/" + ownPath;
+        File directory = new File(root, directoryPath);
+        additionalFixtureDirectories.add(directory);
+        assertTrue(directory.mkdirs() || directory.isDirectory());
+        File blockedParent = new File(directory, "not-a-directory");
+        Files.write(blockedParent.toPath(), "existing synthetic data".getBytes(StandardCharsets.UTF_8));
+        JSONObject result = tools.execute("phone_files_write", new JSONObject()
+                .put("path", directoryPath + "/not-a-directory/child.txt").put("content", "must not report success"));
+        assertFalse(result.toString(), result.getBoolean("ok"));
+        assertEquals("operation_failed", result.getString("code"));
+        assertEquals("existing synthetic data", new String(Files.readAllBytes(blockedParent.toPath()), StandardCharsets.UTF_8));
+        assertFalse(new File(blockedParent, "child.txt").exists());
+    }
+
+    @Test public void storageGrantStillControlsAccessibleAndroidDirectories() throws Exception {
+        String directoryPath = "Android/obb/" + ownPath;
+        File directory = new File(root, directoryPath);
+        additionalFixtureDirectories.add(directory);
+        assertTrue(directory.mkdirs() || directory.isDirectory());
+        String path = directoryPath + "/keep.txt";
+        Files.write(new File(root, path).toPath(), "before".getBytes(StandardCharsets.UTF_8));
+        assertEquals("permission_missing", tools.execute("phone_files_read", new JSONObject().put("path", path)).getString("code"));
+        assertEquals("permission_missing", tools.execute("phone_files_write", new JSONObject().put("path", path).put("content", "after")).getString("code"));
+        assertEquals("before", new String(Files.readAllBytes(new File(root, path).toPath()), StandardCharsets.UTF_8));
     }
 
     @Test public void symlinkEscapeCannotReadOrModifyItsTarget() throws Exception {

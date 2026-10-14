@@ -35,10 +35,12 @@ import com.hoyoung.assistant.ui.HoyoungAvatarView;
 import com.hoyoung.assistant.ui.TypingIndicatorView;
 import com.hoyoung.assistant.phone.PermissionOnboarding;
 import com.hoyoung.assistant.store.EmojiReactionReply;
+import com.hoyoung.assistant.store.AccountStore;
 import com.hoyoung.assistant.ui.AttachmentPreview;
 import com.hoyoung.assistant.ui.ChatAttachmentPreviews;
 import com.hoyoung.assistant.runtime.AssistantReplyNotifications;
 import com.hoyoung.assistant.runtime.OwnerDraftStore;
+import com.hoyoung.assistant.runtime.UiAutomationProvenance;
 import com.hoyoung.assistant.store.BackupFailure;
 import com.hoyoung.assistant.store.SourceRecordVisibility;
 
@@ -104,6 +106,9 @@ public final class MainActivity extends Activity {
             main.postDelayed(this, 1500);
         }
     };
+
+    @Override public boolean dispatchTouchEvent(android.view.MotionEvent event){UiAutomationProvenance.observeTouch(this,event);return super.dispatchTouchEvent(event);}
+    @Override public boolean dispatchKeyEvent(android.view.KeyEvent event){UiAutomationProvenance.observeKey(this,event);return super.dispatchKeyEvent(event);}
 
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
@@ -190,9 +195,9 @@ public final class MainActivity extends Activity {
         LinearLayout identity=column();identity.setPadding(dp(14),0,0,0);TextView name=label("호영",24,INK);name.setTypeface(null,Typeface.BOLD);identity.addView(name);identity.addView(label("우리의 대화, 이어지는 기억",12,SUBTLE));top.addView(identity,new LinearLayout.LayoutParams(0,-2,1));
         top.addView(icon(LineIconDrawable.Icon.CLOSE,"메뉴 닫기",this::closeDrawer),new LinearLayout.LayoutParams(dp(40),dp(48)));drawer.addView(top);
         TextView section=label("MY SPACE",10,SUBTLE);section.setLetterSpacing(.12f);section.setPadding(dp(12),dp(32),0,dp(12));drawer.addView(section);
-        String[] names={"대화","Work","기억","파일","권한","설정"};
-        String[] hints={"오늘도 편하게 이야기해","ChatGPT 연결과 작업 공간","쌓일수록 더 나다운 기억","사진, 문서와 백업","휴대폰 접근과 기능 허용","사용자 지침과 모델"};
-        LineIconDrawable.Icon[] icons={LineIconDrawable.Icon.CHAT,LineIconDrawable.Icon.WORK,LineIconDrawable.Icon.MEMORY,LineIconDrawable.Icon.FOLDER,LineIconDrawable.Icon.SHIELD,LineIconDrawable.Icon.SETTINGS};
+        String[] names={"대화","Work","기억","계정","파일","권한","설정"};
+        String[] hints={"오늘도 편하게 이야기해","ChatGPT 연결과 작업 공간","쌓일수록 더 나다운 기억","로그인 정보와 수정 이력","사진, 문서와 백업","휴대폰 접근과 기능 허용","사용자 지침과 모델"};
+        LineIconDrawable.Icon[] icons={LineIconDrawable.Icon.CHAT,LineIconDrawable.Icon.WORK,LineIconDrawable.Icon.MEMORY,LineIconDrawable.Icon.EDIT,LineIconDrawable.Icon.FOLDER,LineIconDrawable.Icon.SHIELD,LineIconDrawable.Icon.SETTINGS};
         for(int i=0;i<names.length;i++) {
             String destination=names[i];boolean selected=destination.equals(tab);LinearLayout item=row();item.setGravity(Gravity.CENTER_VERTICAL);item.setPadding(dp(14),dp(13),dp(12),dp(13));item.setMinimumHeight(dp(72));item.setBackground(ChatPalette.ripple(this,selected?Color.rgb(238,233,255):BG,20));
             ImageView symbol=new ImageView(this);symbol.setImageDrawable(new LineIconDrawable(icons[i],selected?BLUE:SUBTLE,getResources().getDisplayMetrics().density));item.addView(symbol,new LinearLayout.LayoutParams(dp(24),dp(24)));
@@ -219,7 +224,7 @@ public final class MainActivity extends Activity {
 
     private void showConversationOptions() {
         if(permissionBlocked){showPermissionOnboarding();return;}
-        new AlertDialog.Builder(this).setTitle("대화 옵션").setItems(new String[]{"모델·응답 설정","Work 연결 상태","현재 작업 중지"},(dialog,which)->{
+        new ObservedDialogBuilder(this).setTitle("대화 옵션").setItems(new String[]{"모델·응답 설정","Work 연결 상태","현재 작업 중지"},(dialog,which)->{
             if(which==0)showTab("설정");else if(which==1)showTab("Work");else commands.execute(()->{app.getRuntime().pauseCurrentWork("사용자가 대화 옵션에서 현재 작업 중지 선택");main.post(this::refreshStatus);});
         }).setNegativeButton("닫기",null).show();
     }
@@ -227,7 +232,7 @@ public final class MainActivity extends Activity {
     private void showConnectionDetails() {
         if(permissionBlocked){showPermissionOnboarding();return;}
         JSONObject state=app.getRuntime().state();
-        new AlertDialog.Builder(this).setTitle("호영의 현재 상태").setMessage(connection.getContentDescription()+"\n\n모델 "+state.optString("model")+"\n추론 "+state.optString("effort")+" · 응답 "+state.optString("speed"))
+        new ObservedDialogBuilder(this).setTitle("호영의 현재 상태").setMessage(connection.getContentDescription()+"\n\n모델 "+state.optString("model")+"\n추론 "+state.optString("effort")+" · 응답 "+state.optString("speed"))
                 .setPositiveButton("Work 열기",(d,w)->showTab("Work")).setNegativeButton("닫기",null).show();
     }
 
@@ -269,7 +274,7 @@ public final class MainActivity extends Activity {
         LinearLayout completed=column();for(PermissionOnboarding.Item permission:state.items)if(permission.required&&permission.granted)completed.addView(label("✓  "+permission.title,14,INK));
         if(completed.getChildCount()>0)panel.addView(disclosure("허용된 권한",completed,false));
         LinearLayout unavailable=column();for(PermissionOnboarding.Item permission:state.items)if(!permission.required){unavailable.addView(label(permission.title,14,INK));unavailable.addView(label(permission.detail,12,SUBTLE));}
-        if(unavailable.getChildCount()>0)panel.addView(disclosure("기기·Android에서 지원하지 않는 항목",unavailable,false));
+        if(unavailable.getChildCount()>0)panel.addView(disclosure("기기 제한·지원 여부 확인",unavailable,false));
         Button proceed=primaryButton("호영과 대화 시작",()->{if(!checkPermissionGate())activateConnectedUi();});proceed.setEnabled(state.ready());proceed.setAlpha(state.ready()?1f:.4f);panel.addView(proceed);
         panel.addView(button("권한 상태 다시 확인",()->{if(!checkPermissionGate())activateConnectedUi();}));
         panel.addView(label("권한을 허용한 뒤에도 사이드바의 권한 메뉴에서 호영이 사용할 기능을 개별적으로 바꿀 수 있어.",12,SUBTLE));
@@ -398,6 +403,7 @@ public final class MainActivity extends Activity {
             case "권한": showPermissions(); break;
             case "파일": showFiles(); break;
             case "기억": showMemory(); break;
+            case "계정": showAccounts(); break;
             case "설정": showSettings(); break;
             default: showChat();
         }
@@ -425,7 +431,7 @@ public final class MainActivity extends Activity {
         typingLabel=label("답변을 준비하고 있어",11,SUBTLE);typingRow.addView(typingLabel);typingRow.setVisibility(View.GONE);content.addView(typingRow);
         LinearLayout composerArea=column();composerArea.setBackgroundColor(Color.WHITE);composerArea.setPadding(dp(12),dp(10),dp(12),dp(12));
         attachmentLabel=label(attachmentSummary(),12,BLUE);attachmentLabel.setPadding(dp(12),dp(8),dp(12),dp(8));attachmentLabel.setBackground(round(Color.rgb(241,237,255)));composerArea.addView(attachmentLabel);
-        attachmentLabel.setOnClickListener(v->{if(attachments.length()==0)return;new AlertDialog.Builder(this).setMessage("선택한 첨부를 입력창에서 지울까? 보관된 원본은 남아 있어.").setPositiveButton("첨부 선택 지우기",(d,w)->{attachments=new JSONArray();persistDraft();updateComposerState();}).setNegativeButton("유지",null).show();});
+        attachmentLabel.setOnClickListener(v->{if(attachments.length()==0)return;new ObservedDialogBuilder(this).setMessage("선택한 첨부를 입력창에서 지울까? 보관된 원본은 남아 있어.").setPositiveButton("첨부 선택 지우기",(d,w)->{attachments=new JSONArray();persistDraft();updateComposerState();}).setNegativeButton("유지",null).show();});
         LinearLayout entry=row();entry.setGravity(Gravity.BOTTOM);entry.setPadding(dp(4),dp(3),dp(4),dp(3));entry.setBackground(ChatPalette.rounded(this,Color.rgb(245,243,249),28));
         entry.addView(icon(LineIconDrawable.Icon.ATTACHMENT,"사진 또는 파일 첨부",this::showAttachmentChoices),new LinearLayout.LayoutParams(dp(44),dp(48)));
         composer=new EditText(this);composer.setTextSize(15);composer.setTextColor(INK);composer.setHintTextColor(SUBTLE);composer.setHint("메시지 보내기…");composer.setBackgroundColor(Color.TRANSPARENT);composer.setPadding(dp(4),dp(13),dp(4),dp(12));
@@ -444,7 +450,7 @@ public final class MainActivity extends Activity {
     }
 
     private void showAttachmentChoices(){
-        new AlertDialog.Builder(this).setTitle("대화에 첨부").setItems(new String[]{"사진·동영상","모든 파일"},(d,which)->{
+        new ObservedDialogBuilder(this).setTitle("대화에 첨부").setItems(new String[]{"사진·동영상","모든 파일"},(d,which)->{
             if(which==0){Intent intent=new Intent(Intent.ACTION_OPEN_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("*/*").putExtra(Intent.EXTRA_MIME_TYPES,new String[]{"image/*","video/*"}).putExtra(Intent.EXTRA_ALLOW_MULTIPLE,true);startActivityForResult(intent,PICK_FILES);}
             else pickDocuments(PICK_FILES,"*/*");
         }).setNegativeButton("닫기",null).show();
@@ -465,10 +471,11 @@ public final class MainActivity extends Activity {
         final String attached = attachments.toString();
         final String clientId = draftState.clientInputId;
         final long revision = draftState.revision;
+        final String inputActor=UiAutomationProvenance.submittedActor(draftState.inputActor,UiAutomationProvenance.currentActor(this));
         sending = true; updateComposerState();
         commands.execute(() -> {
             try {
-                app.getRuntime().receive(text, new JSONArray(attached), clientId, revision);
+                app.getRuntime().receive(text, new JSONArray(attached), clientId, revision,inputActor);
                 OwnerDraftStore.Snapshot current = draftStore.read();
                 main.post(() -> {
                     sending = false; updateComposerState();
@@ -564,7 +571,7 @@ public final class MainActivity extends Activity {
         LinearLayout item=column();item.setPadding(0,0,0,dp(10));
         if(!date.isEmpty()){TextView day=label(date,11,SUBTLE);day.setGravity(Gravity.CENTER);day.setPadding(0,dp(14),0,dp(18));item.addView(day);}
         LinearLayout line=row();line.setGravity((owner?Gravity.END:Gravity.START)|Gravity.BOTTOM);
-        if(system){TextView notice=label(message.optString("text"),12,SUBTLE);notice.setPadding(dp(14),dp(10),dp(14),dp(10));notice.setGravity(Gravity.CENTER);notice.setBackground(round(Color.rgb(239,237,244)));item.addView(notice);replyViews.put(notice,message);return item;}
+        if(system){TextView notice=label(systemMessageText(message),12,SUBTLE);notice.setPadding(dp(14),dp(10),dp(14),dp(10));notice.setGravity(Gravity.CENTER);notice.setBackground(round(Color.rgb(239,237,244)));item.addView(notice);replyViews.put(notice,message);return item;}
         if(!owner){HoyoungAvatarView avatar=new HoyoungAvatarView(this);LinearLayout.LayoutParams avatarParams=new LinearLayout.LayoutParams(dp(27),dp(27));avatarParams.setMargins(0,0,dp(8),dp(24));line.addView(avatar,avatarParams);}
         LinearLayout group=column();group.setGravity(owner?Gravity.END:Gravity.START);
         LinearLayout bubble=column();bubble.setPadding(dp(15),dp(11),dp(15),dp(12));bubble.setBackground(owner?ChatPalette.outgoing(this):ChatPalette.rounded(this,Color.rgb(238,236,243),22));
@@ -618,10 +625,10 @@ public final class MainActivity extends Activity {
                     if (isFinishing() || isDestroyed()) { if (preview.ready() && !preview.bitmap.isRecycled()) preview.bitmap.recycle(); return; }
                     if (!preview.ready()) { notice("사진을 표시하지 못했어. 보관된 원본을 파일 페이지에서 확인해 줘."); return; }
                     ImageView full = new ImageView(this); full.setImageBitmap(preview.bitmap); full.setAdjustViewBounds(true); full.setScaleType(ImageView.ScaleType.FIT_CENTER);
-                    AlertDialog dialog = new AlertDialog.Builder(this).setTitle(name).setView(full).setPositiveButton("닫기", null).create();
+                    AlertDialog dialog = new ObservedDialogBuilder(this).setTitle(name).setView(full).setPositiveButton("닫기", null).create();
                     expandedPhotos.put(dialog, preview.bitmap);
                     dialog.setOnDismissListener(ignored -> { Bitmap bitmap = expandedPhotos.remove(dialog); full.setImageDrawable(null); if (bitmap != null && !bitmap.isRecycled()) bitmap.recycle(); });
-                    dialog.show();
+                    dialog.show(); UiAutomationProvenance.observeWindow(this,dialog.getWindow());
             }));
         }
     }
@@ -635,10 +642,10 @@ public final class MainActivity extends Activity {
                 if (page.optBoolean("truncated")) labels[labels.length - 1] = "다음 목표 보기";
                 main.post(() -> { if (isFinishing() || isDestroyed()) return;
                     if (labels.length == 0) { notice("따로 추적 중인 미완료 목표는 없어."); return; }
-                    new AlertDialog.Builder(this).setTitle("추적 중인 목표 " + page.optLong("totalPending") + "개").setItems(labels, (dialog, which) -> {
+                    new ObservedDialogBuilder(this).setTitle("추적 중인 목표 " + page.optLong("totalPending") + "개").setItems(labels, (dialog, which) -> {
                         if (which >= goals.length()) { showGoals(page.optString("nextAfterRootRequestId")); return; }
                         JSONObject goal = goals.optJSONObject(which);
-                        new AlertDialog.Builder(this).setTitle("목표 상태 정리").setMessage(goal.optString("requestExcerpt") + "\n" + goal.optString("progress") + "\n모델 보고와 실제 확인은 구분해 보관해. 아래 선택은 네가 직접 추적 상태를 정리하는 거야.")
+                        new ObservedDialogBuilder(this).setTitle("목표 상태 정리").setMessage(goal.optString("requestExcerpt") + "\n" + goal.optString("progress") + "\n모델 보고와 실제 확인은 구분해 보관해. 아래 선택은 네가 직접 추적 상태를 정리하는 거야.")
                             .setPositiveButton("완료로 정리", (d, w) -> resolveGoal(goal.optString("rootRequestId"), "completed"))
                             .setNeutralButton("추적 그만", (d, w) -> resolveGoal(goal.optString("rootRequestId"), "abandoned")).setNegativeButton("유지", null).show();
                     }).setNegativeButton("닫기", null).show();
@@ -768,10 +775,10 @@ public final class MainActivity extends Activity {
                 main.post(() -> {
                     sourceControlBusy = false; inspect.setEnabled(true);
                     if (isFinishing() || isDestroyed() || !inspect.isAttachedToWindow() || app.getRuntime().isRestoringBackup()) return;
-                    new AlertDialog.Builder(this).setTitle(("message".equals(type) ? "대화" : "기기") + " 원문 " + id)
+                    new ObservedDialogBuilder(this).setTitle(("message".equals(type) ? "대화" : "기기") + " 원문 " + id)
                             .setMessage(excerpt + "\n\nAI 기억에서 제외하면 원문은 보관돼. 삭제는 추적된 폰 원문과 파생 기록의 완료 상태를 확인하는 별도 요청이야.")
                             .setPositiveButton("AI 기억에서 제외", (dialog, which) -> controlStoredSource(type, id, hash, false))
-                            .setNeutralButton("원문·파생 기록 삭제", (dialog, which) -> new AlertDialog.Builder(this)
+                            .setNeutralButton("원문·파생 기록 삭제", (dialog, which) -> new ObservedDialogBuilder(this)
                                     .setTitle("앱에서 원문·파생 기록 삭제")
                                     .setMessage("선택한 원문 " + id + "와 연결된 기억·답장 등 추적된 폰 기록의 삭제를 요청할까? 진행 중 작업, 공유 원문, 작업 사본 때문에 대기할 수 있어. 외부 제공자·클라우드 사본과 추적되지 않은 작업 사본의 삭제는 확인하지 않아.")
                                     .setPositiveButton("삭제 요청", (confirmation, choice) -> controlStoredSource(type, id, hash, true))
@@ -789,9 +796,10 @@ public final class MainActivity extends Activity {
         if (sourceControlBusy) { notice("선택한 원문의 처리 상태를 확인하고 있어."); return; }
         if (app.getRuntime().isRestoringBackup()) { notice("백업 복구를 마친 뒤 원문을 관리해 줘."); return; }
         sourceControlBusy = true;
+        final String inputActor=UiAutomationProvenance.currentActor(this);
         io.execute(() -> {
             try {
-                JSONObject receipt = app.controlStoredSource(type, id, hash, deletePayload);
+                JSONObject receipt = app.controlStoredSource(type, id, hash, deletePayload,inputActor);
                 if (receipt == null) throw new IllegalStateException("Missing owner control receipt");
                 main.post(() -> {
                     sourceControlBusy = false;
@@ -803,7 +811,7 @@ public final class MainActivity extends Activity {
                 main.post(() -> {
                     sourceControlBusy = false;
                     if (isFinishing() || isDestroyed()) return;
-                    new AlertDialog.Builder(this).setTitle("원문 " + id + " 처리 확인 필요")
+                    new ObservedDialogBuilder(this).setTitle("원문 " + id + " 처리 확인 필요")
                             .setMessage("처리 완료를 확인하지 못했어. 저장된 요청이 있을 수 있으니 완료로 표시하지 않았어.")
                             .setPositiveButton("같은 원문 처리 다시 확인", (view, which) -> controlStoredSource(type, id, hash, deletePayload))
                             .setNegativeButton("닫기", null).show();
@@ -834,7 +842,7 @@ public final class MainActivity extends Activity {
             text += "\n외부 제공자·클라우드 사본과 추적되지 않은 작업 사본의 삭제는 확인하지 않아. 삭제 요청의 식별 기록은 남아 있어.";
         }
         text+="\n"+ownerFolderDescription();
-        AlertDialog.Builder dialog = new AlertDialog.Builder(this).setTitle("원문 " + id + " 처리 상태").setMessage(text).setNegativeButton("닫기", null);
+        AlertDialog.Builder dialog = new ObservedDialogBuilder(this).setTitle("원문 " + id + " 처리 상태").setMessage(text).setNegativeButton("닫기", null);
         if (deletePayload && !verified) dialog.setPositiveButton("같은 삭제 요청 다시 확인", (view, which) -> controlStoredSource(type, id, hash, true));
         dialog.show();
     }
@@ -845,7 +853,7 @@ public final class MainActivity extends Activity {
                 JSONObject chunk = app.getStore().readOriginalText(id, offset, 12_000);
                 main.post(() -> {
                     if (isFinishing()) return;
-                    AlertDialog.Builder dialog = new AlertDialog.Builder(this).setTitle("원문 " + id + " · " + chunk.optLong("offsetChars") + "/" + chunk.optLong("totalChars"))
+                    AlertDialog.Builder dialog = new ObservedDialogBuilder(this).setTitle("원문 " + id + " · " + chunk.optLong("offsetChars") + "/" + chunk.optLong("totalChars"))
                             .setMessage(chunk.optString("text")).setNegativeButton("닫기", null);
                     if (!chunk.optBoolean("complete")) dialog.setPositiveButton("다음 부분", (view, which) -> showOriginal(id, chunk.optLong("nextOffsetChars")));
                     dialog.show();
@@ -891,12 +899,7 @@ public final class MainActivity extends Activity {
         panel.addView(disclosure("Android 권한 · "+permissionState.grantedCount+" / "+permissionState.requiredCount,systemPermissions,false));
         panel.addView(label("호영이가 사용할 기능", 20, INK));
         panel.addView(label("Android 권한을 유지하면서 호영이의 특정 기능만 끌 수 있어. 대화에서도 이 설정을 바꿀 수 있어.", 13, SUBTLE));
-        JSONArray tools = app.getPhoneTools().catalog();
-        JSONArray fileTools = app.getFiles().catalog();
-        for (int i = 0; i < fileTools.length(); i++) tools.put(fileTools.optJSONObject(i));
-        for (String name : new String[]{"memory.search", "memory.save", "memory.source.read", "memory.source.enumerate", "memory.history", "memory.review", "tasks.list", "tasks.update", "tasks.report_completed", "actions.receipt.read", "memory.asset.analyze", "app.settings.get", "app.settings.update", "app.work.pause"}) {
-            try { tools.put(new JSONObject().put("name", name)); } catch (Exception ignored) { }
-        }
+        JSONArray tools = app.getRuntime().toolCatalog();
         JSONObject allowed;
         final String rawPermissions = app.getStore().getSetting("toolPermissions", "{}");
         try {
@@ -918,16 +921,168 @@ public final class MainActivity extends Activity {
         for (int i = 0; i < tools.length(); i++) {
             JSONObject tool = tools.optJSONObject(i); if (tool == null) continue;
             String name = tool.optString("name");
-            CheckBox check = new CheckBox(this); check.setText(toolLabel(name)); check.setChecked(allowed.optBoolean(name, true));
+            CheckBox check = new CheckBox(this); check.setTag(name); check.setText(toolLabel(name)); check.setChecked(allowed.optBoolean(name, true));
             check.setOnCheckedChangeListener((button, enabled) -> {
                 try { app.getStore().withTransaction(db -> { JSONObject current = parseObject(app.getStore().getSetting("toolPermissions", "{}")); try { current.put(name, enabled); } catch (Exception invalid) { throw new IllegalStateException(invalid); } app.getStore().putSetting("toolPermissions", current.toString()); return null; }); applyPhonePolicy(); app.getPhoneContext().reconcilePermissions(); }
                 catch (Exception ignored) { }
             });
-            String category=name.startsWith("memory.")?"기억과 원문":name.startsWith("files.")||name.startsWith("phone_files")?"파일 읽기·쓰기":name.startsWith("phone_")?"휴대폰 기능":"작업과 앱 설정";
+            String category=toolCategory(name);
             categories.computeIfAbsent(category,key->new com.hoyoung.assistant.ui.FormColumn(this)).addView(check);
         }
         for(java.util.Map.Entry<String,LinearLayout> category:categories.entrySet())panel.addView(disclosure(category.getKey(),category.getValue(),false));
+        LinearLayout behavior=new com.hoyoung.assistant.ui.FormColumn(this);
+        addSettingToggle(behavior,"잠금 화면에 답장 내용 표시","replyLockscreenContentVisible",true);
+        addSettingToggle(behavior,"Android 알림의 제안 동작 허용","replySystemContextualActionsEnabled",true);
+        addSettingToggle(behavior,"Work에서 작업 파일 내려받기","workFileDownloadsEnabled",true);
+        EditText rounds=accountField(behavior,"작업당 도구 실행 턴 · 0은 제한 없음",app.getStore().getSetting("toolRoundLimit","0"),false);
+        rounds.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
+        EditText actions=accountField(behavior,"한 턴의 도구 개수 · 0은 제한 없음",app.getStore().getSetting("toolActionsPerTurnLimit","0"),false);
+        actions.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
+        behavior.addView(button("실행 한도 저장",()->{try{
+            int roundCount=Integer.parseInt(rounds.getText().toString());int actionCount=Integer.parseInt(actions.getText().toString());
+            if(roundCount<0||actionCount<0)throw new IllegalArgumentException();
+            app.getStore().withTransaction(db->{app.getStore().putSetting("toolRoundLimit",String.valueOf(roundCount));app.getStore().putSetting("toolActionsPerTurnLimit",String.valueOf(actionCount));return null;});
+            notice("네가 정한 실행 한도를 저장했어. 0은 제한 없이 실행해.");
+        }catch(Exception invalid){notice("0 이상의 정수를 입력해.");}}));
+        panel.addView(disclosure("알림·다운로드·실행 방식",behavior,false));
     }
+
+    /** Dialogs have a separate Window, so real owner touches must reset input authorship here too. */
+    private final class ObservedDialogBuilder extends AlertDialog.Builder {
+        ObservedDialogBuilder(android.content.Context context){super(context);}
+        @Override public AlertDialog show(){AlertDialog dialog=super.show();UiAutomationProvenance.observeWindow(MainActivity.this,dialog.getWindow());return dialog;}
+    }
+
+    private String prettyJson(JSONObject value){try{return value.toString(2);}catch(Exception malformed){return value.toString();}}
+
+    private String systemMessageText(JSONObject message){
+        JSONObject body=parseObject(message.optString("text"));
+        if("agent_authored_input".equals(body.optString("type")))return "호영이 작성·전송한 메시지\n"+body.optString("text");
+        if("native_input_origin".equals(body.optString("type")))return "호영이 작성한 내용을 네가 전송했어 · 원문 "+body.optLong("sourceMessageId");
+        if("native_account_input".equals(body.optString("type")))return "계정 보관함을 업데이트했어 · 로그인 정보는 계정 탭에서 확인해";
+        return message.optString("text");
+    }
+
+    private AccountStore accounts(){return new AccountStore(this,app.getStore());}
+    private void showAccounts(){
+        if(isDestroyed()||isFinishing()||!"계정".equals(tab))return;
+        content.removeAllViews();LinearLayout panel=scrollPanel();
+        panel.addView(label("계정 보관함",25,INK));
+        panel.addView(label("로그인 정보의 최신 값과 수정 이력을 정확히 보관해. 전체 기억 백업에 함께 포함돼.",14,SUBTLE));
+        panel.addView(button("계정 추가",()->editAccount(new JSONObject())));
+        EditText search=accountField(panel,"서비스·아이디 검색","",false);search.setSingleLine(true);
+        LinearLayout rows=column();panel.addView(button("검색",()->loadAccounts(rows,search.getText().toString())));panel.addView(rows);
+        loadAccounts(rows,"");
+    }
+    private void loadAccounts(LinearLayout rows,String query){
+        rows.removeAllViews();rows.addView(label("계정을 불러오는 중…",13,SUBTLE));
+        io.execute(()->{try{JSONArray found=accounts().list(query,1000);main.post(()->{
+            if(isDestroyed()||isFinishing()||!"계정".equals(tab)||rows.getParent()==null)return;
+            rows.removeAllViews();if(found.length()==0)rows.addView(label("저장한 계정이 없어. 대화로 알려주거나 직접 추가해.",14,SUBTLE));
+            for(int i=0;i<found.length();i++){JSONObject record=found.optJSONObject(i);if(record==null)continue;
+                LinearLayout card=column();card.setPadding(dp(16),dp(14),dp(16),dp(14));card.setBackground(ChatPalette.outlined(this,Color.WHITE,Color.rgb(231,226,241),20));
+                card.addView(label(record.optString("label",record.optString("service")),17,INK));
+                card.addView(label(record.optString("service")+" · "+record.optString("username"),13,SUBTLE));
+                card.addView(label(record.optBoolean("loginVerified")?"실제 로그인 확인됨":"로그인 정보 저장됨 · 실제 로그인 미검증",11,SUBTLE));
+                card.setContentDescription("계정 열기 · "+record.optString("service")+" · "+record.optString("username"));
+                card.setOnClickListener(v->openAccount(record.optString("accountId")));
+                LinearLayout.LayoutParams margins=new LinearLayout.LayoutParams(-1,-2);margins.setMargins(0,dp(10),0,0);rows.addView(card,margins);
+            }
+        });}catch(Exception failure){main.post(()->{rows.removeAllViews();rows.addView(label("계정을 읽지 못했어. 원문과 데이터는 유지했어.",14,INK));});}});
+    }
+    private void openAccount(String id){io.execute(()->{try{JSONObject record=accounts().get(id);main.post(()->{if(isDestroyed()||isFinishing()||!"계정".equals(tab))return;if(record==null)notice("현재 계정 기록이 삭제·제외됐어. 이전 비밀번호로 되돌리지 않았어.");else editAccount(record);});}catch(Exception failure){main.post(()->notice("현재 계정 원문을 읽지 못했어."));}});}
+    private EditText accountField(LinearLayout form,String hint,String value,boolean multiline){
+        TextView caption=label(hint,12,SUBTLE);caption.setPadding(dp(2),dp(12),0,dp(4));form.addView(caption);
+        EditText input=new EditText(this);input.setText(value);input.setHint(hint);input.setContentDescription(hint);input.setTextSize(15);input.setSingleLine(!multiline);if(multiline){input.setMinLines(2);input.setMaxLines(5);}
+        input.setPadding(dp(12),dp(11),dp(12),dp(11));input.setBackground(ChatPalette.outlined(this,Color.WHITE,Color.rgb(225,220,236),12));form.addView(input,new LinearLayout.LayoutParams(-1,-2));return input;
+    }
+    private void editAccount(JSONObject record){
+        LinearLayout form=column();form.setPadding(dp(18),dp(6),dp(18),dp(18));ScrollView scroll=new ScrollView(this);scroll.addView(form);
+        EditText service=accountField(form,"서비스",record.optString("service"),false);
+        EditText labelInput=accountField(form,"표시 이름",record.optString("label"),false);
+        EditText username=accountField(form,"아이디·이메일",record.optString("username"),false);
+        EditText password=accountField(form,"비밀번호",record.optString("password"),false);
+        password.setInputType(android.text.InputType.TYPE_CLASS_TEXT|android.text.InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);password.setTypeface(Typeface.DEFAULT);
+        EditText url=accountField(form,"로그인 주소",record.optString("loginUrl"),false);
+        EditText notes=accountField(form,"메모",record.optString("notes"),true);
+        JSONObject initialExtra=record.optJSONObject("extra")==null?new JSONObject():record.optJSONObject("extra");
+        AccountMfaFields authentication=new AccountMfaFields(form,initialExtra);
+        LinearLayout advanced=column();EditText extra=accountField(advanced,"추가 필드 · JSON",initialExtra.toString(),true);
+        form.addView(disclosure("고급 추가 정보",advanced,false));
+        boolean existing=!record.optString("accountId").isEmpty();final AlertDialog[] editor=new AlertDialog[1];
+        if(existing){form.addView(button("수정 이력 보기",()->showAccountHistory(record.optString("accountId"))));form.addView(button("계정 보관함에서 삭제",()->{
+            String actor=UiAutomationProvenance.currentActor(this);
+            io.execute(()->{try{accounts().delete(record.optString("accountId"),actor);main.post(()->{if(editor[0]!=null)editor[0].dismiss();notice("계정 보관함의 복사본과 이전 값을 삭제했어. 일반 대화 원문은 그대로야.");showAccounts();});}catch(Exception failure){main.post(()->notice("계정 삭제를 완료하지 못했어."));}});
+        }));}
+        AlertDialog dialog=new ObservedDialogBuilder(this).setTitle(existing?"계정 수정":"새 계정").setView(scroll).setPositiveButton("저장",null).setNegativeButton("닫기",null).create();
+        editor[0]=dialog;
+        dialog.setOnShowListener(unused->dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v->{
+            try{JSONObject supplied=new JSONObject().put("service",service.getText().toString()).put("username",username.getText().toString()).put("password",password.getText().toString())
+                    .put("label",labelInput.getText().toString()).put("loginUrl",url.getText().toString()).put("notes",notes.getText().toString()).put("extra",authentication.apply(new JSONObject(extra.getText().toString())));
+                if(existing)supplied.put("accountId",record.optString("accountId"));String actor=UiAutomationProvenance.currentActor(this);
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+                io.execute(()->{try{accounts().saveFromUi(supplied,actor);main.post(()->{dialog.dismiss();showAccounts();notice("계정의 최신 값을 저장했어. 실제 로그인 성공은 별도 확인해.");});}catch(Exception failure){main.post(()->{dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);notice("계정 저장을 완료하지 못했어. 서비스·아이디와 추가 필드 형식을 확인해.");});}});
+            }catch(Exception invalid){notice("추가 필드의 JSON과 2단계 인증의 숫자 설정을 확인해 줘.");}
+        }));dialog.show();UiAutomationProvenance.observeWindow(this,dialog.getWindow());
+    }
+    /** Friendly MFA fields overlay only explicit edits; unrelated advanced values stay exact. */
+    private final class AccountMfaFields {
+        final EditText secret,algorithm,digits,period,issuer,accountName,recoveryCodes,mfaNotes;
+        final CheckBox removeTotp,removeRecovery;
+        final String[] before;
+        AccountMfaFields(LinearLayout form,JSONObject extra){
+            JSONObject totp=extra.optJSONObject("totp"),mfa=extra.optJSONObject("mfa");
+            form.addView(label("2단계 인증 · 선택",17,INK));
+            form.addView(label("인증앱 비밀키가 있으면 1회용 코드를 계산할 수 있어. SMS·이메일·알림 인증은 도착한 코드를 확인하고, 패스키·보안키는 Android가 요구하는 본인 확인이 필요할 수 있어. 저장만으로 로그인 완료가 되지는 않아.",12,SUBTLE));
+            secret=accountField(form,"인증앱 비밀키 · Base32",value(totp,"secret",""),false);
+            secret.setInputType(android.text.InputType.TYPE_CLASS_TEXT|android.text.InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);secret.setTypeface(Typeface.DEFAULT);
+            recoveryCodes=accountField(form,"복구 코드 · 한 줄에 하나",recoveryText(extra.opt("recoveryCodes")),true);
+            mfaNotes=accountField(form,"인증 방식 메모 · 선택",value(mfa,"notes",""),true);
+            LinearLayout options=column();
+            algorithm=accountField(options,"인증 알고리즘 · SHA1, SHA256, SHA512",value(totp,"algorithm","SHA1"),false);
+            digits=accountField(options,"인증 코드 자릿수 · 6 또는 8",value(totp,"digits","6"),false);digits.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
+            period=accountField(options,"인증 코드 갱신 간격 · 초",value(totp,"period","30"),false);period.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
+            issuer=accountField(options,"인증앱 서비스 이름 · 선택",value(totp,"issuer",""),false);
+            accountName=accountField(options,"인증앱 계정 이름 · 선택",value(totp,"accountName",""),false);
+            removeTotp=new CheckBox(MainActivity.this);removeTotp.setText("저장한 인증앱 설정 삭제");options.addView(removeTotp);
+            removeRecovery=new CheckBox(MainActivity.this);removeRecovery.setText("저장한 복구 코드 목록 삭제");options.addView(removeRecovery);
+            form.addView(disclosure("인증앱 세부 설정",options,false));
+            before=new String[]{text(secret),text(algorithm),text(digits),text(period),text(issuer),text(accountName),text(recoveryCodes),text(mfaNotes)};
+        }
+        JSONObject apply(JSONObject extra)throws org.json.JSONException {
+            boolean introducing=!text(secret).isEmpty()&&changed(secret,0)&&!(extra.opt("totp") instanceof JSONObject);
+            if(removeTotp.isChecked())extra.remove("totp");
+            else if(introducing||changed(secret,0)||changed(algorithm,1)||changed(digits,2)||changed(period,3)||changed(issuer,4)||changed(accountName,5)){
+                JSONObject totp=extra.optJSONObject("totp");if(totp==null)totp=new JSONObject();
+                if(changed(secret,0)){if(text(secret).isEmpty())totp.remove("secret");else totp.put("secret",text(secret));}
+                if(introducing||changed(algorithm,1)){
+                    String selected=text(algorithm).toUpperCase(java.util.Locale.ROOT);
+                    if(!java.util.Arrays.asList("SHA1","SHA256","SHA512").contains(selected))throw new IllegalArgumentException("Invalid TOTP algorithm");
+                    totp.put("algorithm",selected);
+                }
+                if(introducing||changed(digits,2)){int selected=Integer.parseInt(text(digits));if(selected!=6&&selected!=8)throw new IllegalArgumentException("Invalid TOTP digits");totp.put("digits",selected);}
+                if(introducing||changed(period,3)){int selected=Integer.parseInt(text(period));if(selected<=0)throw new IllegalArgumentException("Invalid TOTP period");totp.put("period",selected);}
+                if(changed(issuer,4)){if(text(issuer).isEmpty())totp.remove("issuer");else totp.put("issuer",text(issuer));}
+                if(changed(accountName,5)){if(text(accountName).isEmpty())totp.remove("accountName");else totp.put("accountName",text(accountName));}
+                if(totp.length()==0)extra.remove("totp");else extra.put("totp",totp);
+            }
+            if(removeRecovery.isChecked()||(changed(recoveryCodes,6)&&text(recoveryCodes).isEmpty()))extra.remove("recoveryCodes");
+            else if(changed(recoveryCodes,6)){JSONArray codes=new JSONArray();for(String code:text(recoveryCodes).split("\n",-1))codes.put(code);extra.put("recoveryCodes",codes);}
+            if(changed(mfaNotes,7)){JSONObject mfa=extra.optJSONObject("mfa");if(mfa==null)mfa=new JSONObject();if(text(mfaNotes).isEmpty())mfa.remove("notes");else mfa.put("notes",text(mfaNotes));if(mfa.length()==0)extra.remove("mfa");else extra.put("mfa",mfa);}
+            return extra;
+        }
+        private boolean changed(EditText field,int index){return !before[index].equals(text(field));}
+        private String text(EditText field){return field.getText().toString();}
+        private String value(JSONObject object,String key,String fallback){return object==null||!object.has(key)||object.isNull(key)?fallback:String.valueOf(object.opt(key));}
+        private String recoveryText(Object value){if(!(value instanceof JSONArray))return "";JSONArray codes=(JSONArray)value;StringBuilder lines=new StringBuilder();for(int i=0;i<codes.length();i++){if(!(codes.opt(i) instanceof String))return "";if(i>0)lines.append('\n');lines.append(codes.optString(i));}return lines.toString();}
+    }
+    private void showAccountHistory(String id){io.execute(()->{try{JSONArray history=accounts().history(id,1000);main.post(()->{
+        if(isDestroyed()||isFinishing()||!"계정".equals(tab))return;
+        LinearLayout form=column();form.setPadding(dp(18),dp(8),dp(18),dp(16));for(int i=0;i<history.length();i++){JSONObject version=history.optJSONObject(i);if(version==null)continue;
+            LinearLayout entry=column();entry.addView(label((version.optBoolean("current")?"현재":"이전")+" · 수정 "+version.optInt("revision"),16,INK));
+            TextView details=label(prettyJson(version),13,SUBTLE);details.setTextIsSelectable(true);entry.addView(details);form.addView(disclosure(version.optBoolean("current")?"현재 값":"이전 값 "+(i+1),entry,false));
+        }ScrollView scroll=new ScrollView(this);scroll.addView(form);new ObservedDialogBuilder(this).setTitle("계정 수정 이력").setView(scroll).setPositiveButton("닫기",null).show();
+    });}catch(Exception failure){main.post(()->notice("계정 수정 이력을 읽지 못했어."));}});}
 
     private void requestBasicPermissions() {
         String[] missing = new PermissionCatalog(this).missingRuntimePermissions();
@@ -936,6 +1091,7 @@ public final class MainActivity extends Activity {
 
     @Override public void onRequestPermissionsResult(int requestCode, String[] names, int[] results) {
         super.onRequestPermissionsResult(requestCode, names, results);
+        if(permissionOnboarding!=null)permissionOnboarding.recordRequestResult(this,names,results);
         if(checkPermissionGate())return;
         if ("권한".equals(tab)) showPermissions();
     }
@@ -989,12 +1145,12 @@ public final class MainActivity extends Activity {
                     for (int i = 0; i < files.length(); i++) {
                         JSONObject file = files.optJSONObject(i); if (file == null) continue;
                         String id = file.optString("id"), name = file.optString("displayName", id);
-                        items.addView(button(name + " · " + (file.optLong("size") / 1024) + " KB", () -> new AlertDialog.Builder(this)
+                        items.addView(button(name + " · " + (file.optLong("size") / 1024) + " KB", () -> new ObservedDialogBuilder(this)
                             .setTitle(name).setItems(new String[]{"대화에 첨부", "외부에 저장", "텍스트 보기"}, (dialog, which) -> {
                                 if (which == 0) { if (attachments.length() < 8) attachments.put(id); persistDraft(); showTab("대화"); }
                                 else if (which == 1) { exportFileId = id; createDocument(EXPORT_FILE, "application/octet-stream", name); }
                                 else display.execute(() -> {
-                                    try { String text = app.getFiles().readText(id, 20000); main.post(() -> { if (!isDestroyed() && !isFinishing()) new AlertDialog.Builder(this).setTitle(name).setMessage(text).setPositiveButton("닫기", null).show(); }); }
+                                    try { String text = app.getFiles().readText(id, 20000); main.post(() -> { if (!isDestroyed() && !isFinishing()) new ObservedDialogBuilder(this).setTitle(name).setMessage(text).setPositiveButton("닫기", null).show(); }); }
                                     catch (Exception e) { main.post(() -> notice("이 파일은 텍스트로 열 수 없어.")); }
                                 });
                             }).show()));
@@ -1018,7 +1174,7 @@ public final class MainActivity extends Activity {
             try (InputStream input = getAssets().open("core-identity.txt")) {
                 ByteArrayOutputStream output = new ByteArrayOutputStream(); byte[] buffer = new byte[4096]; int count;
                 while ((count = input.read(buffer)) != -1) output.write(buffer, 0, count);
-                new AlertDialog.Builder(this).setTitle("호영의 기본 운영 지침").setMessage(output.toString(StandardCharsets.UTF_8.name())).setPositiveButton("닫기", null).show();
+                new ObservedDialogBuilder(this).setTitle("호영의 기본 운영 지침").setMessage(output.toString(StandardCharsets.UTF_8.name())).setPositiveButton("닫기", null).show();
             } catch (Exception failure) { notice("기본 지침을 불러오지 못했어."); }
         }));
         panel.addView(label("실행 방식", 17, INK));
@@ -1136,7 +1292,7 @@ public final class MainActivity extends Activity {
                     try { app.getRuntime().resolveUncertain(request.optLong("id")); showSettings(); }
                     catch (Exception e) { notice("이 작업을 정리하지 못했어."); }
                 }));
-                panel.addView(button("이 작업을 더 이어가지 않고 제외", () -> new AlertDialog.Builder(this)
+                panel.addView(button("이 작업을 더 이어가지 않고 제외", () -> new ObservedDialogBuilder(this)
                     .setMessage("폰의 대기 목록에서 제외해. 기존 클라우드 작업이 중지됐다는 뜻은 아니며, 같은 행동은 자동으로 다시 실행하지 않아.")
                     .setPositiveButton("제외", (dialog, which) -> {
                         try { app.getRuntime().abandonUncertain(request.optLong("id")); showSettings(); }
@@ -1146,7 +1302,7 @@ public final class MainActivity extends Activity {
         }
         panel.addView(button("오픈소스 라이선스", () -> {
             try (InputStream input = getAssets().open("THIRD_PARTY_NOTICES.txt")) {
-                new AlertDialog.Builder(this).setTitle("라이선스").setMessage(readUtf8(input)).setPositiveButton("닫기", null).show();
+                new ObservedDialogBuilder(this).setTitle("라이선스").setMessage(readUtf8(input)).setPositiveButton("닫기", null).show();
             } catch (Exception ignored) { }
         }));
         organizeSettings(panel,instructions);
@@ -1163,7 +1319,7 @@ public final class MainActivity extends Activity {
         LinearLayout form = column(); form.setPadding(dp(18), dp(8), dp(18), dp(8));
         form.addView(label("Work 탭에서 네 계정의 실제 사용량 화면을 먼저 열어. 현재 열린 화면만 읽고, 다른 페이지 이동·계정 변경·AI 호출은 하지 않아. 같은 계정의 관찰에 같은 구분 이름을 써. 다른 계정이나 한도 관찰은 합치지 않아.", 13, SUBTLE));
         EditText scope = new EditText(this); scope.setSingleLine(true); scope.setHint("계정 구분 이름 · 비밀번호 입력 금지"); form.addView(scope);
-        AlertDialog dialog = new AlertDialog.Builder(this).setTitle("열린 사용량 화면 관찰").setView(form)
+        AlertDialog dialog = new ObservedDialogBuilder(this).setTitle("열린 사용량 화면 관찰").setView(form)
                 .setPositiveButton("보이는 사용량 읽기", null).setNegativeButton("취소", null).create();
         dialog.setOnShowListener(unused -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(view -> {
             String account = scope.getText().toString().trim();
@@ -1181,7 +1337,7 @@ public final class MainActivity extends Activity {
                 notice("열린 사용량 화면을 읽지 못했어. 사용량 관찰이나 10% 달성으로 기록하지 않았어.");
             }
         }));
-        dialog.show();
+        dialog.show(); UiAutomationProvenance.observeWindow(this,dialog.getWindow());
     }
 
     /** Owner-entered figures remain reports rather than provider-observed telemetry. */
@@ -1193,7 +1349,7 @@ public final class MainActivity extends Activity {
         percent.setInputType(android.text.InputType.TYPE_CLASS_NUMBER | android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL); form.addView(percent);
         EditText reset = new EditText(this); reset.setSingleLine(true); reset.setHint("화면의 다음 리셋 시각 · 2026-10-18T15:00+09:00"); form.addView(reset);
         form.addView(label("리셋 날짜·시각과 시간대는 화면에서 확인한 값으로 입력해. 확인할 수 없으면 입력을 취소해. 정수 비율 표시의 오차는 1%p로 보수적으로 반영해.", 12, SUBTLE));
-        AlertDialog dialog = new AlertDialog.Builder(this).setTitle("사용량 수동 관찰 기록").setView(form)
+        AlertDialog dialog = new ObservedDialogBuilder(this).setTitle("사용량 수동 관찰 기록").setView(form)
                 .setPositiveButton("관찰 기록", null).setNegativeButton("취소", null).create();
         dialog.setOnShowListener(unused -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(view -> {
             try {
@@ -1214,7 +1370,7 @@ public final class MainActivity extends Activity {
                 notice("계정 구분 이름, 0~100%의 사용 비율, 시간대가 포함된 미래 리셋 시각을 입력해. 수치를 확인하지 못했으면 취소해.");
             }
         }));
-        dialog.show();
+        dialog.show(); UiAutomationProvenance.observeWindow(this,dialog.getWindow());
     }
 
     static String usageBudgetDescription(JSONObject budget) {
@@ -1435,7 +1591,7 @@ public final class MainActivity extends Activity {
     private Button button(String text, Runnable action) { Button button = new Button(this); button.setText(text); button.setTextSize(14); button.setTextColor(BLUE); button.setAllCaps(false); button.setMinHeight(dp(48)); button.setMinimumHeight(dp(48)); button.setPadding(dp(16),dp(10),dp(16),dp(10)); button.setElevation(0); button.setStateListAnimator(null); button.setBackground(ChatPalette.ripple(this,Color.rgb(238,233,250),15)); button.setOnClickListener(v -> action.run()); return button; }
     private GradientDrawable round(int color) { GradientDrawable drawable = new GradientDrawable(); drawable.setColor(color); drawable.setCornerRadius(dp(18)); return drawable; }
     private int dp(int value) { return Math.round(value * getResources().getDisplayMetrics().density); }
-    private void notice(String text) { if (isFinishing() || isDestroyed()) return; new AlertDialog.Builder(this).setMessage(text).setPositiveButton("확인", null).show(); }
+    private void notice(String text) { if (isFinishing() || isDestroyed()) return; new ObservedDialogBuilder(this).setMessage(text).setPositiveButton("확인", null).show(); }
     private String attachmentSummary() { return attachments.length() == 0 ? "" : "첨부 " + attachments.length() + "개 · 폰 내부에 저장됨"; }
     private String shorten(String text, int max) { return text.length() <= max ? text : text.substring(0, max) + "…"; }
     private JSONArray parseArray(String value) { try { return new JSONArray(value); } catch (Exception invalid) { return new JSONArray(); } }
@@ -1444,7 +1600,7 @@ public final class MainActivity extends Activity {
     private void persistDraft() {
         if (app == null || app.getRuntime().isRestoringBackup()) return;
         String text = composer != null ? composer.getText().toString() : draftState == null ? "" : draftState.text;
-        try { draftState = draftStore.edit(text, attachments); draftSaveFailed = false; }
+        try { draftState = draftStore.edit(text, attachments,UiAutomationProvenance.currentActor(this)); draftSaveFailed = false; }
         catch (RuntimeException failure) { draftSaveFailed = true; connection.setText("임시 입력을 저장하지 못했어. 입력을 그대로 두고 다시 확인해 줘."); }
     }
     private void applyDraft(OwnerDraftStore.Snapshot snapshot) {
@@ -1460,18 +1616,105 @@ public final class MainActivity extends Activity {
         while ((count = input.read(buffer)) != -1) { if (output.size() + count > 1_000_000) throw new IllegalArgumentException("Asset too large"); output.write(buffer, 0, count); }
         return new String(output.toByteArray(), StandardCharsets.UTF_8);
     }
+    private String toolCategory(String name){
+        if(name.startsWith("accounts."))return "계정 보관함";
+        if(name.startsWith("memory."))return "기억과 원문";
+        if(name.startsWith("files.")||name.startsWith("phone_files")||name.startsWith("phone_media"))return "사진·미디어·파일";
+        if(name.startsWith("phone_ui")||name.startsWith("phone_screen")||name.startsWith("phone_overlay")||name.startsWith("phone_clipboard")||name.equals("phone_device_admin_state"))return "화면 읽기·입력·조작";
+        if(name.startsWith("phone_notification")||name.startsWith("phone_dnd")||name.startsWith("phone_alarm"))return "알림·예약·방해 금지";
+        if(name.startsWith("phone_bluetooth")||name.startsWith("phone_wifi")||name.startsWith("phone_network"))return "블루투스·와이파이";
+        if(name.startsWith("phone_contact")||name.startsWith("phone_calendar"))return "주소록·일정";
+        if(name.startsWith("phone_call")||name.startsWith("phone_dial")||name.startsWith("phone_number")||name.startsWith("phone_sms"))return "전화·문자";
+        if(name.startsWith("phone_voice")||name.startsWith("phone_camera")||name.startsWith("phone_volume")||name.startsWith("phone_flashlight")||name.equals("phone_vibrate"))return "카메라·소리·녹음";
+        if(name.startsWith("phone_"))return "기기 상태·위치·활동";
+        return "작업과 앱 설정";
+    }
+
     private String toolLabel(String name) {
         return switch (name) {
             case "phone_device_info" -> "휴대폰 상태 확인"; case "phone_apps_list" -> "설치 앱 목록"; case "phone_app_launch" -> "앱 열기";
             case "phone_contacts_read" -> "주소록 읽기"; case "phone_contacts_create" -> "주소록 추가"; case "phone_calendar_read" -> "일정 읽기"; case "phone_calendar_create" -> "일정 추가";
             case "phone_notifications_read" -> "알림 읽기"; case "phone_location_last" -> "최근 위치 확인"; case "phone_volume_set" -> "음량 변경"; case "phone_flashlight_set" -> "손전등 제어";
-            case "phone_clipboard_read" -> "클립보드 읽기"; case "phone_ui_snapshot" -> "화면 구성 확인"; case "phone_ui_click" -> "화면 버튼 누르기"; case "phone_ui_global" -> "홈·뒤로·알림 이동";
+            case "phone_clipboard_read" -> "클립보드 읽기"; case "phone_clipboard_write" -> "클립보드 쓰기"; case "phone_ui_type" -> "화면 입력칸에 글·비밀번호 입력"; case "phone_screen_capture" -> "현재 화면 캡처"; case "phone_screen_capture_read" -> "화면 캡처 결과 읽기"; case "phone_screen_capture_cancel" -> "화면 캡처 취소"; case "phone_screen_lock" -> "화면 잠금"; case "phone_call_place" -> "전화 걸기"; case "phone_voice_record_stop" -> "음성 녹음 중지"; case "phone_ui_snapshot" -> "화면 구성 확인"; case "phone_ui_click" -> "화면 버튼 누르기"; case "phone_ui_global" -> "홈·뒤로·알림 이동";
             case "phone_ui_tap" -> "화면 터치"; case "phone_ui_swipe" -> "화면 밀기"; case "phone_brightness_set" -> "화면 밝기 변경"; case "phone_dial_open" -> "전화번호 입력 화면 열기";
             case "phone_files_list" -> "휴대폰 공유 파일 목록"; case "phone_files_read" -> "휴대폰 공유 파일 읽기"; case "phone_files_write" -> "휴대폰 공유 파일 쓰기";
+            case "accounts.list" -> "계정 목록 확인"; case "accounts.get" -> "최신 로그인 정보 읽기"; case "accounts.save" -> "계정 추가·정정"; case "accounts.history" -> "계정 수정 이력 읽기"; case "accounts.delete" -> "계정 보관함 복사본 삭제";
             case "files.list" -> "작업 파일 목록"; case "files.read" -> "작업 파일 읽기"; case "files.write" -> "작업 파일 쓰기";
             case "memory.search" -> "저장된 기억 검색"; case "memory.save" -> "기억 추가·수정"; case "app.settings.get" -> "앱 설정 확인"; case "app.settings.update" -> "대화에서 앱 설정 변경";
             case "memory.source.enumerate" -> "조건에 맞는 저장 원문 목록 확인";
-            case "app.work.pause" -> "현재 작업의 새 폰·앱 실행 중지";
+            case "app.work.pause" -> "현재 작업의 새 폰·앱 실행 중지"; case "app.tools.describe" -> "도구 사용법 확인";
+            case "phone_contact_get" -> "연락처 상세 정보";
+            case "phone_contact_update" -> "연락처 수정";
+            case "phone_contacts_delete" -> "연락처 삭제";
+            case "phone_calendar_update" -> "일정 수정";
+            case "phone_calendar_delete" -> "일정 삭제";
+            case "phone_notifications_active" -> "현재 알림과 실행 버튼 확인";
+            case "phone_notification_dismiss" -> "알림 지우기";
+            case "phone_notification_open" -> "알림의 앱 열기";
+            case "phone_notification_action" -> "알림 버튼 실행";
+            case "phone_notification_reply" -> "알림에서 답장 보내기";
+            case "phone_dnd_read" -> "방해 금지 상태 확인";
+            case "phone_dnd_set" -> "방해 금지 변경";
+            case "phone_vibrate" -> "진동 실행";
+            case "phone_device_admin_state" -> "기기 관리자와 잠금 상태 확인";
+            case "phone_numbers_read" -> "휴대폰 번호 확인";
+            case "phone_bluetooth_bonded" -> "연결된 블루투스 기기";
+            case "phone_bluetooth_scan" -> "주변 블루투스 검색";
+            case "phone_bluetooth_scan_read" -> "블루투스 검색 결과";
+            case "phone_bluetooth_scan_cancel" -> "블루투스 검색 중지";
+            case "phone_wifi_scan" -> "주변 와이파이 검색";
+            case "phone_wifi_scan_read" -> "와이파이 검색 결과";
+            case "phone_wifi_hotspot_start" -> "로컬 핫스팟 시작";
+            case "phone_wifi_hotspot_read" -> "로컬 핫스팟 상태";
+            case "phone_wifi_hotspot_stop" -> "로컬 핫스팟 중지";
+            case "phone_overlay_show" -> "화면 위 호영 카드 표시";
+            case "phone_overlay_update" -> "화면 위 카드 수정";
+            case "phone_overlay_hide" -> "화면 위 카드 닫기";
+            case "phone_alarm_schedule" -> "시각을 정해 알림 예약";
+            case "phone_alarm_list" -> "예약 알림 확인";
+            case "phone_alarm_cancel" -> "예약 알림 취소";
+            case "phone_voice_record" -> "마이크 녹음 시작";
+            case "phone_voice_record_read" -> "녹음 파일·진행 상태 확인";
+            case "phone_camera_open" -> "카메라 열기";
+            case "phone_location_refresh" -> "새 위치 요청";
+            case "phone_location_refresh_read" -> "위치 요청 결과";
+            case "phone_network_state" -> "네트워크 상태";
+            case "phone_call_state" -> "전화 상태";
+            case "phone_url_open" -> "웹사이트 열기";
+            case "phone_activity_read" -> "걸음·신체 활동 확인";
+            case "phone_usage_read" -> "앱 사용량 확인";
+            case "phone_usage_events" -> "앱·화면 사용 이력";
+            case "phone_app_state" -> "앱·화면 상태 확인";
+            case "phone_context_search" -> "휴대폰 관찰 기록 검색";
+            case "phone_context_read" -> "휴대폰 관찰 원문 읽기";
+            case "phone_media_list" -> "사진·영상·오디오 목록";
+            case "memory.source.read" -> "기억의 전체 원문 읽기";
+            case "memory.history" -> "기억의 수정 이력";
+            case "memory.review" -> "기억 검토";
+            case "memory.asset.analyze" -> "저장된 첨부 분석";
+            case "tasks.list" -> "진행 중인 일 확인";
+            case "tasks.update" -> "진행 상황 저장";
+            case "tasks.report_completed" -> "확인된 완료 보고 보관";
+            case "actions.receipt.read" -> "실행 결과 원문 확인";
+            case "accounts.totp.get" -> "현재 인증앱 코드 확인";
+            case "accounts.totp.type" -> "인증앱 코드 즉시 입력";
+            case "accounts.recovery.reserve" -> "일회용 복구 코드 선택·기록";
+            case "accounts.recovery.state" -> "복구 코드 사용 이력 확인";
+            case "phone_files_attach" -> "작업 파일을 AI에 첨부";
+            case "phone_files_transfer_read" -> "파일 전송 결과 확인";
+            case "phone_sms_get" -> "문자 메시지 원문 읽기";
+            case "phone_sms_read" -> "문자 메시지 읽기";
+            case "phone_sms_send" -> "문자 메시지 보내기";
+            case "phone_sms_send_read" -> "문자 전송 결과 확인";
+            case "phone_call_log_read" -> "통화 기록 읽기";
+            case "phone_call_log_delete" -> "통화 기록 삭제";
+            case "phone_files_import" -> "휴대폰 파일 가져오기";
+            case "phone_files_export" -> "작업 파일을 휴대폰에 저장";
+            case "phone_files_copy" -> "휴대폰 파일 복사";
+            case "phone_files_move" -> "휴대폰 파일 이동";
+            case "phone_files_delete" -> "휴대폰 파일 삭제";
+            case "phone_files_mkdir" -> "휴대폰 폴더 만들기";
+            case "phone_media_import" -> "사진·미디어 가져오기";
             default -> name;
         };
     }

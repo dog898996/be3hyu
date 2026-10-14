@@ -106,18 +106,28 @@ public final class SourceRecordVisibility {
             String lineage=setting("answerSources:"+row.optLong("id"));
             if(lineage!=null){JSONObject recorded=wholeObject(lineage);if(recorded==null||integer(recorded.opt("version"),false)!=1||!refs(recorded.optJSONArray("sources"),links))return null;}
             if(!"user".equals(row.optString("role"))) {
+                String text=row.optString("text").trim();
+                JSONObject nativeRecord=null;
+                if("system".equals(row.optString("role"))&&text.startsWith("{")) {
+                    nativeRecord=wholeObject(text);
+                    if(nativeRecord==null)return null;
+                }
                 String request=row.isNull("request_id")?"":row.optString("request_id","");
                 if(!request.isEmpty()) {
                     String locator=setting("requestSource:"+request);if(locator!=null){long parent=locator(locator);if(parent<0)return null;
-                        if(parent>0){String expected=requestSourceHash(request,parent,links);if(expected==null)return null;links.add(new Link("message",parent,expected));}}
+                        if(parent>0){String expected=requestSourceHash(request,parent,links);if(expected==null)return null;
+                            // A native agent composer original is a root, not its own descendant.
+                            // Require its exact hash binding and non-owner origin; arbitrary
+                            // system/assistant self-cycles remain rejected by the graph walker.
+                            boolean agentRoot=parent==row.optLong("id")&&expected.equals(row.optString("content_hash"))
+                                    &&nativeRecord!=null&&"agent_authored_input".equals(nativeRecord.optString("type"))
+                                    &&"agent_authored".equals(nativeRecord.optString("submittedBy"))
+                                    &&Boolean.FALSE.equals(nativeRecord.opt("naturalLanguageOwnerUtterance"))
+                                    &&nativeRecord.opt("text") instanceof String
+                                    &&"agent_authored".equals(setting("inputActor:"+request));
+                            if(!agentRoot)links.add(new Link("message",parent,expected));}}
                 }
-                String text=row.optString("text").trim();
-                if("system".equals(row.optString("role"))&&text.startsWith("{")) {
-                    JSONObject nativeRecord=wholeObject(text);
-                    // An incomplete/malformed native-looking record cannot prove that
-                    // its source locators were absent beyond the readable prefix.
-                    if(nativeRecord==null||!nativeLinks(nativeRecord,links))return null;
-                }
+                if(nativeRecord!=null&&!nativeLinks(nativeRecord,links))return null;
             }
             return new Frame(identity(type,row),links);
         }

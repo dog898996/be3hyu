@@ -11,13 +11,12 @@ import java.util.Iterator;
  * argument names or tools are selected away. Character savings are not a token or quality claim.
  */
 public final class LosslessToolCatalog {
-    public static final String HEADER = "Complete tool catalog; rows preserve every definition. "
-            + "[0,name,arguments] means {name,arguments} with arguments the exact original string. "
-            + "[1,name,description,properties,required] means {name,description,inputSchema:{type:\"object\","
-            + "properties,required,additionalProperties:false}}. A property value that is a JSON type "
-            + "string means {type:that string}; an object is its full unchanged property schema. "
-            + "[2,definition] is the full unchanged definition. Use exact tool names and named arguments; "
-            + "required lists, descriptions and all nested constraints apply.\n";
+    public static final String HEADER = "Lossless tool catalog. [0,name,args]={name,arguments:args}; "
+            + "[1,name,desc,props,required]={name,description:desc,inputSchema:{type:\"object\","
+            + "properties:props,required,additionalProperties:false}}; [2,def]=def unchanged. "
+            + "Each props value is a JSON type string ({type:value}), [type,description] "
+            + "({type,description}), or the exact schema object. Names, argument strings, "
+            + "descriptions, required entries and nested constraints are literal; use named arguments.\n";
 
     private static String cachedOriginal;
     private static Result cachedResult;
@@ -82,6 +81,9 @@ public final class LosslessToolCatalog {
                         JSONObject property = properties.getJSONObject(key);
                         if (exactKeys(property, "type") && jsonType(property.opt("type"))) {
                             packedProperties.put(key, property.get("type"));
+                        } else if (exactKeys(property, "type", "description")
+                                && jsonType(property.opt("type")) && property.opt("description") instanceof String) {
+                            packedProperties.put(key, new JSONArray().put(property.get("type")).put(property.get("description")));
                         } else {
                             packedProperties.put(key, copyJson(property));
                         }
@@ -129,6 +131,12 @@ public final class LosslessToolCatalog {
                         Object property = properties.get(key);
                         if (jsonType(property)) {
                             fullProperties.put(key, new JSONObject().put("type", property));
+                        } else if (property instanceof JSONArray) {
+                            JSONArray described = (JSONArray) property;
+                            if (described.length() != 2 || !jsonType(described.get(0))
+                                    || !(described.get(1) instanceof String)) throw malformed();
+                            fullProperties.put(key, new JSONObject().put("type", described.get(0))
+                                    .put("description", described.get(1)));
                         } else if (property instanceof JSONObject) {
                             fullProperties.put(key, copyJson(property));
                         } else {

@@ -358,7 +358,7 @@ public final class SourcePayloadDeletion {
         db.delete("deleting_memory_keys",null,null);
     }
     private static void purgeMessageSettings(SQLiteDatabase db,long id){
-        for(String prefix:new String[]{"answerSources:","replyNotification:","assetCoverage:"})db.delete("settings","setting_key=?",new String[]{prefix+id});
+        for(String prefix:new String[]{"answerSources:","replyNotification:","assetCoverage:","nativeAccountInput:"})db.delete("settings","setting_key=?",new String[]{prefix+id});
         db.delete("settings","setting_key>=? AND setting_key<?",new String[]{"assetAnalysisReceipt:"+id+":","assetAnalysisReceipt:"+id+":\uffff"});
         db.delete("settings","setting_key=?",new String[]{"pendingAssetReview:"+String.format(Locale.ROOT,"%019d",id)});
     }

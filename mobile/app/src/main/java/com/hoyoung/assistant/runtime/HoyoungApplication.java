@@ -123,11 +123,16 @@ public final class HoyoungApplication extends Application {
 
     /** Native owner UI only, called on an IO worker. Serializes index maintenance and backups. */
     public org.json.JSONObject controlStoredSource(String type,long id,String hash,boolean deletePayload) throws java.io.IOException {
+        return controlStoredSource(type,id,hash,deletePayload,UiAutomationProvenance.OWNER);
+    }
+
+    public org.json.JSONObject controlStoredSource(String type,long id,String hash,boolean deletePayload,String inputActor) throws java.io.IOException {
+        final String actor=UiAutomationProvenance.normalize(inputActor);
         if(!startupReady)throw new java.io.IOException("Private source storage is not ready");
         if(!sourceControlPending.compareAndSet(false,true))throw new java.io.IOException("Another source control is running");
         try {
             java.util.concurrent.Future<org.json.JSONObject> work=maintenance.submit(()->
-                    files.withExclusiveStorageMaintenance(()->runtime.controlStoredSource(type,id,hash,deletePayload)));
+                    files.withExclusiveStorageMaintenance(()->runtime.controlStoredSource(type,id,hash,deletePayload,actor)));
             try {org.json.JSONObject result=work.get();
                 com.hoyoung.assistant.store.ExternalOwnerPolicyFolder folder=new com.hoyoung.assistant.store.ExternalOwnerPolicyFolder(this);
                 if(folder.connected()){folder.markPending();scheduleOwnerPolicyMirror(true);}

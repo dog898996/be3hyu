@@ -18,10 +18,11 @@ public class OriginBoundaryTest {
             assertFalse(bad, WorkWebController.isChatGptOrigin(Uri.parse(bad)));
         }
     }
-    @Test public void downloadsDoNotAcceptCookieDestinationLookalikes() {
-        assertTrue(WorkingDownload.allowed(Uri.parse("https://chatgpt.com/backend-api/files/example")));
-        assertTrue(WorkingDownload.allowed(Uri.parse("https://files.oaiusercontent.com/file")));
-        for (String bad : new String[]{"http://files.oaiusercontent.com/file", "https://files.oaiusercontent.com.example.com/file", "https://chatgpt.com:8443/file", "blob:https://chatgpt.com/private", "content://private", "https://example.com/file"}) {
+    @Test public void ordinaryDownloadsAllowAnyValidHttpOrHttpsHostWithoutExpandingNativeBridgeIdentity() {
+        for (String valid : new String[]{"https://chatgpt.com/backend-api/files/example", "https://files.oaiusercontent.com/file",
+                "http://files.oaiusercontent.com/file", "https://files.oaiusercontent.com.example.com/file", "https://chatgpt.com:8443/file",
+                "https://example.com/file", "http://192.0.2.1:8080/file"}) assertTrue(valid, WorkingDownload.allowed(Uri.parse(valid)));
+        for (String bad : new String[]{"blob:https://chatgpt.com/private", "content://private", "file:///tmp/file", "javascript:alert(1)", "https:///file", "https://example.com:0/file", "https://example.com:65536/file"}) {
             assertFalse(bad, WorkingDownload.allowed(Uri.parse(bad)));
         }
     }

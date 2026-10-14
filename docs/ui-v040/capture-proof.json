@@ -1,57 +1,111 @@
 {
-  "nativeRendering": true,
+  "appVersion": "0.4.0",
+  "sourceBaseCommit": "b634d584b7297b53585998282d2f9e574b288df6",
+  "sourceWorkingTreeChanged": true,
+  "method": "Production native Views rendered with Robolectric native Android graphics; illustrative fixture state",
   "androidApi": 35,
-  "renderer": "Robolectric native Android graphics",
-  "productionViews": "MainActivity.java and ui components",
-  "physicalSamsungCapture": false,
-  "authenticatedExternalWorkCaptured": false,
-  "fixtureData": "synthetic messages, OS grants; typing view preview state",
-  "profileOriginalSha256": "e8296967706181a2c25c3b64a87b8241b39351ff1c280e575e0dec04cca53f16",
+  "locale": "ko-KR",
+  "logicalWidthDp": 412,
+  "density": 2,
+  "appSourceEditedForCapture": false,
+  "physicalGalaxyCapture": false,
+  "externalAuthenticatedWorkCaptured": false,
+  "state": "Synthetic example conversations/account, simulated grants/connection; typing frozen state only",
+  "mainActivitySourceSha256AtViewerCreation": "58b4154a76fad864cc86f5eefb6071f01c16fe364db9a52af504b8470990391b",
+  "compiledMainActivitySha256AtViewerCreation": "dfd37e59217deeacd9480746eb9635f1dc3aad2502cf35fc3fd0e9181b48ef79",
+  "profileAssetSha256": "e8296967706181a2c25c3b64a87b8241b39351ff1c280e575e0dec04cca53f16",
   "screens": [
     {
-      "name": "대화",
+      "tab": "대화",
       "file": "01.png",
-      "sha256": "bb8b65819bf2ad57c1db8d4c875c61df4935bba7f8987bb7947467aad5353cff"
+      "width": 824,
+      "height": 1830,
+      "instructionEditorTop": -1
     },
     {
-      "name": "Work",
+      "tab": "Work",
       "file": "02.png",
-      "sha256": "a9ce7eeafb28de92c3d1dd8f019b0f204de3687b054ddcdf8ab26bdb022253d6"
+      "width": 824,
+      "height": 1830,
+      "instructionEditorTop": -1
     },
     {
-      "name": "기억",
+      "tab": "기억",
       "file": "03.png",
-      "sha256": "5496bf24ffed33b8d9e5e3ae0da5f0fe9a52462429ee2d9f77b41286a7c7df94"
+      "width": 824,
+      "height": 2057,
+      "instructionEditorTop": -1
     },
     {
-      "name": "권한",
+      "tab": "계정",
       "file": "04.png",
-      "sha256": "f983f5639fd1bdfe0b083b295fdb023ee1ed627b9c52fe9fce118f8e134bc0f1"
+      "width": 824,
+      "height": 1830,
+      "instructionEditorTop": -1
     },
     {
-      "name": "파일",
+      "tab": "파일",
       "file": "05.png",
-      "sha256": "a22685d38fc36ee6676aa7340d1205f92c15476efbd86052d62ed6fb638900e6"
+      "width": 824,
+      "height": 1830,
+      "instructionEditorTop": -1
     },
     {
-      "name": "설정",
+      "tab": "권한",
       "file": "06.png",
-      "sha256": "9b3687011f12b2bf74dccd07c4d07c8b0144c2c2bc5125982af7e9e93e6f45c2"
+      "width": 824,
+      "height": 2405,
+      "instructionEditorTop": -1
     },
     {
-      "name": "사이드바",
-      "file": "07-sidebar.png",
-      "sha256": "e922c782682e6dcf4430556560c86eaad9133e56c7080d715aa022a905a17170"
+      "tab": "설정",
+      "file": "07.png",
+      "width": 824,
+      "height": 2099,
+      "instructionEditorTop": 472
     },
     {
-      "name": "입력 중",
-      "file": "08-typing.png",
-      "sha256": "944167d2bcbbf30e3a4df6ee6946178d45c5404b2b9f09330976f2791c35fa6b"
+      "tab": "계정·2단계 인증 편집",
+      "file": "11-account-editor.png",
+      "width": 824,
+      "height": 2306,
+      "instructionEditorTop": -1
     },
     {
-      "name": "첫 권한 설정",
-      "file": "09-permissions.png",
-      "sha256": "e0b3a0e9caad73d60f9f0bc10b85764c94e8e7b48a9918845c29fa3259867e78"
+      "tab": "사이드바",
+      "file": "08-sidebar.png",
+      "width": 824,
+      "height": 1830,
+      "instructionEditorTop": -1
+    },
+    {
+      "tab": "입력 중 표시",
+      "file": "09-typing.png",
+      "width": 824,
+      "height": 1830,
+      "instructionEditorTop": -1
+    },
+    {
+      "tab": "시작 권한 확인",
+      "file": "10-permissions.png",
+      "width": 824,
+      "height": 1830,
+      "instructionEditorTop": -1
     }
-  ]
+  ],
+  "sha256": {
+    "11-account-editor.png": "d3bd1199709ec5f8131f7b7e597090fa30f856d3f7eb24f5f7028c74c5b0b240",
+    "08-sidebar.png": "abc019d0dcc210b77944b8c9fc118dbecd2427d9d612b16612630e97a2af4cdc",
+    "04.png": "61f78e6dbd0d479558db53a26b9fa8cc50a4173f8a83f11a486a402165450411",
+    "01.png": "ace1fe602fd0d5da66978eaeb70c708ea3f1ccc4966b7d377393b0d0ba15789a",
+    "07.png": "9b3687011f12b2bf74dccd07c4d07c8b0144c2c2bc5125982af7e9e93e6f45c2",
+    "06.png": "4ae981b188f12152836dce5cb3ef15881e07927cd09b0bc3c693460901350a43",
+    "09-typing.png": "890d9c445806577626362c7477d318c90edf6530cc126e3f4d5797efad1f5923",
+    "10-permissions.png": "cac6d492b2a5e6f512944e421f68c4413e102125a26326f2495fc6905a34660c",
+    "02.png": "a9ce7eeafb28de92c3d1dd8f019b0f204de3687b054ddcdf8ab26bdb022253d6",
+    "screens.json": "e0e40d53bc74860a1e9cac3aeb9fd8b6891b3e832aeb9f721703a6a927063c60",
+    "03.png": "76552010b5bec121a1c7a47de702cef3643084eba0f6e93b5d22b38cb3113246",
+    "05.png": "a22685d38fc36ee6676aa7340d1205f92c15476efbd86052d62ed6fb638900e6",
+    "preview.html": "3bf907c43122333c6b6920902eb2a9fe5f8d75c8f9e79c666bfd2bd9085baafa"
+  }
 }

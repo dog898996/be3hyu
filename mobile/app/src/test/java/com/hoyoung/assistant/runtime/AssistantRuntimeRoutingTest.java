@@ -216,15 +216,64 @@ public final class AssistantRuntimeRoutingTest {
         assertEquals("0",store.getSetting("requestSource:"+baseline.optString("external_id"),""));
         assertEquals(owner.optString("content_hash"),store.getMessage(owner.optLong("id")).optString("content_hash"));
         assertTrue("Compact decision framing should reduce repeated request text without trimming sources",compact.length()<complete.length());
-        // Phase-1 fixed-size fixture framing is the upper bound: extra wire titles must not
-        // consume the existing remaining memory allowance in Light or plain-schema branches.
-        assertTrue("Light framing cannot reduce the prior memory allowance",compact.length()<=7203);
-        assertTrue("Plain-schema framing cannot reduce the prior memory allowance",complete.length()<=24521);
+        // Capability names, exact schemas and owner-requested operating instructions grew.
+        // Historical whole-prompt ceilings do not measure repeated framing in this catalog.
+        // Measure that growth explicitly rather than claiming the old free window is unchanged.
+        JSONArray names=new JSONArray();for(int i=0;i<capabilities.length();i++)names.put(capabilities.getJSONObject(i).getString("name"));
+        LosslessToolCatalog.Result wire=LosslessToolCatalog.formatResult(capabilities);
+        assertTrue(wire.roundTripVerified);assertTrue(wire.text.length()<capabilities.toString().length());
+        assertTrue(compact.length()<=250_000);assertTrue(complete.length()<=250_000);
         System.out.println("HOYOUNG_PROMPT_FOOTPRINT "+object("measurement","native_fixture_core_prompt_utf16_chars","lightStandardChars",compact.length(),
                 "mediumStandardChars",complete.length(),"retainedCharacterRatio",(double)compact.length()/complete.length(),
                 "avoidedCharacters",complete.length()-compact.length(),"allCapabilitiesRetained",capabilities.length(),
+                "completeCapabilityNamesChars",names.toString().length(),"completeRawCatalogChars",capabilities.toString().length(),
+                "completeLosslessCatalogChars",wire.text.length(),"lightNonCatalogChars",compact.length()-names.toString().length(),
+                "mediumNonCatalogChars",complete.length()-capabilities.toString().length(),"historicalWholePromptCeilingsComparable",false,
                 "sameCanonicalOwnerHash",owner.optString("content_hash"),"fullMandatoryOriginalPreserved",true,
                 "actualModelCalls",0,"tokensMeasured",false,"subscriptionPercentMeasured",false,"semanticAccuracyCompared",false));
+    }
+
+    @Test public void expandedCatalogRetainsFullLargeOwnerInputActiveConstraintAndPinnedMemory() throws Exception {
+        // This entire pinned fixture fits the existing 2,500-character memory projection.
+        // Longer saved notes already use explicit source reads; this test does not raise that cap.
+        String pinned="PINNED_FOOTPRINT_MEMORY_9184 "+"실제 원문 선호를 정확히 유지한다. ".repeat(100);
+        JSONObject source=store.addMessage("user",pinned,null);
+        store.upsertMemory("PINNED_FOOTPRINT_MEMORY_9184",pinned,"preference",new JSONArray().put(source.getLong("id")));
+        store.putMemoryMetadata("PINNED_FOOTPRINT_MEMORY_9184",object("pinned",true,"confidence",1));
+        String goals="MANDATORY_FOOTPRINT_ACTIVE_7134 원문과 정정을 그대로 참고해.";store.putSetting("standingGoals",goals);
+        String current="PINNED_FOOTPRINT_MEMORY_9184 "+"원문 ".repeat(33_300)+"OWNER_TAIL_COMPLETE_8271";
+        assertTrue(current.length()>=99_000);assertTrue(current.length()<=100_000);
+        JSONObject first=runtime.receive(current,new JSONArray());ready("medium","fast");assertEquals(1,transport.ids.size());
+        String packed=transport.prompts.get(0);assertTrue("Full current owner input",packed.contains(current));assertTrue("Entire pinned projection",packed.contains(pinned));assertTrue("Full mandatory active constraint",packed.contains(goals));
+        com.hoyoung.assistant.store.MemoryGateway.Prepared memory=prepared(first);
+        assertEquals(0,memory.diagnostics().getInt("omittedOptionalItems"));assertTrue(memory.context.contains("\"pinned\":true"));
+        assertTrue(packed.length()<=250_000);
+        runtime.onWebEvent(object("type","error","requestId",first.getString("external_id"),"code","preflight_rejected","knownNotSent",true));
+        store.putSetting("usageOptimizationEnabled","false");JSONObject second=runtime.retryRequest(first.getLong("id"));ready("medium","fast");assertEquals(2,transport.ids.size());
+        String plain=transport.prompts.get(1);assertTrue(plain.contains(current));assertTrue(plain.contains(pinned));assertTrue(plain.contains(goals));
+        assertEquals(0,prepared(second).diagnostics().getInt("omittedOptionalItems"));assertTrue(plain.length()<=250_000);
+        assertEquals(source.getString("content_hash"),store.getMessage(source.getLong("id")).getString("content_hash"));
+        assertEquals(store.getSetting("requestSource:"+first.getString("external_id"),""),store.getSetting("requestSource:"+second.getString("external_id"),""));
+    }
+
+    @Test public void describeReturnsExactNativeDefinitionsAndHonorsOwnerDisable() throws Exception {
+        java.lang.reflect.Method catalog=AssistantRuntime.class.getDeclaredMethod("catalog");catalog.setAccessible(true);
+        JSONArray originals=(JSONArray)catalog.invoke(runtime);java.lang.reflect.Method execute=AssistantRuntime.class.getDeclaredMethod("executeTool",String.class,JSONObject.class);execute.setAccessible(true);
+        JSONArray names=new JSONArray().put("phone_ui_type").put("accounts.save").put("files.read");
+        JSONObject described=(JSONObject)execute.invoke(runtime,"app.tools.describe",object("names",names));
+        assertTrue(described.getBoolean("ok"));assertTrue(described.getBoolean("completeDefinitions"));assertFalse(described.getBoolean("capabilityExecution"));
+        JSONArray definitions=described.getJSONArray("definitions");assertEquals(names.length(),definitions.length());
+        for(int i=0;i<names.length();i++) {
+            JSONObject expected=null;for(int j=0;j<originals.length();j++){JSONObject item=originals.getJSONObject(j);if(names.getString(i).equals(item.getString("name")))expected=item;}
+            assertNotNull(expected);assertEquals(expected.toString(),definitions.getJSONObject(i).toString());
+        }
+        store.putSetting("toolPermissions",object("app.tools.describe",false).toString());
+        JSONObject denied=(JSONObject)execute.invoke(runtime,"app.tools.describe",object("names",names));assertFalse(denied.getBoolean("ok"));assertEquals("permission_disabled",denied.getString("code"));
+    }
+
+    private com.hoyoung.assistant.store.MemoryGateway.Prepared prepared(JSONObject request) throws Exception {
+        java.lang.reflect.Field field=AssistantRuntime.class.getDeclaredField("preparedMemory");field.setAccessible(true);
+        return (com.hoyoung.assistant.store.MemoryGateway.Prepared)((java.util.Map<?,?>)field.get(runtime)).get(request.getString("external_id"));
     }
 
     @Test public void stableCompletePrefixPreservesExactRequestContractAndFullToolSchemas() throws Exception {

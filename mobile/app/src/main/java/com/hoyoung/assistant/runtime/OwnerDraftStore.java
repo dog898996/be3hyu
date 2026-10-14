@@ -22,13 +22,14 @@ public final class OwnerDraftStore {
     private final HoyoungStore store;
 
     public static final class Snapshot {
-        public final String text,attachmentsJson,clientInputId;
+        public final String text,attachmentsJson,clientInputId,inputActor;
         public final long revision;
         public final boolean recoveryRequired;
         public final String recoveryKey,recoveryReason;
-        private Snapshot(String text,String attachmentsJson,String clientInputId,long revision,boolean recoveryRequired,String recoveryKey,String recoveryReason){
+        private Snapshot(String text,String attachmentsJson,String clientInputId,long revision,boolean recoveryRequired,String recoveryKey,String recoveryReason,String inputActor){
             this.text=text;this.attachmentsJson=attachmentsJson;this.clientInputId=clientInputId;this.revision=revision;
             this.recoveryRequired=recoveryRequired;this.recoveryKey=recoveryKey;this.recoveryReason=recoveryReason;
+            this.inputActor=UiAutomationProvenance.normalize(inputActor);
         }
         /** Every call returns a private copy; callers cannot alter this input cohort. */
         public JSONArray attachments(){try{return new JSONArray(attachmentsJson);}catch(Exception impossible){throw new IllegalStateException("Draft attachment state is invalid",impossible);}}
@@ -41,14 +42,24 @@ public final class OwnerDraftStore {
 
     /** Only call for a real owner text/attachment edit, never to write back an old Activity. */
     public Snapshot edit(String text,JSONArray attachments){
+        return edit(text,attachments,UiAutomationProvenance.OWNER);
+    }
+
+    /** Agent input is allowed, but its authorship survives process recreation and a later
+     * human Send tap. Clearing the whole input starts a new owner-authored cohort. */
+    public Snapshot edit(String text,JSONArray attachments,String inputActor){
         if(text==null)text="";
+        final String editingActor=UiAutomationProvenance.normalize(inputActor);
         String attachmentText=attachments==null?"[]":attachments.toString();
         validateLength(text);validateLength(attachmentText);validateAttachments(attachmentText);
         final String editedText=text,editedAttachments=attachmentText;
         return store.withTransaction(db->{
             Snapshot current=readInside(db);
-            if(!current.recoveryRequired&&current.text.equals(editedText)&&current.attachmentsJson.equals(editedAttachments))return current;
-            Snapshot updated=fresh(editedText,editedAttachments,nextRevision(current.revision),false,"","");
+            boolean empty=editedText.isEmpty()&&"[]".equals(editedAttachments);
+            String actor=empty?UiAutomationProvenance.OWNER:editingActor;
+            if(!empty&&!UiAutomationProvenance.OWNER.equals(current.inputActor)&&UiAutomationProvenance.OWNER.equals(editingActor))actor=UiAutomationProvenance.MIXED;
+            if(!current.recoveryRequired&&current.text.equals(editedText)&&current.attachmentsJson.equals(editedAttachments)&&current.inputActor.equals(actor))return current;
+            Snapshot updated=fresh(editedText,editedAttachments,nextRevision(current.revision),false,"","",actor);
             write(db,updated,true);return updated;
         });
     }
@@ -85,14 +96,15 @@ public final class OwnerDraftStore {
     }
     private Snapshot parse(String raw){
         try{
-            JSONObject state=object(raw);if(strictInt(state,"schemaVersion",1,1)!=1||!PROFILE.equals(state.getString("encoding")))throw new IllegalArgumentException("Unsupported draft schema");
+            JSONObject state=object(raw);int schema=strictInt(state,"schemaVersion",1,2);if(!PROFILE.equals(state.getString("encoding")))throw new IllegalArgumentException("Unsupported draft schema");
             String text=decoded(state.getString("textUtf16")),attachments=decoded(state.getString("attachmentsUtf16")),id=state.getString("clientInputId");
             validateLength(text);validateLength(attachments);validateAttachments(attachments);validateId(id);
             Object rawRevision=state.get("revision");if(!(rawRevision instanceof Long||rawRevision instanceof Integer))throw new IllegalArgumentException("Invalid draft revision");long revision=((Number)rawRevision).longValue();if(revision<0)throw new IllegalArgumentException("Negative draft revision");
             Object recovery=state.get("recoveryRequired");if(!(recovery instanceof Boolean))throw new IllegalArgumentException("Invalid recovery state");
-            Snapshot snapshot=new Snapshot(text,attachments,id,revision,(Boolean)recovery,state.getString("recoveryKey"),state.getString("recoveryReason"));
+            Snapshot snapshot=new Snapshot(text,attachments,id,revision,(Boolean)recovery,state.getString("recoveryKey"),state.getString("recoveryReason"),schema==1?UiAutomationProvenance.OWNER:state.getString("inputActor"));
             if(snapshot.recoveryRequired&&(snapshot.recoveryKey.isEmpty()||snapshot.recoveryReason.isEmpty()))throw new IllegalArgumentException("Missing recovery evidence");
-            if(!hash(identity(snapshot)).equals(state.getString("tupleSha256")))throw new IllegalArgumentException("Draft tuple integrity failed");return snapshot;
+            String tuple=schema==1?legacyIdentity(snapshot):identity(snapshot);
+            if(!hash(tuple).equals(state.getString("tupleSha256")))throw new IllegalArgumentException("Draft tuple integrity failed");return snapshot;
         }catch(RuntimeException failed){throw failed;}catch(Exception failed){throw new IllegalArgumentException("Invalid draft state",failed);}
     }
 
@@ -121,7 +133,7 @@ public final class OwnerDraftStore {
     }
 
     private void write(SQLiteDatabase db,Snapshot snapshot,boolean mirrorLegacy){
-        JSONObject state=new JSONObject();put(state,"schemaVersion",1);put(state,"encoding",PROFILE);put(state,"textUtf16",encoded(snapshot.text));put(state,"attachmentsUtf16",encoded(snapshot.attachmentsJson));put(state,"clientInputId",snapshot.clientInputId);put(state,"revision",snapshot.revision);put(state,"recoveryRequired",snapshot.recoveryRequired);put(state,"recoveryKey",snapshot.recoveryKey);put(state,"recoveryReason",snapshot.recoveryReason);put(state,"tupleSha256",hash(identity(snapshot)));
+        JSONObject state=new JSONObject();put(state,"schemaVersion",2);put(state,"encoding",PROFILE);put(state,"textUtf16",encoded(snapshot.text));put(state,"attachmentsUtf16",encoded(snapshot.attachmentsJson));put(state,"clientInputId",snapshot.clientInputId);put(state,"revision",snapshot.revision);put(state,"recoveryRequired",snapshot.recoveryRequired);put(state,"recoveryKey",snapshot.recoveryKey);put(state,"recoveryReason",snapshot.recoveryReason);put(state,"inputActor",snapshot.inputActor);put(state,"tupleSha256",hash(identity(snapshot)));
         String payload=state.toString();int count=payload.length()<=INLINE_CHARS?0:(payload.length()+PART_CHARS-1)/PART_CHARS;
         if(count>MAX_PARTS)throw new IllegalArgumentException("Draft state is too large");
         if(count==0)checkedPut(db,STATE_KEY,payload);
@@ -133,7 +145,8 @@ public final class OwnerDraftStore {
         if(mirrorLegacy){checkedPut(db,"ui.draft",snapshot.text);checkedPut(db,"ui.attachments",snapshot.attachmentsJson);}
     }
 
-    private static Snapshot fresh(String text,String attachments,long revision,boolean recovery,String recoveryKey,String recoveryReason){return new Snapshot(text,attachments,UUID.randomUUID().toString(),revision,recovery,recoveryKey,recoveryReason);}
+    private static Snapshot fresh(String text,String attachments,long revision,boolean recovery,String recoveryKey,String recoveryReason){return fresh(text,attachments,revision,recovery,recoveryKey,recoveryReason,UiAutomationProvenance.OWNER);}
+    private static Snapshot fresh(String text,String attachments,long revision,boolean recovery,String recoveryKey,String recoveryReason,String actor){return new Snapshot(text,attachments,UUID.randomUUID().toString(),revision,recovery,recoveryKey,recoveryReason,actor);}
     private static long nextRevision(long revision){if(revision==Long.MAX_VALUE)throw new IllegalStateException("Draft revision is exhausted");return revision+1;}
     private static void validateLength(String value){if(value==null||value.length()>MAX_FIELD_CHARS)throw new IllegalArgumentException("Draft value is too large");}
     private static void validateAttachments(String raw){try{Object parsed=json(raw);if(!(parsed instanceof JSONArray))throw new IllegalArgumentException("Invalid draft attachment array");JSONArray values=(JSONArray)parsed;for(int i=0;i<values.length();i++){Object value=values.get(i);if(value instanceof String)validateFileId((String)value);else if(!(value instanceof JSONObject))throw new IllegalArgumentException("Invalid draft attachment");}}catch(RuntimeException invalid){throw invalid;}catch(Exception invalid){throw new IllegalArgumentException("Invalid draft attachments",invalid);}}
@@ -148,7 +161,8 @@ public final class OwnerDraftStore {
     private static void validateId(String id){if(!id.matches("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}"))throw new IllegalArgumentException("Invalid draft input id");}
     private static int strictInt(JSONObject object,String key,int min,int max)throws Exception{Object raw=object.get(key);if(!(raw instanceof Integer||raw instanceof Long))throw new IllegalArgumentException("Invalid draft integer");long value=((Number)raw).longValue();if(value<min||value>max)throw new IllegalArgumentException("Draft integer outside bounds");return(int)value;}
     private static void checkedPut(SQLiteDatabase db,String key,String value){validateLength(value);db.execSQL("INSERT OR REPLACE INTO settings(setting_key,value) VALUES (?,?)",new Object[]{key,value});}
-    private static String identity(Snapshot snapshot){return field(snapshot.text)+field(snapshot.attachmentsJson)+field(snapshot.clientInputId)+field(String.valueOf(snapshot.revision))+field(String.valueOf(snapshot.recoveryRequired))+field(snapshot.recoveryKey)+field(snapshot.recoveryReason);}
+    private static String legacyIdentity(Snapshot snapshot){return field(snapshot.text)+field(snapshot.attachmentsJson)+field(snapshot.clientInputId)+field(String.valueOf(snapshot.revision))+field(String.valueOf(snapshot.recoveryRequired))+field(snapshot.recoveryKey)+field(snapshot.recoveryReason);}
+    private static String identity(Snapshot snapshot){return legacyIdentity(snapshot)+field(snapshot.inputActor);}
     private static String field(String value){return value.length()+":"+value;}
     private static String encoded(String raw){return Base64.encodeToString(bytes(raw),Base64.NO_WRAP);}
     private static String decoded(String encoded){byte[] value=Base64.decode(encoded,Base64.NO_WRAP);if(value.length%2!=0)throw new IllegalArgumentException("Invalid UTF-16 draft bytes");if(value.length>MAX_FIELD_CHARS*2)throw new IllegalArgumentException("Draft bytes are too large");char[] chars=new char[value.length/2];for(int i=0;i<chars.length;i++)chars[i]=(char)(((value[i*2]&255)<<8)|(value[i*2+1]&255));return new String(chars);}

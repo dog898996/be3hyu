@@ -339,10 +339,16 @@ public final class WorkWebController implements AssistantRuntime.Transport {
             }
         });
         candidate.setDownloadListener((url, userAgent, disposition, mime, contentLength) -> {
+            if (!runtime.workFileDownloadsEnabled()) {
+                runtime.localNotice("working_file_download_disabled", "권한에서 Work 파일 다운로드를 꺼 둔 상태야."); return;
+            }
             if (!WorkingDownload.allowed(Uri.parse(url))) {
-                runtime.localNotice("download_origin_unverified", "이 다운로드 경로를 확인하지 못했어. 파일을 직접 저장해 앱으로 가져와 줘."); return;
+                runtime.localNotice("download_url_unsupported", "이 다운로드 URL은 HTTP·HTTPS 파일 주소가 아니야. 파일을 직접 저장해 앱으로 가져와 줘."); return;
             }
             downloads.execute(() -> {
+                if (!runtime.workFileDownloadsEnabled()) {
+                    runtime.localNotice("working_file_download_disabled", "권한에서 Work 파일 다운로드를 꺼 둔 상태야."); return;
+                }
                 try {
                     JSONObject saved = WorkingDownload.save(url, disposition, mime, files, userAgent);
                     runtime.localNotice("working_file_saved", "작업 파일을 폰 내부에 저장했어: " + saved.optString("name"));
