@@ -322,7 +322,7 @@ public final class PhoneFileTransferTools {
     }
     public boolean canReadArchivedResult(String name, JSONObject result) {
         try {
-        if (!supports(name) || result == null) return false;
+            if (!supports(name) || result == null) return false;
             access(name, !name.equals("phone_files_import") && !name.equals("phone_media_import") && !name.equals("phone_files_transfer_read") && !name.equals("phone_files_attach"));
             JSONArray refs = result.optJSONArray("sourceRefs");
             if (result.optJSONObject("asset") != null && (refs == null || refs.length() == 0) && !"ordinary_working_file".equals(result.optString("sourceScope"))) return false;
@@ -348,7 +348,10 @@ public final class PhoneFileTransferTools {
         if ((tool.equals("phone_files_copy") || tool.equals("phone_files_move")) && !sharedGranted(false)) throw new AccessFailure("permission_missing");
     }
     private boolean sharedGranted(boolean writing) { return Build.VERSION.SDK_INT >= 30 ? allFilesGranted() : context.checkSelfPermission(writing ? Manifest.permission.WRITE_EXTERNAL_STORAGE : Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED; }
-    private static boolean allFilesGranted() { try { return Environment.isExternalStorageManager(); } catch (RuntimeException unavailable) { return false; } }
+    private static boolean allFilesGranted() {
+        if (Build.VERSION.SDK_INT < 30) return false;
+        try { return Environment.isExternalStorageManager(); } catch (RuntimeException unavailable) { return false; }
+    }
     private String mediaAccess(Uri uri, String kind) throws AccessFailure {
         String permission = Build.VERSION.SDK_INT >= 33 ? kind.equals("images") ? Manifest.permission.READ_MEDIA_IMAGES : kind.equals("video") ? Manifest.permission.READ_MEDIA_VIDEO : Manifest.permission.READ_MEDIA_AUDIO : Manifest.permission.READ_EXTERNAL_STORAGE;
         boolean full = context.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED || Build.VERSION.SDK_INT >= 30 && allFilesGranted();

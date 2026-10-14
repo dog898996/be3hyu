@@ -187,7 +187,7 @@ public final class VoiceCaptureService extends Service {
             NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
             if (manager != null) manager.createNotificationChannel(new NotificationChannel(CHANNEL, "호영 마이크 녹음", NotificationManager.IMPORTANCE_LOW));
             Notification notification = notification(id);
-            if (Build.VERSION.SDK_INT >= 29) startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE);
+            if (Build.VERSION.SDK_INT >= 30) startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE);
             else startForeground(NOTIFICATION_ID, notification);
             worker.execute(this::beginCapture);
         } catch (Exception denied) { finishWithoutAudio("android_microphone_service_start_failed", denied.getClass().getSimpleName()); }

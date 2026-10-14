@@ -103,7 +103,7 @@ public final class VoiceCaptureServiceTest {
         assertEquals("recording", receipt(id).getString("state")); assertEquals(0, stops.get());
         assertTrue(receipt(id).isNull("deadlineAt")); finish(id);
     }
-    @Test public void completedReceiptRequiresFinalFileAndVerifiedEncodedAudio() throws Exception {
+    @Test @Config(sdk = {29, 35}) public void completedReceiptRequiresFinalFileAndVerifiedEncodedAudio() throws Exception {
         String id = begin(0); finish(id);
         JSONObject result = receipt(id);
         assertEquals("owner_stopped", result.getString("state")); assertTrue(result.getBoolean("completionConfirmed")); assertTrue(result.getBoolean("fileValid"));

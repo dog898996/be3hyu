@@ -41,8 +41,13 @@ public final class AccountMfaTools {
     }
     public boolean supports(String name) { return "accounts.totp.get".equals(name) || "accounts.totp.type".equals(name) || "accounts.recovery.reserve".equals(name) || "accounts.recovery.state".equals(name); }
     public JSONObject execute(String name, JSONObject args, String nativeActionIdentity) throws IOException {
+        return execute(name, args, nativeActionIdentity, null);
+    }
+    /** Resume publication of an existing withheld reservation, never allocate a different code. */
+    public JSONObject execute(String name, JSONObject args, String nativeActionIdentity, JSONObject pendingRecovery) throws IOException {
         try {
             if (!supports(name)) return result(false, "unknown_tool");
+            if (pendingRecovery != null && !"accounts.recovery.reserve".equals(name)) return result(false, "recovery_resume_mismatch");
             if (!allowed(name)) return result(false, "permission_denied").put("tool", name);
             String accountId = args.getString("accountId"); JSONObject account = accounts.get(accountId);
             if (account == null) return result(false, "account_not_found");
@@ -73,8 +78,14 @@ public final class AccountMfaTools {
             if (nativeActionIdentity == null || nativeActionIdentity.isEmpty()) return result(false, "native_action_context_required");
             int selected = args.has("index") ? exactInt(args.opt("index"), "index") : -1;
             if (selected < -1 || selected >= total) throw new IllegalArgumentException("Recovery index is outside the stored list");
-            int from = selected >= 0 ? selected : 0, until = selected >= 0 ? selected + 1 : total;
             String nativeRequest = "mfa:" + hash(nativeActionIdentity);
+            if (pendingRecovery != null) {
+                if (!matchingPendingReservation(pendingRecovery, account, nativeRequest, codes)) return result(false, "recovery_resume_source_changed").put("reservationPersisted", true);
+                int pendingIndex = pendingRecovery.getInt("index");
+                if (selected >= 0 && selected != pendingIndex) return result(false, "recovery_resume_mismatch");
+                selected = pendingIndex;
+            }
+            int from = selected >= 0 ? selected : 0, until = selected >= 0 ? selected + 1 : total;
             for (int i = from; i < until; i++) {
                 String code = codes.getString(i), fingerprint = RecoveryCodeLedger.fingerprint(accountId, code);
                 JSONObject origin = new JSONObject().put("stableCodeFingerprint", RecoveryCodeLedger.stableFingerprint(account.getString("service"), account.getString("username"), code))
@@ -83,9 +94,11 @@ public final class AccountMfaTools {
                 if (!fresh(account, sourceScope)) return result(false, "account_source_changed");
                 JSONObject reservation = recovery.reserve(accountId, fingerprint, nativeRequest, origin);
                 if (!reservation.optBoolean("reserved")) continue;
+                if (pendingRecovery != null && !reservation.optBoolean("reusedReservation")) return result(false, "recovery_resume_mismatch").put("reservationPersisted", true);
                 JSONObject persistence = publishReservation();
                 if (!persistence.optBoolean("ready")) return result(false, "recovery_portable_persistence_pending").put("reservationPersisted", true)
-                        .put("portablePersistencePending", true).put("persistence", persistence).put("sourceRefs", refs);
+                        .put("portablePersistencePending", true).put("persistence", persistence).put("sourceRefs", refs)
+                        .put("accountId", accountId).put("index", i).put("reservation", reservation);
                 if (!fresh(account, sourceScope)) return result(false, "account_source_changed").put("reservationPersisted", true);
                 return result(true, "recovery_code_reserved").put("accountId", accountId).put("index", i).put("recoveryCode", code)
                         .put("reservation", reservation).put("reservedBeforeReveal", true).put("serverConsumptionVerified", false)
@@ -94,6 +107,30 @@ public final class AccountMfaTools {
             }
             return result(false, "no_unreserved_recovery_code").put("serverConsumptionVerified", false).put("sourceRefs", refs);
         } catch (JSONException malformed) { throw new IllegalArgumentException("MFA configuration or arguments are malformed", malformed); }
+    }
+    private boolean matchingPendingReservation(JSONObject pending, JSONObject account, String nativeRequest, JSONArray codes) throws JSONException, IOException {
+        if (pending.optBoolean("ok", true) || !"recovery_portable_persistence_pending".equals(pending.optString("code"))
+                || !pending.optBoolean("reservationPersisted") || !pending.optBoolean("portablePersistencePending") || pending.has("recoveryCode")) return false;
+        String accountId = account.getString("accountId");
+        if (!accountId.equals(pending.optString("accountId"))) return false;
+        int index = exactInt(pending.opt("index"), "index"); if (index < 0 || index >= codes.length()) return false;
+        JSONObject acknowledged = pending.optJSONObject("reservation"), expected = acknowledged == null ? null : acknowledged.optJSONObject("reservation");
+        JSONObject origin = expected == null ? null : expected.optJSONObject("origin");
+        if (expected == null || origin == null || !acknowledged.optBoolean("reserved") || !accountId.equals(expected.optString("accountId"))
+                || !nativeRequest.equals(expected.optString("requestId")) || account.optInt("revision") != origin.optInt("accountRevision")
+                || !hash(account.toString()).equals(origin.optString("accountRecordHash"))) return false;
+        String code = codes.getString(index), fingerprint = RecoveryCodeLedger.fingerprint(accountId, code);
+        if (!fingerprint.equals(expected.optString("codeFingerprint"))
+                || !RecoveryCodeLedger.stableFingerprint(account.getString("service"), account.getString("username"), code).equals(origin.optString("stableCodeFingerprint"))) return false;
+        JSONArray actual = recovery.snapshot().getJSONArray("reservations");
+        for (int i = 0; i < actual.length(); i++) {
+            JSONObject entry = actual.getJSONObject(i), savedOrigin = entry.optJSONObject("origin");
+            if (accountId.equals(entry.optString("accountId")) && nativeRequest.equals(entry.optString("requestId")) && fingerprint.equals(entry.optString("codeFingerprint"))
+                    && savedOrigin != null && origin.optString("accountRecordHash").equals(savedOrigin.optString("accountRecordHash"))
+                    && origin.optInt("accountRevision") == savedOrigin.optInt("accountRevision")
+                    && origin.optString("stableCodeFingerprint").equals(savedOrigin.optString("stableCodeFingerprint"))) return true;
+        }
+        return false;
     }
     private JSONObject publishReservation() throws JSONException {
         if (!portable.connected()) return new JSONObject().put("ready", true).put("portablePersistence", "installation_only").put("portableReadbackVerified", false).put("reinstallPersistenceAvailable", false);

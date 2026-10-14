@@ -325,7 +325,13 @@ public final class PhoneRadioTools {
         AndroidBluetooth(Context context) { this.context = context; BluetoothManager manager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE); adapter = manager == null ? null : manager.getAdapter(); }
         public boolean available() { return adapter != null; }
         public boolean enabled() { return adapter != null && adapter.isEnabled(); }
-        public boolean discovering() { return adapter != null && adapter.isDiscovering(); }
+        public boolean discovering() {
+            try { return adapter != null && adapter.isDiscovering(); }
+            catch (SecurityException denied) {
+                // Keep denial distinct from "no discovery" for the typed tool-result boundary.
+                throw new SecurityException("Android denied Bluetooth discovery state access.", denied);
+            }
+        }
         public boolean start(BluetoothEvents events) {
             receiver = new BroadcastReceiver() {
                 @Override public void onReceive(Context ignored, Intent intent) {
@@ -340,9 +346,16 @@ public final class PhoneRadioTools {
             IntentFilter filter = new IntentFilter(); filter.addAction(BluetoothDevice.ACTION_FOUND); filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
             // These are Android protected broadcasts, also emitted by the privileged Bluetooth app.
             if (Build.VERSION.SDK_INT >= 33) context.registerReceiver(receiver, filter, Context.RECEIVER_EXPORTED); else context.registerReceiver(receiver, filter);
-            return adapter.startDiscovery();
+            try { return adapter.startDiscovery(); }
+            catch (SecurityException denied) {
+                try { detach(); } catch (RuntimeException cleanupUnavailable) { }
+                throw new SecurityException("Android denied Bluetooth discovery start.", denied);
+            }
         }
-        public boolean cancel() { return adapter != null && adapter.cancelDiscovery(); }
+        public boolean cancel() {
+            try { return adapter != null && adapter.cancelDiscovery(); }
+            catch (SecurityException denied) { throw new SecurityException("Android denied Bluetooth discovery cancellation.", denied); }
+        }
         public void detach() { if (receiver != null) { BroadcastReceiver old = receiver; receiver = null; context.unregisterReceiver(old); } }
     }
     private static final class AndroidWifi implements WifiBackend {
@@ -351,10 +364,16 @@ public final class PhoneRadioTools {
         AndroidWifi(Context context) { manager = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE); }
         public boolean available() { return manager != null; }
         public boolean scan() { return manager.startScan(); }
-        public List<ScanResult> scanResults() { return manager.getScanResults(); }
+        public List<ScanResult> scanResults() {
+            try { return manager.getScanResults(); }
+            catch (SecurityException denied) {
+                // An OS denial is not evidence of an empty or fresh Wi-Fi cache.
+                throw new SecurityException("Android denied Wi-Fi scan cache access.", denied);
+            }
+        }
         public void hotspot(HotspotEvents events) {
             HotspotAttempt work = new HotspotAttempt(); attempt = work;
-            manager.startLocalOnlyHotspot(new WifiManager.LocalOnlyHotspotCallback() {
+            try { manager.startLocalOnlyHotspot(new WifiManager.LocalOnlyHotspotCallback() {
                 @Override public void onStarted(WifiManager.LocalOnlyHotspotReservation started) {
                     if (attempt != work || work.canceled) { started.close(); return; }
                     work.reservation = started;
@@ -364,7 +383,14 @@ public final class PhoneRadioTools {
                 }
                 @Override public void onStopped() { if (attempt == work) { work.reservation = null; events.stopped(); } }
                 @Override public void onFailed(int reason) { if (attempt == work && !work.canceled) { work.reservation = null; events.failed(reason); } }
-            }, main);
+            }, main); }
+            catch (SecurityException denied) {
+                work.canceled = true;
+                if (attempt == work) attempt = null;
+                if (work.reservation != null) { try { work.reservation.close(); } catch (RuntimeException cleanupUnavailable) { } work.reservation = null; }
+                // A late callback closes this exact reservation; it cannot become a new active one.
+                throw new SecurityException("Android denied local-only hotspot start.", denied);
+            }
         }
         public void stopHotspot() { HotspotAttempt current = attempt; if (current != null) { current.canceled = true; if (current.reservation != null) { current.reservation.close(); current.reservation = null; } } }
     }

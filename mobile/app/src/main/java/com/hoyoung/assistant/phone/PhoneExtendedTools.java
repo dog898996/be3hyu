@@ -309,17 +309,22 @@ public final class PhoneExtendedTools {
         SubscriptionManager subscriptions = (SubscriptionManager) context.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE);
         TelephonyManager phone = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         if (subscriptions == null || phone == null) return failure("unsupported", "This device does not expose SIM subscription services.");
-        List<SubscriptionInfo> active = subscriptions.getActiveSubscriptionInfoList(); JSONArray result = new JSONArray();
-        if (active != null) for (SubscriptionInfo subscription : active) {
-            if (subscription == null || result.length() >= 20) continue;
-            String number = Build.VERSION.SDK_INT >= 33 ? subscriptions.getPhoneNumber(subscription.getSubscriptionId())
-                : phone.createForSubscriptionId(subscription.getSubscriptionId()).getLine1Number();
-            boolean available = number != null && !number.trim().isEmpty();
-            result.put(new JSONObject().put("subscriptionId", subscription.getSubscriptionId()).put("simSlot", subscription.getSimSlotIndex())
-                    .put("number", available ? number : JSONObject.NULL).put("numberAvailable", available));
+        try {
+            List<SubscriptionInfo> active = subscriptions.getActiveSubscriptionInfoList(); JSONArray result = new JSONArray();
+            if (active != null) for (SubscriptionInfo subscription : active) {
+                if (subscription == null || result.length() >= 20) continue;
+                String number = Build.VERSION.SDK_INT >= 33 ? subscriptions.getPhoneNumber(subscription.getSubscriptionId())
+                    : phone.createForSubscriptionId(subscription.getSubscriptionId()).getLine1Number();
+                boolean available = number != null && !number.trim().isEmpty();
+                result.put(new JSONObject().put("subscriptionId", subscription.getSubscriptionId()).put("simSlot", subscription.getSimSlotIndex())
+                        .put("number", available ? number : JSONObject.NULL).put("numberAvailable", available));
+            }
+            return success().put("subscriptions", result).put("source", "android.telephony_subscriptions").put("deviceIdentifiersRead", false)
+                    .put("subscriptionListAvailable", active != null).put("subscriptionListTruncated", active != null && active.size() > 20).put("observedAt", System.currentTimeMillis());
+        } catch (SecurityException revokedDuringRead) {
+            // A grant may change after the initial check. Return a denial, never an empty SIM list.
+            return missing("phone_state");
         }
-        return success().put("subscriptions", result).put("source", "android.telephony_subscriptions").put("deviceIdentifiersRead", false)
-                .put("subscriptionListAvailable", active != null).put("subscriptionListTruncated", active != null && active.size() > 20).put("observedAt", System.currentTimeMillis());
     }
 
     private static JSONObject deletion(String key, long id, int count, String source) throws Exception {

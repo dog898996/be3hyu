@@ -32,13 +32,18 @@ public final class AccountTools {
         return execute(name, args, null);
     }
     public JSONObject execute(String name, JSONObject args, String nativeActionIdentity) throws IOException {
+        return execute(name, args, nativeActionIdentity, null);
+    }
+    /** Only the native runtime can supply a prior withheld recovery reservation; never model arguments. */
+    public JSONObject execute(String name, JSONObject args, String nativeActionIdentity, JSONObject pendingRecovery) throws IOException {
         JSONObject definition = null;
         JSONArray tools = catalog();
         for (int i = 0; i < tools.length(); i++) if (name.equals(tools.optJSONObject(i).optString("name"))) definition = tools.optJSONObject(i);
         if (definition == null) return object("ok", false, "code", "unknown_tool");
         if (!allowed(name)) return object("ok", false, "code", "permission_denied", "tool", name);
         validate(args, definition.optJSONObject("inputSchema"));
-        if (mfa.supports(name)) return mfa.execute(name, args, nativeActionIdentity);
+        if (pendingRecovery != null && !"accounts.recovery.reserve".equals(name)) return object("ok", false, "code", "recovery_resume_mismatch");
+        if (mfa.supports(name)) return mfa.execute(name, args, nativeActionIdentity, pendingRecovery);
         try {
             switch (name) {
                 case "accounts.list": {
