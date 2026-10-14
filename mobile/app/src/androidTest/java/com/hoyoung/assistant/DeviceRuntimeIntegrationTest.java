@@ -194,22 +194,54 @@ public final class DeviceRuntimeIntegrationTest {
             assertTrue("Save must be fully visible before the real touchscreen click", fullyVisible[0]);
             UiObject2 save = DeviceFixtureHealth.waitFor(device, Until.findObject(By.text("설정 저장").clazz(Button.class)), 10_000);
             assertNotNull(save); save.click();
-            UiObject2 acknowledgement = DeviceFixtureHealth.waitFor(device, Until.findObject(By.text("확인")), 10_000);
+            UiObject2 acknowledgement = DeviceFixtureHealth.waitFor(device, Until.findObject(By.res("android", "button1").pkg(context.getPackageName()).text("확인").clazz(Button.class)), 10_000);
             if (acknowledgement == null) captureFailureUiFixture("aActualSettingsButtonPersistsAndBackupOpensAndroidDocumentPicker-before-close");
             assertNotNull("Actual Save click must open its dialog; persisted interval="
                     + app.getStore().getSetting("heartbeatSeconds", "missing"), acknowledgement);
             assertEquals("120", app.getStore().getSetting("heartbeatSeconds", ""));
+            logSettingsActivity(scenario, "before-dialog-dismiss");
             acknowledgement.click();
+            logSettingsActivity(scenario, "after-dialog-dismiss");
             UiObject2 filesTab = DeviceFixtureHealth.waitFor(device,
-                    Until.findObject(By.text("파일").clazz(Button.class)), 10_000);
+                    Until.findObject(By.text("파일").pkg(context.getPackageName()).clazz(Button.class)), 10_000);
             if (filesTab == null) captureFailureUiFixture("aActualSettingsButtonPersistsAndBackupOpensAndroidDocumentPicker-files-tab-before-close");
             assertNotNull("The real Files tab must return after the Save dialog dismisses", filesTab);
+            assertEquals("Dialog dismissal must leave the same Activity resumed; never relaunch to mask a failure",
+                    androidx.lifecycle.Lifecycle.State.RESUMED, scenario.getState());
             filesTab.click();
             UiObject2 export = DeviceFixtureHealth.waitFor(device, Until.findObject(By.text("대화·기억·파일 백업 내보내기")), 10_000);
             assertNotNull(export); export.click();
             assertTrue("Real platform SAF picker must receive the backup request", DeviceFixtureHealth.waitFor(device, Until.hasObject(By.pkg("com.android.documentsui")), 10_000));
             device.pressBack();
         } finally { app.getStore().putSetting("heartbeatSeconds", previous); }
+    }
+
+    private void logSettingsActivity(ActivityScenario<MainActivity> scenario, String phase) {
+        android.util.Log.i("HoyoungDeviceProof", "HOYOUNG_SETTINGS_ACTIVITY phase=" + phase
+                + "; scenarioState=" + scenario.getState() + "; uiPackage=" + device.getCurrentPackageName());
+        scenario.onActivity(activity -> android.util.Log.i("HoyoungDeviceProof",
+                "HOYOUNG_SETTINGS_WINDOW phase=" + phase + "; identity=" + System.identityHashCode(activity)
+                + "; finishing=" + activity.isFinishing() + "; destroyed=" + activity.isDestroyed()
+                + "; windowFocus=" + activity.hasWindowFocus()));
+    }
+
+    @Test public void aSettingsFilesNavigationSurvivesBackgroundResume() throws Exception {
+        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
+            UiObject2 settings = DeviceFixtureHealth.waitFor(device,
+                    Until.findObject(By.text("설정").pkg(context.getPackageName()).clazz(Button.class)), 15_000);
+            assertNotNull(settings); settings.click();
+            assertNotNull(DeviceFixtureHealth.waitFor(device,
+                    Until.findObject(By.text("자율 모드 켜기").pkg(context.getPackageName())), 10_000));
+            // Exercise real Activity pause/stop/resume without a launch Intent or recreation.
+            scenario.moveToState(androidx.lifecycle.Lifecycle.State.CREATED);
+            scenario.moveToState(androidx.lifecycle.Lifecycle.State.RESUMED);
+            UiObject2 files = DeviceFixtureHealth.waitFor(device,
+                    Until.findObject(By.text("파일").pkg(context.getPackageName()).clazz(Button.class)), 10_000);
+            assertNotNull("Files navigation must survive the existing Activity's background/resume", files);
+            files.click();
+            assertNotNull(DeviceFixtureHealth.waitFor(device,
+                    Until.findObject(By.text("대화·기억·파일 백업 내보내기").pkg(context.getPackageName())), 10_000));
+        }
     }
 
     @Test public void bRealSQLiteOriginalRevisionsAndWorkingFileSurviveCacheCleanupAndBinaryRestore() throws Exception {

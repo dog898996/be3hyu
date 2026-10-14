@@ -160,7 +160,7 @@ if failure or not success or int(success.group(1)) < int(sys.argv[2]):
 print('Verified real Android instrumentation:', success.group(1), 'passing tests.')
 PY
 }
-if ! verify_instrumentation "$LOG_DIR/instrumentation.log" 15; then
+if ! verify_instrumentation "$LOG_DIR/instrumentation.log" 16; then
   primary_passed=false
   echo '::error::Primary Android checks failed; independent real restart checks will still run, and this job remains failed.' >&2
 fi
@@ -178,7 +178,7 @@ if ! verify_instrumentation "$LOG_DIR/recovery.log" 1; then explicit_recovery_pa
 system_foreground_present() {
   local service_dump
   service_dump="$(timeout 8 "$ADB" -s "$SERIAL" shell dumpsys activity services "$APP_ID" 2>/dev/null)" || return 1
-  [[ "$service_dump" == *".runtime.AutonomyService"* && "$service_dump" == *"isForeground=true"* ]]
+  printf '%s\n' "$service_dump" | python3 "$SCRIPT_DIR/verify-foreground-service.py" "$APP_ID"
 }
 capture_restart_failure() {
   local phase="$1" screenshot="$LOG_DIR/restart-$1-failure.png"
@@ -285,6 +285,10 @@ else
 fi
 crash_pid="$(timeout 8 "$ADB" -s "$SERIAL" shell pidof "$APP_ID" | tr -d '\r')"
 if [[ ! "$crash_pid" =~ ^[0-9]+$ ]]; then echo '::error::Expected one actual app PID before crash.' >&2; exit 1; fi
+# Record AMS state before injection, not just after the timeout: distinguishes
+# an already broken service from Android's crash-dialog/restart policy.
+timeout 8 "$ADB" -s "$SERIAL" shell dumpsys activity services "$APP_ID" | tee "$LOG_DIR/pre-java-crash-services.log"
+echo "HOYOUNG_JAVA_CRASH_START oldPid=$crash_pid; elapsedHostSeconds=$SECONDS; auto-recovery-only"
 "$ADB" -s "$SERIAL" shell am crash "$crash_pid"
 crash_deadline=$((SECONDS + 120))
 replacement_pid=''
