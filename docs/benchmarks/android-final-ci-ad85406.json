@@ -1,0 +1,298 @@
+{
+  "recordedAtUTC": "2026-10-14T02:19:52.338420+00:00",
+  "sourceCommit": "ad854064da708d656924c5eff9bbb349b96ab574",
+  "workflowRun": {
+    "conclusion": "success",
+    "createdAt": "2026-10-14T02:07:24Z",
+    "databaseId": 38499375034,
+    "headSha": "ad854064da708d656924c5eff9bbb349b96ab574",
+    "status": "completed",
+    "updatedAt": "2026-10-14T02:15:35Z",
+    "url": "https://github.com/dog898996/be3hyu/actions/runs/38499375034"
+  },
+  "jobId": 115642420472,
+  "jobSteps": [
+    {
+      "name": "Set up job",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 1
+    },
+    {
+      "name": "Check out source",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 2
+    },
+    {
+      "name": "Set up Java 17",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 3
+    },
+    {
+      "name": "Verify emulator driver failure accounting",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 4
+    },
+    {
+      "name": "Require runner SDK and hardware acceleration",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 5
+    },
+    {
+      "name": "Prepare pinned build tools",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 6
+    },
+    {
+      "name": "Install official API 35 AOSP emulator",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 7
+    },
+    {
+      "name": "Prepare checksum-verified public ONNX test model",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 8
+    },
+    {
+      "name": "Build debug APKs, unit tests, and lint",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 9
+    },
+    {
+      "name": "Verify binary permissions and real native packaging",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 10
+    },
+    {
+      "name": "Test real Android runtime and ONNX on accelerated emulator",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 11
+    },
+    {
+      "name": "Post Set up Java 17",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 21
+    },
+    {
+      "name": "Post Check out source",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 22
+    },
+    {
+      "name": "Complete job",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 23
+    }
+  ],
+  "nativeGatePassed": true,
+  "criteriaWeakened": false,
+  "remoteUnitTotals": {
+    "errors": 0,
+    "failures": 0,
+    "passed": 742,
+    "skipped": 17,
+    "testClasses": 80,
+    "tests": 759
+  },
+  "remoteSkipReason": "17 explicit opt-in or unavailable-host-native fixtures, including absent optional public memory dataset; local environment ran one additional dataset fixture",
+  "actualAndroidInstrumentation": {
+    "sdk": 35,
+    "osRelease": "15",
+    "hardwareAcceleration": "actual GitHub-hosted Linux KVM",
+    "wipedOfflineSyntheticFixture": true,
+    "primaryPassed": 15,
+    "separateRecoveryOrSeedInvocationsPassed": 6,
+    "observedPassingInvocationCounts": [
+      15,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "aggregatePassingMethodExecutions": 21
+  },
+  "phaseResults": {
+    "primary": true,
+    "explicitDataRecovery": true,
+    "seed": true,
+    "forceReopen": true,
+    "processDeath": true,
+    "javaCrash": true,
+    "boot": true,
+    "bootstrapAndProofInfrastructure": true,
+    "javaCleanBaseline": true
+  },
+  "phaseResultsMarker": "2026-10-14T02:15:29.5426244Z HOYOUNG_RESTART_PHASE_RESULTS primary=true; explicitDataRecovery=true; seed=true; forceReopen=true; processDeath=true; javaCrash=true; boot=true; bootstrapAndProofInfrastructure=true; javaCleanBaseline=true",
+  "processDeath": {
+    "oldPid": 3007,
+    "recoveredPid": 3139,
+    "actualOwnUIDSignal": "SIGKILL",
+    "osForegroundServiceObservedBeforeActivity": true,
+    "probeMarker": "2026-10-14T02:14:26.4658343Z HOYOUNG_PROCESS_DEATH_PROBE oldPid=3007; finalPid=3139; five-minute-bound; exact-system-FGS-required",
+    "proof": {
+      "pid": 3139,
+      "modelReadyMillis": 20,
+      "marker": "2026-10-14T02:15:29.4091967Z I/HoyoungDeviceProof( 3139): HOYOUNG_RESTART_RECOVERED phase=processDeath; actual-native-draft-and-identity; foreground-service; offline-model-ready-ms=20; actual-512D-unit-vector; no-24-hour-or-S24-claim"
+    }
+  },
+  "javaCleanBaseline": {
+    "previousInstrumentedPid": 3139,
+    "freshOsRestartedPid": 3274,
+    "secondActualOwnUIDSIGKILL": true,
+    "noActivityOrInstrumentationLaunchBetweenRestartAndCrash": true,
+    "marker": "2026-10-14T02:14:35.4794275Z HOYOUNG_JAVA_CLEAN_BASELINE_READY oldPid=3139; newPid=3274; exact-OS-FGS; actual-automatic-restart; no-post-restart-test-harness-launch"
+  },
+  "javaCrash": {
+    "oldCleanPid": 3274,
+    "recoveredPid": 3401,
+    "actualAmCrash": true,
+    "osForegroundServiceObservedBeforeActivity": true,
+    "manualActivityBootstrapForAutomaticPass": false,
+    "appCrashDialogDismissed": false,
+    "originalStrictAutomaticRecoveryCriterionPassed": true,
+    "probeMarker": "2026-10-14T02:14:51.8024658Z HOYOUNG_JAVA_CRASH_PROBE oldPid=3274; finalPid=3401; two-minute-observation-bound; OS-dialog-wait-is-not-proof-of-service-defect",
+    "proof": {
+      "pid": 3401,
+      "modelReadyMillis": 38,
+      "marker": "2026-10-14T02:15:29.4093487Z I/HoyoungDeviceProof( 3401): HOYOUNG_RESTART_RECOVERED phase=crash; actual-native-draft-and-identity; foreground-service; offline-model-ready-ms=38; actual-512D-unit-vector; no-24-hour-or-S24-claim"
+    }
+  },
+  "forceStop": {
+    "osProcessAndForegroundServiceAbsent": true,
+    "automaticRecoveryClaimed": false,
+    "explicitOwnerReopenVerified": true,
+    "marker": "2026-10-14T02:14:20.6331937Z HOYOUNG_SYSTEM_FORCE_STOP actual-process-and-FGS-absent; explicit-user-reopen-required",
+    "proof": {
+      "pid": 3007,
+      "modelReadyMillis": 27,
+      "marker": "2026-10-14T02:15:29.4090525Z I/HoyoungDeviceProof( 3007): HOYOUNG_RESTART_RECOVERED phase=forceReopen; actual-native-draft-and-identity; foreground-service; offline-model-ready-ms=27; actual-512D-unit-vector; no-24-hour-or-S24-claim"
+    }
+  },
+  "realReboot": {
+    "actualAdbReboot": true,
+    "bootReceiverForegroundServiceObservedBeforeActivity": true,
+    "marker": "2026-10-14T02:15:21.6875435Z HOYOUNG_SYSTEM_FGS phase=bootReceiver; real-dumpsys-foreground-before-test-Activity",
+    "proof": {
+      "pid": 1617,
+      "modelReadyMillis": 18,
+      "marker": "2026-10-14T02:15:29.5421275Z I/HoyoungDeviceProof( 1617): HOYOUNG_RESTART_RECOVERED phase=boot; actual-native-draft-and-identity; foreground-service; offline-model-ready-ms=18; actual-512D-unit-vector; no-24-hour-or-S24-claim"
+    }
+  },
+  "publicBuildProperties": [
+    {
+      "property": "ro.build.fingerprint",
+      "value": "Android/sdk_phone64_x86_64/emu64x:15/AE3A.240806.019/12368160:userdebug/test-keys",
+      "truncated": false
+    },
+    {
+      "property": "ro.build.version.release",
+      "value": "15",
+      "truncated": false
+    },
+    {
+      "property": "ro.build.version.sdk",
+      "value": "35",
+      "truncated": false
+    }
+  ],
+  "amsInstrumentationObservation": {
+    "marker": "2026-10-14T02:14:35.5875506Z HOYOUNG_ACTIVE_INSTRUMENTATION_SECTION not-present-in-actual-AMS-output; state-not-inferred",
+    "noUnsupportedEmptyInstrumentationInference": true
+  },
+  "actualAndroidNeuralEncoder": {
+    "modelId": "sentence-transformers/distiluse-base-multilingual-cased-v2@bfe45d0732ca50787611c0fe107ba278c7f3f889|bert-wordpiece-cased-v1|mean-dense-tanh512|query-overlap110-v1",
+    "dimensions": 512,
+    "readyMillis": 506,
+    "fourEmbeddingsMillis": 75,
+    "koreanParaphraseCosine": 0.6993165044409766,
+    "koreanEnglishCosine": 0.814342814824652,
+    "unrelatedCosine": 0.09307882640893467,
+    "applicationOwnedEncoder": true,
+    "actualHostReferenceCompared": true,
+    "physicalPhoneBenchmark": false,
+    "textSentToService": false
+  },
+  "actualAndroidNativeANN": {
+    "actualAndroidJniExecuted": true,
+    "vectors": 256,
+    "dimensions": 512,
+    "querySelfTop1": true,
+    "excludedLabelAbsent": true,
+    "shaCacheRoundTrip": true,
+    "corruptCacheRejected": true,
+    "nonfiniteVectorRejected": true,
+    "elapsedMillis": 23,
+    "fullNeuralQualityMeasured": false,
+    "realUserPhoneMeasured": false
+  },
+  "deviceProofMarkers": {
+    "screenOff65Seconds": "2026-10-14T02:14:55.3590859Z I/HoyoungDeviceProof( 2321): HOYOUNG_DEVICE_SCREEN_OFF foreground-service-alive-after-65s; no 24-hour or physical-phone guarantee",
+    "registeredJournalBackup": "2026-10-14T02:14:55.3592525Z I/HoyoungDeviceProof( 2321): HOYOUNG_DEVICE_APP_JOURNAL_BACKUP registered-application-participant; exact-archived-and-pending-originals; verified-segment; no-live-database-restore",
+    "immutablePhotoViewer": "2026-10-14T02:14:55.3593448Z I/HoyoungDeviceProof( 2321): HOYOUNG_DEVICE_PHOTO_UI actual-private-PNG-decoded; immutable-source-thumbnail; native-viewer-opened; no-cloud-upload-claimed",
+    "pagedUnicodeChat": "2026-10-14T02:14:55.3594062Z I/HoyoungDeviceProof( 2321): HOYOUNG_DEVICE_PAGED_CHAT 95-synthetic-messages; actual-40-row-view-tree-pages; bounded-8000-char-Unicode-preview; preserved-original-dialog; no-live-account",
+    "systemNotificationTap": "2026-10-14T02:14:55.3594729Z I/HoyoungDeviceProof( 2321): HOYOUNG_DEVICE_REPLY_NOTIFICATION actual-Android-post; real-SystemUI-tap; older-source-page-anchor; exact-visible-source-hash; no-human-read-claim",
+    "fiveLayerSnapshotAndOneUsePrivacyGate": "2026-10-14T02:14:55.3595435Z I/HoyoungDeviceProof( 2321): HOYOUNG_DEVICE_FIVE_LAYER_GATE actual-API35-readonly-SQLite; five-layer-query-receipts; canonical-evidence; one-use-final-payload; withdrawal-rejects-stale-scope; no-live-model-or-S24-claim"
+  },
+  "fixtureInfrastructure": {
+    "knownQuickstepLauncherANRRecoveryCount": 1,
+    "recoveryDetails": [
+      "exact-Quickstep-ANR; native-close-button; own-app-ANR-never-dismissed; attempt=1"
+    ],
+    "ownAppAnrNeverDismissed": true,
+    "allProductPhaseFailuresRemainFatal": true
+  },
+  "historicalFailedProbe": {
+    "runId": 38496565008,
+    "conclusion": "failure",
+    "preservedVerification": "/workspace/artifacts/hoyoung-ci-2d41564-native-verification.json",
+    "preservedLog": "/tmp/hoyoung-ci-38496565008-full.log",
+    "finalRunUsesFreshOsProcessBeforeActualJavaCrash": true,
+    "uniquePriorFailureCauseProven": false
+  },
+  "signedRelease": {
+    "applicationId": "com.hoyoung.assistant",
+    "versionName": "0.3.0",
+    "versionCode": 4,
+    "debuggable": false,
+    "certificateSha256": "5b634dac5d4538f871ff0bfdbe1b31b2baa02dbe4390d11d7f6af235b2df1e3e",
+    "apkSha256": "ecb6eb3224d770d86d94e7db7eaa487760fcfa40744a54c88fb8650742843d10",
+    "apkBytes": 78792673,
+    "permissionCount": 40,
+    "releaseIdentityVerified": true
+  },
+  "capturedSourcesMatchCommit": {
+    "fileCount": 205,
+    "allMatch": true,
+    "report": "/workspace/artifacts/hoyoung-v030-final-commit-source-match.json"
+  },
+  "rawLog": {
+    "path": "/tmp/hoyoung-ci-38499375034-full.log",
+    "bytes": 205386,
+    "sha256": "41642ddd35cc7fa494b06183827a1c91eac8a7841610e2b8d357fb5953baba87"
+  },
+  "scopeLimits": {
+    "physicalSamsungS24UltraMeasured": false,
+    "continuous24HourDurationMeasured": false,
+    "liveAuthenticatedChatGPTWorkMeasured": false,
+    "realCloudUploadMeasured": false,
+    "paidApiOrHostingUsed": false,
+    "publicArtifactUploadCacheEnabledInCI": false
+  },
+  "publicPublicationOwner": "/root",
+  "publicPublicationPerformedByBuilder": false
+}

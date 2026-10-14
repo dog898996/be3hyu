@@ -1,0 +1,8 @@
+{
+  "commit": "ad854064da708d656924c5eff9bbb349b96ab574",
+  "allCapturedFilesCompared": 205,
+  "allMatch": true,
+  "mismatches": [],
+  "capturedManifest": "/tmp/hoyoung-final-v030-verified/source-fingerprint.json",
+  "signedAPKManifest": "/workspace/artifacts/hoyoung-v030-final-source-and-artifact-manifest.json"
+}

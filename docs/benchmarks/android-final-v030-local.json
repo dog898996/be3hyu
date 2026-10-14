@@ -590,8 +590,25 @@
     "permissionCount": 40
   },
   "publicationAuthorized": false,
-  "actualCurrentNativeCI": "pending fresh commit/run; previous2d remains failed forcedJava probe",
-  "scope": "Final locally verified frozen 0.3.0/code4 APKs; public release held until fresh native crash-baseline CI and final semantic criteria.",
+  "actualCurrentNativeCI": {
+    "runId": 38499375034,
+    "headSha": "ad854064da708d656924c5eff9bbb349b96ab574",
+    "conclusion": "success",
+    "url": "https://github.com/dog898996/be3hyu/actions/runs/38499375034",
+    "nativeVerificationReport": "/workspace/artifacts/hoyoung-ci-ad85406-native-verification.json",
+    "phaseResults": {
+      "primary": true,
+      "explicitDataRecovery": true,
+      "seed": true,
+      "forceReopen": true,
+      "processDeath": true,
+      "javaCrash": true,
+      "boot": true,
+      "bootstrapAndProofInfrastructure": true,
+      "javaCleanBaseline": true
+    }
+  },
+  "scope": "Final locally verified 0.3.0/code4 stable-signer APKs; exact source commit and all mandatory real API35 KVM native/recovery gates verified. Physical S24, live Work account, and continuous24h measurements remain outside this proof.",
   "parentCommit": "2d41564a950141b5a972b860365e6775d0e1c126",
   "sourceFiles": 205,
   "appJavaSourceFiles": 148,

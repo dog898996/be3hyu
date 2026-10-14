@@ -37,4 +37,4 @@
 - [writer 후속 조회 23건의 검증](five-year-memory-writer-followup-equivalence.md)
 - [실패를 포함한 이전 V6 기록](five-year-memory-final-source-v6-results.md)
 
-759개 Android unit 테스트의 최신 체크포인트는 743개 통과, 선택형 16개 제외, 실패·오류 0개였다. lint 오류 0개, 경고 16개와 debug·instrumentation APK 빌드를 확인했다. 브릿지의 실제 Chromium 검사는 45개 통과했다. 최종 서명 APK와 실제 Android 프로세스·재부팅 검증은 별도의 배포 기록에 연결한다. 이전 CI의 Java 오류 시험 실패도 보존하며 모의 기억 답변 통과로 덮지 않는다.
+[최종 Android 검사](benchmarks/android-final-v030-local.json)는 759개 중 743개 통과, 선택형 16개 제외, 실패·오류 0개였다. lint 오류 0개, 경고 16개와 debug·instrumentation·안정 서명 release APK 빌드를 확인했다. 브릿지의 실제 Chromium 검사는 45개 통과했다. [최종 실제 OS 검증](benchmarks/android-final-ci-ad85406.json)은 AOSP API 35의 기본 15개 검사와 강제 중지 후 재열기·SIGKILL·Java 오류·재부팅 복구를 모두 통과했다. [실제 CI 실행](https://github.com/dog898996/be3hyu/actions/runs/38499375034)의 코드와 APK 코드가 일치하며 [205개 소스·설정 파일의 Git blob 대조](benchmarks/android-final-source-commit-match.json)도 모두 일치했다. 원격 unit 검사는 742개 통과·선택형 17개 제외·실패 0개다. 이전 CI의 Java 오류 시험 실패도 보존했다. 실제 갤럭시 24시간 실행과 로그인된 Work의 작업 성공은 여전히 미검증이다.

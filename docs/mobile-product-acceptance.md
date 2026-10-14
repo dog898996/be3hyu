@@ -38,7 +38,7 @@
 
 장기 사용 시험은 [365회 가상 세션](longitudinal-memory-product-benchmark.md), [백만 합성 원문과 공개 검색 자료](memory-research.md), [실제 모델 추출 probe](model-memory-evaluation.md)로 구분했다. 선택된 독립 reader 24개 답변도 원본 입력·응답·수동 rubric을 공개한다. 실제 1년 자동 추출이나 모든 질문의 정확도가 늘어난다는 보장은 하지 않는다. 검색 지연의 증가와 candidate cap도 측정 결과에 남긴다.
 
-사용자가 지정한 「세션과 기억처리」 원문은 2026-10-13 22:33 UTC에 공식 Space 목록·본문·전체 커서와 공유 링크를 다시 확인했으나 읽을 수 있는 Library 파일 참조를 확보하지 못했다. 따라서 그 문서를 전부 반영했다는 주장은 하지 않는다. 현재 구현은 확보된 사용자 요구와 1차 연구를 기준으로 한 독립 구현이다.
+사용자가 이후 업로드한 「세션과 기억처리」 RFC v1.2 원문 1,034줄 전체를 읽었다. 원문 SHA-256은 `4b778bdb7d71abc838bafcffa05bf83c2b105ad4e2837ce620cb32857ef21194`이며 [항목별 구현·검증 대조](memory-rfc-integration-plan.md)에 적용 범위와 남은 제한을 기록한다. 이전 Library 접근 실패와 첨부 원문 확보는 구분한다. 최신 [5년 모의 기억 답변 검증](five-year-memory-final-answer-results.md)도 원문 검색·모델 답변·전송·실제 폰 실행을 각각 확인하며 미검증 항목을 통과로 표시하지 않는다.
 
 ## 배포 판정
 
