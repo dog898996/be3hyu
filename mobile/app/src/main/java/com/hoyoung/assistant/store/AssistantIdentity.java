@@ -65,6 +65,9 @@ public final class AssistantIdentity {
         });
     }
     /** Returns an immutable file usable by the ordinary verified Work attachment path. */
+    // Resources.openRawResource explicitly supports file-backed drawables. Read the JPEG
+    // bytes rather than re-encoding a Drawable, so upload and backup keep the original hash.
+    @android.annotation.SuppressLint("ResourceType")
     public JSONObject avatarForUpload() throws IOException {
         JSONObject current=snapshot(),avatar=current.optJSONObject("avatar");
         if(avatar.optBoolean("bundled")) {
