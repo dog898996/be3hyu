@@ -10,6 +10,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.ParcelFileDescriptor;
+import android.os.Bundle;
 import android.os.SystemClock;
 import android.provider.Settings;
 import android.view.Gravity;
@@ -58,6 +59,7 @@ public final class NativeChatUiDeviceTest {
         assertNotNull("The owner-selected local profile asset must be present", expected);
         Bitmap[] rendered = {null};
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
+            DeviceFixtureHealth.awaitForeground(device);
             scenario.onActivity(activity -> {
                 View avatar = findDescription(activity.getWindow().getDecorView(), "호영 프로필 사진");
                 assertTrue("The live chat header must use the native profile view", avatar instanceof HoyoungAvatarView);
@@ -93,35 +95,39 @@ public final class NativeChatUiDeviceTest {
         TypingIndicatorView[] indicator = {null}; FrameLayout[] host = {null};
         ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class);
         try {
+            DeviceFixtureHealth.awaitForeground(device);
             scenario.onActivity(activity -> {
                 host[0] = new FrameLayout(activity); host[0].setContentDescription("native typing animation fixture");
                 FrameLayout screen = (FrameLayout) ((ViewGroup) activity.findViewById(android.R.id.content)).getChildAt(0);
-                screen.addView(host[0], new FrameLayout.LayoutParams(180, 120, Gravity.TOP | Gravity.END));
+                FrameLayout.LayoutParams placement = new FrameLayout.LayoutParams(180, 120, Gravity.TOP | Gravity.END);
+                if (screen.getRootWindowInsets() != null) placement.topMargin = screen.getRootWindowInsets().getInsets(android.view.WindowInsets.Type.systemBars()).top;
+                screen.addView(host[0], placement);
                 indicator[0] = new TypingIndicatorView(activity);
                 host[0].addView(indicator[0], new FrameLayout.LayoutParams(160, 100)); indicator[0].setActive(true);
             });
-            assertIndicator(scenario, indicator[0], true, false);
+            assertIndicator(scenario, indicator[0], true, false, "initial-reduced-motion");
             shell("settings put global animator_duration_scale 1");
-            awaitIndicator(scenario, indicator[0], true, true);
+            awaitIndicator(scenario, indicator[0], true, true, "enable-motion-foreground");
             long first = currentPlayTime(scenario, indicator[0]); SystemClock.sleep(180);
             long later = currentPlayTime(scenario, indicator[0]);
             assertTrue("Actual Android Choreographer frames must advance the running dots", later > first && later > 0);
-            scenario.onActivity(activity -> host[0].setVisibility(View.INVISIBLE)); awaitIndicator(scenario, indicator[0], true, false);
-            scenario.onActivity(activity -> host[0].setVisibility(View.VISIBLE)); awaitIndicator(scenario, indicator[0], true, true);
-            scenario.moveToState(Lifecycle.State.CREATED); awaitIndicator(scenario, indicator[0], true, false);
-            scenario.moveToState(Lifecycle.State.RESUMED); awaitIndicator(scenario, indicator[0], true, true);
-            shell("settings put global animator_duration_scale 0"); awaitIndicator(scenario, indicator[0], true, false);
+            scenario.onActivity(activity -> host[0].setVisibility(View.INVISIBLE)); awaitIndicator(scenario, indicator[0], true, false, "parent-hidden");
+            scenario.onActivity(activity -> host[0].setVisibility(View.VISIBLE)); awaitIndicator(scenario, indicator[0], true, true, "parent-visible");
+            scenario.moveToState(Lifecycle.State.CREATED); awaitIndicator(scenario, indicator[0], true, false, "backgrounded");
+            scenario.moveToState(Lifecycle.State.RESUMED); DeviceFixtureHealth.awaitForeground(device);
+            awaitIndicator(scenario, indicator[0], true, true, "resumed-foreground");
+            shell("settings put global animator_duration_scale 0"); awaitIndicator(scenario, indicator[0], true, false, "reduce-motion-again");
             scenario.onActivity(activity -> {
                 assertEquals("Reduced motion must preserve an accessible typing state", View.ACCESSIBILITY_LIVE_REGION_POLITE, indicator[0].getAccessibilityLiveRegion());
                 assertEquals("호영이 입력 중", indicator[0].getContentDescription());
                 host[0].removeView(indicator[0]);
             });
-            assertIndicator(scenario, indicator[0], true, false);
+            assertIndicator(scenario, indicator[0], true, false, "detached");
             shell("settings put global animator_duration_scale 1"); SystemClock.sleep(100);
-            assertIndicator(scenario, indicator[0], true, false);
+            assertIndicator(scenario, indicator[0], true, false, "detached-motion-enabled");
             scenario.onActivity(activity -> host[0].addView(indicator[0], new FrameLayout.LayoutParams(160, 100)));
-            awaitIndicator(scenario, indicator[0], true, true);
-            scenario.onActivity(activity -> indicator[0].setActive(false)); awaitIndicator(scenario, indicator[0], false, false);
+            awaitIndicator(scenario, indicator[0], true, true, "reattached");
+            scenario.onActivity(activity -> indicator[0].setActive(false)); awaitIndicator(scenario, indicator[0], false, false, "completed");
             android.util.Log.i("HoyoungDeviceProof", "HOYOUNG_DEVICE_TYPING_UI actual-native-frames=" + first + "->" + later
                     + "; hidden-detached-background-stopped; reduced-motion-static-accessible; no-Work-or-runtime-state-injection");
         } finally {
@@ -173,16 +179,35 @@ public final class NativeChatUiDeviceTest {
         }
         return null;
     }
-    private static void assertIndicator(ActivityScenario<MainActivity> scenario, TypingIndicatorView indicator, boolean active, boolean animated) {
-        scenario.onActivity(activity -> { assertEquals(active, indicator.isActive()); assertEquals(animated, indicator.isAnimating()); });
+    private static void assertIndicator(ActivityScenario<MainActivity> scenario, TypingIndicatorView indicator, boolean active, boolean animated, String phase) {
+        scenario.onActivity(activity -> {
+            String state = indicatorState(activity, indicator, phase);
+            android.util.Log.i("HoyoungDeviceProof", state);
+            Bundle status = new Bundle(); status.putString("stream", state + "\n");
+            InstrumentationRegistry.getInstrumentation().sendStatus(0, status);
+            assertEquals("The actual typing state must match at " + state, active, indicator.isActive());
+            assertEquals("The actual native animator must match at " + state, animated, indicator.isAnimating());
+            if (animated) {
+                assertTrue("Animated typing must belong to the foreground native window: " + state, activity.hasWindowFocus());
+                Rect visible = new Rect(); assertTrue("Running dots must be visible on the actual display: " + state, indicator.getGlobalVisibleRect(visible));
+            }
+        });
     }
-    private static void awaitIndicator(ActivityScenario<MainActivity> scenario, TypingIndicatorView indicator, boolean active, boolean animated) {
+    private static void awaitIndicator(ActivityScenario<MainActivity> scenario, TypingIndicatorView indicator, boolean active, boolean animated, String phase) {
         long deadline = SystemClock.elapsedRealtime() + 5_000; boolean[] matched = {false};
         do {
             scenario.onActivity(activity -> matched[0] = indicator.isActive() == active && indicator.isAnimating() == animated);
-            if (matched[0]) return; SystemClock.sleep(30);
+            if (matched[0]) { assertIndicator(scenario, indicator, active, animated, phase); return; } SystemClock.sleep(30);
         } while (SystemClock.elapsedRealtime() < deadline);
-        assertIndicator(scenario, indicator, active, animated);
+        assertIndicator(scenario, indicator, active, animated, phase);
+    }
+    private static String indicatorState(MainActivity activity, TypingIndicatorView indicator, String phase) {
+        Rect visible = new Rect(); boolean visibleRect = indicator.getGlobalVisibleRect(visible);
+        return "HOYOUNG_FIXTURE_TYPING_STATE phase=" + phase + "; active=" + indicator.isActive() + "; animating=" + indicator.isAnimating()
+                + "; attached=" + indicator.isAttachedToWindow() + "; shown=" + indicator.isShown() + "; visibility=" + indicator.getVisibility()
+                + "; windowVisibility=" + indicator.getWindowVisibility() + "; windowFocus=" + activity.hasWindowFocus()
+                + "; scale=" + Settings.Global.getFloat(activity.getContentResolver(), Settings.Global.ANIMATOR_DURATION_SCALE, 1)
+                + "; platformAnimatorsEnabled=" + ValueAnimator.areAnimatorsEnabled() + "; visibleRect=" + visibleRect + ":" + visible;
     }
     private static long currentPlayTime(ActivityScenario<MainActivity> scenario, TypingIndicatorView indicator) {
         long[] time = {-1}; scenario.onActivity(activity -> {

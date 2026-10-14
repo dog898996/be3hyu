@@ -8,7 +8,7 @@ TOOLS_DIR="${HOYOUNG_ANDROID_TOOLS_DIR:-/workspace/.tools/android-build}"
 SDK_DIR="$TOOLS_DIR/sdk"
 MODEL_DIR="${HOYOUNG_SEMANTIC_MODEL_DIR:-/workspace/.tools/hoyoung-semantic-model}"
 APP_ID='com.hoyoung.assistant'
-TEST_RUNNER="$APP_ID.test/androidx.test.runner.AndroidJUnitRunner"
+TEST_RUNNER="$APP_ID.test/com.hoyoung.assistant.PreservingAccessibilityTestRunner"
 EMULATOR_PORT="${HOYOUNG_EMULATOR_PORT:-5556}"
 SERIAL="emulator-$EMULATOR_PORT"
 ADB="$SDK_DIR/platform-tools/adb"
@@ -282,7 +282,11 @@ done
 "$ADB" -s "$SERIAL" shell dumpsys deviceidle whitelist "+$APP_ID"
 "$ADB" -s "$SERIAL" shell dpm set-active-admin "$APP_ID/.phone.HoyoungDeviceAdminReceiver"
 
-if ! timeout 720 "$ADB" -s "$SERIAL" shell am instrument -w -r \
+# Keep the real accessibility service bound. Ordinary instrumentation startup /
+# cleanup force-stops its target; Android15 then revokes enabled accessibility.
+# --no-restart attaches to the normal process without manufacturing that stop.
+"$ADB" -s "$SERIAL" shell am start -W -n "$APP_ID/.MainActivity" >/dev/null
+if ! timeout 720 "$ADB" -s "$SERIAL" shell am instrument --no-restart -w -r \
   -e class com.hoyoung.assistant.DeviceRuntimeIntegrationTest,com.hoyoung.assistant.memory.NativeAnnDeviceTest,com.hoyoung.assistant.memory.local.LocalNeuralDeviceTest,com.hoyoung.assistant.OwnerPolicyDeviceTest,com.hoyoung.assistant.NativeChatUiDeviceTest,com.hoyoung.assistant.NativePasswordEntryDeviceTest,com.hoyoung.assistant.NativeScreenCaptureDeviceTest,com.hoyoung.assistant.NativeAlarmDeviceTest \
   -e fixtureModelPath /data/local/tmp/hoyoung-semantic-model \
   "$TEST_RUNNER" | tee "$LOG_DIR/instrumentation.log"; then primary_passed=false; fi
@@ -307,6 +311,21 @@ if ! verify_instrumentation "$LOG_DIR/recovery.log" 1; then explicit_recovery_pa
 # BEGIN RESTART PROTOCOL HELPERS
 # Only this fresh emulator is touched. A shell-side probe runs before the next
 # instrumentation/Activity launch so cached app state cannot fake auto recovery.
+reenable_accessibility_as_fixture_owner() {
+  local phase="$1" actual=''
+  # Android15 AccessibilityManagerService.onPackagesForceStoppedLocked removes
+  # this enabled-service setting. Reopening cannot silently restore a grant.
+  # This is an explicit owner action in the disposable fixture, never app code
+  # and never evidence of automatic force-stop recovery.
+  echo "HOYOUNG_FIXTURE_OWNER_REENABLE phase=$phase; explicit-Android-accessibility-setting; owned-offline-AVD-only; not-automatic-recovery"
+  timeout 8 "$ADB" -s "$SERIAL" shell settings put secure enabled_accessibility_services "$APP_ID/.phone.HoyoungAccessibilityService" || return 1
+  timeout 8 "$ADB" -s "$SERIAL" shell settings put secure accessibility_enabled 1 || return 1
+  actual="$(timeout 8 "$ADB" -s "$SERIAL" shell settings get secure enabled_accessibility_services | tr -d '\r')" || return 1
+  [[ "$actual" == "$APP_ID/.phone.HoyoungAccessibilityService" ]] || {
+    echo '::error::Explicit fixture-owner accessibility re-enable was not observed.' >&2; return 1;
+  }
+}
+
 system_foreground_present() {
   local service_dump
   service_dump="$(timeout 8 "$ADB" -s "$SERIAL" shell dumpsys activity services "$APP_ID" 2>/dev/null)" || return 1
@@ -466,8 +485,9 @@ force_stop_boundary() {
 
 explicit_restart_bootstrap() {
   local phase="$1"
-  echo "HOYOUNG_RESTART_BOOTSTRAP phase=$phase; explicit-force-stop-and-user-launch; not-auto-recovery; earlier-failures-retained"
+  echo "HOYOUNG_RESTART_BOOTSTRAP phase=$phase; explicit-force-stop-owner-reenable-and-user-launch; not-auto-recovery; earlier-failures-retained"
   if ! timeout 8 "$ADB" -s "$SERIAL" shell am force-stop "$APP_ID" \
+      || ! reenable_accessibility_as_fixture_owner "$phase" \
       || ! start_normal_app || ! await_system_foreground "$phase"; then
     restart_bootstraps_passed=false
     echo "::error::Explicit bootstrap failed during $phase; unsafe process signals will be skipped, and reboot observation remains independent." >&2
@@ -510,13 +530,19 @@ java_clean_baseline_pid=''
 crash_passed=false
 boot_passed=false
 restart_bootstraps_passed=true
-if ! start_normal_app || ! run_restart_phase seed || ! await_system_foreground seed; then
+if ! reenable_accessibility_as_fixture_owner afterExplicitDataRecovery \
+    || ! start_normal_app || ! run_restart_phase seed || ! await_system_foreground seed; then
   seed_passed=false
   echo '::error::Restart seed setup failed; later observations cannot turn that setup into a pass.' >&2
   capture_restart_failure seed
 fi
 if ! force_stop_boundary; then force_reopen_passed=false; fi
-if ! start_normal_app || ! run_restart_phase forceReopen || ! await_system_foreground forceReopen; then
+if ! start_normal_app || ! run_restart_phase forceStoppedGate; then
+  force_reopen_passed=false
+  echo '::error::Force-stop must revoke accessibility, retain the draft, and show the real required-permission gate.' >&2
+fi
+if ! reenable_accessibility_as_fixture_owner afterForceStopGate \
+    || ! start_normal_app || ! run_restart_phase forceReopen || ! await_system_foreground forceReopen; then
   force_reopen_passed=false
   echo '::error::Explicit force-stop/reopen proof failed; independent process/crash/boot observations will still be attempted.' >&2
   capture_restart_failure forceReopen
@@ -642,6 +668,9 @@ for marker in ('HOYOUNG_REAL_ANDROID_NN', 'HOYOUNG_REAL_ANDROID_ANN', 'HOYOUNG_D
                'HOYOUNG_DEVICE_PASSWORD_ENTRY actual-native-password-EditText',
                'HOYOUNG_DEVICE_SCREEN_CAPTURE actual-accessibility-Binder-pixels',
                'HOYOUNG_DEVICE_EXACT_ALARM actual-AlarmManager-to-receiver',
+               'HOYOUNG_FORCE_STOP_PERMISSION_REVOKED actual-accessibility-setting-missing',
+               'HOYOUNG_FORCE_STOP_GATE actual-required-permission-UI',
+               'HOYOUNG_FIXTURE_POSTBOOT_OFFLINE actual-activeNetwork=null; actual-getAllNetworks=0;',
                'HOYOUNG_DEVICE_RECOVERY verified-after-explicit-force-stop', 'HOYOUNG_DEVICE_APP_JOURNAL_BACKUP',
                'HOYOUNG_DEVICE_PHOTO_UI', 'HOYOUNG_DEVICE_PAGED_CHAT', 'HOYOUNG_DEVICE_REPLY_NOTIFICATION', 'HOYOUNG_DEVICE_FIVE_LAYER_GATE',
                'HOYOUNG_RESTART_RECOVERED phase=forceReopen', 'HOYOUNG_RESTART_RECOVERED phase=processDeath',

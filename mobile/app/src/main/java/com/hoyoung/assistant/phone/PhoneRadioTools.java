@@ -26,7 +26,7 @@ import java.util.UUID;
 
 /** Explicit owner-controlled radio operations. Cached observations never become proof of a new scan. */
 public final class PhoneRadioTools {
-    interface BluetoothEvents { void device(String address, String name, int type, int rssi); void finished(); }
+    interface BluetoothEvents { void device(String address, String name, int type, int rssi); void finished(); void permissionDenied(); }
     interface BluetoothBackend {
         boolean available(); boolean enabled(); boolean discovering(); boolean start(BluetoothEvents events);
         boolean cancel(); void detach();
@@ -115,6 +115,7 @@ public final class PhoneRadioTools {
             boolean accepted = bluetooth.start(new BluetoothEvents() {
                 public void device(String address, String name, int type, int rssi) { observeBluetooth(request, address, name, type, rssi); }
                 public void finished() { finishBluetooth(request, "observed", true, false); }
+                public void permissionDenied() { finishBluetooth(request, "android_permission_denied", false, true); }
             });
             if (!accepted) { finishBluetooth(request, "scan_rejected_or_throttled", false, false); return failure("scan_rejected_or_throttled").put("requestId", request.id); }
             request.accepted = true;
@@ -340,7 +341,9 @@ public final class PhoneRadioTools {
                     BluetoothDevice device = Build.VERSION.SDK_INT >= 33 ? intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE, BluetoothDevice.class) : intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                     if (device == null) return;
                     try { events.device(device.getAddress(), device.getName(), device.getType(), intent.getShortExtra(BluetoothDevice.EXTRA_RSSI, Short.MIN_VALUE)); }
-                    catch (SecurityException revoked) { events.finished(); }
+                    // AppOps/OEM policy can deny an accessor even while runtime grants
+                    // remain present. This is not ACTION_DISCOVERY_FINISHED evidence.
+                    catch (SecurityException denied) { events.permissionDenied(); }
                 }
             };
             IntentFilter filter = new IntentFilter(); filter.addAction(BluetoothDevice.ACTION_FOUND); filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);

@@ -1553,7 +1553,7 @@ public final class AssistantRuntime {
                                 for (int i=0;i<results.length();i++) {
                                     JSONObject row=results.optJSONObject(i), result=row==null?null:row.optJSONObject("result");
                                     if (result!=null && "accounts.recovery.reserve".equals(row.optString("name")) && "recovery_portable_persistence_pending".equals(result.optString("code"))) {
-                                        retryRule = "일반 행동은 같은 action id로 재실행되지 않는다. 복구 코드 외부보존 대기는 폴더 접근이 회복된 뒤 같은 action id·같은 인자로 기존 예약의 공개만 재개할 수 있다. 새 id로 다음 코드를 소모하거나 즉시 반복 호출하지 말고 대기 상태를 알려라.";
+                                        retryRule = "일반 행동은 같은 action id로 재실행되지 않는다. 복구 코드 외부보존 대기는 폴더 접근 회복 후 같은 action id·인자로 기존 예약 공개만 재개한다. 새 요청이면 accounts.recovery.state의 resumeCandidates를 reserve.resume에 그대로 전달해라. 새 id만으로 다음 코드를 소모하거나 즉시 반복 호출하지 말고 대기 상태를 알려라.";
                                         break;
                                     }
                                 }
@@ -1839,6 +1839,8 @@ public final class AssistantRuntime {
             String fingerprint = fingerprint(name + "\n" + arguments.toString());
             JSONObject previous = receipts.get(key);
             JSONObject pendingRecovery = null;
+            String pendingNativeIdentity = null;
+            JSONObject inheritedRecoveryReceipt = null;
             if (previous != null) {
                 try {if(!archivedReceiptAllowed(rootId,previous)){results.put(object("id",actionId,"name",name,"cached",true,"ok",false,"code","cached_source_unavailable","replayed",false));continue;}}
                 catch(IOException unavailable){results.put(object("id",actionId,"name",name,"cached",true,"ok",false,"code","cached_source_unavailable","replayed",false));continue;}
@@ -1849,19 +1851,32 @@ public final class AssistantRuntime {
                     results.put(object("id", actionId, "ok", false, "code", "action_outcome_uncertain", "replayed", false));
                     break;
                 } else if (!fingerprint.equals(previous.optString("fingerprint"))) results.put(object("id", actionId, "ok", false, "code", "action_id_conflict"));
-                else if (canResumeRecoveryPublication(previous, name)) pendingRecovery = copy(previous.optJSONObject("result"));
+                else if (canResumeRecoveryPublication(previous, name)) {
+                    pendingRecovery = copy(previous.optJSONObject("result")); pendingNativeIdentity = rootId+":"+actionId; inheritedRecoveryReceipt = previous;
+                }
                 else results.put(object("id", actionId, "name", name, "cached", true, "result", previous.optJSONObject("result"), "nativeOutcomeSource", nativeOutcomeReference(previous)));
                 if (pendingRecovery == null) continue;
+            }
+            if (previous == null && "accounts.recovery.reserve".equals(name) && arguments.has("resume")) {
+                try {
+                    JSONObject reference = checkedRecoveryResume(arguments);
+                    if (reference == null) { results.put(object("id",actionId,"name",name,"ok",false,"code","recovery_resume_unavailable","started",false)); continue; }
+                    pendingNativeIdentity = reference.optString("rootRequestId")+":"+reference.optString("actionId");
+                    inheritedRecoveryReceipt = receipts.get("actionReceipt:"+pendingNativeIdentity);
+                    pendingRecovery = copy(inheritedRecoveryReceipt.optJSONObject("result"));
+                } catch(IOException|IllegalArgumentException unavailable) {
+                    results.put(object("id",actionId,"name",name,"ok",false,"code","recovery_resume_unavailable","started",false));continue;
+                }
             }
             JSONObject receipt = object("status", "dispatching", "name", name, "fingerprint", fingerprint, "startedAt", nowMillis());
             JSONArray dispatchSources = nativeSourcesForDispatch(requestId,preparedMemory.get(requestId));
             if (pendingRecovery != null) {
                 put(receipt, "resumesWithheldRecoveryPublication", true);
-                if (previous.optLong("nativeOutcomeSourceMessageId") > 0) put(receipt, "previousReceiptSourceMessageId", previous.optLong("nativeOutcomeSourceMessageId"));
+                if (inheritedRecoveryReceipt.optLong("nativeOutcomeSourceMessageId") > 0) put(receipt, "previousReceiptSourceMessageId", inheritedRecoveryReceipt.optLong("nativeOutcomeSourceMessageId"));
                 java.util.LinkedHashMap<String,JSONObject> inherited = new java.util.LinkedHashMap<>();
                 addNativeRefs(inherited, dispatchSources);
-                if (previous.optLong("nativeOutcomeSourceMessageId") > 0) addNativeRefs(inherited, new JSONArray().put(object("type", "message", "id", previous.optLong("nativeOutcomeSourceMessageId"), "hash", previous.optString("nativeOutcomeSourceHash"))));
-                JSONObject priorSources = previous.optJSONObject("nativeResultSources");
+                if (inheritedRecoveryReceipt.optLong("nativeOutcomeSourceMessageId") > 0) addNativeRefs(inherited, new JSONArray().put(object("type", "message", "id", inheritedRecoveryReceipt.optLong("nativeOutcomeSourceMessageId"), "hash", inheritedRecoveryReceipt.optString("nativeOutcomeSourceHash"))));
+                JSONObject priorSources = inheritedRecoveryReceipt.optJSONObject("nativeResultSources");
                 if (priorSources != null) addNativeRefs(inherited, priorSources.optJSONArray("sources"));
                 dispatchSources = new JSONArray(inherited.values());
             }
@@ -1876,7 +1891,7 @@ public final class AssistantRuntime {
                 receipts.put(key, receipt);
             }
             try {
-                JSONObject result = executeTool(name, arguments,rootId+":"+actionId,pendingRecovery);
+                JSONObject result = executeTool(name, arguments,rootId+":"+actionId,pendingRecovery,pendingNativeIdentity);
                 // Preserve native result locators before a large result becomes
                 // an artifact pointer and loses its directly inspectable fields.
                 put(receipt,"result",result);
@@ -1900,7 +1915,7 @@ public final class AssistantRuntime {
                 }
                 put(receipt, "status", "completed"); put(receipt, "result", result); put(receipt, "completedAt", nowMillis());
                 archiveNativeOutcome(rootId, requestId, actionId, name, receipt);
-                receipts.put(key, receipt);
+                store.withTransaction(db->{receipts.put(key, receipt);updateRecoveryPendingIndex(rootId,actionId,receipt);return null;});
                 results.put(object("id", actionId, "name", name, "result", result, "nativeOutcomeSource", nativeOutcomeReference(receipt)));
             } catch (IllegalArgumentException invalid) {
                 JSONObject result = object("ok", false, "code", "invalid_arguments", "message", "도구 인자를 확인해 줘.");
@@ -1936,6 +1951,48 @@ public final class AssistantRuntime {
                 && Boolean.TRUE.equals(result.opt("reservationPersisted")) && Boolean.TRUE.equals(result.opt("portablePersistencePending"))
                 && !result.has("recoveryCode") && acknowledgment != null && Boolean.TRUE.equals(acknowledgment.opt("reserved"))
                 && reserved != null && reserved.optJSONObject("origin") != null && result.opt("index") instanceof Number;
+    }
+
+    /** A resume reference names an actual old pending receipt, not a caller-supplied native identity. */
+    private JSONObject checkedRecoveryResume(JSONObject arguments) throws IOException {
+        JSONObject reference=arguments.optJSONObject("resume");
+        if(reference==null)throw new IllegalArgumentException("A native pending receipt reference is required");
+        rejectUnknown(reference,"rootRequestId","actionId","outcomeSourceId","outcomeSourceHash");
+        String root=requiredString(reference,"rootRequestId",450), action=requiredString(reference,"actionId",100), hash=requiredString(reference,"outcomeSourceHash",64);
+        long source=longInteger(reference,"outcomeSourceId",1,Long.MAX_VALUE,0);
+        if(!root.matches("[A-Za-z0-9_.:-]{1,450}")||!action.matches("[A-Za-z0-9_.-]{1,100}")||!hash.matches("[a-f0-9]{64}"))throw new IllegalArgumentException("Invalid receipt reference");
+        JSONObject receipt=receipts.get("actionReceipt:"+root+":"+action);
+        if(receipt==null||!canResumeRecoveryPublication(receipt,"accounts.recovery.reserve")||receipt.optLong("nativeOutcomeSourceMessageId")!=source
+                ||!hash.equals(receipt.optString("nativeOutcomeSourceHash"))||!archivedReceiptAllowed(root,receipt))return null;
+        JSONObject pending=receipt.optJSONObject("result");
+        if(!arguments.optString("accountId").equals(pending.optString("accountId"))||!accountTools.canResumeRecovery(pending,root+":"+action))return null;
+        return copy(reference);
+    }
+    private void updateRecoveryPendingIndex(String root,String action,JSONObject receipt) {
+        if(!"accounts.recovery.reserve".equals(receipt.optString("name")))return;
+        JSONObject result=receipt.optJSONObject("result"),ack=result==null?null:result.optJSONObject("reservation"),reservation=ack==null?null:ack.optJSONObject("reservation");
+        if(reservation==null)return;
+        String accountId=reservation.optString("accountId"), original=reservation.optString("requestId"), codeHash=reservation.optString("codeFingerprint");
+        if(accountId.isEmpty()||original.isEmpty()||!codeHash.matches("[a-f0-9]{64}"))return;
+        String key="recoveryPending:"+fingerprint(accountId)+":"+fingerprint(codeHash+"\n"+original);
+        if(canResumeRecoveryPublication(receipt,"accounts.recovery.reserve"))store.putSetting(key,object("rootRequestId",root,"actionId",action,"outcomeSourceId",receipt.optLong("nativeOutcomeSourceMessageId"),"outcomeSourceHash",receipt.optString("nativeOutcomeSourceHash")).toString());
+        else store.getWritableDatabase().delete("settings","setting_key=?",new String[]{key});
+    }
+    private JSONObject recoveryResumeCandidates(String accountId) throws IOException {
+        String prefix="recoveryPending:"+fingerprint(accountId)+":";JSONArray candidates=new JSONArray(),refs=new JSONArray();int scanned=0;boolean truncated=false;
+        try(Cursor rows=store.getReadableDatabase().rawQuery("SELECT value FROM settings WHERE setting_key>=? AND setting_key<? ORDER BY setting_key LIMIT 1001",new String[]{prefix,prefix.substring(0,prefix.length()-1)+";"})) {
+            while(rows.moveToNext()) {
+                if(++scanned>1000||candidates.length()>=50){truncated=true;break;}
+                try {
+                    JSONObject ref=new JSONObject(rows.getString(0)),args=object("accountId",accountId,"resume",ref);JSONObject checked=checkedRecoveryResume(args);
+                    if(checked==null)continue;
+                    JSONObject receipt=receipts.get("actionReceipt:"+ref.optString("rootRequestId")+":"+ref.optString("actionId"));
+                    candidates.put(checked);JSONArray sources=receipts.nativeSourcesForReceipt(ref.optString("rootRequestId"),receipt,phoneTools::canReadStoredSource);
+                    for(int i=0;i<sources.length();i++)refs.put(sources.optJSONObject(i));
+                }catch(JSONException|IllegalArgumentException|IllegalStateException malformed){/* Invalid/old pending entries are not automatic replay authority. */}
+            }
+        }
+        return object("resumeCandidates",candidates,"resumeCandidatesTruncated",truncated,"sourceRefs",refs,"resumeMetadataOnly",true);
     }
 
     private void finishAutomaticTick(String requestId,boolean noAction,String blocked) {
@@ -1977,6 +2034,9 @@ public final class AssistantRuntime {
         return executeTool(name,args,nativeActionIdentity,null);
     }
     private JSONObject executeTool(String name, JSONObject args,String nativeActionIdentity,JSONObject pendingRecovery) throws Exception {
+        return executeTool(name,args,nativeActionIdentity,pendingRecovery,pendingRecovery==null?null:nativeActionIdentity);
+    }
+    private JSONObject executeTool(String name, JSONObject args,String nativeActionIdentity,JSONObject pendingRecovery,String pendingNativeIdentity) throws Exception {
         JSONObject permissions;
         try { permissions = strictPermissions(store.getSetting("toolPermissions", "{}")); }
         catch (IllegalArgumentException invalid) { return object("ok", false, "code", "configuration_invalid", "message", "앱 도구 권한 설정을 읽지 못해서 실행을 멈췄어."); }
@@ -1984,7 +2044,15 @@ public final class AssistantRuntime {
         if (permissions.has(name) && !permissions.optBoolean(name, true)) return object("ok", false, "code", "permission_disabled", "message", "앱 설정에서 이 도구가 꺼져 있어.");
         if (name.startsWith("phone_")) return phoneTools.execute(name, args);
         if (name.startsWith("files.")) return files.execute(name, args);
-        if (name.startsWith("accounts.")) return accountTools.execute(name,args,nativeActionIdentity,pendingRecovery);
+        if (name.startsWith("accounts.")) {
+            JSONObject result=accountTools.execute(name,args,nativeActionIdentity,pendingRecovery,pendingNativeIdentity);
+            if("accounts.recovery.state".equals(name)&&result.optBoolean("ok")) {
+                JSONObject discovery=recoveryResumeCandidates(args.optString("accountId"));
+                put(result,"resumeCandidates",discovery.optJSONArray("resumeCandidates"));put(result,"resumeCandidatesTruncated",discovery.optBoolean("resumeCandidatesTruncated"));
+                java.util.LinkedHashMap<String,JSONObject> refs=new java.util.LinkedHashMap<>();addNativeRefs(refs,result.optJSONArray("sourceRefs"));addNativeRefs(refs,discovery.optJSONArray("sourceRefs"));put(result,"sourceRefs",new JSONArray(refs.values()));
+            }
+            return result;
+        }
         if ("app.tools.describe".equals(name)) {
             rejectUnknown(args,"names");Object raw=args.opt("names");if(!(raw instanceof JSONArray)||((JSONArray)raw).length()==0)throw new IllegalArgumentException("Tool names must be a nonempty array");
             JSONArray requested=(JSONArray)raw,definitions=catalog(),result=new JSONArray();Set<String> selected=new java.util.LinkedHashSet<>();

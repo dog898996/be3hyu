@@ -135,11 +135,17 @@ public final class DeviceRuntimeIntegrationTest {
         assertNull("The driver must disable all emulator networking before real app tests", connectivity.getActiveNetwork());
         device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
         disposableOfflineFixtureConfirmed = true;
-        DevicePermissionFixture.assertReady(context);
+        if ("true".equals(InstrumentationRegistry.getArguments().getString("recoveryOnly")))
+            DevicePermissionFixture.assertAccessibilityRevokedByForceStop(context);
+        else DevicePermissionFixture.assertReady(context);
         device.wakeUp();
-        try (InputStream output = new ParcelFileDescriptor.AutoCloseInputStream(
-                InstrumentationRegistry.getInstrumentation().getUiAutomation().executeShellCommand("wm dismiss-keyguard"))) {
-            byte[] buffer = new byte[512]; while (output.read(buffer) != -1) { }
+        // Only the wiped fixture's keyguard/notification shade is reset. This
+        // cannot dismiss an own-app ANR or crash dialog and never changes grants.
+        for (String command : new String[]{"wm dismiss-keyguard", "cmd statusbar collapse"}) {
+            try (InputStream output = new ParcelFileDescriptor.AutoCloseInputStream(
+                    InstrumentationRegistry.getInstrumentation().getUiAutomation().executeShellCommand(command))) {
+                byte[] buffer = new byte[512]; while (output.read(buffer) != -1) { }
+            }
         }
         device.waitForIdle(1_000);
         assertTrue("The real emulator display must be awake before UI interactions", context.getSystemService(PowerManager.class).isInteractive());
@@ -287,6 +293,13 @@ public final class DeviceRuntimeIntegrationTest {
         JSONObject marker = new JSONObject(new String(Files.readAllBytes(proof.toPath()), StandardCharsets.UTF_8));
         assertEquals(marker.getString("original"), readOriginal(app.getStore(), marker.getLong("messageId")));
         assertEquals("DEVICE_RECOVERY_MEMORY", app.getStore().getMemory(marker.getString("memoryKey")).getString("content"));
+        if (recovery) {
+            try (ActivityScenario<MainActivity> activity = ActivityScenario.launch(MainActivity.class)) {
+                assertTrue("Force-stop must reopen the actual required-permission screen", DeviceFixtureHealth.waitFor(device,
+                        Until.hasObject(By.text("시작할 준비").pkg(context.getPackageName())), 15_000));
+                assertFalse("A revoked permission must not start the foreground agent", actualForegroundService());
+            }
+        }
         System.out.println(recovery ? "HOYOUNG_DEVICE_RECOVERY verified-after-explicit-force-stop" : "HOYOUNG_DEVICE_RECOVERY seed-committed");
         android.util.Log.i("HoyoungDeviceProof", recovery ? "HOYOUNG_DEVICE_RECOVERY verified-after-explicit-force-stop" : "HOYOUNG_DEVICE_RECOVERY seed-committed");
     }
@@ -376,6 +389,8 @@ public final class DeviceRuntimeIntegrationTest {
         app.getStore().addMessage("user", "DEVICE_PHOTO_FIXTURE", requestId);
         app.getFiles().writeFile(working.getString("id"), "mutable working file replaced after original capture");
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
+            DeviceFixtureHealth.awaitForeground(device);
+            DeviceFixtureHealth.revealDescription(device, name);
             assertTrue("The actual chat must expose the attachment thumbnail", DeviceFixtureHealth.waitFor(device, Until.hasObject(By.desc(name)), 15_000));
             boolean[] decoded = {false};
             long deadline = SystemClock.elapsedRealtime() + 10_000;
@@ -412,21 +427,26 @@ public final class DeviceRuntimeIntegrationTest {
             app.getStore().addMessage("user", text, null);
         }
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
+            DeviceFixtureHealth.awaitForeground(device);
             java.util.List<String> latest = awaitPageTexts(scenario, marker, " row 95", 40);
             assertTrue(latest.stream().allMatch(text -> text.length() <= 8_000));
             String excerpt = latest.stream().filter(text -> text.startsWith(marker + " row 95")).findFirst().get();
             assertTrue(excerpt.contains("😀한글")); assertFalse(Character.isHighSurrogate(excerpt.charAt(excerpt.length() - 1)));
+            DeviceFixtureHealth.revealText(device, "전체 원문 읽기");
             UiObject2 original = DeviceFixtureHealth.waitFor(device, Until.findObject(By.text("전체 원문 읽기")), 10_000);
             assertNotNull("The large message must offer its preserved original", original); original.click();
             assertTrue(DeviceFixtureHealth.waitFor(device, Until.hasObject(By.text("다음 부분")), 10_000));
             device.findObject(By.text("닫기")).click();
+            DeviceFixtureHealth.revealText(device, "이전 대화 보기");
             UiObject2 previous = DeviceFixtureHealth.waitFor(device, Until.findObject(By.text("이전 대화 보기")), 10_000);
             assertNotNull(previous); previous.click();
             java.util.List<String> older = awaitPageTexts(scenario, marker, " row 55", 40);
             assertTrue(older.stream().noneMatch(text -> text.startsWith(marker + " row 95")));
+            DeviceFixtureHealth.revealText(device, "이전 대화 보기");
             device.findObject(By.text("이전 대화 보기")).click();
             java.util.List<String> oldest = awaitPageTexts(scenario, marker, " row 1", 15);
             assertTrue(oldest.stream().noneMatch(text -> text.startsWith(marker + " row 55")));
+            DeviceFixtureHealth.revealText(device, "최신 대화");
             device.findObject(By.text("최신 대화")).click();
             awaitPageTexts(scenario, marker, " row 95", 40);
             android.util.Log.i("HoyoungDeviceProof", "HOYOUNG_DEVICE_PAGED_CHAT 95-synthetic-messages; actual-40-row-view-tree-pages; bounded-8000-char-Unicode-preview; preserved-original-dialog; no-live-account");
@@ -581,7 +601,7 @@ public final class DeviceRuntimeIntegrationTest {
             JSONArray fileDefinitions = new InternalFiles(fixture).catalog();
             for (int i = 0; i < fileDefinitions.length(); i++) nativeDefinitions.put(fileDefinitions.get(i));
             com.hoyoung.assistant.runtime.LosslessToolCatalog.Result packed = com.hoyoung.assistant.runtime.LosslessToolCatalog.formatResult(nativeDefinitions);
-            assertEquals(45, nativeDefinitions.length()); assertTrue(packed.usedCompact); assertTrue(packed.roundTripVerified);
+            assertCompleteNativeCatalog(nativeDefinitions); assertTrue(packed.usedCompact); assertTrue(packed.roundTripVerified);
             JSONArray restored = com.hoyoung.assistant.runtime.LosslessToolCatalog.decode(new JSONArray(packed.text.substring(
                     com.hoyoung.assistant.runtime.LosslessToolCatalog.HEADER.length())));
             assertEquals("All native schema fields must survive on actual Android JSON", nativeDefinitions.toString(), restored.toString());
@@ -596,8 +616,41 @@ public final class DeviceRuntimeIntegrationTest {
             store.putSetting("customInstructions", "정정한 새 지침");
             try { gateway.assertFresh(compact, lastAt); fail("A corrected instruction must invalidate the compacted context"); }
             catch (MemoryGateway.Blocked expected) { assertEquals("memory_control_changed", expected.reason); }
-            android.util.Log.i("HoyoungDeviceProof", "HOYOUNG_DEVICE_TOKEN_OPTIMIZATION native-API35-policy-and-SQLite; owner-Fast; memory-Medium-floor; Light-effects-promoted; usage-goal-advisory; exact-dedup-correction-gate; lossless-45-native-tool-schemas; no-live-model-or-quota-claim");
+            android.util.Log.i("HoyoungDeviceProof", "HOYOUNG_DEVICE_TOKEN_OPTIMIZATION native-API35-policy-and-SQLite; owner-Fast; memory-Medium-floor; Light-effects-promoted; usage-goal-advisory; exact-dedup-correction-gate; lossless-" + nativeDefinitions.length() + "-native-tool-schemas; exact-source-tool-name-set; no-live-model-or-quota-claim");
         } finally { usage.close(); store.close(); fixture.removeOwnFixture(); }
+    }
+
+    /** Independent current source name inventory: removing, duplicating or silently
+     * replacing any installed tool fails, in addition to exact schema round-trip. */
+    private static void assertCompleteNativeCatalog(JSONArray definitions) throws Exception {
+        java.util.Set<String> expected = new java.util.TreeSet<>();
+        // PhoneTools production catalog.
+        java.util.Collections.addAll(expected, ("phone_device_info phone_apps_list phone_app_launch phone_contacts_read phone_contacts_create phone_calendar_read phone_calendar_create phone_notifications_read phone_location_last phone_volume_set phone_flashlight_set phone_clipboard_read phone_ui_snapshot phone_ui_click phone_ui_type phone_ui_global phone_ui_tap phone_ui_swipe phone_brightness_set phone_dial_open phone_url_open phone_files_list phone_files_read phone_files_write phone_activity_read phone_usage_read phone_usage_events phone_app_state phone_contact_get phone_contact_update phone_calendar_update phone_bluetooth_bonded phone_network_state phone_call_state phone_media_list phone_context_search phone_context_read phone_location_refresh phone_location_refresh_read phone_camera_open phone_voice_record phone_voice_record_read phone_voice_record_stop").split(" "));
+        // PhoneExtendedTools production catalog.
+        java.util.Collections.addAll(expected, ("phone_call_place phone_contacts_delete phone_calendar_delete phone_clipboard_write phone_notifications_active phone_notification_dismiss phone_notification_open phone_notification_action phone_notification_reply phone_dnd_read phone_dnd_set phone_vibrate phone_screen_lock phone_device_admin_state phone_numbers_read").split(" "));
+        // PhoneRadioTools production catalog.
+        java.util.Collections.addAll(expected, ("phone_bluetooth_scan phone_bluetooth_scan_read phone_bluetooth_scan_cancel phone_wifi_scan phone_wifi_scan_read phone_wifi_hotspot_start phone_wifi_hotspot_read phone_wifi_hotspot_stop").split(" "));
+        // PhoneAlarmTools production catalog.
+        java.util.Collections.addAll(expected, ("phone_alarm_schedule phone_alarm_list phone_alarm_cancel").split(" "));
+        // PhoneOverlayTools production catalog.
+        java.util.Collections.addAll(expected, ("phone_overlay_show phone_overlay_update phone_overlay_hide").split(" "));
+        // PhoneFileTransferTools production catalog.
+        java.util.Collections.addAll(expected, ("phone_files_import phone_media_import phone_files_transfer_read phone_files_attach phone_files_export phone_files_delete phone_files_mkdir phone_files_copy phone_files_move").split(" "));
+        // PhoneCommunicationTools production catalog.
+        java.util.Collections.addAll(expected, ("phone_sms_read phone_sms_get phone_sms_send phone_sms_send_read phone_call_log_read phone_call_log_delete").split(" "));
+        // PhoneScreenCapture production catalog.
+        java.util.Collections.addAll(expected, ("phone_screen_capture phone_screen_capture_read phone_screen_capture_cancel").split(" "));
+        // InternalFiles production catalog.
+        java.util.Collections.addAll(expected, ("files.list files.read files.write").split(" "));
+        java.util.Set<String> observed = new java.util.TreeSet<>();
+        for (int i = 0; i < definitions.length(); i++) {
+            JSONObject definition = definitions.getJSONObject(i);
+            assertTrue("Every native tool needs a description", !definition.getString("description").isEmpty());
+            assertEquals("object", definition.getJSONObject("inputSchema").getString("type"));
+            assertTrue("Duplicate native tool: " + definition.getString("name"), observed.add(definition.getString("name")));
+        }
+        assertEquals("The actual compiled source must expose every expected native tool", expected, observed);
+        assertEquals(expected.size(), definitions.length());
     }
 
     private static java.util.List<String> awaitPageTexts(ActivityScenario<MainActivity> scenario, String marker, String requiredSuffix, int expectedCount) {

@@ -37,9 +37,17 @@ public final class DeviceRestartIntegrationTest {
         Assume.assumeTrue("Explicit disposable-emulator recovery phases only", phase != null);
         assertTrue("Never mutate a physical phone", Build.HARDWARE.contains("ranchu") || Build.HARDWARE.contains("goldfish"));
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        assertNull("Every recovery phase must remain offline", context.getSystemService(ConnectivityManager.class).getActiveNetwork());
-        // Assert surviving actual grants; never re-grant during a recovery phase.
-        DevicePermissionFixture.assertReady(context);
+        ConnectivityManager connectivity = context.getSystemService(ConnectivityManager.class);
+        assertNull("Every recovery phase must remain offline", connectivity.getActiveNetwork());
+        assertEquals("No background network may survive fixture isolation", 0, connectivity.getAllNetworks().length);
+        if ("boot".equals(phase)) android.util.Log.i("HoyoungDeviceProof",
+                "HOYOUNG_FIXTURE_POSTBOOT_OFFLINE actual-activeNetwork=null; actual-getAllNetworks=0; observed-inside-boot-proof-after-shell-FGS-check");
+        // No grants are changed inside instrumentation. The force-stop gate
+        // phase proves the OS revocation before the driver explicitly models
+        // an owner re-enabling it for later independent recovery checks.
+        boolean forceStoppedGate = "forceStoppedGate".equals(phase);
+        if (forceStoppedGate) DevicePermissionFixture.assertAccessibilityRevokedByForceStop(context);
+        else DevicePermissionFixture.assertReady(context);
         HoyoungApplication app = (HoyoungApplication) context.getApplicationContext();
         UiDevice device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
         device.wakeUp(); device.executeShellCommand("wm dismiss-keyguard"); device.waitForIdle(1_000);
@@ -79,6 +87,16 @@ public final class DeviceRestartIntegrationTest {
         OwnerDraftStore.Snapshot draft = new OwnerDraftStore(app.getStore()).read();
         assertEquals(marker.getString("draft"), draft.text); assertEquals(marker.getString("clientInputId"), draft.clientInputId);
         assertEquals(marker.getLong("revision"), draft.revision); assertFalse(draft.recoveryRequired);
+        if (forceStoppedGate) {
+            assertTrue("Force-stop must replace the original process", Process.myPid() != marker.getInt("seedPid"));
+            try (ActivityScenario<MainActivity> activity = ActivityScenario.launch(MainActivity.class)) {
+                assertTrue("The actual required-permission page must block chat after force-stop", DeviceFixtureHealth.waitFor(device,
+                        Until.hasObject(By.text("시작할 준비").pkg(context.getPackageName())), 15_000));
+                assertFalse("Revoked accessibility must prevent automatic foreground work", foreground(context));
+            }
+            android.util.Log.i("HoyoungDeviceProof", "HOYOUNG_FORCE_STOP_GATE actual-required-permission-UI; draft-and-identity-retained; no-FGS; owner-reenable-required");
+            return;
+        }
         if ("boot".equals(phase)) {
             assertTrue("The driver must observe BootReceiver's real service before launching a test Activity", foreground(context));
             int boot = Settings.Global.getInt(context.getContentResolver(), Settings.Global.BOOT_COUNT, -1);

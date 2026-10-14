@@ -36,6 +36,9 @@ public final class AccountTools {
     }
     /** Only the native runtime can supply a prior withheld recovery reservation; never model arguments. */
     public JSONObject execute(String name, JSONObject args, String nativeActionIdentity, JSONObject pendingRecovery) throws IOException {
+        return execute(name,args,nativeActionIdentity,pendingRecovery,pendingRecovery==null?null:nativeActionIdentity);
+    }
+    public JSONObject execute(String name, JSONObject args, String nativeActionIdentity, JSONObject pendingRecovery, String pendingNativeIdentity) throws IOException {
         JSONObject definition = null;
         JSONArray tools = catalog();
         for (int i = 0; i < tools.length(); i++) if (name.equals(tools.optJSONObject(i).optString("name"))) definition = tools.optJSONObject(i);
@@ -43,7 +46,7 @@ public final class AccountTools {
         if (!allowed(name)) return object("ok", false, "code", "permission_denied", "tool", name);
         validate(args, definition.optJSONObject("inputSchema"));
         if (pendingRecovery != null && !"accounts.recovery.reserve".equals(name)) return object("ok", false, "code", "recovery_resume_mismatch");
-        if (mfa.supports(name)) return mfa.execute(name, args, nativeActionIdentity, pendingRecovery);
+        if (mfa.supports(name)) return mfa.execute(name, args, nativeActionIdentity, pendingRecovery, pendingNativeIdentity);
         try {
             switch (name) {
                 case "accounts.list": {
@@ -89,6 +92,11 @@ public final class AccountTools {
                 default: throw new IllegalStateException("Unimplemented catalog entry");
             }
         } catch (JSONException malformed) { throw new IllegalArgumentException("Malformed account arguments", malformed); }
+    }
+
+    /** Metadata-only native discovery fence; the model cannot provide a ledger claimant identity. */
+    public boolean canResumeRecovery(JSONObject pending, String pendingNativeIdentity) throws IOException {
+        return allowed("accounts.recovery.reserve") && mfa.canResume(pending,pendingNativeIdentity);
     }
 
     private boolean allowed(String name) {

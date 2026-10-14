@@ -2,7 +2,13 @@ package com.hoyoung.assistant.phone;
 
 import android.Manifest;
 import android.app.Application;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.net.wifi.ScanResult;
 import android.os.Looper;
@@ -19,7 +25,10 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
+import org.robolectric.annotation.Implementation;
+import org.robolectric.annotation.Implements;
 import org.robolectric.annotation.SQLiteMode;
+import org.robolectric.shadows.ShadowBluetoothDevice;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
@@ -94,6 +103,36 @@ public final class PhoneRadioToolsTest {
         assertEquals("permission_missing", tools.execute("phone_bluetooth_scan_read", new JSONObject().put("requestId", id)).getString("code"));
         assertEquals("permission_missing", tools.execute("phone_bluetooth_scan_cancel", new JSONObject().put("requestId", id)).getString("code"));
         allowBluetooth(); JSONObject receipt = readBluetooth(id); assertEquals("permission_revoked", receipt.getString("state")); assertEquals(1, receipt.getJSONArray("devices").length());
+    }
+    @Test @Config(shadows = AppOpsDeniedBluetoothDeviceShadow.class)
+    public void androidDeviceAccessorDenialWithRuntimeGrantsNeverFabricatesDiscoveryCompletion() throws Exception {
+        allowBluetooth();
+        BluetoothAdapter adapter = ((BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE)).getAdapter();
+        assertNotNull(adapter); Shadows.shadowOf(adapter).setState(BluetoothAdapter.STATE_ON);
+        Class<?> backendClass = Class.forName(PhoneRadioTools.class.getName() + "$AndroidBluetooth");
+        java.lang.reflect.Constructor<?> constructor = backendClass.getDeclaredConstructor(Context.class); constructor.setAccessible(true);
+        PhoneRadioTools.BluetoothBackend nativeBackend = (PhoneRadioTools.BluetoothBackend) constructor.newInstance(context);
+        tools = new PhoneRadioTools(context, journal, nativeBackend, wifi);
+        String id = startBluetooth();
+        java.lang.reflect.Field receiverField = backendClass.getDeclaredField("receiver"); receiverField.setAccessible(true);
+        BroadcastReceiver receiver = (BroadcastReceiver) receiverField.get(nativeBackend); assertNotNull(receiver);
+        BluetoothDevice denied = adapter.getRemoteDevice("11:22:33:44:55:66");
+        // The stock shadow only enforces revoked runtime grants. This independent
+        // accessor denial models AppOps/OEM policy while checkSelfPermission is granted.
+        assertEquals(PackageManager.PERMISSION_GRANTED, context.checkSelfPermission(Manifest.permission.BLUETOOTH_SCAN));
+        assertEquals(PackageManager.PERMISSION_GRANTED, context.checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT));
+        assertThrows(SecurityException.class, denied::getName);
+        receiver.onReceive(context, new Intent(BluetoothDevice.ACTION_FOUND).putExtra(BluetoothDevice.EXTRA_DEVICE, denied));
+        assertEquals(PackageManager.PERMISSION_GRANTED, context.checkSelfPermission(Manifest.permission.BLUETOOTH_SCAN));
+        assertEquals(PackageManager.PERMISSION_GRANTED, context.checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT));
+        JSONObject receipt = readBluetooth(id);
+        assertEquals("android_permission_denied", receipt.getString("state"));
+        assertFalse(receipt.getBoolean("scanEndedVerified")); assertFalse(receipt.getBoolean("completionConfirmed"));
+        assertEquals(0, receipt.getJSONArray("devices").length()); assertTrue(receipt.getBoolean("cancelRequested"));
+        assertNull(receiverField.get(nativeBackend)); assertFalse(adapter.isDiscovering());
+        receiver.onReceive(context, new Intent(BluetoothAdapter.ACTION_DISCOVERY_FINISHED));
+        assertEquals("android_permission_denied", readBluetooth(id).getString("state"));
+        assertFalse(readBluetooth(id).getBoolean("completionConfirmed"));
     }
     @Test public void interruptedBluetoothReceiptRemainsUnknownAndNeverRestartsTheRadio() throws Exception {
         allowBluetooth(); String id = startBluetooth(); FakeBluetooth recoveredBackend = new FakeBluetooth(); PhoneRadioTools recovered = new PhoneRadioTools(context, journal, recoveredBackend, wifi);
@@ -182,6 +221,12 @@ public final class PhoneRadioToolsTest {
         grantLegacyBluetooth(); store.putSetting("toolPermissions", "{\"phone_bluetooth_scan_read\":false}"); journal.applyPermissionPolicyFromOwner("{\"phone_bluetooth_scan_read\":false}", true); assertFalse(tools.canReadStoredEvent(event));
     }
     private void grantLegacyBluetooth() { Shadows.shadowOf(application).grantPermissions(Manifest.permission.BLUETOOTH, Manifest.permission.BLUETOOTH_ADMIN, Manifest.permission.ACCESS_FINE_LOCATION); }
+    @Implements(BluetoothDevice.class)
+    public static final class AppOpsDeniedBluetoothDeviceShadow extends ShadowBluetoothDevice {
+        @Implementation @Override protected String getName() {
+            throw new SecurityException("Synthetic AppOps/OEM accessor denial despite granted runtime permissions");
+        }
+    }
     private static ScanResult scan(String ssid, long timestamp) { ScanResult result = new ScanResult(); result.SSID = ssid; result.BSSID = "11:22:33:44:55:66"; result.level = -40; result.frequency = 2412; result.timestamp = timestamp; return result; }
     private static final class FakeBluetooth implements PhoneRadioTools.BluetoothBackend {
         PhoneRadioTools.BluetoothEvents events; int starts, cancels, detaches; boolean accepted = true, discovering;

@@ -30,7 +30,8 @@ arguments = sys.argv[1:]
 if arguments[:1] == ['-s']: arguments = arguments[2:]
 state_path = pathlib.Path(os.environ['FAKE_ADB_STATE'])
 state = json.loads(state_path.read_text()) if state_path.exists() else {
-    'pid':100, 'fgs':os.environ.get('FAKE_ADB_NO_INITIAL_PROCESS') != 'true'}
+    'pid':100, 'fgs':os.environ.get('FAKE_ADB_NO_INITIAL_PROCESS') != 'true',
+    'running':os.environ.get('FAKE_ADB_NO_INITIAL_PROCESS') != 'true', 'accessibility':True}
 command = ' '.join(arguments)
 result = 0
 if arguments[:3] == ['shell','am','instrument']:
@@ -38,15 +39,23 @@ if arguments[:3] == ['shell','am','instrument']:
     print('FIXTURE_INSTRUMENT_PHASE ' + phase)
     print('OK (1 test)')
     state['last_instrument_pid'] = state['pid']
+    if phase == 'forceStoppedGate':
+        if state['accessibility'] or state['fgs']: result = 27
+        else: print('FIXTURE_REAL_REVOKED_GATE_REACHED')
     if phase == os.environ.get('FAKE_ADB_FAIL_PHASE'): result = 23
 elif arguments[:3] == ['shell','am','start']:
     print('Status: ok')
     if os.environ.get('FAKE_ADB_START_FAILURE') == 'true': result = 24
-    else: state['pid'] += 1; state['fgs'] = True
+    else: state['pid'] += 1; state['running'] = True; state['fgs'] = state['accessibility']
 elif arguments[:3] == ['shell','am','force-stop']:
-    state['fgs'] = False
+    state['fgs'] = False; state['running'] = False; state['accessibility'] = False
+elif arguments[:5] == ['shell','settings','put','secure','enabled_accessibility_services']:
+    if os.environ.get('FAKE_ADB_REENABLE_FAILURE') == 'true': result = 28
+    else: state['accessibility'] = True
+elif arguments[:5] == ['shell','settings','get','secure','enabled_accessibility_services']:
+    print('com.hoyoung.assistant/.phone.HoyoungAccessibilityService' if state['accessibility'] else 'null')
 elif arguments[:2] == ['shell','pidof']:
-    if state['fgs']: print(state['pid'])
+    if state['running']: print(state['pid'])
     else: result = 1
 elif arguments[:4] == ['shell','dumpsys','activity','services']:
     if state['fgs']: print('.runtime.AutonomyService isForeground=true')
@@ -133,6 +142,15 @@ isolate_emulator_network() {
             self.assertIn('HOYOUNG_JAVA_CLEAN_BASELINE_READY', result.stdout)
             self.assertIn('FIXTURE_JAVA_CRASH_CLEAN_PID=', result.stdout)
             self.assertNotIn('FIXTURE_JAVA_CRASH_UNCLEAN_PID', result.stdout)
+            self.assertIn('FIXTURE_REAL_REVOKED_GATE_REACHED', result.stdout)
+            self.assertLess(result.stdout.index('FIXTURE_REAL_REVOKED_GATE_REACHED'),
+                            result.stdout.index('HOYOUNG_FIXTURE_OWNER_REENABLE phase=afterForceStopGate'))
+
+            result = run(phase_driver, FAKE_ADB_REENABLE_FAILURE='true')
+            self.assertEqual(1, result.returncode, result.stdout + result.stderr)
+            self.assertIn('seed=false; forceReopen=false', result.stdout)
+            self.assertIn('bootstrapAndProofInfrastructure=false', result.stdout)
+            self.assertIn('FIXTURE_REBOOT_REACHED', result.stdout)
 
             result = run(phase_driver, FAKE_ADB_FAIL_CLEAN_BASELINE='true')
             self.assertEqual(1, result.returncode, result.stdout + result.stderr)

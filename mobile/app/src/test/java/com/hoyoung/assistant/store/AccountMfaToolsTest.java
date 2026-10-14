@@ -79,7 +79,7 @@ public final class AccountMfaToolsTest {
         assertEquals(" synthetic-one-time-A ", first.getString("recoveryCode")); assertTrue(first.getBoolean("reservedBeforeReveal")); assertFalse(first.getBoolean("serverConsumptionVerified"));
         assertEquals("installation_only", first.getJSONObject("persistence").getString("portablePersistence")); assertFalse(first.getJSONObject("persistence").getBoolean("reinstallPersistenceAvailable"));
         JSONObject registry = new RecoveryCodeLedger(context).snapshot(); assertEquals(1, registry.getJSONArray("reservations").length()); assertFalse(registry.toString().contains("synthetic-one-time-A"));
-        JSONObject retry = tools.execute("accounts.recovery.reserve", args, "root:reserve-one"); assertEquals(first.getString("recoveryCode"), retry.getString("recoveryCode")); assertTrue(retry.getJSONObject("reservation").getBoolean("reusedReservation"));
+        JSONObject retry = tools.execute("accounts.recovery.reserve", args, "root:reserve-one"); assertEquals("recovery_publication_unavailable",retry.getString("code"));assertFalse(retry.has("recoveryCode"));
         JSONObject second = tools.execute("accounts.recovery.reserve", args, "root:reserve-two"); assertEquals("synthetic-one-time-B-🙂", second.getString("recoveryCode"));
         JSONObject state = tools.execute("accounts.recovery.state", args, null); assertEquals(2, state.getInt("reserved")); assertEquals(0, state.getInt("available")); assertFalse(state.toString().contains("synthetic-one-time"));
         assertEquals("no_unreserved_recovery_code", tools.execute("accounts.recovery.reserve", args, "root:reserve-three").getString("code"));
@@ -110,6 +110,19 @@ public final class AccountMfaToolsTest {
         JSONObject withheld = linked.execute("accounts.recovery.reserve", select(record), "native-linked-reserve"); assertEquals("recovery_portable_persistence_pending", withheld.getString("code")); assertFalse(withheld.has("recoveryCode")); assertTrue(withheld.getBoolean("reservationPersisted"));
         fail.set(false); JSONObject revealed = linked.execute("accounts.recovery.reserve", select(record), "native-linked-reserve"); assertEquals(" synthetic-one-time-A ", revealed.getString("recoveryCode")); assertEquals("connected_provider_verified", revealed.getJSONObject("persistence").getString("portablePersistence"));
         JSONObject external = folder.readConnectedFolder(); assertEquals(1, external.getJSONObject("recoveryReservations").getJSONArray("reservations").length()); assertFalse(external.toString().contains("synthetic-one-time-A"));
+    }
+    @Test public void failureAfterTerminalSealDoesNotRevealOrAutomaticallyRepublishCode()throws Exception {
+        JSONObject record=saved();context.getSharedPreferences("owner-policy-folder",0).edit().putString("tree","content://synthetic.documents/tree/owner").commit();
+        MemoryTree tree=new MemoryTree();RecoveryCodeLedger ledger=new RecoveryCodeLedger(context);
+        ExternalOwnerPolicyFolder folder=new ExternalOwnerPolicyFolder(context,uri->{
+            JSONArray publications=RecoveryCodeLedger.publicationClaims(ledger.snapshot());
+            for(int i=0;i<publications.length();i++)if(publications.optJSONObject(i).optBoolean("sealed"))throw new IOException("synthetic provider failed after seal");
+            return tree;
+        });
+        AccountMfaTools linked=new AccountMfaTools(context,store,now::get,null,folder);
+        JSONObject withheld=linked.execute("accounts.recovery.reserve",select(record),"native-sealed-reserve");
+        assertEquals("recovery_publication_uncertain",withheld.getString("code"));assertTrue(withheld.getBoolean("publicationSealed"));assertFalse(withheld.has("recoveryCode"));assertFalse(withheld.getBoolean("automaticResumeAllowed"));
+        JSONObject retry=linked.execute("accounts.recovery.reserve",select(record),"native-sealed-reserve");assertEquals("recovery_publication_unavailable",retry.getString("code"));assertFalse(retry.has("recoveryCode"));
     }
     private static final class MemoryTree implements ExternalOwnerPolicyFolder.TreeAccess {
         private final Map<Uri, String> names = new LinkedHashMap<>(); private final Map<Uri, byte[]> bytes = new LinkedHashMap<>(); private int sequence;

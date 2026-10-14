@@ -37,7 +37,7 @@ public final class RecoveryPublicationRuntimeTest {
     @Before public void setup()throws Exception {
         context=RuntimeEnvironment.getApplication();context.deleteDatabase(HoyoungStore.DATABASE_NAME);context.deleteDatabase(UsageBudgetLedger.DATABASE_NAME);
         clear(context.getFilesDir());clear(context.getNoBackupFilesDir());context.getSharedPreferences("owner-policy-folder",0).edit().clear().commit();
-        store=new HoyoungStore(context);store.putSetting("memoryReviewEnabled","false");store.putSetting("autonomy.enabled","false");
+        store=new HoyoungStore(context);store.putSetting("memoryReviewEnabled","false");store.putSetting("autonomy.enabled","false");store.putSetting("usageOptimizationEnabled","false");
         accounts=new AccountStore(context,store);account=accounts.saveFromUi(input());tree=new MemoryTree();
         context.getSharedPreferences("owner-policy-folder",0).edit().putString("tree","content://synthetic.documents/tree/owner").commit();
         ExternalOwnerPolicyFolder folder=new ExternalOwnerPolicyFolder(context,uri->{if(providerFails.get())throw new IOException("synthetic provider unavailable");return tree;});
@@ -107,6 +107,63 @@ public final class RecoveryPublicationRuntimeTest {
     @Test public void uncertainReceiptCannotUseThisPublicationRetryException()throws Exception {
         pending();providerFails.set(false);String key="actionReceipt:"+root+":reserve";JSONObject previous=receipts.get(key);previous.put("status","uncertain");receipts.put(key,previous);
         JSONObject rejected=action("reserve",arguments());assertEquals("action_outcome_uncertain",rejected.getString("code"));assertEquals(0,tree.writes);
+    }
+    private JSONObject state()throws Exception {
+        Method method=AssistantRuntime.class.getDeclaredMethod("executeTool",String.class,JSONObject.class);method.setAccessible(true);
+        return (JSONObject)method.invoke(runtime,"accounts.recovery.state",arguments());
+    }
+    /** Finish a real provider turn as awaiting_result, then receive an independent human message. */
+    private void finishAwaitingTurn()throws Exception {
+        runtime.attachTransport(new AssistantRuntime.Transport(){public void inspect(){}public void send(String id,String prompt){}public void openTemporary(){}public void cancel(){}});
+        runtime.onWebEvent(new JSONObject().put("type","state").put("state",new JSONObject().put("authenticated",true).put("workSelected",true).put("temporary",true).put("model","gpt-6.1-sol").put("effort","medium").put("speed","fast").put("busy",false).put("quota",false)));
+        org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idle();
+        assertEquals(root,runtime.state().optString("activeRequestId"));
+        runtime.onWebEvent(new JSONObject().put("type","accepted").put("requestId",root));
+        JSONObject envelope=new JSONObject().put("protocol","hoyoung.v1").put("requestId",root).put("status","awaiting_result").put("message","외부 폴더 접근이 회복되면 이어갈게.").put("nextCheckAt",System.currentTimeMillis()+300_000);
+        runtime.onWebEvent(new JSONObject().put("type","completed").put("requestId",root).put("text","```hoyoung\n"+envelope+"\n```").put("rawEnvelopeEligible",true));
+        org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idle();
+        assertEquals("completed",store.getRequest(request.getLong("id")).getString("status"));
+        assertEquals("awaiting_result",new com.hoyoung.assistant.runtime.GoalLedger(store).get(root).getString("stage"));
+    }
+    private void newOwnerRequest()throws Exception {request=runtime.receive("폴더 다시 연결했어. 이제 완료해.",new JSONArray());root=request.getString("external_id");}
+    @Test public void newOwnerMessageAfterAwaitingTurnDiscoversAndPublishesOriginalReservation()throws Exception {
+        pending();String originalRoot=root;finishAwaitingTurn();newOwnerRequest();assertNotEquals(originalRoot,root);
+        JSONObject discovery=state();JSONArray refs=discovery.getJSONArray("resumeCandidates");assertEquals(1,refs.length());JSONObject reference=refs.getJSONObject(0);assertEquals(originalRoot,reference.getString("rootRequestId"));
+        assertFalse(discovery.toString().contains("synthetic-code-A"));providerFails.set(false);
+        JSONObject resumed=action("resume-original",arguments().put("resume",reference)).getJSONObject("result");assertEquals("synthetic-code-A",resumed.getString("recoveryCode"));assertTrue(resumed.getBoolean("publicationSealed"));
+        assertEquals(1,new RecoveryCodeLedger(context).snapshot().getJSONArray("reservations").length());assertEquals(0,state().getJSONArray("resumeCandidates").length());
+        JSONObject repeated=action("another-new-action",arguments().put("resume",reference));assertEquals("recovery_resume_unavailable",repeated.getString("code"));assertFalse(repeated.toString().contains("synthetic-code-A"));
+        assertTrue(action("resume-original",arguments().put("resume",reference)).getBoolean("cached"));
+    }
+    @Test public void secondNewRequestCanResumeAfterFirstCrossRootProviderFailureButOldReferenceCannot()throws Exception {
+        pending();JSONObject originalReference=state().getJSONArray("resumeCandidates").getJSONObject(0);finishAwaitingTurn();newOwnerRequest();
+        JSONObject withheld=action("resume-first",arguments().put("resume",originalReference)).getJSONObject("result");assertEquals("recovery_portable_persistence_pending",withheld.getString("code"));assertFalse(withheld.has("recoveryCode"));
+        JSONObject newer=state().getJSONArray("resumeCandidates").getJSONObject(0);assertEquals(root,newer.getString("rootRequestId"));assertEquals("resume-first",newer.getString("actionId"));
+        finishAwaitingTurn();newOwnerRequest();providerFails.set(false);
+        assertEquals("recovery_resume_unavailable",action("stale-reference",arguments().put("resume",originalReference)).getString("code"));
+        assertEquals("synthetic-code-A",action("resume-second",arguments().put("resume",newer)).getJSONObject("result").getString("recoveryCode"));
+        assertEquals(1,new RecoveryCodeLedger(context).snapshot().getJSONArray("reservations").length());
+    }
+    @Test public void correctionAndExcludedSourceRemoveCrossRequestDiscoveryAndPreventPublication()throws Exception {
+        pending();JSONObject reference=state().getJSONArray("resumeCandidates").getJSONObject(0);finishAwaitingTurn();newOwnerRequest();providerFails.set(false);
+        JSONObject corrected=input().put("accountId",account.getString("accountId"));corrected.getJSONObject("extra").put("recoveryCodes",new JSONArray().put("synthetic-code-B"));accounts.saveFromUi(corrected);
+        assertEquals(0,state().getJSONArray("resumeCandidates").length());assertEquals("recovery_resume_unavailable",action("changed-account",arguments().put("resume",reference)).getString("code"));
+        JSONObject source=account.getJSONArray("sourceRefs").getJSONObject(0);store.getPrivacyLedger().excludeSource("message",source.getLong("id"),source.getString("hash"),"retrieval_exclude","synthetic owner exclusion");
+        assertEquals("recovery_resume_unavailable",action("excluded-account",arguments().put("resume",reference)).getString("code"));assertEquals(1,new RecoveryCodeLedger(context).snapshot().getJSONArray("reservations").length());assertEquals(0,tree.writes);
+    }
+    @Test public void forgedOutcomeHashOrChangedOriginalActionCannotProvideResumeAuthority()throws Exception {
+        pending();JSONObject reference=state().getJSONArray("resumeCandidates").getJSONObject(0);finishAwaitingTurn();newOwnerRequest();providerFails.set(false);
+        JSONObject wrong=new JSONObject(reference.toString()).put("outcomeSourceHash",String.join("",Collections.nCopies(64,"0")));
+        assertEquals("recovery_resume_unavailable",action("forged-hash",arguments().put("resume",wrong)).getString("code"));
+        wrong=new JSONObject(reference.toString()).put("actionId","not-original");assertEquals("recovery_resume_unavailable",action("wrong-action",arguments().put("resume",wrong)).getString("code"));assertEquals(0,tree.writes);
+    }
+    @Test public void oldZipCannotReviveAPendingReferenceAfterCrossRootPublicationSucceeded()throws Exception {
+        pending();JSONObject reference=state().getJSONArray("resumeCandidates").getJSONObject(0);ByteArrayOutputStream zip=new ByteArrayOutputStream();new InternalFiles(context).exportBackup(zip,store);
+        finishAwaitingTurn();newOwnerRequest();providerFails.set(false);assertEquals("synthetic-code-A",action("resume-live",arguments().put("resume",reference)).getJSONObject("result").getString("recoveryCode"));
+        new InternalFiles(context).importBackup(new ByteArrayInputStream(zip.toByteArray()),store);OwnerPolicyBackup.reconcile(context,store);
+        // Simulate the app's independent post-restore owner input; the private monotonic publication ledger survives the ZIP.
+        runtime.detachTransport();newOwnerRequest();assertEquals(0,state().getJSONArray("resumeCandidates").length());
+        JSONObject rejected=action("resume-from-old-zip",arguments().put("resume",reference));assertEquals("recovery_resume_unavailable",rejected.getString("code"));assertFalse(rejected.toString().contains("synthetic-code-A"));
     }
     private static final class MemoryTree implements ExternalOwnerPolicyFolder.TreeAccess {
         private final Map<Uri,String> names=new LinkedHashMap<>();private final Map<Uri,byte[]> data=new LinkedHashMap<>();private int sequence,writes;

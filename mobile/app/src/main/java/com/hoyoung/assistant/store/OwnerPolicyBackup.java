@@ -45,7 +45,8 @@ public final class OwnerPolicyBackup {
                 atomic(root,new File(root,SAVED),combined.toString());
                 JSONObject anchor=new JSONObject();put(anchor,"count",combined.optJSONArray("deletions").length());
                 put(anchor,"prefixHash",hash(combined.optJSONArray("deletions").toString()));JSONArray reservations=recovery(combined).optJSONArray("reservations");
-                put(anchor,"recoveryCount",reservations.length());put(anchor,"recoveryPrefixHash",hash(reservations.toString()));atomic(root,new File(root,ANCHOR),anchor.toString());
+                put(anchor,"recoveryCount",reservations.length());put(anchor,"recoveryPrefixHash",hash(reservations.toString()));
+                JSONArray publications=RecoveryCodeLedger.publicationClaims(recovery(combined));put(anchor,"publicationCount",publications.length());put(anchor,"publicationPrefixHash",hash(publications.toString()));atomic(root,new File(root,ANCHOR),anchor.toString());
             }
             new RecoveryCodeLedger(context).mergeSnapshot(recovery(combined));
             store.getPrivacyLedger().mergeSnapshot(combined.optJSONObject("privacy"));
@@ -153,6 +154,13 @@ public final class OwnerPolicyBackup {
                     if(recoveryCount<0||recoveryCount>reservations.length())throw new IOException("Portable recovery reservations were rolled back");
                     for(int i=0;i<recoveryCount;i++)recoveryPrefix.put(reservations.opt(i));
                     if(!hash(recoveryPrefix.toString()).equals(expected.optString("recoveryPrefixHash")))throw new IOException("Portable recovery reservation history changed");
+                }
+                if(expected.has("publicationCount")||expected.has("publicationPrefixHash")){
+                    Object rawCount=expected.opt("publicationCount");if(!(rawCount instanceof Number)||((Number)rawCount).doubleValue()!=((Number)rawCount).longValue())throw new IOException("Portable publication anchor count is invalid");
+                    long publicationCount=((Number)rawCount).longValue();JSONArray publications=RecoveryCodeLedger.publicationClaims(recovery(saved)),publicationPrefix=new JSONArray();
+                    if(publicationCount<0||publicationCount>publications.length())throw new IOException("Portable recovery publications were rolled back");
+                    for(int i=0;i<publicationCount;i++)publicationPrefix.put(publications.opt(i));
+                    if(!hash(publicationPrefix.toString()).equals(expected.optString("publicationPrefixHash")))throw new IOException("Portable recovery publication history changed");
                 }
             }catch(JSONException invalid){throw new IOException("Portable policy anchor is malformed",invalid);}
         }
