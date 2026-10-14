@@ -1,0 +1,60 @@
+{
+  "preparedAtUTC": "2026-10-14T03:53:58.212478+00:00",
+  "version": "0.3.1",
+  "versionCode": 5,
+  "sourceCodeCommit": "1606ca6871056b223a749ec2c5d01218ae71e58c",
+  "archiveSourceCommit": "232dbad28e51106e964c458c53a8b69be40d9177",
+  "sourceFilesCompared": 191,
+  "allCapturedSourceInputsMatch": true,
+  "releaseURL": "https://github.com/dog898996/be3hyu/releases/tag/v0.3.1",
+  "publicationMethod": "Immutable Git artifact-branch downloads linked from release; uploads-host credential rejection previously verified",
+  "releaseGatePassed": true,
+  "unitTests": {
+    "tests": 787,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 17,
+    "passed": 770,
+    "testClasses": 82
+  },
+  "newStoragePreservationTests": 25,
+  "newRuntimeTests": 3,
+  "actualAndroidCI": {
+    "conclusion": "success",
+    "createdAt": "2026-10-14T03:39:15Z",
+    "databaseId": 38507360114,
+    "headSha": "1606ca6871056b223a749ec2c5d01218ae71e58c",
+    "status": "completed",
+    "updatedAt": "2026-10-14T03:48:37Z",
+    "url": "https://github.com/dog898996/be3hyu/actions/runs/38507360114"
+  },
+  "actualAndroidPrimaryTestsPassed": 17,
+  "allRequiredRecoveryPhasesPassed": true,
+  "permissionCount": 40,
+  "certificateSha256": "5b634dac5d4538f871ff0bfdbe1b31b2baa02dbe4390d11d7f6af235b2df1e3e",
+  "scopeLimits": {
+    "physicalGalaxyMeasured": false,
+    "actualOSUninstallAndReinstallMeasured": false,
+    "samsungPickerMeasured": false,
+    "liveAuthenticatedWorkMeasured": false,
+    "zeroMillisecondPerformanceImpactMeasured": false,
+    "paidApiOrHostingUsed": false
+  },
+  "usage": {
+    "fullMemoryBackupAutomatic": false,
+    "ownerControlMetadataAutomaticAfterFolderSelection": true,
+    "reinstallRequiresSameFolderReconnection": true,
+    "latestPolicyMustBeExternallyVerifiedBeforeDataClear": true,
+    "restoredGeneralMemoryCoverage": "through selected completed ZIP"
+  },
+  "assets": {
+    "hoyoung-0.3.1.apk": {
+      "bytes": 78792664,
+      "sha256": "8ec587535cc1d66afbe4aff4065e7990810ebde975cc31a3ccca025916b22388"
+    },
+    "hoyoung-0.3.1-source.zip": {
+      "bytes": 53013738,
+      "sha256": "741b28f4b57454694c05e4962832579385cf460615c164b2c02a07b4aa57c1b1"
+    }
+  }
+}
