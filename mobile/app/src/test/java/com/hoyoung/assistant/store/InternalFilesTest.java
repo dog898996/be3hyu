@@ -75,6 +75,60 @@ public final class InternalFilesTest {
         assertEquals(1, files.listFiles().length());
     }
 
+    @Test public void malformedWriteContentCannotReplaceAnOriginalOrCreateANewFile() throws Exception {
+        String original = "exact original\n정정·삭제 보존 💙";
+        files.writeFile("keep.txt", original);
+        Object[] malformed = {7, true, new JSONObject().put("text", "coerced"),
+                new JSONArray().put("coerced"), JSONObject.NULL};
+        for (Object content : malformed) {
+            JSONObject replacement = new JSONObject().put("relativePath", "keep.txt").put("content", content);
+            assertThrows(IllegalArgumentException.class, () -> files.execute("files.write", replacement));
+            JSONObject creation = new JSONObject().put("relativePath", "new/sub/file.txt").put("content", content);
+            assertThrows(IllegalArgumentException.class, () -> files.execute("files.write", creation));
+            assertEquals(original, files.readText("keep.txt", 1000));
+            assertEquals(1, files.listFiles().length());
+            assertFalse(new File(context.getFilesDir(), "projects/new").exists());
+        }
+    }
+
+    @Test public void missingWriteContentCannotReplaceAnOriginalOrCreateANewFile() throws Exception {
+        files.writeFile("keep.txt", "keep exact bytes");
+        JSONObject replacement = new JSONObject().put("relativePath", "keep.txt");
+        JSONObject creation = new JSONObject().put("relativePath", "new/sub/file.txt");
+        assertThrows(IllegalArgumentException.class, () -> files.execute("files.write", replacement));
+        assertThrows(IllegalArgumentException.class, () -> files.execute("files.write", creation));
+        assertEquals("keep exact bytes", files.readText("keep.txt", 1000));
+        assertEquals(1, files.listFiles().length());
+        assertFalse(new File(context.getFilesDir(), "projects/new").exists());
+    }
+
+    @Test public void missingEmptyOrWrongTypeWritePathCannotCreateOrReplaceFiles() throws Exception {
+        files.writeFile("keep.txt", "keep exact bytes");
+        Object[] malformed = {"", 7, true, new JSONObject().put("path", "keep.txt"),
+                new JSONArray().put("keep.txt"), JSONObject.NULL};
+        for (Object path : malformed) {
+            JSONObject arguments = new JSONObject().put("relativePath", path).put("content", "replacement");
+            assertThrows(IllegalArgumentException.class, () -> files.execute("files.write", arguments));
+            assertEquals("keep exact bytes", files.readText("keep.txt", 1000));
+            assertEquals(1, files.listFiles().length());
+        }
+        JSONObject missing = new JSONObject().put("content", "replacement");
+        assertThrows(IllegalArgumentException.class, () -> files.execute("files.write", missing));
+        assertEquals("keep exact bytes", files.readText("keep.txt", 1000));
+        assertEquals(1, files.listFiles().length());
+    }
+
+    @Test public void validatedWriteKeepsExactUnicodeAndAllowsEmptyContent() throws Exception {
+        String content = "leading space \n정확한 원문 💙\r\n\\ \"quoted\"";
+        JSONObject created = files.execute("files.write", new JSONObject().put("relativePath", "valid/original.txt").put("content", content));
+        assertTrue(created.getBoolean("completionConfirmed"));
+        assertEquals(content, files.readText("valid/original.txt", 1000));
+        JSONObject empty = files.execute("files.write", new JSONObject().put("relativePath", "valid/original.txt").put("content", ""));
+        assertTrue(empty.getBoolean("completionConfirmed"));
+        assertEquals("", files.readText("valid/original.txt", 1000));
+        assertEquals(1, files.listFiles().length());
+    }
+
     @Test public void oversizedStreamFailsAtomicallyAndLeavesPreviousContent() throws Exception {
         files.writeFile("stable.txt", "before");
         long testLimit=8192;

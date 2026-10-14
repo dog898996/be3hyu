@@ -216,11 +216,80 @@ public final class AssistantRuntimeRoutingTest {
         assertEquals("0",store.getSetting("requestSource:"+baseline.optString("external_id"),""));
         assertEquals(owner.optString("content_hash"),store.getMessage(owner.optLong("id")).optString("content_hash"));
         assertTrue("Compact decision framing should reduce repeated request text without trimming sources",compact.length()<complete.length());
+        // Phase-1 fixed-size fixture framing is the upper bound: extra wire titles must not
+        // consume the existing remaining memory allowance in Light or plain-schema branches.
+        assertTrue("Light framing cannot reduce the prior memory allowance",compact.length()<=7203);
+        assertTrue("Plain-schema framing cannot reduce the prior memory allowance",complete.length()<=24521);
         System.out.println("HOYOUNG_PROMPT_FOOTPRINT "+object("measurement","native_fixture_core_prompt_utf16_chars","lightStandardChars",compact.length(),
                 "mediumStandardChars",complete.length(),"retainedCharacterRatio",(double)compact.length()/complete.length(),
                 "avoidedCharacters",complete.length()-compact.length(),"allCapabilitiesRetained",capabilities.length(),
                 "sameCanonicalOwnerHash",owner.optString("content_hash"),"fullMandatoryOriginalPreserved",true,
                 "actualModelCalls",0,"tokensMeasured",false,"subscriptionPercentMeasured",false,"semanticAccuracyCompared",false));
+    }
+
+    @Test public void stableCompletePrefixPreservesExactRequestContractAndFullToolSchemas() throws Exception {
+        ready("medium","fast");
+        JSONObject first=runtime.receive("FIRST_DYNAMIC_OWNER_TEXT_9327",new JSONArray());
+        String a=transport.prompts.get(0),marker="\nREQUEST_SCOPE:";
+        assertTrue(a.indexOf(marker)>0);
+        String prefix=a.substring(0,a.indexOf(marker));
+        assertTrue(prefix.startsWith("기본 운영 지침:"));
+        assertTrue(prefix.contains("ROUTING_OWNER_SENTINEL"));
+        assertFalse(prefix.contains(first.optString("external_id")));
+        assertFalse(prefix.contains("FIRST_DYNAMIC_OWNER_TEXT_9327"));
+        String rows=prefix.substring(prefix.indexOf(LosslessToolCatalog.HEADER)+LosslessToolCatalog.HEADER.length()).trim();
+        JSONArray decoded=LosslessToolCatalog.decode(new JSONArray(rows));
+        java.lang.reflect.Method catalog=AssistantRuntime.class.getDeclaredMethod("catalog");catalog.setAccessible(true);
+        assertEquals(((JSONArray)catalog.invoke(runtime)).toString(),decoded.toString());
+        assertTrue(a.contains("\"requestId\":\""+first.optString("external_id")+"\""));
+        assertTrue(a.contains("CURRENT_INPUT")); assertTrue(a.contains("FIRST_DYNAMIC_OWNER_TEXT_9327"));
+        finish(first,object("protocol","hoyoung.v1","requestId",first.optString("external_id"),"status","completed","message","첫 응답"));
+        clock.addAndGet(1000);
+        JSONObject second=runtime.receive("SECOND_DYNAMIC_OWNER_TEXT_8842",new JSONArray());
+        String b=transport.prompts.get(1);
+        assertEquals(prefix,b.substring(0,b.indexOf(marker)));
+        assertTrue(b.contains("\"requestId\":\""+second.optString("external_id")+"\""));
+        assertTrue(b.contains("SECOND_DYNAMIC_OWNER_TEXT_8842"));
+        System.out.println("HOYOUNG_STABLE_PREFIX "+object("identicalPrefixUtf16Chars",prefix.length(),"completeInstructionsRepeated",true,
+                "completeToolSchemasRoundTrip",true,"providerCacheHitMeasured",false,"semanticAccuracyCompared",false));
+    }
+
+    @Test public void changingOwnerInstructionsReplacesTheCompletePrefixWithoutReusingStaleSettings() {
+        ready("medium","fast"); JSONObject first=runtime.receive("확인",new JSONArray());
+        String a=transport.prompts.get(0);
+        finish(first,object("protocol","hoyoung.v1","requestId",first.optString("external_id"),"status","completed","message","확인했어"));
+        store.putSetting("customInstructions","NEW_COMPLETE_INSTRUCTIONS_4458 · 중요한 정정은 생략하지 마.");
+        runtime.receive("새 지침 확인",new JSONArray()); String b=transport.prompts.get(1);
+        assertTrue(a.contains("ROUTING_OWNER_SENTINEL"));
+        String prefix=b.substring(0,b.indexOf("\nREQUEST_SCOPE:"));
+        assertTrue(prefix.contains("NEW_COMPLETE_INSTRUCTIONS_4458 · 중요한 정정은 생략하지 마."));
+        assertFalse(prefix.contains("ROUTING_OWNER_SENTINEL"));
+    }
+
+    @Test public void invalidNativeArgumentsRestoreFullSchemasInTheExistingFollowupWithoutExtraRetry() {
+        ready("medium","fast");JSONObject owner=runtime.receive("파일 작성 준비",new JSONArray());
+        assertTrue(transport.prompts.get(0).contains(LosslessToolCatalog.HEADER));
+        finish(owner,object("protocol","hoyoung.v1","requestId",owner.optString("external_id"),"status","working","message","파일 작성",
+                "actions",new JSONArray().put(object("id","invalid-schema-case","name","memory.history","arguments",object("key",7)))));
+        assertEquals(runtime.state().toString()+" events="+store.events(20).toString(),2,transport.ids.size());
+        assertEquals("true",store.getSetting("catalogPlainRequired:"+owner.optString("external_id"),""));
+        String followup=transport.prompts.get(1);
+        assertFalse(followup.contains(LosslessToolCatalog.HEADER));
+        assertTrue(followup.contains("\"inputSchema\":"));
+        assertEquals("fast",runtime.requiredModelPreferences(active().optString("external_id")).optString("speed"));
+        assertEquals("tool-continuation",active().optString("kind"));
+    }
+
+    @Test public void invalidActionShapeRestoresFullSchemasWithoutStartingNativeEffects() {
+        ready("medium","fast");JSONObject owner=runtime.receive("기능 확인",new JSONArray());
+        finish(owner,object("protocol","hoyoung.v1","requestId",owner.optString("external_id"),"status","working","message","확인",
+                "actions",new JSONArray().put(new JSONArray().put("files.list").put(new JSONObject()))));
+        assertEquals(runtime.state().toString()+" events="+store.events(20).toString(),2,transport.ids.size());
+        assertEquals("true",store.getSetting("catalogPlainRequired:"+owner.optString("external_id"),""));
+        assertFalse(transport.prompts.get(1).contains(LosslessToolCatalog.HEADER));
+        assertEquals("tool-continuation",active().optString("kind"));
+        assertFalse(runtime.state().optBoolean("uncertaintyBlocked"));
+        assertTrue(transport.prompts.get(1).contains("invalid_action"));
     }
 
     @Test public void manualUsageEntryCannotClaimProviderVerifiedEvidence() {

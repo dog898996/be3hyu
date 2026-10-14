@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-14T05:11:57.040087+00:00",
+  "generatedAt": "2026-10-14T05:41:41.543146+00:00",
   "version": "0.3.2",
   "userRequirement": {
     "goal": "average daily consumption <=10% of displayed whole shared allowance",
@@ -8,11 +8,11 @@
     "regularJudgmentSeconds": 300
   },
   "unit": {
-    "tests": 873,
+    "tests": 893,
     "failures": 0,
     "errors": 0,
-    "skipped": 17,
-    "passed": 856,
+    "skipped": 16,
+    "passed": 877,
     "suites": [
       {
         "name": "com.hoyoung.assistant.MainActivitySmokeTest",
@@ -61,7 +61,7 @@
         "tests": 1,
         "failures": 0,
         "errors": 0,
-        "skipped": 1
+        "skipped": 0
       },
       {
         "name": "com.hoyoung.assistant.memory.PublicDatasetRetrievalBenchmarkTest",
@@ -219,7 +219,7 @@
       },
       {
         "name": "com.hoyoung.assistant.runtime.AssistantRuntimeRoutingTest",
-        "tests": 16,
+        "tests": 20,
         "failures": 0,
         "errors": 0,
         "skipped": 0
@@ -262,6 +262,13 @@
       {
         "name": "com.hoyoung.assistant.runtime.GoalLedgerTest",
         "tests": 24,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.hoyoung.assistant.runtime.LosslessToolCatalogTest",
+        "tests": 12,
         "failures": 0,
         "errors": 0,
         "skipped": 0
@@ -443,7 +450,7 @@
       },
       {
         "name": "com.hoyoung.assistant.store.InternalFilesTest",
-        "tests": 9,
+        "tests": 13,
         "failures": 0,
         "errors": 0,
         "skipped": 0
@@ -636,12 +643,12 @@
   },
   "promptFootprint": {
     "measurement": "native_fixture_core_prompt_utf16_chars",
-    "lightStandardChars": 7203,
+    "lightStandardChars": 7202,
     "mediumStandardChars": 24521,
-    "retainedCharacterRatio": 0.2937482158150157,
-    "avoidedCharacters": 17318,
+    "retainedCharacterRatio": 0.293707434443946,
+    "avoidedCharacters": 17319,
     "allCapabilitiesRetained": 59,
-    "sameCanonicalOwnerHash": "bc73ec6467960c7d1dd0a66347bbbc5dbab6e38f6399070f406fbd82160e1964",
+    "sameCanonicalOwnerHash": "dfe4185eeaf00b11e4802c698afdcd1350be818d5491b4bfc558e840e16b28f6",
     "fullMandatoryOriginalPreserved": true,
     "actualModelCalls": 0,
     "tokensMeasured": false,
@@ -652,12 +659,108 @@
   "liveModelAccuracyCompared": false,
   "physicalS24LatencyMeasured": false,
   "logSha256": {
-    "hoyoung-v032-local-final.log": "40bf6af36d5cfb73a48485ed6c3ad7c9a42d2b1f80c7105cab23540fbb7ca95f",
+    "hoyoung-v032-framing-final.log": "8ecf224c003b86d460c290b4a4eff80e1d8aaa0ed6d3734df658edbcaa725968",
     "hoyoung-v032-node-final.log": "38e1b9f1dc148a6505ac756c245b5cc898a564ca9a6db188bd4a39aa1f42c476"
   },
   "initialFailedRuns": {
     "first": "Compile began before read-only capture API landed; missing method caught.",
     "second": "28 failures: old fixed background fixtures and damaged preference exception.",
-    "nodeFirst": "Before-click quota fixture split across browser turns raced under parallel load; merged atomic browser-turn injection; final all259 passed."
+    "nodeFirst": "Before-click quota fixture split across browser turns raced under parallel load; merged atomic browser-turn injection; final all259 passed.",
+    "phase2FallbackFixture": "Initial malformed files.write fixture was classified as uncertain I/O. Switched to genuine native invalid-argument fixture; fixed independent files.write schema coercion before I/O and tested original file preservation.",
+    "phase2FramingAudit": "Additional headings consumed80/98 characters of potential memory allowance; removed extra framing and added prior-ceiling guards before final suite."
+  },
+  "phase": "final_lossless_catalog_and_memory_framing_guard",
+  "phase1": {
+    "sourceCommit": "97a6911051a5fc5e4c27d0f05cc69a7619efe113",
+    "unit": {
+      "tests": 873,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 17,
+      "passed": 856
+    },
+    "promptFootprint": {
+      "measurement": "native_fixture_core_prompt_utf16_chars",
+      "lightStandardChars": 7203,
+      "mediumStandardChars": 24521,
+      "retainedCharacterRatio": 0.2937482158150157,
+      "avoidedCharacters": 17318,
+      "allCapabilitiesRetained": 59,
+      "sameCanonicalOwnerHash": "bc73ec6467960c7d1dd0a66347bbbc5dbab6e38f6399070f406fbd82160e1964",
+      "fullMandatoryOriginalPreserved": true,
+      "actualModelCalls": 0,
+      "tokensMeasured": false,
+      "subscriptionPercentMeasured": false,
+      "semanticAccuracyCompared": false
+    },
+    "nativeCiRun": 38515439424,
+    "nativePrimaryTests": 18
+  },
+  "stablePrefix": {
+    "identicalPrefixUtf16Chars": 16203,
+    "completeInstructionsRepeated": true,
+    "completeToolSchemasRoundTrip": true,
+    "providerCacheHitMeasured": false,
+    "semanticAccuracyCompared": false
+  },
+  "losslessCatalog": {
+    "measurement": "59_tool_fixture_utf16_characters_header_inclusive",
+    "completeToolCount": 59,
+    "originalCharacters": 16610,
+    "wireCharacters": 11526,
+    "avoidedCharacters": 5084,
+    "roundTripVerified": true,
+    "actualModelCalls": 0,
+    "tokensMeasured": false,
+    "semanticAccuracyCompared": false
+  },
+  "memoryAllowanceFramingGuard": {
+    "priorLightFixtureMaximumChars": 7203,
+    "currentLightChars": 7202,
+    "priorPlainMediumFixtureMaximumChars": 24521,
+    "currentPlainMediumChars": 24521,
+    "passed": true,
+    "retrievalLimitsReduced": false,
+    "mandatoryOriginalsTruncated": false
+  },
+  "nodeSourceChangedAfterPhase1": false,
+  "longitudinalMemory": {
+    "ownerSessions": 365,
+    "distractorMessages": 30660,
+    "messages": 31025,
+    "checkpoints": [
+      {
+        "day": 1,
+        "scenarios": 24,
+        "passed": 24,
+        "sourceRecall": 1,
+        "allOwnerOriginalsUnchanged": true
+      },
+      {
+        "day": 30,
+        "scenarios": 24,
+        "passed": 24,
+        "sourceRecall": 1,
+        "allOwnerOriginalsUnchanged": true
+      },
+      {
+        "day": 180,
+        "scenarios": 24,
+        "passed": 24,
+        "sourceRecall": 1,
+        "allOwnerOriginalsUnchanged": true
+      },
+      {
+        "day": 365,
+        "scenarios": 24,
+        "passed": 24,
+        "sourceRecall": 1,
+        "allOwnerOriginalsUnchanged": true
+      }
+    ],
+    "handAuthoredNotesAndReviewAcks": true,
+    "actualLmExtractionMeasured": false,
+    "lmAnswerQualityMeasured": false,
+    "report": "android-v032-longitudinal-memory.json"
   }
 }

@@ -383,8 +383,14 @@ public final class InternalFiles {
                 result = readTextRange(fileId, offset, count);
                 break;
             case "files.write":
-                if (!arguments.has("content") || arguments.isNull("content")) throw new IOException("File content is required");
-                put(result, "file", writeFile(arguments.optString("relativePath", null), arguments.optString("content")));
+                // Reject malformed schema values before any filesystem operation;
+                // optString would silently turn numbers or objects into file data.
+                if (!(arguments.opt("relativePath") instanceof String)
+                        || arguments.optString("relativePath").isEmpty())
+                    throw new IllegalArgumentException("A nonempty string relativePath is required");
+                if (!(arguments.opt("content") instanceof String))
+                    throw new IllegalArgumentException("String file content is required");
+                put(result, "file", writeFile(arguments.optString("relativePath"), arguments.optString("content")));
                 break;
             default: throw new IOException("Unknown private-files tool");
         }

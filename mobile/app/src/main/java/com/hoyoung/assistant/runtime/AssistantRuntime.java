@@ -67,6 +67,7 @@ public final class AssistantRuntime {
     private String configuredUsageBudget="";
     private final java.util.concurrent.ConcurrentHashMap<String,JSONObject> preparedRoutes=new java.util.concurrent.ConcurrentHashMap<>();
     private final DispatchPayloadRegistry dispatchPayloads=new DispatchPayloadRegistry();
+    private final java.util.concurrent.ConcurrentHashMap<String,String> instructionAssetCache=new java.util.concurrent.ConcurrentHashMap<>();
     private final java.util.concurrent.ConcurrentHashMap<String,MemoryGateway.Prepared> preparedMemory=new java.util.concurrent.ConcurrentHashMap<>();
     private static final class ReviewScope {
         final String batchHash, manifestHash;
@@ -1094,8 +1095,9 @@ public final class AssistantRuntime {
         if(route==null)throw new IllegalStateException("Request route was not frozen");
         boolean decisionOnly=route.optBoolean("decisionOnly");
         StringBuilder prompt = new StringBuilder();
-        prompt.append("이 요청은 사용자의 개인 앱 호영에서 왔다. requestId=").append(externalId)
-                .append(" rootRequestId=").append(rootId).append(" ownerSourceMessageId=").append(store.getSetting("requestSource:" + externalId, "0")).append(" purpose=").append(purpose).append(".\n");
+        // Stable instructions and complete schemas precede request IDs/time.
+        // They remain present on every request; server cache hits are not assumed.
+        StringBuilder responseContract = new StringBuilder();
         prompt.append("기본 운영 지침:\n").append(readAsset("core-identity.txt"));
         String primaryCustom=store.getSetting("customInstructions",null);
         String customKey=primaryCustom==null?"personalizedInstructions":"customInstructions";
@@ -1114,26 +1116,44 @@ public final class AssistantRuntime {
                 .append("action이 있으면 status=working이다. 도구 initiated/accepted/completionConfirmed:false는 실제 완료가 아니다. 결과와 후속 확인을 받은 뒤에만 completed를 표시한다. idle이면 message는 빈 문자열로 남긴다.\n");
         if(decisionOnly) {
             prompt.append("이번 턴은 Light 판단 전용이다. Work의 브라우저·코딩·클라우드 도구와 폰·앱 도구를 실행하지 말고 기억 저장·첨부 분석·기억 검토 완료도 하지 마. 아래 이름 목록은 기능 발견을 위한 전체 목록이며 권한 제한이 아니다. 행동·추가 원문·응답·기억 정리가 필요하거나 판단이 모호하면 HANDLE_MEDIUM, 복잡한 계획·추론이 필요하면 ESCALATE_HIGH로 넘겨 실제 실행은 다음 턴에 맡긴다. 변경 이벤트가 없다는 이유로 판단을 건너뛰지 않는다.\n")
-                    .append("전체 답변은 단일 hoyoung 코드블록 안의 JSON이다. {\"protocol\":\"hoyoung.v1\",\"requestId\":\"").append(externalId)
-                    .append("\",\"status\":\"idle\",\"message\":\"\",\"routing\":{\"decision\":\"NO_ACTION|HANDLE_MEDIUM|ESCALATE_HIGH\",\"reason\":\"판단 근거\"}}. NO_ACTION은 필요한 제약·목표·시각·기억을 검토했고 현재 할 행동이 없을 때만 반환한다.\n")
+                    .append("전체 답변은 단일 hoyoung 코드블록 안의 JSON이다. NO_ACTION은 필요한 제약·목표·시각·기억을 검토했고 현재 할 행동이 없을 때만 반환한다.\n")
                     .append("도구 이름 전체 목록(상세 인수는 Medium 이상 실행 턴에서 제공):\n").append(catalogNames()).append("\n");
+            responseContract.append("{\"protocol\":\"hoyoung.v1\",\"requestId\":\"").append(externalId)
+                    .append("\",\"status\":\"idle\",\"message\":\"\",\"routing\":{\"decision\":\"NO_ACTION|HANDLE_MEDIUM|ESCALATE_HIGH\",\"reason\":\"판단 근거\"}}\n");
         } else {
-        prompt.append("도구·기억·검토 응답은 전체 답변을 단일 hoyoung 언어 코드블록 안의 JSON object로 작성해. 앞뒤 설명이나 두 번째 코드블록을 붙이지 마. 웹 Markdown이 JSON 내부 별표·백틱·인용을 바꾸지 않게 코드블록을 사용한다. protocol과 현재 requestId를 정확히 복사해. 서식이 전혀 없는 단일 JSON 원문도 지원하지만 문자열의 Markdown 기호는 JSON Unicode escape로 보존해야 해. 일반 자유 답변과 코드 예시에서는 실행 프로토콜 대신 example_marker를 써.\n")
-                .append("{\"protocol\":\"hoyoung.v1\",\"requestId\":\"").append(externalId)
+        prompt.append("도구·기억·검토 응답은 전체 답변을 단일 hoyoung 언어 코드블록 안의 JSON object로 작성해. 앞뒤 설명이나 두 번째 코드블록을 붙이지 마. 웹 Markdown이 JSON 내부 별표·백틱·인용을 바꾸지 않게 코드블록을 사용한다. protocol과 현재 requestId를 정확히 복사해. 서식이 전혀 없는 단일 JSON 원문도 지원하지만 문자열의 Markdown 기호는 JSON Unicode escape로 보존해야 해. 일반 자유 답변과 코드 예시에서는 실행 프로토콜 대신 example_marker를 써.\n");
+        responseContract.append("{\"protocol\":\"hoyoung.v1\",\"requestId\":\"").append(externalId)
                 .append("\",\"status\":\"idle|working|completed|blocked|awaiting_result\",\"message\":\"사용자 답변 또는 정확한 진행 보고\",\"actions\":[{\"id\":\"이 원 요청 내 고유 id\",\"name\":\"도구 이름\",\"arguments\":{}}],")
                 .append("\"memories\":[{\"key\":\"안정적인 사실 키\",\"content\":\"기억 내용\",\"kind\":\"fact|preference|project|task|summary|uncertain|observation|inference|opinion\",\"sourceMessageIds\":[123],")
                 .append("\"sourceRefs\":[{\"type\":\"message|device_event\",\"id\":123,\"quote\":\"실제 원문의 짧은 정확한 인용\",\"offsetChars\":0}],")
-                .append("\"metadata\":{\"factKey\":\"안정적 사실 키\",\"aliases\":[],\"entities\":[],\"pinned\":false,\"confidence\":0.9,\"validFrom\":0,\"validTo\":null,\"evidenceState\":\"owner_report|observation|inference|uncertain\"}}]}\n")
-                .append("첨부를 실제 읽었으면 assetAnalyses:[{messageId,assetId,sha256,status:analyzed|cannot_analyze,content,reason}]에 분석을 반환한다. 추측은 분석으로 기록하지 않는다. 이미지 분석은 생성 관찰이며 독립 확인 사실과 구분하고 원본 SHA를 그대로 붙인다.\n")
+                .append("\"metadata\":{\"factKey\":\"안정적 사실 키\",\"aliases\":[],\"entities\":[],\"pinned\":false,\"confidence\":0.9,\"validFrom\":0,\"validTo\":null,\"evidenceState\":\"owner_report|observation|inference|uncertain\"}}]}\n");
+        prompt.append("첨부를 실제 읽었으면 assetAnalyses:[{messageId,assetId,sha256,status:analyzed|cannot_analyze,content,reason}]에 분석을 반환한다. 추측은 분석으로 기록하지 않는다. 이미지 분석은 생성 관찰이며 독립 확인 사실과 구분하고 원본 SHA를 그대로 붙인다.\n")
                 .append("실제 첨부 전달표가 추가되면 source id/sha256는 보관된 원본, providerRepresentationSha256는 실제 전송할 표현의 hash다. delivered_representation은 축소·JPEG 변환본이므로 원본 전체를 읽었다고 만들지 마. 분석에는 제공된 providerRepresentationSha256도 정확히 반환하고 볼 수 없는 세부사항은 불확실하다고 남긴다.\n")
                 .append("확인된 fact/preference에는 원문 quote를 붙여. sourceMessageIds만 존재하는 것은 의미 일치 검증을 통과한 게 아니다. 날짜는 epochMillis, 실제 시작·종료를 모르면 생략한다. 중요한 알레르기·금기·개인 선호·진행 중 맡긴 일은 pinned를 검토한다.\n")
                 .append("후속 확인이 필요한 목표는 status=working/awaiting_result와 nextCheckAt(epochMillis)을 반환한다. 요청 턴이 끝나도 목표는 별도 장부에 남는다. 다음 자율 판단은 tasks.list/update로 확인하며 blocked/uncertain 목표는 자동 재실행하지 않는다.\n")
                 .append("tasks.report_completed는 관찰된 완료 보고를 진행 목록에서 보관함으로 옮기는 도구다. 알려진 폰·앱 실행 영수증이 미확정이면 보관하지 않는다. reported_archive 기록과 overallOutcomeVerified:false는 전체 작업 성공의 독립 증거가 아니다. 자신의 root를 아직 실행 중이면 최종 completed 응답 후 앱이 보관 여부를 판단한다.\n")
                 .append("도구 영수증의 nativeOutcomeSource가 있으면 실제 반환 상태만 담은 system 원문이다. 반복에 도움이 되는 실행 교훈을 memory.source.read로 검증해 inference/summary로 저장할 수 있다. 그 요약에는 개인 결과값과 사용자 승인이 없고, requested/accepted와 완료를 구분한다. 교훈을 사용자 사실로 만들거나 모든 로그를 무조건 중요한 선호로 pin하지 마.\n")
                 .append("복잡한 추론을 더 검토해야 하면 routing:{decision:ESCALATE_HIGH,reason:근거}를 반환하고 이번 턴에 새 실행을 시작하지 마. 이미 High 이상이면 더 높은 강도가 필요하다는 이유만으로 같은 승격을 반복하지 마.\n");
-            prompt.append("도구 catalog:\n").append(catalog()).append("\n");
+            JSONArray definitions=catalog();
+            if("true".equals(store.getSetting("usageOptimizationEnabled","true"))
+                    &&!"true".equals(store.getSetting("catalogPlainRequired:"+rootId,"false"))) {
+                LosslessToolCatalog.Result wire=LosslessToolCatalog.formatResult(definitions);
+                store.putSetting("catalogPacked:"+externalId,String.valueOf(wire.usedCompact));
+                prompt.append("도구 catalog:\n").append(wire.text).append("\n");
+                store.recordEvent("tool_catalog_wire_prepared",object("requestId",externalId,"completeToolCount",definitions.length(),
+                        "originalUtf16Chars",wire.baselineCharacters,"wireUtf16Chars",wire.text.length(),"packed",wire.usedCompact,
+                        "roundTripVerified",wire.roundTripVerified,"tokensMeasured",false));
+            } else {
+                store.putSetting("catalogPacked:"+externalId,"false");
+                prompt.append("도구 catalog:\n").append(definitions).append("\n");
+            }
         }
+        int staticPrefixChars=prompt.length();
+        prompt.append("\nREQUEST_SCOPE: 호영 앱 사용자 requestId=").append(externalId)
+                .append(" rootRequestId=").append(rootId).append(" ownerSourceMessageId=").append(store.getSetting("requestSource:" + externalId, "0")).append(" purpose=").append(purpose).append(".\n");
+        prompt.append(responseContract);
         prompt.append("현재 시각 epochMillis=").append(nowMillis()).append(" 휴대폰 시간대=").append(java.util.TimeZone.getDefault().getID()).append("\n");
+        store.recordEvent("prompt_static_prefix_prepared",object("requestId",externalId,"staticPrefixChars",staticPrefixChars,"instructionsRepeatedInEveryRequest",true,"providerCacheHitMeasured",false));
         long originalId = parseLong(store.getSetting("requestSource:" + externalId, "0"));
         prompt.append("첨부 메타데이터:\n").append(store.getSetting("attachmentMetadata:" + externalId, "[]")).append("\n");
         if (prompt.length() > MAX_PROMPT_CHARS-8192) throw new IllegalArgumentException("prompt_too_large");
@@ -1233,6 +1253,8 @@ public final class AssistantRuntime {
     }
 
     private String readAsset(String asset) throws Exception {
+        String cached=instructionAssetCache.get(asset);
+        if(cached!=null)return cached;
         StringBuilder result = new StringBuilder();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(context.getAssets().open(asset), StandardCharsets.UTF_8))) {
             char[] chunk = new char[4096]; int count;
@@ -1242,7 +1264,9 @@ public final class AssistantRuntime {
             }
         }
         if (result.length() == 0) throw new IllegalStateException("Instructions are missing");
-        return result.toString();
+        String loaded=result.toString();
+        String previous=instructionAssetCache.putIfAbsent(asset,loaded);
+        return previous==null?loaded:previous;
     }
 
     private JSONArray catalog() {
@@ -1376,6 +1400,20 @@ public final class AssistantRuntime {
                         localNotice("tool_round_limit", "도구 실행 단계 한도에 도달해 멈췄어. 목표가 완료된 것은 아니야. 저장된 결과를 확인하고 이어서 맡겨 줘.");
                     } else {
                         JSONArray results = executeActions(rootId, externalId, actions, reviewOnly);
+                        if("true".equals(store.getSetting("catalogPacked:"+externalId,"false"))) {
+                            for(int i=0;i<results.length();i++) {
+                                JSONObject row=results.optJSONObject(i),result=row==null?null:row.optJSONObject("result");
+                                if(row!=null&&("invalid_action".equals(row.optString("code"))
+                                        ||result!=null&&"invalid_arguments".equals(result.optString("code")))) {
+                                    // A format-related error is not assumed, but retain the clearer full
+                                    // schema for this root's existing follow-up rather than repeat errors.
+                                    store.putSetting("catalogPlainRequired:"+rootId,"true");
+                                    store.recordEvent("tool_catalog_full_fallback",object("rootRequestId",rootId,"requestId",externalId,
+                                            "reason","native_argument_or_action_validation_failed","extraModelCallAdded",false));
+                                    break;
+                                }
+                            }
+                        }
                         int savedByTools = countReviewToolSaves(results, expected);
                         final int continuedReviewSaved = reviewedSaved + savedByTools;
                         final boolean continuedHadRejected = hadRejected || hasRejectedMemoryToolSave(results);

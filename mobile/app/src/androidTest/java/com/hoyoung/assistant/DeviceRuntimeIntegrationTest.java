@@ -578,6 +578,14 @@ public final class DeviceRuntimeIntegrationTest {
             assertTrue(usage.snapshot(lastAt).getDouble("measuredLowerPercent") > 10);
             assertTrue("An optimization target never stops work", usage.backgroundDecision(lastAt).getBoolean("allowed"));
             assertFalse(usage.snapshot(lastAt).getBoolean("tokensMeasured"));
+            JSONArray nativeDefinitions = new com.hoyoung.assistant.phone.PhoneTools(fixture, store).catalog();
+            JSONArray fileDefinitions = new InternalFiles(fixture).catalog();
+            for (int i = 0; i < fileDefinitions.length(); i++) nativeDefinitions.put(fileDefinitions.get(i));
+            com.hoyoung.assistant.runtime.LosslessToolCatalog.Result packed = com.hoyoung.assistant.runtime.LosslessToolCatalog.formatResult(nativeDefinitions);
+            assertEquals(45, nativeDefinitions.length()); assertTrue(packed.usedCompact); assertTrue(packed.roundTripVerified);
+            JSONArray restored = com.hoyoung.assistant.runtime.LosslessToolCatalog.decode(new JSONArray(packed.text.substring(
+                    com.hoyoung.assistant.runtime.LosslessToolCatalog.HEADER.length())));
+            assertEquals("All native schema fields must survive on actual Android JSON", nativeDefinitions.toString(), restored.toString());
             String instruction = "DEVICE_DEDUP_5278 " + "완전한 형식 지침 ".repeat(400);
             store.putSetting("customInstructions", instruction);
             MemoryGateway gateway = new MemoryGateway(store);
@@ -589,7 +597,7 @@ public final class DeviceRuntimeIntegrationTest {
             store.putSetting("customInstructions", "정정한 새 지침");
             try { gateway.assertFresh(compact, lastAt); fail("A corrected instruction must invalidate the compacted context"); }
             catch (MemoryGateway.Blocked expected) { assertEquals("memory_control_changed", expected.reason); }
-            android.util.Log.i("HoyoungDeviceProof", "HOYOUNG_DEVICE_TOKEN_OPTIMIZATION native-API35-policy-and-SQLite; owner-Fast; memory-Medium-floor; Light-effects-promoted; usage-goal-advisory; exact-dedup-correction-gate; no-live-model-or-quota-claim");
+            android.util.Log.i("HoyoungDeviceProof", "HOYOUNG_DEVICE_TOKEN_OPTIMIZATION native-API35-policy-and-SQLite; owner-Fast; memory-Medium-floor; Light-effects-promoted; usage-goal-advisory; exact-dedup-correction-gate; lossless-45-native-tool-schemas; no-live-model-or-quota-claim");
         } finally { usage.close(); store.close(); fixture.removeOwnFixture(); }
     }
 
