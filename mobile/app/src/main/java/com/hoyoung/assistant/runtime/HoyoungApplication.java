@@ -68,7 +68,8 @@ public final class HoyoungApplication extends Application {
                         sourceReconciliationRunning=false;
                         if(result!=null){startupState=state(false,"source_deletion_reconciliation_failed",result.getClass().getSimpleName());return;}
                         initializeReadyComponents();
-                        if("true".equals(store.getSetting("autonomy.enabled","false")))runtime.startAutonomy();
+                        if("true".equals(store.getSetting("autonomy.enabled","false"))
+                                && new com.hoyoung.assistant.phone.PermissionOnboarding(HoyoungApplication.this).snapshot().ready())runtime.startAutonomy();
                     }
                 });
             });
@@ -115,7 +116,7 @@ public final class HoyoungApplication extends Application {
         runtime.attachTransport(webController);
         startupReady = true;
         startupState = state(true, "ready", "");
-        webController.start();
+        if (new com.hoyoung.assistant.phone.PermissionOnboarding(this).snapshot().ready()) webController.start();
         com.hoyoung.assistant.store.ExternalOwnerPolicyFolder folder=new com.hoyoung.assistant.store.ExternalOwnerPolicyFolder(this);
         if(folder.connected()){folder.markPending();scheduleOwnerPolicyMirror(true);}
     }

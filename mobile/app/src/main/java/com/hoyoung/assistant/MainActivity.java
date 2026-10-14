@@ -26,6 +26,15 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.ImageView;
+import android.widget.FrameLayout;
+import android.widget.ImageButton;
+import android.widget.ProgressBar;
+import com.hoyoung.assistant.ui.ChatPalette;
+import com.hoyoung.assistant.ui.LineIconDrawable;
+import com.hoyoung.assistant.ui.HoyoungAvatarView;
+import com.hoyoung.assistant.ui.TypingIndicatorView;
+import com.hoyoung.assistant.phone.PermissionOnboarding;
+import com.hoyoung.assistant.store.EmojiReactionReply;
 import com.hoyoung.assistant.ui.AttachmentPreview;
 import com.hoyoung.assistant.ui.ChatAttachmentPreviews;
 import com.hoyoung.assistant.runtime.AssistantReplyNotifications;
@@ -48,10 +57,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public final class MainActivity extends Activity {
-    private static final int BLUE = Color.rgb(36, 95, 232);
-    private static final int INK = Color.rgb(24, 30, 44);
-    private static final int SUBTLE = Color.rgb(103, 112, 132);
-    private static final int BG = Color.rgb(247, 249, 253);
+    private static final int BLUE = Color.rgb(104, 74, 232);
+    private static final int INK = Color.rgb(31, 30, 40);
+    private static final int SUBTLE = Color.rgb(125, 122, 139);
+    private static final int BG = Color.rgb(250, 249, 252);
     private static final int PICK_FILES = 201, EXPORT_BACKUP = 202, IMPORT_BACKUP = 203, WORK_FILE_PICKER = 204, EXPORT_FILE = 205, OWNER_FOLDER = 206;
     private TextView ownerFolderState;
     private TextView usageBudgetState;
@@ -60,7 +69,7 @@ public final class MainActivity extends Activity {
     private final ExecutorService commands = Executors.newSingleThreadExecutor();
     private final ExecutorService display = Executors.newSingleThreadExecutor();
     private final ExecutorService fileListing = Executors.newSingleThreadExecutor();
-    private final Runnable runtimeRefreshListener = () -> main.post(this::refreshStatus);
+    private final Runnable runtimeRefreshListener = () -> main.post(() -> { refreshStatus(); if("대화".equals(MainActivity.this.tab))refreshMessages(); });
     private ChatAttachmentPreviews photoPreviews;
     private final java.util.IdentityHashMap<AlertDialog, Bitmap> expandedPhotos = new java.util.IdentityHashMap<>();
     private final java.util.IdentityHashMap<TextView, JSONObject> replyViews = new java.util.IdentityHashMap<>();
@@ -72,7 +81,16 @@ public final class MainActivity extends Activity {
     private LinearLayout chatNavigation;
     private HoyoungApplication app;
     private LinearLayout root, content;
-    private TextView connection;
+    private TextView connection, screenTitle, typingLabel;
+    private FrameLayout shell, drawerOverlay;
+    private LinearLayout drawer, typingRow;
+    private View headerAvatar, statusDot;
+    private ImageButton sendButton;
+    private TypingIndicatorView typingDots;
+    private PermissionOnboarding permissionOnboarding;
+    private boolean permissionBlocked, connectedUiStarted;
+    private final java.util.LinkedHashMap<Long, View> messageRows = new java.util.LinkedHashMap<>();
+    private final java.util.HashMap<Long, String> messageSignatures = new java.util.HashMap<>();
     private String tab = "대화", exportFileId;
     private JSONArray attachments = new JSONArray();
     private EditText composer;
@@ -109,28 +127,157 @@ public final class MainActivity extends Activity {
         draftStore = new OwnerDraftStore(app.getStore());
         photoPreviews = new ChatAttachmentPreviews(this, app.getFiles());
         if (!app.getRuntime().isRestoringBackup()) { draftState = draftStore.read(); attachments = draftState.attachments(); }
-        getWindow().setStatusBarColor(Color.WHITE);
+        if(android.os.Build.VERSION.SDK_INT>=30)getWindow().setDecorFitsSystemWindows(false);
+        getWindow().setStatusBarColor(BG);
         getWindow().setNavigationBarColor(Color.WHITE);
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
+        shell = new FrameLayout(this); shell.setBackgroundColor(BG);
         root = column(); root.setBackgroundColor(BG);
-        root.setPadding(dp(12), dp(12), dp(12), dp(8));
-        TextView name = label("호영", 25, INK); name.setTypeface(null, Typeface.BOLD); root.addView(name);
-        connection = label("Work 연결을 준비하고 있어", 12, SUBTLE);
-        connection.setPadding(0, dp(6), 0, dp(10)); root.addView(connection);
-        LinearLayout nav = row();
-        for (String nameTab : new String[]{"대화", "Work", "기억", "권한", "파일", "설정"}) {
-            Button button = button(nameTab, () -> showTab(nameTab));
-            button.setTextSize(12); button.setMinWidth(0); button.setMinimumWidth(0);
-            nav.addView(button, new LinearLayout.LayoutParams(0, dp(44), 1));
-        }
-        root.addView(nav);
+        shell.addView(root, new FrameLayout.LayoutParams(-1, -1));
+        root.setOnApplyWindowInsetsListener((view, insets) -> {
+            if (android.os.Build.VERSION.SDK_INT >= 30) {
+                android.graphics.Insets bars = insets.getInsets(android.view.WindowInsets.Type.systemBars() | android.view.WindowInsets.Type.ime());
+                root.setPadding(bars.left, bars.top, bars.right, bars.bottom);
+            } else root.setPadding(insets.getSystemWindowInsetLeft(), insets.getSystemWindowInsetTop(), insets.getSystemWindowInsetRight(), insets.getSystemWindowInsetBottom());
+            return insets;
+        });
+        buildHeader();
         content = column(); root.addView(content, new LinearLayout.LayoutParams(-1, 0, 1));
-        setContentView(root);
-        app.getWebController().bindActivity(this);
-        app.getWebController().start();
+        setContentView(shell); root.requestApplyInsets();
+        permissionOnboarding = new PermissionOnboarding(this);
         app.getRuntime().setListener(runtimeRefreshListener);
-        showTab("대화");
-        openReplyIntent(getIntent());
-        if (!app.getRuntime().isRestoringBackup() && "true".equals(app.getStore().getSetting("autonomy.enabled", "false"))) startAutonomy();
+        if (!checkPermissionGate()) activateConnectedUi();
+    }
+
+    private void activateConnectedUi() {
+        if (!connectedUiStarted) {
+            connectedUiStarted = true;
+            app.getWebController().bindActivity(this);
+            app.getWebController().start();
+            if (!app.getRuntime().isRestoringBackup() && "true".equals(app.getStore().getSetting("autonomy.enabled", "false"))) startAutonomy();
+        }
+        showTab("대화"); openReplyIntent(getIntent());
+    }
+
+    private void buildHeader() {
+        LinearLayout header = row(); header.setGravity(Gravity.CENTER_VERTICAL); header.setPadding(dp(12), dp(8), dp(12), dp(8));
+        header.setBackgroundColor(BG); header.setMinimumHeight(dp(76));
+        header.addView(icon(LineIconDrawable.Icon.MENU, "메뉴 열기", this::openDrawer), new LinearLayout.LayoutParams(dp(44), dp(48)));
+        headerAvatar = new HoyoungAvatarView(this);
+        LinearLayout.LayoutParams avatarParams = new LinearLayout.LayoutParams(dp(42), dp(42)); avatarParams.setMargins(dp(6),0,dp(12),0); header.addView(headerAvatar,avatarParams);
+        LinearLayout titles=column(); screenTitle=label("호영",19,INK);screenTitle.setTypeface(android.graphics.Typeface.create("sans-serif-medium",Typeface.NORMAL));titles.addView(screenTitle);
+        LinearLayout status=row();status.setGravity(Gravity.CENTER_VERTICAL);
+        statusDot=new View(this);statusDot.setBackground(round(Color.rgb(177,171,191)));LinearLayout.LayoutParams dot=new LinearLayout.LayoutParams(dp(5),dp(5));dot.setMargins(0,0,dp(5),0);status.addView(statusDot,dot);
+        connection=label("연결 준비 중",11,SUBTLE);connection.setSingleLine(true);connection.setEllipsize(android.text.TextUtils.TruncateAt.END);status.addView(connection,new LinearLayout.LayoutParams(-1,-2));titles.addView(status);
+        header.addView(titles,new LinearLayout.LayoutParams(0,-2,1));titles.setOnClickListener(v->showConnectionDetails());
+        header.addView(icon(LineIconDrawable.Icon.MORE,"대화 옵션",this::showConversationOptions),new LinearLayout.LayoutParams(dp(44),dp(48)));
+        root.addView(header);View divider=new View(this);divider.setBackgroundColor(Color.rgb(237,234,243));root.addView(divider,new LinearLayout.LayoutParams(-1,dp(1)));
+    }
+
+    private ImageButton icon(LineIconDrawable.Icon name,String description,Runnable action) {
+        ImageButton result=ChatPalette.iconButton(this,name,description,INK);result.setOnClickListener(v->action.run());return result;
+    }
+
+    private void openDrawer() {
+        if (permissionBlocked) { showPermissionOnboarding(); return; }
+        if(drawerOverlay!=null)return;
+        drawerOverlay=new FrameLayout(this);drawerOverlay.setBackgroundColor(Color.argb(70,20,17,37));drawerOverlay.setContentDescription("메뉴");
+        drawerOverlay.setOnClickListener(v->closeDrawer());
+        drawer=column();drawer.setClickable(true);drawer.setBackgroundColor(BG);drawer.setPadding(dp(22),dp(40),dp(18),dp(24));
+        int width=Math.min(dp(328),getResources().getDisplayMetrics().widthPixels-dp(40));
+        FrameLayout.LayoutParams panelParams=new FrameLayout.LayoutParams(width,-1,Gravity.START);android.widget.ScrollView drawerScroll=new android.widget.ScrollView(this);drawerScroll.setFillViewport(true);drawerScroll.setVerticalScrollBarEnabled(false);drawerScroll.setBackgroundColor(BG);drawerScroll.addView(drawer,new android.widget.ScrollView.LayoutParams(-1,-1));drawerOverlay.addView(drawerScroll,panelParams);
+        LinearLayout top=row();top.setGravity(Gravity.CENTER_VERTICAL);top.addView(new HoyoungAvatarView(this),new LinearLayout.LayoutParams(dp(52),dp(52)));
+        LinearLayout identity=column();identity.setPadding(dp(14),0,0,0);TextView name=label("호영",24,INK);name.setTypeface(null,Typeface.BOLD);identity.addView(name);identity.addView(label("우리의 대화, 이어지는 기억",12,SUBTLE));top.addView(identity,new LinearLayout.LayoutParams(0,-2,1));
+        top.addView(icon(LineIconDrawable.Icon.CLOSE,"메뉴 닫기",this::closeDrawer),new LinearLayout.LayoutParams(dp(40),dp(48)));drawer.addView(top);
+        TextView section=label("MY SPACE",10,SUBTLE);section.setLetterSpacing(.12f);section.setPadding(dp(12),dp(32),0,dp(12));drawer.addView(section);
+        String[] names={"대화","Work","기억","파일","권한","설정"};
+        String[] hints={"오늘도 편하게 이야기해","ChatGPT 연결과 작업 공간","쌓일수록 더 나다운 기억","사진, 문서와 백업","휴대폰 접근과 기능 허용","사용자 지침과 모델"};
+        LineIconDrawable.Icon[] icons={LineIconDrawable.Icon.CHAT,LineIconDrawable.Icon.WORK,LineIconDrawable.Icon.MEMORY,LineIconDrawable.Icon.FOLDER,LineIconDrawable.Icon.SHIELD,LineIconDrawable.Icon.SETTINGS};
+        for(int i=0;i<names.length;i++) {
+            String destination=names[i];boolean selected=destination.equals(tab);LinearLayout item=row();item.setGravity(Gravity.CENTER_VERTICAL);item.setPadding(dp(14),dp(13),dp(12),dp(13));item.setMinimumHeight(dp(72));item.setBackground(ChatPalette.ripple(this,selected?Color.rgb(238,233,255):BG,20));
+            ImageView symbol=new ImageView(this);symbol.setImageDrawable(new LineIconDrawable(icons[i],selected?BLUE:SUBTLE,getResources().getDisplayMetrics().density));item.addView(symbol,new LinearLayout.LayoutParams(dp(24),dp(24)));
+            LinearLayout copy=column();copy.setPadding(dp(15),0,0,0);TextView title=label(destination,16,selected?BLUE:INK);title.setTypeface(null,Typeface.BOLD);copy.addView(title);copy.addView(label(hints[i],11,SUBTLE));item.addView(copy,new LinearLayout.LayoutParams(0,-2,1));item.setContentDescription(destination+" · "+hints[i]);item.setOnClickListener(v->{closeDrawer();showTab(destination);});drawer.addView(item);
+        }
+        drawer.addView(new View(this),new LinearLayout.LayoutParams(1,0,1));
+        TextView footer=label("이 폰에 보관되는 대화와 기억",12,SUBTLE);footer.setPadding(dp(12),dp(20),0,0);drawer.addView(footer);
+        shell.addView(drawerOverlay,new FrameLayout.LayoutParams(-1,-1));
+        root.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
+        if(app.getReplyNotifications()!=null)app.getReplyNotifications().setConversationVisible(false);
+        drawer.setTranslationX(-width);drawer.animate().translationX(0).setDuration(android.animation.ValueAnimator.areAnimatorsEnabled()?240:0).setInterpolator(new android.view.animation.DecelerateInterpolator()).start();
+    }
+
+    private void closeDrawer() {
+        if(drawerOverlay==null)return;FrameLayout old=drawerOverlay;drawerOverlay=null;drawer=null;shell.removeView(old);root.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_AUTO);
+        if(app.getReplyNotifications()!=null)app.getReplyNotifications().setConversationVisible(resumed&&!permissionBlocked&&"대화".equals(tab));markVisibleReplies();
+    }
+
+    @Override public void onBackPressed() {
+        if(drawerOverlay!=null){closeDrawer();return;}
+        if(!permissionBlocked&&!"대화".equals(tab)){showTab("대화");return;}
+        super.onBackPressed();
+    }
+
+    private void showConversationOptions() {
+        if(permissionBlocked){showPermissionOnboarding();return;}
+        new AlertDialog.Builder(this).setTitle("대화 옵션").setItems(new String[]{"모델·응답 설정","Work 연결 상태","현재 작업 중지"},(dialog,which)->{
+            if(which==0)showTab("설정");else if(which==1)showTab("Work");else commands.execute(()->{app.getRuntime().pauseCurrentWork("사용자가 대화 옵션에서 현재 작업 중지 선택");main.post(this::refreshStatus);});
+        }).setNegativeButton("닫기",null).show();
+    }
+
+    private void showConnectionDetails() {
+        if(permissionBlocked){showPermissionOnboarding();return;}
+        JSONObject state=app.getRuntime().state();
+        new AlertDialog.Builder(this).setTitle("호영의 현재 상태").setMessage(connection.getContentDescription()+"\n\n모델 "+state.optString("model")+"\n추론 "+state.optString("effort")+" · 응답 "+state.optString("speed"))
+                .setPositiveButton("Work 열기",(d,w)->showTab("Work")).setNegativeButton("닫기",null).show();
+    }
+
+    private boolean checkPermissionGate() {
+        if(!uiReady||permissionOnboarding==null)return false;
+        boolean wasBlocked=permissionBlocked;
+        permissionBlocked=!permissionOnboarding.snapshot().ready();
+        if(permissionBlocked){
+            connectedUiStarted=false;
+            if(typingDots!=null)typingDots.setActive(false);
+            if(app.getReplyNotifications()!=null)app.getReplyNotifications().setConversationVisible(false);
+            closeDrawer();showPermissionOnboarding();return true;
+        }
+        if(wasBlocked)activateConnectedUi();
+        return false;
+    }
+
+    private void showPermissionOnboarding() {
+        if(!uiReady||permissionOnboarding==null)return;
+        PermissionOnboarding.Snapshot state=permissionOnboarding.snapshot();
+        permissionBlocked=!state.ready();
+        tab="권한 설정";screenTitle.setText("시작할 준비");headerAvatar.setVisibility(View.GONE);
+        connection.setText("권한 "+state.grantedCount+" / "+state.requiredCount);connection.setContentDescription("필수 권한을 모두 허용하면 대화를 시작할 수 있어");
+        chatGeneration++;if(photoPreviews!=null)photoPreviews.clear();replyViews.clear();messageRows.clear();messageSignatures.clear();
+        if(typingDots!=null)typingDots.setActive(false);typingDots=null;typingRow=null;composer=null;sendButton=null;
+        detachWebView();content.removeAllViews();LinearLayout panel=scrollPanel();
+        HoyoungAvatarView avatar=new HoyoungAvatarView(this);LinearLayout.LayoutParams av=new LinearLayout.LayoutParams(dp(64),dp(64));av.setMargins(0,dp(12),0,dp(22));panel.addView(avatar,av);
+        TextView title=label("먼저, 내 폰과\n연결해 볼까",29,INK);title.setTypeface(null,Typeface.BOLD);panel.addView(title);
+        panel.addView(label("대화를 시작하기 전에 아래 권한을 모두 허용해 줘. 각 권한으로 무엇을 하는지 확인하고 Android 설정에서 직접 켤 수 있어.",14,SUBTLE));
+        TextView progress=label(state.grantedCount+" / "+state.requiredCount+" 준비 완료",13,BLUE);progress.setPadding(0,dp(18),0,dp(8));panel.addView(progress);
+        ProgressBar bar=new ProgressBar(this,null,android.R.attr.progressBarStyleHorizontal);bar.setMax(Math.max(1,state.requiredCount));bar.setProgress(state.grantedCount);bar.setProgressTintList(android.content.res.ColorStateList.valueOf(BLUE));panel.addView(bar,new LinearLayout.LayoutParams(-1,dp(6)));
+        if(!state.ready())panel.addView(primaryButton("다음 권한 허용",()->requestOnboardingPermission(null)));
+        for(PermissionOnboarding.Item permission:state.items){
+            if(!permission.required||permission.granted)continue;
+            LinearLayout card=column();card.setPadding(dp(16),dp(14),dp(16),dp(14));card.setBackground(ChatPalette.outlined(this,Color.WHITE,Color.rgb(235,231,241),20));
+            TextView name=label(permission.title,16,INK);name.setTypeface(null,Typeface.BOLD);card.addView(name);TextView detail=label(permission.detail,12,SUBTLE);detail.setPadding(0,dp(5),0,dp(10));card.addView(detail);
+            card.addView(button("허용하기",()->requestOnboardingPermission(permission.id)));panel.addView(card);
+        }
+        LinearLayout completed=column();for(PermissionOnboarding.Item permission:state.items)if(permission.required&&permission.granted)completed.addView(label("✓  "+permission.title,14,INK));
+        if(completed.getChildCount()>0)panel.addView(disclosure("허용된 권한",completed,false));
+        LinearLayout unavailable=column();for(PermissionOnboarding.Item permission:state.items)if(!permission.required){unavailable.addView(label(permission.title,14,INK));unavailable.addView(label(permission.detail,12,SUBTLE));}
+        if(unavailable.getChildCount()>0)panel.addView(disclosure("기기·Android에서 지원하지 않는 항목",unavailable,false));
+        Button proceed=primaryButton("호영과 대화 시작",()->{if(!checkPermissionGate())activateConnectedUi();});proceed.setEnabled(state.ready());proceed.setAlpha(state.ready()?1f:.4f);panel.addView(proceed);
+        panel.addView(button("권한 상태 다시 확인",()->{if(!checkPermissionGate())activateConnectedUi();}));
+        panel.addView(label("권한을 허용한 뒤에도 사이드바의 권한 메뉴에서 호영이 사용할 기능을 개별적으로 바꿀 수 있어.",12,SUBTLE));
+    }
+
+    private void requestOnboardingPermission(String id){
+        PermissionOnboarding.RequestResult result=id==null?permissionOnboarding.requestNext(this):permissionOnboarding.request(this,id);
+        if(!result.launched&&!result.message.isEmpty())notice(result.message);
     }
 
     private void showStartupRecovery() {
@@ -170,15 +317,19 @@ public final class MainActivity extends Activity {
         super.onResume();
         resumed = true;
         if (!uiReady) return;
+        if (checkPermissionGate()) return;
+        if (!connectedUiStarted) activateConnectedUi();
         resumeReadyUi();
     }
 
     private void resumeReadyUi() {
-        if (app.getReplyNotifications() != null) app.getReplyNotifications().setConversationVisible("대화".equals(tab) && !app.getRuntime().isRestoringBackup());
+        if(permissionBlocked)return;
+        if (app.getReplyNotifications() != null) app.getReplyNotifications().setConversationVisible(drawerOverlay==null && "대화".equals(tab) && !app.getRuntime().isRestoringBackup());
         app.getWebController().bindActivity(this);
         main.removeCallbacks(refresh); main.post(refresh);
         if (!app.getRuntime().isRestoringBackup()) { app.getPhoneContext().reconcilePermissions(); app.maintainMemory(); }
         if ("권한".equals(tab)) showPermissions();
+        if(app.getRuntime().autonomyEnabled()&&!app.getRuntime().state().optBoolean("serviceRunning")&&!app.getRuntime().isRestoringBackup())startAutonomy();
     }
 
     @Override protected void onNewIntent(Intent intent) { super.onNewIntent(intent); setIntent(intent); openReplyIntent(intent); }
@@ -205,6 +356,7 @@ public final class MainActivity extends Activity {
 
     @Override protected void onPause() {
         resumed = false;
+        if(typingDots!=null)typingDots.setActive(false);
         if (app.getReplyNotifications() != null) app.getReplyNotifications().setConversationVisible(false);
         if (photoPreviews != null) photoPreviews.clear();
         displayedMessageId = -1;
@@ -225,6 +377,7 @@ public final class MainActivity extends Activity {
 
     private void showTab(String name) {
         if (!uiReady) { showStartupRecovery(); return; }
+        if (permissionBlocked) { showPermissionOnboarding(); return; }
         if (app.getRuntime().isRestoringBackup()) {
             if (photoPreviews != null) photoPreviews.clear();
             if (app.getReplyNotifications() != null) app.getReplyNotifications().setConversationVisible(false);
@@ -234,8 +387,11 @@ public final class MainActivity extends Activity {
         }
         chatGeneration++;
         if (photoPreviews != null) photoPreviews.clear();
-        replyViews.clear();
-        detachWebView(); content.removeAllViews(); composer = null; tab = name;
+        replyViews.clear(); messageRows.clear(); messageSignatures.clear();
+        if(typingDots!=null)typingDots.setActive(false);typingDots=null;typingRow=null;
+        detachWebView(); content.removeAllViews(); composer = null; sendButton=null;attachmentLabel=null;tab = name;
+        screenTitle.setText("대화".equals(name)?"호영":name);
+        headerAvatar.setVisibility("대화".equals(name)?View.VISIBLE:View.GONE);
         if (app.getReplyNotifications() != null) app.getReplyNotifications().setConversationVisible(resumed && "대화".equals(name));
         switch (name) {
             case "Work": showWork(); break;
@@ -245,6 +401,7 @@ public final class MainActivity extends Activity {
             case "설정": showSettings(); break;
             default: showChat();
         }
+        refreshStatus();
     }
 
     private void detachWebView() {
@@ -256,33 +413,50 @@ public final class MainActivity extends Activity {
     private LinearLayout messageList;
     private ScrollView messageScroll;
     private void showChat() {
-        draftState = draftStore.read(); attachments = draftState.attachments();
-        chatBeforeId = 0; nextBeforeId = 0;
-        chatNavigation = row(); content.addView(chatNavigation);
-        messageScroll = new ScrollView(this); messageScroll.setFillViewport(true);
-        messageScroll.getViewTreeObserver().addOnScrollChangedListener(() -> { photoPreviews.updateViewport(); markVisibleReplies(); });
-        messageList = column(); messageScroll.addView(messageList);
-        content.addView(messageScroll, new LinearLayout.LayoutParams(-1, 0, 1));
-        attachmentLabel = label(attachmentSummary(), 12, SUBTLE); content.addView(attachmentLabel);
-        attachmentLabel.setOnClickListener(view -> { if (attachments.length() == 0) return; new AlertDialog.Builder(this).setMessage("선택한 첨부를 대화 입력에서 지울까? 보관된 파일 원본은 남아 있어.").setPositiveButton("첨부 선택 지우기", (dialog, which) -> { attachments = new JSONArray(); persistDraft(); attachmentLabel.setText(attachmentSummary()); }).setNegativeButton("유지", null).show(); });
-        LinearLayout entry = row();
-        entry.addView(button("＋", () -> pickDocuments(PICK_FILES, "*/*")), new LinearLayout.LayoutParams(dp(48), dp(52)));
-        composer = new EditText(this); composer.setTextSize(15); composer.setHint("호영에게 메시지…");
-        composer.setMaxLines(5); composer.setText(draftState.text);
-        composer.addTextChangedListener(new android.text.TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) { if (!applyingDraft) persistDraft(); }
-            @Override public void afterTextChanged(android.text.Editable s) { }
+        draftState=draftStore.read();attachments=draftState.attachments();chatBeforeId=0;nextBeforeId=0;
+        chatNavigation=row();chatNavigation.setPadding(dp(12),0,dp(12),0);content.addView(chatNavigation);
+        messageScroll=new ScrollView(this);messageScroll.setFillViewport(true);messageScroll.setVerticalScrollBarEnabled(false);messageScroll.setClipToPadding(false);
+        messageScroll.getViewTreeObserver().addOnScrollChangedListener(()->{photoPreviews.updateViewport();markVisibleReplies();});
+        messageList=column();messageList.setPadding(dp(16),dp(12),dp(16),dp(14));messageScroll.addView(messageList);
+        content.addView(messageScroll,new LinearLayout.LayoutParams(-1,0,1));
+        typingRow=row();typingRow.setGravity(Gravity.CENTER_VERTICAL);typingRow.setPadding(dp(20),0,dp(16),dp(8));
+        HoyoungAvatarView typingAvatar=new HoyoungAvatarView(this);typingRow.addView(typingAvatar,new LinearLayout.LayoutParams(dp(24),dp(24)));
+        typingDots=new TypingIndicatorView(this);LinearLayout.LayoutParams dots=new LinearLayout.LayoutParams(dp(56),dp(32));dots.setMargins(dp(8),0,dp(6),0);typingDots.setBackground(round(Color.rgb(239,236,244)));typingRow.addView(typingDots,dots);
+        typingLabel=label("답변을 준비하고 있어",11,SUBTLE);typingRow.addView(typingLabel);typingRow.setVisibility(View.GONE);content.addView(typingRow);
+        LinearLayout composerArea=column();composerArea.setBackgroundColor(Color.WHITE);composerArea.setPadding(dp(12),dp(10),dp(12),dp(12));
+        attachmentLabel=label(attachmentSummary(),12,BLUE);attachmentLabel.setPadding(dp(12),dp(8),dp(12),dp(8));attachmentLabel.setBackground(round(Color.rgb(241,237,255)));composerArea.addView(attachmentLabel);
+        attachmentLabel.setOnClickListener(v->{if(attachments.length()==0)return;new AlertDialog.Builder(this).setMessage("선택한 첨부를 입력창에서 지울까? 보관된 원본은 남아 있어.").setPositiveButton("첨부 선택 지우기",(d,w)->{attachments=new JSONArray();persistDraft();updateComposerState();}).setNegativeButton("유지",null).show();});
+        LinearLayout entry=row();entry.setGravity(Gravity.BOTTOM);entry.setPadding(dp(4),dp(3),dp(4),dp(3));entry.setBackground(ChatPalette.rounded(this,Color.rgb(245,243,249),28));
+        entry.addView(icon(LineIconDrawable.Icon.ATTACHMENT,"사진 또는 파일 첨부",this::showAttachmentChoices),new LinearLayout.LayoutParams(dp(44),dp(48)));
+        composer=new EditText(this);composer.setTextSize(15);composer.setTextColor(INK);composer.setHintTextColor(SUBTLE);composer.setHint("메시지 보내기…");composer.setBackgroundColor(Color.TRANSPARENT);composer.setPadding(dp(4),dp(13),dp(4),dp(12));
+        composer.setInputType(android.text.InputType.TYPE_CLASS_TEXT|android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE|android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+        composer.setMaxLines(5);composer.setText(draftState.text);composer.setContentDescription("메시지 입력");
+        composer.addTextChangedListener(new android.text.TextWatcher(){
+            @Override public void beforeTextChanged(CharSequence s,int start,int count,int after){}
+            @Override public void onTextChanged(CharSequence s,int start,int before,int count){if(!applyingDraft)persistDraft();updateComposerState();}
+            @Override public void afterTextChanged(android.text.Editable s){}
         });
-        entry.addView(composer, new LinearLayout.LayoutParams(0, -2, 1));
-        entry.addView(button("보내기", this::send), new LinearLayout.LayoutParams(dp(76), dp(52)));
-        content.addView(entry); displayedMessageId = -1; refreshMessages();
-        if (draftState.recoveryRequired) content.addView(label(draftState.recoveryReason, 13, SUBTLE));
-        content.addView(button("현재 작업 중지", () -> commands.execute(() -> { app.getRuntime().pauseCurrentWork("사용자가 대화 화면에서 현재 작업 중지 선택"); main.post(this::refreshStatus); })));
+        entry.addView(composer,new LinearLayout.LayoutParams(0,-2,1));
+        sendButton=ChatPalette.iconButton(this,LineIconDrawable.Icon.SEND,"메시지 보내기",Color.WHITE);sendButton.setBackground(ChatPalette.outgoing(this));sendButton.setOnClickListener(v->send());
+        LinearLayout.LayoutParams sendParams=new LinearLayout.LayoutParams(dp(48),dp(48));sendParams.setMargins(dp(6),dp(3),dp(3),dp(3));entry.addView(sendButton,sendParams);composerArea.addView(entry);
+        content.addView(composerArea);displayedMessageId=-1;refreshMessages();updateComposerState();
+        if(draftState.recoveryRequired)composerArea.addView(label(draftState.recoveryReason,12,SUBTLE));
+    }
+
+    private void showAttachmentChoices(){
+        new AlertDialog.Builder(this).setTitle("대화에 첨부").setItems(new String[]{"사진·동영상","모든 파일"},(d,which)->{
+            if(which==0){Intent intent=new Intent(Intent.ACTION_OPEN_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("*/*").putExtra(Intent.EXTRA_MIME_TYPES,new String[]{"image/*","video/*"}).putExtra(Intent.EXTRA_ALLOW_MULTIPLE,true);startActivityForResult(intent,PICK_FILES);}
+            else pickDocuments(PICK_FILES,"*/*");
+        }).setNegativeButton("닫기",null).show();
+    }
+
+    private void updateComposerState(){
+        if(attachmentLabel!=null){attachmentLabel.setText(attachmentSummary());attachmentLabel.setVisibility(attachments.length()==0?View.GONE:View.VISIBLE);}
+        if(sendButton!=null){boolean canSend=!sending&&!permissionBlocked&&composer!=null&&(!composer.getText().toString().trim().isEmpty()||attachments.length()>0);sendButton.setEnabled(canSend);sendButton.setAlpha(canSend?1f:.35f);sendButton.setContentDescription(sending?"메시지 저장 중":"메시지 보내기");}
     }
 
     private void send() {
-        if (sending || composer == null || draftState == null) return;
+        if (checkPermissionGate() || sending || composer == null || draftState == null) return;
         if (draftState.recoveryRequired) { notice(draftState.recoveryReason); return; }
         if (draftSaveFailed || !draftState.text.equals(composer.getText().toString()) || !draftState.attachmentsJson.equals(attachments.toString())) { notice("입력을 아직 영구 저장하지 못했어. 내용을 수정하거나 첨부 선택을 다시 확인한 뒤 보내 줘."); return; }
         String draft = composer.getText().toString();
@@ -291,18 +465,18 @@ public final class MainActivity extends Activity {
         final String attached = attachments.toString();
         final String clientId = draftState.clientInputId;
         final long revision = draftState.revision;
-        sending = true;
+        sending = true; updateComposerState();
         commands.execute(() -> {
             try {
                 app.getRuntime().receive(text, new JSONArray(attached), clientId, revision);
                 OwnerDraftStore.Snapshot current = draftStore.read();
                 main.post(() -> {
-                    sending = false;
+                    sending = false; updateComposerState();
                     if (isFinishing() || isDestroyed()) return;
                     if (draftState != null && clientId.equals(draftState.clientInputId) && revision == draftState.revision) applyDraft(current);
                     refreshMessages(); refreshStatus();
                 });
-            } catch (Exception error) { main.post(() -> { sending = false; notice("메시지나 첨부 원본을 저장하지 못했어. 입력과 선택은 그대로 남겨 뒀어."); }); }
+            } catch (Exception error) { main.post(() -> { sending = false; updateComposerState(); notice("메시지나 첨부 원본을 저장하지 못했어. 입력과 선택은 그대로 남겨 뒀어."); }); }
         });
     }
 
@@ -329,35 +503,99 @@ public final class MainActivity extends Activity {
                     if (newest == displayedMessageId) return;
                     boolean follow = displayedMessageId < 0 || messageScroll.getChildAt(0).getHeight() - messageScroll.getHeight() - messageScroll.getScrollY() < dp(100);
                     int scrollY = messageScroll.getScrollY();
+                    long previousNewest=displayedMessageId;
                     displayedMessageId = newest; nextBeforeId = page.optLong("nextBeforeId", 0);
-                    photoPreviews.clear(); replyViews.clear(); messageList.removeAllViews(); chatNavigation.removeAllViews();
-                    if (before > 0) chatNavigation.addView(button("최신 대화", () -> { chatBeforeId = 0; displayedMessageId = -1; chatGeneration++; refreshMessages(); }));
-                    if (page.optBoolean("hasMore")) chatNavigation.addView(button("이전 대화 40개", () -> { chatBeforeId = nextBeforeId; displayedMessageId = -1; chatGeneration++; refreshMessages(); }));
-                    if (messages.length() == 0) {
-                        TextView hint = label("대화와 기억은 이 폰에 저장돼.\nWork 탭에서 ChatGPT를 연결하면 일을 시작할 수 있어.", 15, SUBTLE);
-                        hint.setPadding(dp(8), dp(24), dp(8), dp(24)); messageList.addView(hint);
-                    }
-                    for (int i = 0; i < messages.length(); i++) {
-                        JSONObject message = messages.optJSONObject(i); if (message == null) continue;
-                        boolean owner = "user".equals(message.optString("role"));
-                        LinearLayout line = row(); line.setGravity(owner ? Gravity.END : Gravity.START);
-                        LinearLayout bubble = column(); bubble.setPadding(dp(12), dp(9), dp(12), dp(10)); bubble.setBackground(round(owner ? BLUE : Color.WHITE));
-                        if (!owner) bubble.addView(label("호영", 11, SUBTLE));
-                        TextView body = label(message.optString("text"), 15, owner ? Color.WHITE : INK); body.setTextIsSelectable(true); bubble.addView(body);
-                        if (!owner) replyViews.put(body, message);
-                        if (message.optBoolean("textIsExcerpt")) bubble.addView(button("보관된 전체 원문 읽기", () -> showOriginal(message.optLong("id"), 0)));
-                        if (owner) addAttachmentPreviews(bubble, assets.get(message.optLong("id")));
-                        LinearLayout.LayoutParams bubbleParams = new LinearLayout.LayoutParams(-2, -2); bubbleParams.setMargins(owner ? dp(30) : 0, dp(5), owner ? 0 : dp(30), dp(5));
-                        line.addView(bubble, bubbleParams); messageList.addView(line);
-                    }
-                    messageScroll.post(() -> { if (follow) messageScroll.fullScroll(View.FOCUS_DOWN); else messageScroll.scrollTo(0, scrollY); photoPreviews.updateViewport(); markVisibleReplies(); });
+                    renderChatPage(messages,assets,previousNewest);
+                    chatNavigation.removeAllViews();
+                    if(before>0)chatNavigation.addView(button("최신 대화",()->{chatBeforeId=0;displayedMessageId=-1;chatGeneration++;refreshMessages();}));
+                    if(page.optBoolean("hasMore"))chatNavigation.addView(button("이전 대화 보기",()->{chatBeforeId=nextBeforeId;displayedMessageId=-1;chatGeneration++;refreshMessages();}));
+                    chatNavigation.setVisibility(chatNavigation.getChildCount()==0?View.GONE:View.VISIBLE);
+                    messageScroll.post(()->{if(follow){if(previousNewest<0)messageScroll.fullScroll(View.FOCUS_DOWN);else messageScroll.smoothScrollTo(0,messageList.getHeight());}else messageScroll.scrollTo(0,scrollY);photoPreviews.updateViewport();markVisibleReplies();});
+
                 });
             } catch (RuntimeException failed) { main.post(() -> { messagesLoading = false; if (!isDestroyed()) connection.setText("대화 미리보기를 읽지 못했어. 원본은 그대로 보관돼."); }); }
         });
     }
 
+    /** Reuse unchanged bubbles: polling must not restart selection, photo decoding, or entry motion. */
+    private void renderChatPage(JSONArray messages, java.util.Map<Long,JSONArray> assets,long previousNewest) {
+        java.util.HashMap<Long,java.util.ArrayList<JSONObject>> reactions=new java.util.HashMap<>();
+        java.util.HashMap<Long,String> visibleOwners=new java.util.HashMap<>();
+        for(int i=0;i<messages.length();i++){JSONObject message=messages.optJSONObject(i);if(message!=null&&"user".equals(message.optString("role")))visibleOwners.put(message.optLong("id"),message.optString("content_hash"));}
+        for(int i=0;i<messages.length();i++) {
+            JSONObject message=messages.optJSONObject(i);JSONObject reaction=EmojiReactionReply.fromStoredMessage(message);
+            if(reaction!=null&&reaction.optString("targetRecordHash").equals(visibleOwners.get(reaction.optLong("targetMessageId")))) reactions.computeIfAbsent(reaction.optLong("targetMessageId"),key->new java.util.ArrayList<>()).add(message);
+        }
+        if(previousNewest<0){photoPreviews.clear();replyViews.clear();messageList.removeAllViews();messageRows.clear();messageSignatures.clear();}
+        if(messages.length()==0){
+            for(View old:messageRows.values())releaseChatRow(old);replyViews.clear();
+            messageList.removeAllViews();messageRows.clear();messageSignatures.clear();LinearLayout welcome=column();welcome.setGravity(Gravity.CENTER);welcome.setPadding(dp(20),dp(74),dp(20),dp(36));
+            welcome.addView(new HoyoungAvatarView(this),new LinearLayout.LayoutParams(dp(78),dp(78)));
+            TextView title=label("호영과 나의 대화",23,INK);title.setTypeface(null,Typeface.BOLD);title.setPadding(0,dp(20),0,dp(8));welcome.addView(title);
+            TextView subtitle=label("일상의 한마디부터, 맡기고 싶은 일까지.\n사진과 파일도 편하게 보내 줘.",14,SUBTLE);subtitle.setGravity(Gravity.CENTER);welcome.addView(subtitle);
+            Button connect=button("Work 연결하기",()->showTab("Work"));LinearLayout.LayoutParams link=new LinearLayout.LayoutParams(-2,dp(48));link.setMargins(0,dp(22),0,0);welcome.addView(connect,link);messageList.addView(welcome);return;
+        }
+        java.util.LinkedHashMap<Long,View> next=new java.util.LinkedHashMap<>();int position=0;String lastDate="";
+        for(int i=0;i<messages.length();i++) {
+            JSONObject message=messages.optJSONObject(i);if(message==null)continue;long id=message.optLong("id");
+            JSONObject reaction=EmojiReactionReply.fromStoredMessage(message);
+            if(reaction!=null&&reaction.optString("targetRecordHash").equals(visibleOwners.get(reaction.optLong("targetMessageId"))))continue;
+            String date=dayLabel(message.optLong("created_at"));String separator=date.equals(lastDate)?"":date;lastDate=date;
+            java.util.ArrayList<JSONObject> badges=reactions.get(id);
+            String signature=message.toString()+"|"+separator+"|"+String.valueOf(assets.get(id))+"|"+String.valueOf(badges);
+            View row=messageRows.get(id);boolean inserted=row==null;
+            if(row==null||!signature.equals(messageSignatures.get(id))) {
+                if(row!=null){releaseChatRow(row);messageList.removeView(row);}
+                row=chatMessageView(message,assets.get(id),badges,separator);messageSignatures.put(id,signature);
+            }
+            if(row.getParent()==null)messageList.addView(row,Math.min(position,messageList.getChildCount()));
+            else if(messageList.indexOfChild(row)!=position){messageList.removeView(row);messageList.addView(row,Math.min(position,messageList.getChildCount()));}
+            next.put(id,row);position++;
+            if(inserted&&previousNewest>=0&&id>previousNewest&&chatBeforeId==0)ChatPalette.enter(row,0);
+        }
+        for(java.util.Map.Entry<Long,View> old:messageRows.entrySet())if(!next.containsKey(old.getKey())){releaseChatRow(old.getValue());messageList.removeView(old.getValue());messageSignatures.remove(old.getKey());}
+        // The initial empty state is a placeholder, not a chat item.
+        for(int i=messageList.getChildCount()-1;i>=0;i--)if(!next.containsValue(messageList.getChildAt(i)))messageList.removeViewAt(i);
+        messageRows.clear();messageRows.putAll(next);
+    }
+
+    private View chatMessageView(JSONObject message,JSONArray assets,java.util.List<JSONObject> reactions,String date) {
+        boolean owner="user".equals(message.optString("role"));boolean system="system".equals(message.optString("role"));
+        LinearLayout item=column();item.setPadding(0,0,0,dp(10));
+        if(!date.isEmpty()){TextView day=label(date,11,SUBTLE);day.setGravity(Gravity.CENTER);day.setPadding(0,dp(14),0,dp(18));item.addView(day);}
+        LinearLayout line=row();line.setGravity((owner?Gravity.END:Gravity.START)|Gravity.BOTTOM);
+        if(system){TextView notice=label(message.optString("text"),12,SUBTLE);notice.setPadding(dp(14),dp(10),dp(14),dp(10));notice.setGravity(Gravity.CENTER);notice.setBackground(round(Color.rgb(239,237,244)));item.addView(notice);replyViews.put(notice,message);return item;}
+        if(!owner){HoyoungAvatarView avatar=new HoyoungAvatarView(this);LinearLayout.LayoutParams avatarParams=new LinearLayout.LayoutParams(dp(27),dp(27));avatarParams.setMargins(0,0,dp(8),dp(24));line.addView(avatar,avatarParams);}
+        LinearLayout group=column();group.setGravity(owner?Gravity.END:Gravity.START);
+        LinearLayout bubble=column();bubble.setPadding(dp(15),dp(11),dp(15),dp(12));bubble.setBackground(owner?ChatPalette.outgoing(this):ChatPalette.rounded(this,Color.rgb(238,236,243),22));
+        JSONObject reaction=EmojiReactionReply.fromStoredMessage(message);
+        String text=reaction==null?message.optString("text"):"이전 메시지에 "+reaction.optString("emoji")+" 반응했어";
+        TextView body=label(text,15,owner?Color.WHITE:INK);body.setTextIsSelectable(true);body.setMaxWidth(Math.max(dp(140),getResources().getDisplayMetrics().widthPixels-dp(126)));
+        if(!text.isEmpty())bubble.addView(body);
+        if(!owner)replyViews.put(body,message);
+        if(message.optBoolean("textIsExcerpt"))bubble.addView(button("전체 원문 읽기",()->showOriginal(message.optLong("id"),0)));
+        if(owner)addAttachmentPreviews(bubble,assets);
+        group.addView(bubble,new LinearLayout.LayoutParams(-2,-2));
+        if(reactions!=null&&!reactions.isEmpty()){
+            LinearLayout badges=row();badges.setGravity(Gravity.END);badges.setPadding(dp(4),0,dp(4),0);
+            for(JSONObject reply:reactions){JSONObject mark=EmojiReactionReply.fromStoredMessage(reply);if(mark==null)continue;TextView badge=label(mark.optString("emoji"),19,INK);badge.setGravity(Gravity.CENTER);badge.setMinWidth(dp(44));badge.setMinHeight(dp(36));badge.setPadding(dp(10),dp(2),dp(10),dp(2));badge.setBackground(ChatPalette.outlined(this,Color.WHITE,Color.rgb(229,225,238),18));badge.setContentDescription("호영이 이 메시지에 "+mark.optString("emoji")+" 이모지로 응답함");badge.setOnClickListener(v->notice("호영이 "+mark.optString("emoji")+" 이모지로 응답했어. 이 반응도 대화와 기억에 함께 보관돼."));badges.addView(badge);replyViews.put(badge,reply);}
+            LinearLayout.LayoutParams badgeParams=new LinearLayout.LayoutParams(-2,-2);badgeParams.topMargin=-dp(3);group.addView(badges,badgeParams);
+        }
+        TextView time=label(clockLabel(message.optLong("created_at")),10,SUBTLE);time.setGravity(owner?Gravity.END:Gravity.START);time.setPadding(dp(4),dp(5),dp(4),0);group.addView(time);
+        LinearLayout.LayoutParams groupParams=new LinearLayout.LayoutParams(-2,-2);groupParams.setMargins(owner?dp(48):0,0,owner?0:dp(28),0);line.addView(group,groupParams);item.addView(line);return item;
+    }
+
+    private void releaseChatRow(View view){
+        view.animate().cancel();
+        if(view instanceof TextView)replyViews.remove(view);
+        if(view instanceof ImageView)photoPreviews.unregister((ImageView)view);
+        if(view instanceof ViewGroup){ViewGroup group=(ViewGroup)view;for(int i=0;i<group.getChildCount();i++)releaseChatRow(group.getChildAt(i));}
+    }
+    private String dayLabel(long time){return time<=0?"":new java.text.SimpleDateFormat("M월 d일 E요일",java.util.Locale.KOREAN).format(new java.util.Date(time));}
+    private String clockLabel(long time){return time<=0?"":new java.text.SimpleDateFormat("a h:mm",java.util.Locale.KOREAN).format(new java.util.Date(time));}
+
     private void markVisibleReplies() {
-        if (!resumed || !"대화".equals(tab) || app.getRuntime().isRestoringBackup() || app.getReplyNotifications() == null) return;
+        if (!resumed || drawerOverlay!=null || !"대화".equals(tab) || app.getRuntime().isRestoringBackup() || app.getReplyNotifications() == null) return;
         Rect bounds = new Rect();
         for (java.util.Map.Entry<TextView, JSONObject> entry : replyViews.entrySet()) {
             TextView view = entry.getKey(); JSONObject source = entry.getValue();
@@ -373,8 +611,8 @@ public final class MainActivity extends Activity {
             String name = asset.optString("sourceName", asset.optString("name", "첨부"));
             bubble.addView(label(name, 12, Color.WHITE));
             if (!asset.optString("mime", asset.optString("mimeType")).startsWith("image/")) continue;
-            ImageView image = new ImageView(this); image.setContentDescription(name); image.setAdjustViewBounds(true); image.setScaleType(ImageView.ScaleType.FIT_CENTER);
-            bubble.addView(image, new LinearLayout.LayoutParams(dp(220), dp(180)));
+            ImageView image = new ImageView(this); image.setBackground(ChatPalette.rounded(this,Color.rgb(239,236,244),14)); image.setClipToOutline(true); image.setContentDescription(name); image.setAdjustViewBounds(true); image.setScaleType(ImageView.ScaleType.FIT_CENTER);
+            bubble.addView(image, new LinearLayout.LayoutParams(Math.min(dp(220),getResources().getDisplayMetrics().widthPixels-dp(160)), dp(180)));
             photoPreviews.register(image, asset);
             image.setOnClickListener(view -> photoPreviews.loadExpanded(asset, preview -> {
                     if (isFinishing() || isDestroyed()) { if (preview.ready() && !preview.bitmap.isRecycled()) preview.bitmap.recycle(); return; }
@@ -412,7 +650,7 @@ public final class MainActivity extends Activity {
 
     private void showWork() {
         TextView help = label("여기서 본인 ChatGPT에 로그인하고 Work · 임시 채팅 · 설정에서 정한 모델·강도·속도를 선택해. 기본값은 GPT-6.1 Sol · Medium · Fast야. 선택 상태가 확인되면 요청을 보낼 수 있어.", 13, SUBTLE);
-        help.setPadding(0, dp(10), 0, dp(8)); content.addView(help);
+        help.setPadding(dp(16), dp(14), dp(16), dp(14)); content.addView(help);
         LinearLayout controls = row();
         controls.addView(button("선택 확인", () -> app.getWebController().inspect()), new LinearLayout.LayoutParams(0, dp(46), 1));
         controls.addView(button("Work 선택", () -> app.getWebController().selectWork()), new LinearLayout.LayoutParams(0, dp(46), 1));
@@ -428,7 +666,9 @@ public final class MainActivity extends Activity {
             try { app.getRuntime().openTemporary(); }
             catch (Exception e) { notice("기존 작업의 결과를 먼저 확인하거나 설정에서 해당 작업을 제외해 줘."); }
         }), new LinearLayout.LayoutParams(0, dp(46), 1));
-        content.addView(controls);
+        android.widget.HorizontalScrollView controlsScroll=new android.widget.HorizontalScrollView(this);controlsScroll.setHorizontalScrollBarEnabled(false);controlsScroll.setPadding(dp(12),0,dp(12),dp(10));
+        for(int i=0;i<controls.getChildCount();i++){View control=controls.getChildAt(i);LinearLayout.LayoutParams params=new LinearLayout.LayoutParams(-2,dp(48));params.rightMargin=dp(8);control.setLayoutParams(params);}
+        controlsScroll.addView(controls);content.addView(controlsScroll);
         try {
             WebView web = app.getWebController().getView();
             content.addView(web, new LinearLayout.LayoutParams(-1, 0, 1));
@@ -638,30 +878,17 @@ public final class MainActivity extends Activity {
     private void showPermissions() {
         content.removeAllViews();
         LinearLayout panel = scrollPanel();
-        panel.addView(label("휴대폰 권한", 20, INK));
-        panel.addView(label("기본 권한은 한 번에 요청할 수 있어. 특수권한은 각 Android 설정 화면에서 직접 켜야 해. 허용된 기능만 실제로 사용할 수 있어.", 14, SUBTLE));
-        panel.addView(button("기본 권한 요청", this::requestBasicPermissions));
-        PermissionCatalog catalog = new PermissionCatalog(this);
-        JSONArray permissions = catalog.snapshot();
-        for (int i = 0; i < permissions.length(); i++) {
-            JSONObject permission = permissions.optJSONObject(i); if (permission == null) continue;
-            String id = permission.optString("id");
-            String kind = permission.optString("kind");
-            boolean unsupported = "unsupported".equals(permission.optString("action")) || "restricted".equals(kind);
-            String status = permission.optBoolean("granted") ? "허용됨" : unsupported ? "제한 있음" : "설정 필요";
-            panel.addView(button(permission.optString("label") + " · " + status, () -> {
-                if ("runtime".equals(kind) && !"background_location".equals(id)) {
-                    JSONArray names = permission.optJSONArray("runtimePermissions");
-                    java.util.ArrayList<String> missing = new java.util.ArrayList<>();
-                    for (int j = 0; names != null && j < names.length(); j++) if (checkSelfPermission(names.optString(j)) != PackageManager.PERMISSION_GRANTED) missing.add(names.optString(j));
-                    if (!missing.isEmpty()) requestPermissions(missing.toArray(new String[0]), 300); else catalog.openSettings(this, id);
-                } else if ("unsupported".equals(permission.optString("action"))) {
-                    notice("일반 앱 설치로는 root나 기기 소유자 권한을 얻을 수 없어.");
-                } else catalog.openSettings(this, id);
+        panel.addView(label("접근과 허용",25,INK));
+        panel.addView(label("폰의 접근 권한과 호영이 실행할 기능을 따로 관리해.",14,SUBTLE));
+        PermissionOnboarding.Snapshot permissionState=permissionOnboarding.snapshot();
+        LinearLayout systemPermissions=new com.hoyoung.assistant.ui.FormColumn(this);
+        for(PermissionOnboarding.Item permission:permissionState.items){
+            systemPermissions.addView(button(permission.title+" · "+(permission.granted?"허용됨":permission.required?"설정 필요":"지원 범위 확인"),()->{
+                PermissionOnboarding.RequestResult result=permissionOnboarding.request(this,permission.id);if(!result.launched)notice(result.message);
             }));
-            String note = permission.optString("notes");
-            if (!note.isEmpty()) panel.addView(label(note, 11, SUBTLE));
+            systemPermissions.addView(label(permission.detail,12,SUBTLE));
         }
+        panel.addView(disclosure("Android 권한 · "+permissionState.grantedCount+" / "+permissionState.requiredCount,systemPermissions,false));
         panel.addView(label("호영이가 사용할 기능", 20, INK));
         panel.addView(label("Android 권한을 유지하면서 호영이의 특정 기능만 끌 수 있어. 대화에서도 이 설정을 바꿀 수 있어.", 13, SUBTLE));
         JSONArray tools = app.getPhoneTools().catalog();
@@ -687,6 +914,7 @@ public final class MainActivity extends Activity {
             }));
             return;
         }
+        java.util.LinkedHashMap<String,LinearLayout> categories=new java.util.LinkedHashMap<>();
         for (int i = 0; i < tools.length(); i++) {
             JSONObject tool = tools.optJSONObject(i); if (tool == null) continue;
             String name = tool.optString("name");
@@ -694,8 +922,11 @@ public final class MainActivity extends Activity {
             check.setOnCheckedChangeListener((button, enabled) -> {
                 try { app.getStore().withTransaction(db -> { JSONObject current = parseObject(app.getStore().getSetting("toolPermissions", "{}")); try { current.put(name, enabled); } catch (Exception invalid) { throw new IllegalStateException(invalid); } app.getStore().putSetting("toolPermissions", current.toString()); return null; }); applyPhonePolicy(); app.getPhoneContext().reconcilePermissions(); }
                 catch (Exception ignored) { }
-            }); panel.addView(check);
+            });
+            String category=name.startsWith("memory.")?"기억과 원문":name.startsWith("files.")||name.startsWith("phone_files")?"파일 읽기·쓰기":name.startsWith("phone_")?"휴대폰 기능":"작업과 앱 설정";
+            categories.computeIfAbsent(category,key->new com.hoyoung.assistant.ui.FormColumn(this)).addView(check);
         }
+        for(java.util.Map.Entry<String,LinearLayout> category:categories.entrySet())panel.addView(disclosure(category.getKey(),category.getValue(),false));
     }
 
     private void requestBasicPermissions() {
@@ -705,6 +936,7 @@ public final class MainActivity extends Activity {
 
     @Override public void onRequestPermissionsResult(int requestCode, String[] names, int[] results) {
         super.onRequestPermissionsResult(requestCode, names, results);
+        if(checkPermissionGate())return;
         if ("권한".equals(tab)) showPermissions();
     }
 
@@ -917,9 +1149,11 @@ public final class MainActivity extends Activity {
                 new AlertDialog.Builder(this).setTitle("라이선스").setMessage(readUtf8(input)).setPositiveButton("닫기", null).show();
             } catch (Exception ignored) { }
         }));
+        organizeSettings(panel,instructions);
     }
 
     private void startAutonomy() {
+        if(permissionOnboarding!=null&&!permissionOnboarding.snapshot().ready()){checkPermissionGate();return;}
         app.getRuntime().startAutonomy();
         refreshStatus();
     }
@@ -1017,7 +1251,7 @@ public final class MainActivity extends Activity {
 
     private void refreshStatus() {
         if("파일".equals(tab)&&ownerFolderState!=null)ownerFolderState.setText(ownerFolderDescription());
-        if (connection == null) return;
+        if (connection == null || permissionBlocked) return;
         JSONObject state = app.getRuntime().state();
         if ("설정".equals(tab) && usageBudgetState != null) usageBudgetState.setText(usageBudgetDescription(state.optJSONObject("usageBudget")));
         JSONObject web = state.optJSONObject("webState");
@@ -1057,6 +1291,15 @@ public final class MainActivity extends Activity {
             case "bridge_script_unavailable" -> "Work 연결 도구를 준비하지 못했어 · 대화와 파일은 폰에 남아 있어";
             default -> "연결 확인 필요 · Work 탭에서 로그인과 선택 상태를 확인해";
         });
+        String detail=connection.getText().toString();connection.setContentDescription(detail);
+        boolean active=!state.isNull("activeRequestId")&&!state.optString("activeRequestId").isEmpty();
+        boolean blocked=state.optBoolean("quotaBlocked")||state.optBoolean("uncertaintyBlocked")||state.optBoolean("storageRecoveryBlocked")||state.optBoolean("restoringBackup");
+        if(blocked)connection.setText(state.optBoolean("quotaBlocked")?"사용 한도 대기 중":"작업 상태 확인 필요");
+        else if(active)connection.setText("preparing".equals(state.optString("activePhase"))?"답변을 준비하고 있어":"응답을 기다리고 있어");
+        else if(state.optBoolean("ready"))connection.setText("연결됨 · "+("true".equals(app.getStore().getSetting("autonomy.enabled","false"))?"자율 모드":"대화 준비 완료"));
+        else connection.setText(web!=null&&web.optBoolean("loading")?"Work 연결 중":"Work 연결 확인 필요");
+        statusDot.setBackground(round(blocked?Color.rgb(203,146,81):state.optBoolean("ready")?Color.rgb(80,161,128):Color.rgb(177,171,191)));
+        if(typingDots!=null&&typingRow!=null){boolean show=active&&state.optBoolean("activeOwnerReply")&&!blocked&&"대화".equals(tab);typingRow.setVisibility(show?View.VISIBLE:View.GONE);typingDots.setActive(show&&resumed);typingLabel.setText("preparing".equals(state.optString("activePhase"))?"기억을 살펴보고 있어":"답변을 기다리고 있어");}
     }
 
     private void pickDocuments(int code, String mime) {
@@ -1114,7 +1357,7 @@ public final class MainActivity extends Activity {
                         }
                         for (int i = 0; i < saved.length(); i++) attachments.put(saved.optString(i));
                         persistDraft();
-                        if ("파일".equals(tab)) showFiles(); else if (attachmentLabel != null) attachmentLabel.setText(attachmentSummary());
+                        if ("파일".equals(tab)) showFiles(); else updateComposerState();
                     });
                 } catch (Exception e) { main.post(() -> notice("파일을 저장하지 못했어. 파일 크기와 접근 권한을 확인해.")); }
             }); return;
@@ -1151,14 +1394,45 @@ public final class MainActivity extends Activity {
         return uris;
     }
 
+    private LinearLayout disclosure(String title,LinearLayout body,boolean expanded){
+        LinearLayout card=column();card.setBackground(ChatPalette.outlined(this,Color.WHITE,Color.rgb(235,231,241),20));
+        LinearLayout heading=row();heading.setGravity(Gravity.CENTER_VERTICAL);heading.setPadding(dp(16),dp(18),dp(12),dp(18));heading.setMinimumHeight(dp(60));heading.setBackground(ChatPalette.ripple(this,Color.TRANSPARENT,20));
+        TextView text=label(title,15,INK);text.setTypeface(null,Typeface.BOLD);heading.addView(text,new LinearLayout.LayoutParams(0,-2,1));
+        ImageView chevron=new ImageView(this);chevron.setImageDrawable(new LineIconDrawable(LineIconDrawable.Icon.CHEVRON,SUBTLE,getResources().getDisplayMetrics().density));heading.addView(chevron,new LinearLayout.LayoutParams(dp(22),dp(22)));chevron.setRotation(expanded?90:0);
+        body.setPadding(dp(16),0,dp(16),dp(12));body.setVisibility(expanded?View.VISIBLE:View.GONE);card.addView(heading);card.addView(body);
+        heading.setContentDescription(title+(expanded?" 접기":" 펼치기"));heading.setOnClickListener(v->{boolean open=body.getVisibility()!=View.VISIBLE;body.setVisibility(open?View.VISIBLE:View.GONE);chevron.animate().rotation(open?90:0).setDuration(ChatPalette.animationsEnabled()?160:0).start();heading.setContentDescription(title+(open?" 접기":" 펼치기"));});return card;
+    }
+
+    private void organizeSettings(LinearLayout panel,EditText instructions){
+        java.util.LinkedHashMap<String,LinearLayout> sections=new java.util.LinkedHashMap<>();
+        String current="자율 모드";Button save=null;java.util.ArrayList<View> children=new java.util.ArrayList<>();
+        for(int i=0;i<panel.getChildCount();i++)children.add(panel.getChildAt(i));panel.removeAllViews();
+        for(View view:children){
+            if(view==instructions)continue;
+            if(view instanceof Button&&"설정 저장".contentEquals(((Button)view).getText())){save=(Button)view;continue;}
+            if(view instanceof TextView&&!(view instanceof EditText)&&!(view instanceof Button)&&((TextView)view).getTextSize()/getResources().getDisplayMetrics().scaledDensity>=17){current=((TextView)view).getText().toString();continue;}
+            if(view instanceof Button&&"한도·연결 상태 다시 확인".contentEquals(((Button)view).getText()))current="연결과 진단";
+            sections.computeIfAbsent(current,key->new com.hoyoung.assistant.ui.FormColumn(this)).addView(view);
+        }
+        panel.addView(label("나에게 맞는 호영",25,INK));panel.addView(label("말투부터 모델까지, 원하는 방식으로.",13,SUBTLE));
+        LinearLayout custom=sections.remove("맞춤 지침");if(custom==null)custom=new com.hoyoung.assistant.ui.FormColumn(this);
+        instructions.setHint("호영에게 알려 둘 말투와 사용자 지침");instructions.setMinLines(6);instructions.setMaxLines(9);instructions.setVerticalScrollBarEnabled(true);instructions.setContentDescription("사용자 지침 편집");
+        custom.addView(instructions,0);panel.addView(disclosure("사용자 지침",custom,true));
+        String[] order={"사용할 모델과 사용자 응답 옵션","자율 모드","실행 방식","사용량 절약 · 하루 10% 목표","연결과 진단","확인되지 않은 작업"};
+        for(String title:order){LinearLayout body=sections.remove(title);if(body!=null)panel.addView(disclosure(title.equals("사용할 모델과 사용자 응답 옵션")?"모델과 응답 속도":title,body,false));}
+        for(java.util.Map.Entry<String,LinearLayout> section:sections.entrySet())panel.addView(disclosure(section.getKey(),section.getValue(),false));
+        if(save!=null){save.setTextColor(Color.WHITE);save.setBackground(ChatPalette.outgoing(this));panel.addView(save);}
+    }
+
+    private Button primaryButton(String title,Runnable action){Button result=button(title,action);result.setTextColor(Color.WHITE);result.setBackground(ChatPalette.outgoing(this));return result;}
     private LinearLayout scrollPanel() {
-        ScrollView scroll = new ScrollView(this); LinearLayout panel = column(); panel.setPadding(0, dp(12), 0, dp(12)); scroll.addView(panel);
+        ScrollView scroll = new ScrollView(this); scroll.setVerticalScrollBarEnabled(false); LinearLayout panel = new com.hoyoung.assistant.ui.FormColumn(this); panel.setPadding(dp(20), dp(22), dp(20), dp(24)); scroll.addView(panel);
         content.addView(scroll, new LinearLayout.LayoutParams(-1, -1)); return panel;
     }
     private LinearLayout column() { LinearLayout view = new LinearLayout(this); view.setOrientation(LinearLayout.VERTICAL); return view; }
     private LinearLayout row() { LinearLayout view = new LinearLayout(this); view.setOrientation(LinearLayout.HORIZONTAL); return view; }
-    private TextView label(String text, int size, int color) { TextView view = new TextView(this); view.setText(text); view.setTextSize(size); view.setTextColor(color); return view; }
-    private Button button(String text, Runnable action) { Button button = new Button(this); button.setText(text); button.setTextColor(BLUE); button.setAllCaps(false); button.setOnClickListener(v -> action.run()); return button; }
+    private TextView label(String text, int size, int color) { TextView view = new TextView(this); view.setText(text); view.setTextSize(size); view.setTextColor(color); view.setFontFeatureSettings("kern"); view.setLineSpacing(dp(2),1.08f); if(size>=17)view.setTypeface(android.graphics.Typeface.create("sans-serif-medium",Typeface.NORMAL)); return view; }
+    private Button button(String text, Runnable action) { Button button = new Button(this); button.setText(text); button.setTextSize(14); button.setTextColor(BLUE); button.setAllCaps(false); button.setMinHeight(dp(48)); button.setMinimumHeight(dp(48)); button.setPadding(dp(16),dp(10),dp(16),dp(10)); button.setElevation(0); button.setStateListAnimator(null); button.setBackground(ChatPalette.ripple(this,Color.rgb(238,233,250),15)); button.setOnClickListener(v -> action.run()); return button; }
     private GradientDrawable round(int color) { GradientDrawable drawable = new GradientDrawable(); drawable.setColor(color); drawable.setCornerRadius(dp(18)); return drawable; }
     private int dp(int value) { return Math.round(value * getResources().getDisplayMetrics().density); }
     private void notice(String text) { if (isFinishing() || isDestroyed()) return; new AlertDialog.Builder(this).setMessage(text).setPositiveButton("확인", null).show(); }
@@ -1179,7 +1453,7 @@ public final class MainActivity extends Activity {
         applyingDraft = true;
         try { if (composer != null) composer.setText(snapshot.text); }
         finally { applyingDraft = false; }
-        if (attachmentLabel != null) attachmentLabel.setText(attachmentSummary());
+        updateComposerState();
     }
     private String readUtf8(InputStream input) throws Exception {
         ByteArrayOutputStream output = new ByteArrayOutputStream(); byte[] buffer = new byte[4096]; int count;

@@ -13,7 +13,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import com.hoyoung.assistant.MainActivity;
+import com.hoyoung.assistant.MainActivityUiTestSupport;
 import com.hoyoung.assistant.phone.PhoneEventJournal;
+import com.hoyoung.assistant.phone.PermissionOnboarding;
+import com.hoyoung.assistant.phone.PermissionTestGrants;
 import com.hoyoung.assistant.store.HoyoungStore;
 import com.hoyoung.assistant.store.InternalFiles;
 import com.hoyoung.assistant.store.MemoryGateway;
@@ -172,7 +175,7 @@ public final class SourceDeletionStartupReadyTest {
             assertFalse(name, name.equals("memory.source.delete") || name.equals("memory.source.exclude")
                     || name.equals("memory.source.control") || name.equals("source.payload.delete") || name.equals("source.control"));
         }
-        Button memoryTab = findButton(activity.get().getWindow().getDecorView(), "기억"); assertNotNull(memoryTab); memoryTab.performClick();
+        MainActivityUiTestSupport.navigate(activity.get(), "기억");
         EditText sourceId = findHint(activity.get().getWindow().getDecorView(), "원문 ID"); assertNotNull(sourceId); sourceId.setText(String.valueOf(source.getLong("id")));
         Button inspect = findButton(activity.get().getWindow().getDecorView(), "원문 확인 후 관리"); assertNotNull(inspect); assertTrue(inspect.isAttachedToWindow()); inspect.performClick();
         finishExecutor(activity.get(), "io"); Shadows.shadowOf(Looper.getMainLooper()).idle();
@@ -189,7 +192,7 @@ public final class SourceDeletionStartupReadyTest {
 
     @Test public void ownerUiDeletionNeedsSeparateConfirmationAndPreservesUnsentDraftIdentity() throws Exception {
         closeSeed(); app = attached(); app.onCreate(); assertReady(); openActivity();
-        findButton(activity.get().getWindow().getDecorView(), "기억").performClick();
+        MainActivityUiTestSupport.navigate(activity.get(), "기억");
         findHint(activity.get().getWindow().getDecorView(), "원문 ID").setText(String.valueOf(source.getLong("id")));
         findButton(activity.get().getWindow().getDecorView(), "원문 확인 후 관리").performClick();
         finishExecutor(activity.get(), "io"); Shadows.shadowOf(Looper.getMainLooper()).idle();
@@ -257,6 +260,10 @@ public final class SourceDeletionStartupReadyTest {
         assertEquals("owner unsent attachment payload", app.getFiles().readText("unsent-draft.txt", 100));
     }
     private void openActivity() throws Exception {
+        // This fixture manually attaches HoyoungApplication; grant its actual context,
+        // not RuntimeEnvironment's separate placeholder Application.
+        PermissionTestGrants.allowAll(app);
+        assertTrue("Deletion/startup tests use a permission-ready phone",new PermissionOnboarding(app).snapshot().ready());
         activity = Robolectric.buildActivity(MainActivity.class);
         Shadows.shadowOf(activity.get()).setApplication(app);
         activity.create().start().resume().visible();

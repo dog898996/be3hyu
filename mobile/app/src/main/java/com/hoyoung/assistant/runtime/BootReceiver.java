@@ -10,6 +10,7 @@ public final class BootReceiver extends BroadcastReceiver {
         if (intent == null || !(Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction()) || Intent.ACTION_MY_PACKAGE_REPLACED.equals(intent.getAction()))) return;
         HoyoungApplication application = (HoyoungApplication) context.getApplicationContext();
         if (!application.isStartupReady()) return;
+        if (!new com.hoyoung.assistant.phone.PermissionOnboarding(context).snapshot().ready()) return;
         AssistantRuntime runtime = application.getRuntime();
         if (runtime.autonomyEnabled()) runtime.startAutonomy();
     }

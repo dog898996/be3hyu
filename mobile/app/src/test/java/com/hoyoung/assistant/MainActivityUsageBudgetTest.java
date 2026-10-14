@@ -10,6 +10,9 @@ import com.hoyoung.assistant.runtime.HoyoungApplication;
 
 import org.json.JSONObject;
 import org.junit.Test;
+import org.junit.Before;
+import org.robolectric.RuntimeEnvironment;
+import com.hoyoung.assistant.phone.PermissionTestGrants;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
@@ -21,6 +24,7 @@ import static org.junit.Assert.*;
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 28, application = HoyoungApplication.class)
 public class MainActivityUsageBudgetTest {
+    @Before public void grantDevicePermissions() { PermissionTestGrants.allowAll(RuntimeEnvironment.getApplication()); }
     @Test public void missingTelemetryCannotBecomeAnAchievementOrTokenEstimate() {
         String absent = MainActivity.usageBudgetDescription(null);
         assertTrue(absent.contains("사용량 미확인"));
@@ -74,7 +78,7 @@ public class MainActivityUsageBudgetTest {
             app.getStore().putSetting("requiredEffort", "high");
             app.getStore().putSetting("usageOptimizationEnabled", "true");
             View root = activity.findViewById(android.R.id.content);
-            requireText(root, "설정").performClick();
+            MainActivityUiTestSupport.navigate(activity, "설정");
             Spinner speed = findUserSpeed(root);
             assertNotNull(speed);
             assertFalse(speed.isEnabled());
@@ -95,7 +99,7 @@ public class MainActivityUsageBudgetTest {
             MainActivity activity = controller.get();
             HoyoungApplication app = (HoyoungApplication) activity.getApplication();
             View root = activity.findViewById(android.R.id.content);
-            requireText(root, "설정").performClick();
+            MainActivityUiTestSupport.navigate(activity, "설정");
             CheckBox optimize = (CheckBox) requireText(root, "판단·기억 처리에 맞춰 실행 옵션 분리");
             optimize.setChecked(false);
             Spinner speed = findUserSpeed(root);

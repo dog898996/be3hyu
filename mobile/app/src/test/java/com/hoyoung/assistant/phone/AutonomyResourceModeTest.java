@@ -27,6 +27,7 @@ public final class AutonomyResourceModeTest {
     private HoyoungApplication app; private ServiceController<AutonomyService> controller; private AutonomyService service;
     @Before public void setup() {
         app = (HoyoungApplication) RuntimeEnvironment.getApplication();
+        PermissionTestGrants.allowAll(app);
         app.getStore().putSetting("semanticSearchEnabled", "false"); app.getStore().putSetting("phoneContextEnabled", "false"); app.getStore().putSetting("autonomy.enabled", "true");
         app.sendStickyBroadcast(new Intent(Intent.ACTION_BATTERY_CHANGED).putExtra(BatteryManager.EXTRA_PLUGGED, 0));
     }
@@ -61,5 +62,25 @@ public final class AutonomyResourceModeTest {
         start("typo-mode"); assertFalse(AutonomyService.resourceState().getBoolean("validConfiguredWakeMode")); assertEquals("continuous", AutonomyService.resourceState().getString("configuredWakeMode"));
         assertFalse(AutonomyService.validWakeMode(null)); assertFalse(AutonomyService.validWakeMode("Continuous"));
         assertTrue(AutonomyService.shouldKeepAwake("while_working", true, false)); assertTrue(AutonomyService.shouldKeepAwake("while_working", false, true)); assertFalse(AutonomyService.shouldKeepAwake("while_working", false, false));
+    }
+
+    @Test public void missingPermissionStopsServiceWithoutDisablingAutonomyOrDeletingQueuedWork() throws Exception {
+        org.json.JSONObject request = app.getStore().enqueueRequest("보존할 사용자 작업", "user", "permission-paused");
+        Shadows.shadowOf(app).denyPermissions(android.Manifest.permission.READ_CONTACTS);
+        controller = Robolectric.buildService(AutonomyService.class).create(); service = controller.get();
+        assertEquals(android.app.Service.START_NOT_STICKY, service.onStartCommand(new Intent(app, AutonomyService.class), 0, 1));
+        assertTrue(Shadows.shadowOf(service).isStoppedBySelf());
+        assertEquals("true", app.getStore().getSetting("autonomy.enabled", "false"));
+        assertEquals("queued", app.getStore().getRequest(request.getLong("id")).getString("status"));
+    }
+
+    @Test public void revokedPermissionStopsNextPulseAndPreservesOwnerPreference() throws Exception {
+        start("continuous"); assertTrue(AutonomyService.resourceState().getBoolean("serviceRunning"));
+        Shadows.shadowOf(app).denyPermissions(android.Manifest.permission.READ_CONTACTS);
+        Runnable pulse = ReflectionHelpers.getField(service, "pulse"); pulse.run();
+        assertTrue(Shadows.shadowOf(service).isStoppedBySelf());
+        assertEquals("true", app.getStore().getSetting("autonomy.enabled", "false"));
+        controller.destroy(); controller = null;
+        assertFalse(AutonomyService.resourceState().getBoolean("partialWakeLockHeld"));
     }
 }

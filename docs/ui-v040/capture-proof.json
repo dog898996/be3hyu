@@ -1,0 +1,57 @@
+{
+  "nativeRendering": true,
+  "androidApi": 35,
+  "renderer": "Robolectric native Android graphics",
+  "productionViews": "MainActivity.java and ui components",
+  "physicalSamsungCapture": false,
+  "authenticatedExternalWorkCaptured": false,
+  "fixtureData": "synthetic messages, OS grants; typing view preview state",
+  "profileOriginalSha256": "e8296967706181a2c25c3b64a87b8241b39351ff1c280e575e0dec04cca53f16",
+  "screens": [
+    {
+      "name": "대화",
+      "file": "01.png",
+      "sha256": "bb8b65819bf2ad57c1db8d4c875c61df4935bba7f8987bb7947467aad5353cff"
+    },
+    {
+      "name": "Work",
+      "file": "02.png",
+      "sha256": "a9ce7eeafb28de92c3d1dd8f019b0f204de3687b054ddcdf8ab26bdb022253d6"
+    },
+    {
+      "name": "기억",
+      "file": "03.png",
+      "sha256": "5496bf24ffed33b8d9e5e3ae0da5f0fe9a52462429ee2d9f77b41286a7c7df94"
+    },
+    {
+      "name": "권한",
+      "file": "04.png",
+      "sha256": "f983f5639fd1bdfe0b083b295fdb023ee1ed627b9c52fe9fce118f8e134bc0f1"
+    },
+    {
+      "name": "파일",
+      "file": "05.png",
+      "sha256": "a22685d38fc36ee6676aa7340d1205f92c15476efbd86052d62ed6fb638900e6"
+    },
+    {
+      "name": "설정",
+      "file": "06.png",
+      "sha256": "9b3687011f12b2bf74dccd07c4d07c8b0144c2c2bc5125982af7e9e93e6f45c2"
+    },
+    {
+      "name": "사이드바",
+      "file": "07-sidebar.png",
+      "sha256": "e922c782682e6dcf4430556560c86eaad9133e56c7080d715aa022a905a17170"
+    },
+    {
+      "name": "입력 중",
+      "file": "08-typing.png",
+      "sha256": "944167d2bcbbf30e3a4df6ee6946178d45c5404b2b9f09330976f2791c35fa6b"
+    },
+    {
+      "name": "첫 권한 설정",
+      "file": "09-permissions.png",
+      "sha256": "e0b3a0e9caad73d60f9f0bc10b85764c94e8e7b48a9918845c29fa3259867e78"
+    }
+  ]
+}

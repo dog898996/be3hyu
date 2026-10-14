@@ -7,6 +7,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import com.hoyoung.assistant.runtime.HoyoungApplication;
 import org.junit.Test;
+import org.junit.Before;
+import org.robolectric.RuntimeEnvironment;
+import com.hoyoung.assistant.phone.PermissionTestGrants;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
@@ -17,6 +20,7 @@ import static org.junit.Assert.*;
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 28, application = HoyoungApplication.class)
 public class MainActivitySmokeTest {
+    @Before public void grantDevicePermissions() { PermissionTestGrants.allowAll(RuntimeEnvironment.getApplication()); }
     @Test public void nativeAppStartsWithoutAccountAndKeepsTypedDraft() {
         ActivityController<MainActivity> controller = Robolectric.buildActivity(MainActivity.class).setup();
         MainActivity activity = controller.get();
@@ -37,7 +41,7 @@ public class MainActivitySmokeTest {
         MainActivity activity = controller.get();
         HoyoungApplication app = (HoyoungApplication) activity.getApplication();
         app.getStore().putSetting("runtime.progress", "PRIVATE-CHAT-AND-NOTIFICATION-BODY");
-        findText(activity.findViewById(android.R.id.content), "설정").performClick();
+        MainActivityUiTestSupport.navigate(activity, "설정");
         findText(activity.findViewById(android.R.id.content), "연결 진단 복사").performClick();
         android.content.ClipboardManager clipboard = (android.content.ClipboardManager) activity.getSystemService(android.content.Context.CLIPBOARD_SERVICE);
         String copied = clipboard.getPrimaryClip().getItemAt(0).getText().toString();

@@ -2,11 +2,18 @@
 
 The mobile app targets Android 15 (API 35), with Android 8 (API 26) as its minimum. `PermissionCatalog` reports the device's actual grants at the time of reading. A default-enabled app tool setting does not grant an Android permission. The user must approve ordinary permission prompts and personally enable special accesses in Android Settings. The app cannot silently enable accessibility, notification access, all-files access, device administration, or other system permissions.
 
+The owner-requested onboarding now requires every applicable Android grant before entering chat or starting the Work connection/autonomy service. `PermissionOnboarding.snapshot()` reads current grants each time; no persisted completion flag overrides denial, process restart, or revocation. Accurate foreground location is required for this setup, followed by a separate background-location step. Android 11+ opens app settings for “Allow all the time”; Android 10 requests background access in its own dialog. Full photo and video access is required; selected-only access does not complete setup. A second no-rationale denial opens app settings instead of looping a prompt Android will no longer show.
+
+Unsupported hardware, undeclared/role-restricted permissions, root/device-owner access, and OS versions without a separate special grant are shown with an explanation and excluded from the completion count. A settings launch or failed platform query never counts as a grant. Supported legacy device admin, exact alarms, notification access, accessibility, usage access, all-files access, settings/overlay access, battery exemption and notifications remain required by this owner's setup policy. An inaccessible settings screen gives manual navigation instructions and keeps the applicable grant pending. System restrictions still require the owner to act in Android settings; the app does not operate permission dialogs for them.
+
+Boot/update callbacks and the autonomy service recheck this gate before starting. The service also rechecks on its local pulse and stops when permissions are missing, preserving `autonomy.enabled` and queued requests for a later permitted restart. Canonical memory loading/recovery still runs locally before setup completes. Editable per-tool allow switches remain independent: switching a tool off does not revoke an Android grant or force the setup gate to be redone.
+
 `PermissionCatalog(Context)` provides:
 
 - `JSONArray snapshot()`: entries `{id,label,kind,runtimePermissions,granted,action,notes}`. `kind` is `runtime`, `restricted`, or `special`. `action` is `request_runtime`, `open_settings`, or `unsupported`.
 - `String[] missingRuntimePermissions()`: missing, manifest-declared ordinary permissions suitable for a foreground permission request. Background location and installer/role-restricted SMS or call-log permissions are excluded.
 - `void openSettings(Activity activity, String id)`: opens the corresponding Android screen without operating its controls. Unsupported screens fall back to the app-details screen.
+- `boolean tryOpenSettings(Activity activity, String id)`: reports whether a screen opened, without claiming that any permission was granted.
 
 The `location` entry is usable when approximate or precise location is granted. Contacts and calendar entries show both read and write grants together; their individual tools check only the required grant. On Android 14+, selected-image access is shown separately from full photo-library access. A granted permission remains subject to Android role restrictions, device policy, foreground requirements, and the user's later revocation.
 
@@ -26,8 +33,8 @@ The `location` entry is usable when approximate or precise location is granted. 
 | Notification policy | Separately enabled Do Not Disturb policy access may be needed for ringtone/volume changes. |
 | Overlays | Grant state and Settings link only; overlays do not grant screen capture or touch injection. |
 | Battery exemption | Opens the system exemption list. This does not guarantee minute-by-minute execution, force-stop recovery, or unrestricted foreground-service time. |
-| Optional exact alarms | Shows the actual `canScheduleExactAlarms` state. Not required for the basic worker, and not treated as a 24-hour AI scheduling guarantee. |
-| Optional legacy device admin | Receiver declares only force-lock policy. No destructive admin tool is supplied. This is not device-owner or root access. |
+| Exact alarms | Shows the actual `canScheduleExactAlarms` state. Required by the owner's complete-permission setup where this separate grant exists, but not technically required for the basic worker or treated as a 24-hour AI scheduling guarantee. |
+| Legacy device admin | Required by the owner's setup on supported devices. Receiver declares only force-lock policy. No destructive admin tool is supplied. This is not device-owner or root access. |
 
 `PhoneTools(Context, HoyoungStore).catalog()` returns42 `{name,description,inputSchema}` tool definitions. `execute(String name, JSONObject args)` returns a JSON result with `ok`, `code` and bounded tool-specific data; failures provide a message where available. Unknown tools return `unsupported`; actual denials return `permission_missing` (with a `permissionId` when known). Clipboard reads require foreground state. `phone_url_open` accepts valid HTTP/HTTPS URLs only and asks Android's installed web handler to open them; it does not claim that a browser loaded the page or logged in. App-launch, asynchronous captures and gesture results distinguish a request accepted by Android from confirmed completion. Every tool checks relevant Android permissions again when invoked; the runtime separately checks editable per-tool allow settings. Shared-file paths/content enter only a requested Work result, not a background inventory upload.
 

@@ -386,6 +386,8 @@ public final class HoyoungStore extends SQLiteOpenHelper {
             put(row, "text", excerpt); put(row, "textExcerptChars", excerpt.length());
             put(row, "textTruncatedForPage", pageTruncated);
             put(row, "textIsExcerpt", pageTruncated || row.optLong("textTotalChars") > excerpt.length());
+            if ("assistant".equals(row.optString("role")) && row.optString("text").startsWith("[hoyoung.reaction.v1]\n"))
+                EmojiReactionReply.decorate(row, getSetting("answerSources:" + row.optLong("id"), null));
             messages.put(row);
         }
         JSONObject result = new JSONObject();

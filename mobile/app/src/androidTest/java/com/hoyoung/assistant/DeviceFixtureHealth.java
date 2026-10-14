@@ -9,11 +9,37 @@ import androidx.test.uiautomator.By;
 import androidx.test.uiautomator.SearchCondition;
 import androidx.test.uiautomator.UiDevice;
 import androidx.test.uiautomator.UiObject2;
+import androidx.test.uiautomator.UiScrollable;
+import androidx.test.uiautomator.UiSelector;
+import androidx.test.uiautomator.Until;
 import org.junit.Assert;
 
 /** Fixture-only recovery for the known AOSP launcher dialog; never dismisses an app ANR. */
 final class DeviceFixtureHealth {
     private static int launcherRecoveries;
+
+    /** Click the actual drawer controls; never call a private navigation method. */
+    static void openPage(UiDevice device, String page) {
+        UiObject2 menu = waitFor(device, Until.findObject(By.desc("메뉴 열기")), 15_000);
+        Assert.assertNotNull("The real app must expose its sidebar button", menu); menu.click();
+        UiObject2 destination = waitFor(device, Until.findObject(By.descStartsWith(page + " · ")), 10_000);
+        Assert.assertNotNull("The actual sidebar must contain " + page, destination); destination.click();
+        Assert.assertTrue("The sidebar must dismiss after real navigation", waitFor(device, Until.gone(By.desc("메뉴")), 10_000));
+    }
+
+    static void expandSection(UiDevice device, String section) throws Exception {
+        if (device.hasObject(By.desc(section + " 접기"))) return;
+        UiScrollable scroll = new UiScrollable(new UiSelector().className(android.widget.ScrollView.class.getName()).scrollable(true));
+        Assert.assertTrue("The real settings section must be reachable", scroll.scrollIntoView(new UiSelector().description(section + " 펼치기")));
+        UiObject2 heading = waitFor(device, Until.findObject(By.desc(section + " 펼치기")), 10_000);
+        Assert.assertNotNull(heading); heading.click();
+        Assert.assertTrue(waitFor(device, Until.hasObject(By.desc(section + " 접기")), 10_000));
+    }
+
+    static void revealText(UiDevice device, String text) throws Exception {
+        Assert.assertTrue("The real scrollable control must be reachable: " + text,
+                new UiScrollable(new UiSelector().className(android.widget.ScrollView.class.getName()).scrollable(true)).scrollTextIntoView(text));
+    }
 
     static void recoverKnownLauncherDialog(UiDevice device) {
         UiObject2 title = device.findObject(By.text("Quickstep isn't responding").pkg("android"));

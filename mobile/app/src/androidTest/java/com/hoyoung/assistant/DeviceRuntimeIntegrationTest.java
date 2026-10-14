@@ -135,6 +135,7 @@ public final class DeviceRuntimeIntegrationTest {
         assertNull("The driver must disable all emulator networking before real app tests", connectivity.getActiveNetwork());
         device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
         disposableOfflineFixtureConfirmed = true;
+        DevicePermissionFixture.assertReady(context);
         device.wakeUp();
         try (InputStream output = new ParcelFileDescriptor.AutoCloseInputStream(
                 InstrumentationRegistry.getInstrumentation().getUiAutomation().executeShellCommand("wm dismiss-keyguard"))) {
@@ -149,12 +150,13 @@ public final class DeviceRuntimeIntegrationTest {
         HoyoungApplication app = (HoyoungApplication) context.getApplicationContext();
         String previous = app.getStore().getSetting("heartbeatSeconds", "300");
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
-            assertTrue(DeviceFixtureHealth.waitFor(device, Until.hasObject(By.text("설정")), 15_000));
-            device.findObject(By.text("설정")).click();
+            DeviceFixtureHealth.openPage(device, "설정");
+            DeviceFixtureHealth.expandSection(device, "자율 모드");
+            DeviceFixtureHealth.revealText(device, "자율 모드 켜기");
             assertTrue(DeviceFixtureHealth.waitFor(device, Until.hasObject(By.text("자율 모드 켜기")), 10_000));
-            for (UiObject2 entry : device.findObjects(By.clazz(EditText.class))) {
-                if (entry.getText() != null && entry.getText().matches("[0-9]+")) { entry.setText("120"); break; }
-            }
+            assertTrue(new UiScrollable(new UiSelector().className(ScrollView.class.getName()).scrollable(true)).scrollTextIntoView(previous));
+            UiObject2 interval = DeviceFixtureHealth.waitFor(device, Until.findObject(By.clazz(EditText.class).text(previous)), 10_000);
+            assertNotNull("The expanded settings must expose the real interval editor", interval); interval.setText("120");
             scenario.onActivity(activity -> {
                 View focused = activity.getCurrentFocus();
                 if (focused != null) {
@@ -200,11 +202,7 @@ public final class DeviceRuntimeIntegrationTest {
                     + app.getStore().getSetting("heartbeatSeconds", "missing"), acknowledgement);
             assertEquals("120", app.getStore().getSetting("heartbeatSeconds", ""));
             acknowledgement.click();
-            UiObject2 filesTab = DeviceFixtureHealth.waitFor(device,
-                    Until.findObject(By.text("파일").clazz(Button.class)), 10_000);
-            if (filesTab == null) captureFailureUiFixture("aActualSettingsButtonPersistsAndBackupOpensAndroidDocumentPicker-files-tab-before-close");
-            assertNotNull("The real Files tab must return after the Save dialog dismisses", filesTab);
-            filesTab.click();
+            DeviceFixtureHealth.openPage(device, "파일");
             UiObject2 export = DeviceFixtureHealth.waitFor(device, Until.findObject(By.text("대화·기억·파일 백업 내보내기")), 10_000);
             assertNotNull(export); export.click();
             assertTrue("Real platform SAF picker must receive the backup request", DeviceFixtureHealth.waitFor(device, Until.hasObject(By.pkg("com.android.documentsui")), 10_000));
@@ -247,8 +245,9 @@ public final class DeviceRuntimeIntegrationTest {
     @Test public void cForegroundServiceRemainsForegroundAcrossOneScreenOffMinute() throws Exception {
         HoyoungApplication app = (HoyoungApplication) context.getApplicationContext();
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
-            assertTrue(DeviceFixtureHealth.waitFor(device, Until.hasObject(By.text("설정")), 15_000));
-            device.findObject(By.text("설정")).click();
+            DeviceFixtureHealth.openPage(device, "설정");
+            DeviceFixtureHealth.expandSection(device, "자율 모드");
+            DeviceFixtureHealth.revealText(device, "자율 모드 켜기");
             UiObject2 enable = DeviceFixtureHealth.waitFor(device, Until.findObject(By.text("자율 모드 켜기")), 10_000);
             assertNotNull(enable); enable.click();
             awaitService(app, 10_000);
@@ -417,15 +416,15 @@ public final class DeviceRuntimeIntegrationTest {
             assertTrue(latest.stream().allMatch(text -> text.length() <= 8_000));
             String excerpt = latest.stream().filter(text -> text.startsWith(marker + " row 95")).findFirst().get();
             assertTrue(excerpt.contains("😀한글")); assertFalse(Character.isHighSurrogate(excerpt.charAt(excerpt.length() - 1)));
-            UiObject2 original = DeviceFixtureHealth.waitFor(device, Until.findObject(By.text("보관된 전체 원문 읽기")), 10_000);
+            UiObject2 original = DeviceFixtureHealth.waitFor(device, Until.findObject(By.text("전체 원문 읽기")), 10_000);
             assertNotNull("The large message must offer its preserved original", original); original.click();
             assertTrue(DeviceFixtureHealth.waitFor(device, Until.hasObject(By.text("다음 부분")), 10_000));
             device.findObject(By.text("닫기")).click();
-            UiObject2 previous = DeviceFixtureHealth.waitFor(device, Until.findObject(By.text("이전 대화 40개")), 10_000);
+            UiObject2 previous = DeviceFixtureHealth.waitFor(device, Until.findObject(By.text("이전 대화 보기")), 10_000);
             assertNotNull(previous); previous.click();
             java.util.List<String> older = awaitPageTexts(scenario, marker, " row 55", 40);
             assertTrue(older.stream().noneMatch(text -> text.startsWith(marker + " row 95")));
-            device.findObject(By.text("이전 대화 40개")).click();
+            device.findObject(By.text("이전 대화 보기")).click();
             java.util.List<String> oldest = awaitPageTexts(scenario, marker, " row 1", 15);
             assertTrue(oldest.stream().noneMatch(text -> text.startsWith(marker + " row 55")));
             device.findObject(By.text("최신 대화")).click();

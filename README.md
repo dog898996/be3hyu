@@ -2,6 +2,8 @@
 
 현재 방향은 추가 서버 비용 0원, 사설 VM·상시 PC 없이 **Android 전용 앱 → ChatGPT Work 임시채팅**으로 작업하고 기억·파일은 폰에 저장하는 구조다. [Android 앱 설치와 검증](mobile/README.md)을 우선 참고한다. 아래 Node/사설 VM 실행 코드는 기존 구현을 보존한 것으로, 새 모바일 Work 연결의 실계정 검증 완료를 뜻하지 않는다.
 
+현재 UI 개편은 **0.4.0**이다. [대화·사이드바·사용자 지침 화면](docs/ui-redesign.md)과 실제 Android 렌더링을 공개한다. 사용자 제공 고양이 프로필, 신규 메시지 애니메이션, 사용자 응답의 입력 중 표시, 원문·기억으로 보존되는 이모지 반응, 실제 Android 권한 필수 준비를 구현했다. 기존 사용량 절약·원문·삭제 정책은 유지한다. 설치 파일과 실제 OS 검증 결과는 준비되는 대로 별도 배포 기록에 연결한다.
+
 모바일의 사진·파일 전송, 실제 모델 선택, 입력·프로세스 복구, 휴대폰 관찰과 장기 개인화를 한 흐름으로 검증하는 기준은 [사용자 흐름 검증](docs/mobile-product-acceptance.md)에 기록한다. 저장·전송·모델 분석·실제 완료를 각각 확인하며 실계정·실폰에서 아직 확인하지 않은 결과를 완료로 표시하지 않는다.
 
 공개 APK와 소스는 [호영0.3.2 배포](https://github.com/dog898996/be3hyu/releases/tag/v0.3.2)에서 내려받는다. [사용량 최적화](docs/token-optimization.md)는 사용자 Fast·기억 Medium 이상·Light→Medium→High 판단을 유지하며 반복 명세만 되돌릴 수 있게 줄인다. 10%는 일평균 목표이고 강제 중단 한도가 아니다. [최종 로컬 검사](docs/benchmarks/android-v032-optimization-local.json)는893개 중877개 통과·선택형16개 제외·실패0개, [실제 OS 검사](docs/benchmarks/android-v032-final-native.json)는 기본18개와9개 복구 단계 조건을 통과했다. [5년 원문 회귀](docs/benchmarks/android-v032-five-year-memory-regression.json)는432/432개 조건과 이전V7의144개 전체 기억 패킷 동일성을 확인했다. 실제 모델의144개 새 답변 채점이나 일평균10% 달성을 의미하지 않는다. [재설치 기억 보존](docs/reinstallation-memory-preservation.md)은 같은 공유 폴더에 기억 ZIP과 최신 삭제·제외 정책을 보관한다. 작은 정책은 자동 보존하고 전체 대화·첨부 ZIP은 직접 저장한다. 요청 권한40개와 기존 서명을 유지한다. 실제 갤럭시 장기 실행과 실계정 Work 연결은 아직 확인하지 않았다. 전체 소스·테스트·개발 기록을 보관하며 계정 비밀번호와 서명 개인키는 공개하지 않는다.

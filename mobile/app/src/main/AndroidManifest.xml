@@ -53,7 +53,7 @@
         android:label="호영"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher_round"
-        android:theme="@android:style/Theme.Material.Light.NoActionBar"
+        android:theme="@style/HoyoungTheme"
         android:allowBackup="false"
         android:fullBackupContent="false"
         android:dataExtractionRules="@xml/data_extraction_rules"

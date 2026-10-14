@@ -11,6 +11,7 @@ import com.hoyoung.assistant.phone.PhoneTools;
 import com.hoyoung.assistant.phone.PermissionCatalog;
 import com.hoyoung.assistant.phone.PhoneContextCollector;
 import com.hoyoung.assistant.store.HoyoungStore;
+import com.hoyoung.assistant.store.EmojiReactionReply;
 import com.hoyoung.assistant.store.InternalFiles;
 import com.hoyoung.assistant.store.MemoryGateway;
 import com.hoyoung.assistant.store.SourcePrivacyLedger;
@@ -93,6 +94,7 @@ public final class AssistantRuntime {
     private boolean serviceRunning;
     private boolean completing;
     private volatile String completingRequestId = "";
+    private volatile boolean completingOwnerReply;
     private volatile boolean restoringBackup;
     private volatile boolean storageRecoveryBlocked;
     public boolean isRestoringBackup() { return restoringBackup || storageRecoveryBlocked; }
@@ -876,7 +878,8 @@ public final class AssistantRuntime {
                 "steeringVerified", false, "cloudPermanent", false, "receiptIndexReady", receiptsReady, "resources", AutonomyService.resourceState(),
                 "model", store.getSetting("requiredModel", "gpt-6.1-sol"), "effort", store.getSetting("requiredEffort", "medium"), "speed", store.getSetting("requiredSpeed", "fast"),
                 "requestModelPreferences",preferencesForState(),"usageBudget",usageBudget.snapshot(nowMillis()),
-                "selectionFieldsAreRequiredChoices", true, "activePhase", active == null ? completing ? "saving_result" : "idle" : active.optString("status"),
+                "selectionFieldsAreRequiredChoices", true, "activeOwnerReply", active == null ? completing && completingOwnerReply : ownerPurpose(active),
+                "activePhase", active == null ? completing ? "saving_result" : "idle" : active.optString("status"),
                 "activeWaitingMillis", active == null ? 0 : Math.max(0, nowMillis() - ("preparing".equals(active.optString("status")) ? active.optLong("preparationStartedAt", nowMillis()) : dispatchStartedAt)));
         if (replyNotifications != null) put(result, "replyNotifications", replyNotifications.state());
         return result;
@@ -1152,6 +1155,8 @@ public final class AssistantRuntime {
         prompt.append("\nREQUEST_SCOPE: 호영 앱 사용자 requestId=").append(externalId)
                 .append(" rootRequestId=").append(rootId).append(" ownerSourceMessageId=").append(store.getSetting("requestSource:" + externalId, "0")).append(" purpose=").append(purpose).append(".\n");
         prompt.append(responseContract);
+        if (!decisionOnly && "user".equals(request.optString("kind")))
+            prompt.append("이모지 답장(선택): 질문·요청·정정·중요/긴급/애매한 말에는 평소처럼 문장으로 답한다. '나 운동갔다올게 이제', '고마워' 같은 답변이 필요 없는 가벼운 근황/인사에만 message=빈 문자열,status=completed,actions=[]와 reaction:{emoji:적절한 한 이모지,targetMessageId:현재 ownerSourceMessageId}를 반환할 수 있다. 예: 💪 👍 ❤️ 😊 🙌 😂 🎉 😴. 이모지는 실제 답장으로 원문·기억에 보존된다. 과거 반응 기록은 읽씹이 아니라 이모지로 응답한 사실이며 사용자 확인 사실과 구분한다. 기억 저장/검토 기준은 동일하다.\n");
         prompt.append("현재 시각 epochMillis=").append(nowMillis()).append(" 휴대폰 시간대=").append(java.util.TimeZone.getDefault().getID()).append("\n");
         store.recordEvent("prompt_static_prefix_prepared",object("requestId",externalId,"staticPrefixChars",staticPrefixChars,"instructionsRepeatedInEveryRequest",true,"providerCacheHitMeasured",false));
         long originalId = parseLong(store.getSetting("requestSource:" + externalId, "0"));
@@ -1300,6 +1305,7 @@ public final class AssistantRuntime {
         completing = true;
         JSONObject completed = copy(active);
         completingRequestId = completed.optString("external_id");
+        completingOwnerReply = ownerPurpose(completed);
         String inferenceTick=store.getSetting("autonomyTick:"+completed.optString("external_id"),"");
         if(!inferenceTick.isEmpty())autonomyTicks.markDispatched(inferenceTick,nowMillis());
         active = null;
@@ -1358,14 +1364,51 @@ public final class AssistantRuntime {
             if (hasActions) stage = "working";
             if (requestPaused(externalId)) stage = "blocked";
             String visible = envelope == null ? text : envelope.optString("message", "");
+            JSONObject reaction = null;
+            if (envelope != null && envelope.has("reaction")) {
+                long targetId = parseLong(store.getSetting("requestSource:" + externalId, "0"));
+                JSONObject target = store.getMessage(targetId);
+                boolean exactOwner = "user".equals(completed.optString("kind")) && "user".equals(purpose)
+                        && rootId.equals(externalId) && target != null && externalId.equals(target.optString("request_id"))
+                        && targetId == parseLong(store.getSetting("ownerInputRevision", "0"))
+                        && target.optString("content_hash").equals(store.getSetting("requestSourceHash:" + externalId, ""))
+                        && "[]".equals(store.getSetting("attachmentMetadata:" + externalId, "[]"))
+                        && !requestPaused(externalId) && goals.get(rootId) == null;
+                if (exactOwner) reaction = EmojiReactionReply.proposal(envelope, target);
+                if (reaction != null) visible = EmojiReactionReply.originalText(reaction);
+                else {
+                    store.recordEvent("emoji_reaction_rejected", object("requestId", externalId, "reason", "invalid_or_ineligible_owner_reply"));
+                    if (visible.trim().isEmpty() && !hasActions && !reviewOnly && !automatic) {
+                        visible = "이모지 답장을 이 메시지에 적용하지 못했어. 답변이 필요한 내용은 문장으로 확인해야 해.";
+                        stage = "blocked";
+                    }
+                }
+            }
             if (automatic && "idle".equals(stage)) visible = "";
             if (hasActions && !reviewOnly) visible = requestPaused(externalId) ? "중지 요청 후 도착한 도구 제안은 실행하지 않고 보관했어." : "요청한 도구를 실행하고 결과를 확인하는 중이야.";
             final String releasedText=visible;
+            final JSONObject releasedReaction=reaction;
             JSONObject saved=reviewOnly||visible.trim().isEmpty()?null:store.withTransaction(db->{
+                if (releasedReaction != null) {
+                    JSONObject target=store.getMessage(releasedReaction.optLong("targetMessageId"));
+                    try {
+                        if (target == null || target.optLong("id") != parseLong(store.getSetting("ownerInputRevision", "0"))
+                                || requestPaused(externalId) || !releasedReaction.optString("targetRecordHash").equals(target.optString("content_hash"))
+                                || !memorySourceAllowed(target,store.getPrivacyLedger().capture()))
+                            throw new MemoryGateway.Blocked("reaction_source_changed");
+                    } catch (IOException unavailable) { throw new MemoryGateway.Blocked("reaction_source_unavailable",unavailable); }
+                }
                 JSONObject answer=store.addMessage("assistant",releasedText,externalId);
                 MemoryGateway.Prepared used=preparedMemory.get(externalId);
                 JSONArray sources=nativeSourcesForDispatch(externalId,used);
-                store.putSetting("answerSources:"+answer.optLong("id"),object("version",1,"sources",sources,"memoryFingerprint",used==null?"":used.evidenceFingerprint).toString());
+                JSONObject provenance=object("version",1,"sources",sources,"memoryFingerprint",used==null?"":used.evidenceFingerprint);
+                if (releasedReaction != null) {
+                    // Keep this exact parent even if a future retrieval policy changes
+                    // which other sources fit. Existing exclusion/deletion/backup follows it.
+                    sources.put(object("type","message","id",releasedReaction.optLong("targetMessageId"),"hash",releasedReaction.optString("targetRecordHash")));
+                    put(provenance,"reaction",releasedReaction);
+                }
+                store.putSetting("answerSources:"+answer.optLong("id"),provenance.toString());
                 return answer;
             });
             if (!hasActions && saved != null) publishReply(saved, automatic && "completed".equals(stage) ? "proactive" : stage);
@@ -1494,7 +1537,7 @@ public final class AssistantRuntime {
         } finally {
             preparedMemory.remove(externalId);preparedReviews.remove(externalId);dispatchPayloads.forget(externalId);
             preparedRoutes.remove(externalId);
-            Runnable finish = () -> { synchronized (AssistantRuntime.this) { completingRequestId = ""; completing = false; changed(); tick(); } };
+            Runnable finish = () -> { synchronized (AssistantRuntime.this) { completingRequestId = ""; completingOwnerReply = false; completing = false; changed(); tick(); } };
             if (Looper.myLooper() == Looper.getMainLooper()) finish.run(); else main.post(finish);
         }
     }

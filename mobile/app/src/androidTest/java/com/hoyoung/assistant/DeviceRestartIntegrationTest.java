@@ -38,6 +38,8 @@ public final class DeviceRestartIntegrationTest {
         assertTrue("Never mutate a physical phone", Build.HARDWARE.contains("ranchu") || Build.HARDWARE.contains("goldfish"));
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
         assertNull("Every recovery phase must remain offline", context.getSystemService(ConnectivityManager.class).getActiveNetwork());
+        // Assert surviving actual grants; never re-grant during a recovery phase.
+        DevicePermissionFixture.assertReady(context);
         HoyoungApplication app = (HoyoungApplication) context.getApplicationContext();
         UiDevice device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
         device.wakeUp(); device.executeShellCommand("wm dismiss-keyguard"); device.waitForIdle(1_000);
@@ -57,7 +59,9 @@ public final class DeviceRestartIntegrationTest {
                     }
                 });
                 device.waitForIdle(1_000);
-                UiObject2 settings = DeviceFixtureHealth.waitFor(device, Until.findObject(By.text("설정")), 10_000); assertNotNull(settings); settings.click();
+                DeviceFixtureHealth.openPage(device, "설정");
+                DeviceFixtureHealth.expandSection(device, "자율 모드");
+                DeviceFixtureHealth.revealText(device, "자율 모드 켜기");
                 UiObject2 enable = DeviceFixtureHealth.waitFor(device, Until.findObject(By.text("자율 모드 켜기")), 10_000); assertNotNull(enable); enable.click();
                 awaitForeground(context, 15_000);
                 JSONObject marker = new JSONObject().put("draft", draft).put("clientInputId", snapshot.clientInputId)

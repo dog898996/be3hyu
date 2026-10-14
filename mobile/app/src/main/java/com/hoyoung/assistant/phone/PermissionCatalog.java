@@ -52,15 +52,15 @@ public final class PermissionCatalog {
         special(result, "usage_access", "앱 사용 정보", usageAccess(), "open_settings", "Usage access is not permission to read another app's private files.");
         android.app.NotificationManager nm = (android.app.NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         special(result, "notification_policy", "방해 금지 설정 접근", nm != null && nm.isNotificationPolicyAccessGranted(), "open_settings", "Some ringtone/volume changes require this separate grant. It does not provide notification contents.");
-        special(result, "all_files", "공유 저장소의 모든 파일", Build.VERSION.SDK_INT >= 30 ? Environment.isExternalStorageManager() : has(Manifest.permission.READ_EXTERNAL_STORAGE), "open_settings", "This is not root. Other apps' private data and Android/data or Android/obb remain protected on recent Android versions.");
+        special(result, "all_files", "공유 저장소의 모든 파일", allFilesAccess(), "open_settings", "This is not root. Other apps' private data and Android/data or Android/obb remain protected on recent Android versions.");
         special(result, "write_settings", "시스템 설정 수정", Settings.System.canWrite(context), "open_settings", "Only writable System settings are available; secure/global settings require privileged access.");
         special(result, "overlay", "다른 앱 위에 표시", Settings.canDrawOverlays(context), "open_settings", "Overlay permission does not grant screen capture or touch injection.");
         PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
         special(result, "battery_optimization", "배터리 최적화 제외", pm != null && pm.isIgnoringBatteryOptimizations(context.getPackageName()), "open_settings", "An exemption still does not guarantee 24-hour execution or survival after force-stop.");
         DevicePolicyManager dpm = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
-        special(result, "device_admin", "선택적 기기 관리자", dpm != null && dpm.isAdminActive(adminComponent(context)), "open_settings", "Legacy device admin is optional and is not device owner or root. No destructive administration tool is supplied.");
+        special(result, "device_admin", "기기 관리자", dpm != null && dpm.isAdminActive(adminComponent(context)), "open_settings", "Legacy device admin is not device owner or root. No destructive administration tool is supplied.");
         AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        special(result, "exact_alarm", "선택적 정확한 알람", Build.VERSION.SDK_INT < 31 || (am != null && am.canScheduleExactAlarms()), "open_settings", "Optional. Exact alarms are not a permission to run an AI worker every minute indefinitely.");
+        special(result, "exact_alarm", "정확한 알람", Build.VERSION.SDK_INT < 31 || (am != null && am.canScheduleExactAlarms()), "open_settings", "Exact alarms are not a permission to run an AI worker every minute indefinitely.");
         special(result, "device_owner", "Device Owner·root", false, "unsupported", "Unavailable in a normal installation. No root, privileged signature permission, or device-owner status is fabricated.");
         return result;
     }
@@ -83,7 +83,19 @@ public final class PermissionCatalog {
 
     public boolean has(String permission) { return context.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED; }
 
+    public boolean allFilesAccess() {
+        if (Build.VERSION.SDK_INT < 30) return has(Manifest.permission.READ_EXTERNAL_STORAGE);
+        // Unmounted or unavailable shared storage is not evidence of an access grant.
+        try { return Environment.isExternalStorageManager(); }
+        catch (RuntimeException storageUnavailable) { return false; }
+    }
+
     public void openSettings(Activity activity, String id) {
+        tryOpenSettings(activity, id);
+    }
+
+    /** Returns only whether a settings screen opened, never whether access was granted. */
+    public boolean tryOpenSettings(Activity activity, String id) {
         Uri app = Uri.parse("package:" + context.getPackageName());
         Intent intent;
         switch (id == null ? "" : id) {
@@ -91,18 +103,22 @@ public final class PermissionCatalog {
             case "accessibility": intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS); break;
             case "usage_access": intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS); break;
             case "notification_policy": intent = new Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS); break;
+            case "notifications": intent = new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, context.getPackageName()); break;
             case "all_files": intent = Build.VERSION.SDK_INT >= 30 ? new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION, app) : new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, app); break;
             case "write_settings": intent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS, app); break;
             case "overlay": intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, app); break;
             case "battery_optimization": intent = new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS); break;
-            case "device_admin": intent = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN).putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, adminComponent(context)).putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, "선택적 화면 잠금 정책만 요청합니다. 기기 소유자나 root 권한이 아닙니다."); break;
+            case "device_admin": intent = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN).putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, adminComponent(context)).putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, "화면 잠금 정책만 요청합니다. 기기 소유자나 root 권한이 아닙니다."); break;
             case "exact_alarm": intent = Build.VERSION.SDK_INT >= 31 ? new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, app) : new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, app); break;
             case "sms": intent = new Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS); break;
-            case "device_owner": return;
+            case "device_owner": return false;
             default: intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, app);
         }
-        try { activity.startActivity(intent); }
-        catch (RuntimeException unavailable) { try { activity.startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, app)); } catch (RuntimeException ignored) { } }
+        try { activity.startActivity(intent); return true; }
+        catch (RuntimeException unavailable) {
+            try { activity.startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, app)); return true; }
+            catch (RuntimeException ignored) { return false; }
+        }
     }
 
     public boolean notificationAccess() { return enabledComponent(Settings.Secure.getString(context.getContentResolver(), "enabled_notification_listeners"), new ComponentName(context, HoyoungNotificationListener.class)); }
@@ -119,7 +135,7 @@ public final class PermissionCatalog {
         for (String value : list.split(":")) if (component.equals(ComponentName.unflattenFromString(value))) return true;
         return false;
     }
-    private boolean declared(String permission) {
+    boolean declared(String permission) {
         try {
             String[] declared = context.getPackageManager().getPackageInfo(context.getPackageName(), PackageManager.GET_PERMISSIONS).requestedPermissions;
             if (declared != null) for (String candidate : declared) if (permission.equals(candidate)) return true;

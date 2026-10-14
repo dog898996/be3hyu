@@ -1,0 +1,31 @@
+{
+  "version": "0.4.0",
+  "versionCode": 7,
+  "fullUnitSuite": {
+    "tests": 943,
+    "passed": 926,
+    "skipped": 17,
+    "failures": 0,
+    "errors": 0,
+    "classes": 92,
+    "log": "/tmp/hoyoung-ui-final-verification.log",
+    "initialLintErrors": 3,
+    "initialLintErrorsFixed": [
+      "API27-only XML attribute removed while supported runtime flag retained",
+      "Typeface constants named explicitly"
+    ]
+  },
+  "followupUiTests": {
+    "tests": 12,
+    "failures": 0,
+    "errors": 0,
+    "log": "/tmp/hoyoung-ui-accessibility-final.log"
+  },
+  "latestLint": {
+    "Warning": 20
+  },
+  "debugAndInstrumentationApksBuilt": true,
+  "nativeRuntimeExecutedLocally": false,
+  "physicalSamsungVerified": false,
+  "actualWorkConnectionVerified": false
+}

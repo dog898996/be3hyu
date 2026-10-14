@@ -58,7 +58,7 @@ public final class ModelRoutingPolicy {
         if(!"NO_ACTION".equals(decision))return "medium";
         if(!"idle".equals(envelope.optString("status"))||!envelope.optString("message","").trim().isEmpty()
                 ||nonempty(envelope,"actions")||nonempty(envelope,"memories")||nonempty(envelope,"assetAnalyses")
-                ||envelope.has("review")||envelope.has("nextCheckAt"))return "medium";
+                ||envelope.has("review")||envelope.has("nextCheckAt")||envelope.has("reaction"))return "medium";
         return "";
     }
 

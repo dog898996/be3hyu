@@ -18,6 +18,7 @@ import android.os.Looper;
 import android.os.PowerManager;
 import android.os.SystemClock;
 import com.hoyoung.assistant.phone.PhoneEventJournal;
+import com.hoyoung.assistant.phone.PermissionOnboarding;
 import org.json.JSONObject;
 
 /** User-visible, best-effort phone scheduler; not a promise of uninterrupted cloud hosting. */
@@ -47,6 +48,11 @@ public final class AutonomyService extends Service {
     private final Runnable pulse = new Runnable() {
         @Override public void run() {
             if (!running || runtime == null || !runtime.autonomyEnabled()) { stopSelf(); return; }
+            if (!new PermissionOnboarding(AutonomyService.this).snapshot().ready()) {
+                // Preserve the owner's autonomy preference and queued tasks while setup is
+                // incomplete or a grant was revoked. Opening the app can resume after grants.
+                stopSelf(); return;
+            }
             try {
                 applyWakePolicy(true);
                 measurePulseDelay();
@@ -66,7 +72,8 @@ public final class AutonomyService extends Service {
 
     @Override public void onCreate() {
         super.onCreate();
-        if (!((HoyoungApplication) getApplication()).isStartupReady()) return;
+        if (!((HoyoungApplication) getApplication()).isStartupReady()
+                || !new PermissionOnboarding(this).snapshot().ready()) return;
         liveService = this;
         runtime = ((HoyoungApplication) getApplication()).getRuntime();
         PowerManager power = (PowerManager) getSystemService(POWER_SERVICE);
@@ -86,6 +93,7 @@ public final class AutonomyService extends Service {
         if (runtime == null || !((HoyoungApplication) getApplication()).isStartupReady()) { stopSelf(); return START_NOT_STICKY; }
         if (intent != null && ACTION_STOP.equals(intent.getAction())) { runtime.stopAutonomy(); stopSelf(); return START_NOT_STICKY; }
         if (!runtime.autonomyEnabled()) { stopSelf(); return START_NOT_STICKY; }
+        if (!new PermissionOnboarding(this).snapshot().ready()) { stopSelf(); return START_NOT_STICKY; }
         try {
             Notification notification = notification();
             if (Build.VERSION.SDK_INT >= 34) startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);

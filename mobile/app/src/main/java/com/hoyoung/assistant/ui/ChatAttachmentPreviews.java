@@ -70,6 +70,8 @@ public final class ChatAttachmentPreviews implements AutoCloseable {
         image.setImageDrawable(new StatusDrawable("사진",image));image.setContentDescription(binding.name);
         updateViewport();
     }
+    /** Release a row leaving the bounded transcript without restarting other visible photos. */
+    public void unregister(ImageView image){requireUi();Binding binding=bindings.remove(image);if(binding!=null)release(binding);}
     /** Coalesces scroll/layout updates; only clipped, attached image rectangles are eligible. */
     public void updateViewport(){requireUi();if(!closed&&!updateScheduled){updateScheduled=true;main.post(viewportTask);}}
     private void refreshNow(){

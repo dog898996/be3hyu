@@ -13,6 +13,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.service.notification.StatusBarNotification;
 import com.hoyoung.assistant.store.HoyoungStore;
+import com.hoyoung.assistant.store.EmojiReactionReply;
 import com.hoyoung.assistant.store.SourcePrivacyLedger;
 import com.hoyoung.assistant.store.SourceRecordVisibility;
 import org.json.JSONObject;
@@ -220,7 +221,10 @@ public final class AssistantReplyNotifications implements AutoCloseable {
                 .putExtra(EXTRA_SOURCE_ID,id).putExtra(EXTRA_SOURCE_HASH,hash).putExtra(EXTRA_OPEN_CONVERSATION,true);
         PendingIntent content = PendingIntent.getActivity(context,(int)(id^(id>>>32)),open,PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
         String title = "quota".equals(stage)||"quota_exhausted".equals(stage)?"호영 · 한도 안내":"error".equals(stage)||"blocked".equals(stage)||"uncertain".equals(stage)?"호영 · 확인할 내용":"호영";
-        String body = preview(source.optString("text"),400), expanded = preview(source.optString("text"),1_200);
+        EmojiReactionReply.decorate(source, store.getSetting("answerSources:" + id, null));
+        JSONObject reaction = EmojiReactionReply.fromStoredMessage(source);
+        String replyText = reaction == null ? source.optString("text") : "내 메시지에 " + reaction.optString("emoji") + " 반응했어";
+        String body = preview(replyText,400), expanded = preview(replyText,1_200);
         Notification publicVersion = new Notification.Builder(context,CHANNEL).setSmallIcon(android.R.drawable.ic_dialog_info)
                 .setContentTitle("호영").setContentText("새로운 메시지가 있어. 앱에서 확인해.").setVisibility(Notification.VISIBILITY_PUBLIC).build();
         Bundle extras = new Bundle(); extras.putString(EXTRA_SOURCE_KIND,"assistant_reply");extras.putLong(EXTRA_SOURCE_ID,id);extras.putString(EXTRA_SOURCE_HASH,hash);extras.putString(EXTRA_STAGE,stage);

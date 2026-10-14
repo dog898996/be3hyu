@@ -145,10 +145,6 @@ done
 echo 'Testing a fresh API 35 AOSP emulator offline, with synthetic data and real ONNX native inference.'
 "$ADB" -s "$SERIAL" logcat -c
 primary_passed=true
-if ! timeout 720 "$ADB" -s "$SERIAL" shell am instrument -w -r \
-  -e class com.hoyoung.assistant.DeviceRuntimeIntegrationTest,com.hoyoung.assistant.phone.PhoneDeviceIntegrationTest,com.hoyoung.assistant.memory.NativeAnnDeviceTest,com.hoyoung.assistant.memory.local.LocalNeuralDeviceTest,com.hoyoung.assistant.OwnerPolicyDeviceTest \
-  -e fixtureModelPath /data/local/tmp/hoyoung-semantic-model \
-  "$TEST_RUNNER" | tee "$LOG_DIR/instrumentation.log"; then primary_passed=false; fi
 # BEGIN INSTRUMENTATION PROOF DECODER
 verify_instrumentation() {
 python3 - "$1" "$2" <<'PY'
@@ -162,7 +158,45 @@ print('Verified real Android instrumentation:', success.group(1), 'passing tests
 PY
 }
 # END INSTRUMENTATION PROOF DECODER
-if ! verify_instrumentation "$LOG_DIR/instrumentation.log" 15; then
+# The setup-screen test precedes every real runtime grant. It observes actual
+# denied contacts permission and cannot revoke an instrumentation UID in flight.
+if ! timeout 180 "$ADB" -s "$SERIAL" shell am instrument -w -r \
+  -e class com.hoyoung.assistant.PermissionGateDeviceTest \
+  "$TEST_RUNNER" | tee "$LOG_DIR/permission-gate.log"; then primary_passed=false; fi
+if ! verify_instrumentation "$LOG_DIR/permission-gate.log" 1; then primary_passed=false; fi
+# Contact/calendar denial and read-only tests must start before grants. Revoking
+# these while instrumentation runs can kill its UID, so keep this real four-test
+# provider suite separate from the fully-permitted UI/lifecycle suite.
+if ! timeout 300 "$ADB" -s "$SERIAL" shell am instrument -w -r \
+  -e class com.hoyoung.assistant.phone.PhoneDeviceIntegrationTest \
+  "$TEST_RUNNER" | tee "$LOG_DIR/phone-permissions.log"; then primary_passed=false; fi
+if ! verify_instrumentation "$LOG_DIR/phone-permissions.log" 4; then primary_passed=false; fi
+
+# Real OS grants on this wiped, offline AVD only. Production contains no setup
+# bypass; the following instrumentation asserts PermissionOnboarding.ready().
+for permission in READ_CONTACTS WRITE_CONTACTS READ_CALENDAR WRITE_CALENDAR \
+  ACCESS_COARSE_LOCATION ACCESS_FINE_LOCATION ACCESS_BACKGROUND_LOCATION CAMERA RECORD_AUDIO \
+  READ_PHONE_STATE READ_PHONE_NUMBERS CALL_PHONE BLUETOOTH_CONNECT BLUETOOTH_SCAN \
+  READ_MEDIA_IMAGES READ_MEDIA_VIDEO READ_MEDIA_AUDIO READ_MEDIA_VISUAL_USER_SELECTED \
+  POST_NOTIFICATIONS ACTIVITY_RECOGNITION NEARBY_WIFI_DEVICES; do
+  "$ADB" -s "$SERIAL" shell pm grant "$APP_ID" "android.permission.$permission"
+done
+for operation in GET_USAGE_STATS WRITE_SETTINGS SYSTEM_ALERT_WINDOW MANAGE_EXTERNAL_STORAGE SCHEDULE_EXACT_ALARM ACCESS_RESTRICTED_SETTINGS; do
+  "$ADB" -s "$SERIAL" shell appops set "$APP_ID" "$operation" allow
+done
+"$ADB" -s "$SERIAL" shell cmd notification allow_listener "$APP_ID/.phone.HoyoungNotificationListener"
+"$ADB" -s "$SERIAL" shell cmd notification allow_dnd "$APP_ID"
+"$ADB" -s "$SERIAL" shell settings put secure enabled_accessibility_services "$APP_ID/.phone.HoyoungAccessibilityService"
+"$ADB" -s "$SERIAL" shell settings put secure accessibility_enabled 1
+"$ADB" -s "$SERIAL" shell dumpsys deviceidle whitelist "+$APP_ID"
+"$ADB" -s "$SERIAL" shell dpm set-active-admin "$APP_ID/.phone.HoyoungDeviceAdminReceiver"
+
+if ! timeout 720 "$ADB" -s "$SERIAL" shell am instrument -w -r \
+  -e class com.hoyoung.assistant.DeviceRuntimeIntegrationTest,com.hoyoung.assistant.memory.NativeAnnDeviceTest,com.hoyoung.assistant.memory.local.LocalNeuralDeviceTest,com.hoyoung.assistant.OwnerPolicyDeviceTest,com.hoyoung.assistant.NativeChatUiDeviceTest \
+  -e fixtureModelPath /data/local/tmp/hoyoung-semantic-model \
+  "$TEST_RUNNER" | tee "$LOG_DIR/instrumentation.log"; then primary_passed=false; fi
+# Keep the original 18 checks, plus 1 denied-setup and 3 native UI checks = 22.
+if ! verify_instrumentation "$LOG_DIR/instrumentation.log" 17; then
   primary_passed=false
   echo '::error::Primary Android checks failed; independent real restart checks will still run, and this job remains failed.' >&2
 fi
@@ -513,7 +547,8 @@ fi
 python3 - "$LOG_DIR/device-proof.log" <<'PY'
 import pathlib, sys
 text = pathlib.Path(sys.argv[1]).read_text()
-for marker in ('HOYOUNG_REAL_ANDROID_NN', 'HOYOUNG_REAL_ANDROID_ANN', 'HOYOUNG_DEVICE_SCREEN_OFF',
+for marker in ('HOYOUNG_REAL_ANDROID_NN', 'HOYOUNG_REAL_ANDROID_ANN', 'HOYOUNG_DEVICE_SCREEN_OFF', 'HOYOUNG_DEVICE_PERMISSION_GATE',
+               'HOYOUNG_DEVICE_PERMISSION_BLOCK', 'HOYOUNG_DEVICE_PROFILE_UI', 'HOYOUNG_DEVICE_TYPING_UI', 'HOYOUNG_DEVICE_DRAWER_UI',
                'HOYOUNG_DEVICE_RECOVERY verified-after-explicit-force-stop', 'HOYOUNG_DEVICE_APP_JOURNAL_BACKUP',
                'HOYOUNG_DEVICE_PHOTO_UI', 'HOYOUNG_DEVICE_PAGED_CHAT', 'HOYOUNG_DEVICE_REPLY_NOTIFICATION', 'HOYOUNG_DEVICE_FIVE_LAYER_GATE',
                'HOYOUNG_RESTART_RECOVERED phase=forceReopen', 'HOYOUNG_RESTART_RECOVERED phase=processDeath',
@@ -521,5 +556,5 @@ for marker in ('HOYOUNG_REAL_ANDROID_NN', 'HOYOUNG_REAL_ANDROID_ANN', 'HOYOUNG_D
                'HOYOUNG_RESTART_RECOVERED phase=boot'):
     if marker not in text:
         raise SystemExit('Missing actual Android proof marker: ' + marker)
-print('Real native-neural, ANN, screen-off service, explicit-reopen recovery, application journal-backup, and native photo-UI proof reached the CI log.')
+print('Real native-neural, ANN, screen-off service, explicit-reopen recovery, application journal-backup, native photo/chat UI, and required-permission setup proof reached the CI log.')
 PY
