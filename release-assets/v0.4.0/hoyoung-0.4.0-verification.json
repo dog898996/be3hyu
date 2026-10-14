@@ -1,285 +1,782 @@
 {
-  "scope": "Static APK signature, source identity, complete manifest permissions, and native packaging only.",
-  "applicationId": "com.hoyoung.assistant",
-  "label": "호영",
-  "versionName": "0.4.0",
+  "version": "0.4.0",
   "versionCode": 7,
-  "targetSdk": 35,
-  "debuggable": false,
-  "releaseIdentityVerified": true,
-  "certificateSha256": "5b634dac5d4538f871ff0bfdbe1b31b2baa02dbe4390d11d7f6af235b2df1e3e",
-  "apkSha256": "6c8af4fb01fa26f0108586409dfcee334a54324bb1612bc318097da8ba7ebd01",
-  "apkBytes": 78923222,
-  "sourcePermissionDeclarationsExactlyMatch": true,
-  "permissionCount": 40,
-  "permissions": [
+  "archiveSourceCommit": "233e421cfbab20456162341cfd34c31397653cab",
+  "apkBuildSourceCommit": "9e04a61771e9ad793106c28face89446e235335d",
+  "finalCiSourceCommit": "4e7b929b2d74625fee455f4c46d44fd6e8bb34e1",
+  "productionAppSourceIdenticalBetweenBuildAndArchive": true,
+  "allMobileOrWorkflowDifferencesBetweenBuildAndArchive": [
+    "mobile/tools/run-emulator-tests.sh",
+    "mobile/tools/tests/test-emulator-driver-protocol.py"
+  ],
+  "artifactFiles": [
     {
-      "name": "android.permission.ACCESS_BACKGROUND_LOCATION",
-      "maxSdkVersion": null,
-      "flags": null
+      "name": "hoyoung-0.4.0.apk",
+      "bytes": 79039224,
+      "sha256": "ab565e2dfa364ba26699f8656abf4c96fbbeed1e8c7ef08518fee388c01b64de"
     },
     {
-      "name": "android.permission.ACCESS_COARSE_LOCATION",
-      "maxSdkVersion": null,
-      "flags": null
+      "name": "hoyoung-0.4.0-source.zip",
+      "bytes": 54839396,
+      "sha256": "dd01f071a68fd5c6e1536eedf8fe7c9b98b803d6b2acaf2938078f14599bcfbd"
     },
     {
-      "name": "android.permission.ACCESS_FINE_LOCATION",
-      "maxSdkVersion": null,
-      "flags": null
-    },
-    {
-      "name": "android.permission.ACCESS_NETWORK_STATE",
-      "maxSdkVersion": null,
-      "flags": null
-    },
-    {
-      "name": "android.permission.ACCESS_NOTIFICATION_POLICY",
-      "maxSdkVersion": null,
-      "flags": null
-    },
-    {
-      "name": "android.permission.ACCESS_WIFI_STATE",
-      "maxSdkVersion": null,
-      "flags": null
-    },
-    {
-      "name": "android.permission.ACTIVITY_RECOGNITION",
-      "maxSdkVersion": null,
-      "flags": null
-    },
-    {
-      "name": "android.permission.BLUETOOTH",
-      "maxSdkVersion": "30",
-      "flags": null
-    },
-    {
-      "name": "android.permission.BLUETOOTH_ADMIN",
-      "maxSdkVersion": "30",
-      "flags": null
-    },
-    {
-      "name": "android.permission.BLUETOOTH_CONNECT",
-      "maxSdkVersion": null,
-      "flags": null
-    },
-    {
-      "name": "android.permission.BLUETOOTH_SCAN",
-      "maxSdkVersion": null,
-      "flags": "neverForLocation"
-    },
-    {
-      "name": "android.permission.CALL_PHONE",
-      "maxSdkVersion": null,
-      "flags": null
-    },
-    {
-      "name": "android.permission.CAMERA",
-      "maxSdkVersion": null,
-      "flags": null
-    },
-    {
-      "name": "android.permission.FOREGROUND_SERVICE",
-      "maxSdkVersion": null,
-      "flags": null
-    },
-    {
-      "name": "android.permission.FOREGROUND_SERVICE_SPECIAL_USE",
-      "maxSdkVersion": null,
-      "flags": null
-    },
-    {
-      "name": "android.permission.INTERNET",
-      "maxSdkVersion": null,
-      "flags": null
-    },
-    {
-      "name": "android.permission.MANAGE_EXTERNAL_STORAGE",
-      "maxSdkVersion": null,
-      "flags": null
-    },
-    {
-      "name": "android.permission.MODIFY_AUDIO_SETTINGS",
-      "maxSdkVersion": null,
-      "flags": null
-    },
-    {
-      "name": "android.permission.NEARBY_WIFI_DEVICES",
-      "maxSdkVersion": null,
-      "flags": "neverForLocation"
-    },
-    {
-      "name": "android.permission.PACKAGE_USAGE_STATS",
-      "maxSdkVersion": null,
-      "flags": null
-    },
-    {
-      "name": "android.permission.POST_NOTIFICATIONS",
-      "maxSdkVersion": null,
-      "flags": null
-    },
-    {
-      "name": "android.permission.QUERY_ALL_PACKAGES",
-      "maxSdkVersion": null,
-      "flags": null
-    },
-    {
-      "name": "android.permission.READ_CALENDAR",
-      "maxSdkVersion": null,
-      "flags": null
-    },
-    {
-      "name": "android.permission.READ_CONTACTS",
-      "maxSdkVersion": null,
-      "flags": null
-    },
-    {
-      "name": "android.permission.READ_EXTERNAL_STORAGE",
-      "maxSdkVersion": "32",
-      "flags": null
-    },
-    {
-      "name": "android.permission.READ_MEDIA_AUDIO",
-      "maxSdkVersion": null,
-      "flags": null
-    },
-    {
-      "name": "android.permission.READ_MEDIA_IMAGES",
-      "maxSdkVersion": null,
-      "flags": null
-    },
-    {
-      "name": "android.permission.READ_MEDIA_VIDEO",
-      "maxSdkVersion": null,
-      "flags": null
-    },
-    {
-      "name": "android.permission.READ_MEDIA_VISUAL_USER_SELECTED",
-      "maxSdkVersion": null,
-      "flags": null
-    },
-    {
-      "name": "android.permission.READ_PHONE_NUMBERS",
-      "maxSdkVersion": null,
-      "flags": null
-    },
-    {
-      "name": "android.permission.READ_PHONE_STATE",
-      "maxSdkVersion": null,
-      "flags": null
-    },
-    {
-      "name": "android.permission.RECEIVE_BOOT_COMPLETED",
-      "maxSdkVersion": null,
-      "flags": null
-    },
-    {
-      "name": "android.permission.RECORD_AUDIO",
-      "maxSdkVersion": null,
-      "flags": null
-    },
-    {
-      "name": "android.permission.SCHEDULE_EXACT_ALARM",
-      "maxSdkVersion": null,
-      "flags": null
-    },
-    {
-      "name": "android.permission.SYSTEM_ALERT_WINDOW",
-      "maxSdkVersion": null,
-      "flags": null
-    },
-    {
-      "name": "android.permission.WAKE_LOCK",
-      "maxSdkVersion": null,
-      "flags": null
-    },
-    {
-      "name": "android.permission.WRITE_CALENDAR",
-      "maxSdkVersion": null,
-      "flags": null
-    },
-    {
-      "name": "android.permission.WRITE_CONTACTS",
-      "maxSdkVersion": null,
-      "flags": null
-    },
-    {
-      "name": "android.permission.WRITE_EXTERNAL_STORAGE",
-      "maxSdkVersion": "29",
-      "flags": null
-    },
-    {
-      "name": "android.permission.WRITE_SETTINGS",
-      "maxSdkVersion": null,
-      "flags": null
+      "name": "hoyoung-0.4.0-ui-preview.html",
+      "bytes": 1908489,
+      "sha256": "3bf907c43122333c6b6920902eb2a9fe5f8d75c8f9e79c666bfd2bd9085baafa"
     }
   ],
-  "nativeLibraries": [
-    {
-      "name": "lib/arm64-v8a/libhoyoung_ann.so",
-      "bytes": 1051000,
-      "elfLoadAlignments": [
-        16384,
-        16384,
-        16384
-      ],
-      "zip16KiBAligned": true
+  "apkVerification": {
+    "scope": "Static APK signature, source identity, complete manifest permissions, and native packaging only.",
+    "applicationId": "com.hoyoung.assistant",
+    "label": "호영",
+    "versionName": "0.4.0",
+    "versionCode": 7,
+    "targetSdk": 35,
+    "debuggable": false,
+    "releaseIdentityVerified": true,
+    "certificateSha256": "5b634dac5d4538f871ff0bfdbe1b31b2baa02dbe4390d11d7f6af235b2df1e3e",
+    "apkSha256": "ab565e2dfa364ba26699f8656abf4c96fbbeed1e8c7ef08518fee388c01b64de",
+    "apkBytes": 79039224,
+    "sourcePermissionDeclarationsExactlyMatch": true,
+    "permissionCount": 48,
+    "permissions": [
+      {
+        "name": "android.permission.ACCESS_BACKGROUND_LOCATION",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.ACCESS_COARSE_LOCATION",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.ACCESS_FINE_LOCATION",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.ACCESS_NETWORK_STATE",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.ACCESS_NOTIFICATION_POLICY",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.ACCESS_WIFI_STATE",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.ACTIVITY_RECOGNITION",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.BLUETOOTH",
+        "maxSdkVersion": "30",
+        "flags": null
+      },
+      {
+        "name": "android.permission.BLUETOOTH_ADMIN",
+        "maxSdkVersion": "30",
+        "flags": null
+      },
+      {
+        "name": "android.permission.BLUETOOTH_CONNECT",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.BLUETOOTH_SCAN",
+        "maxSdkVersion": null,
+        "flags": "neverForLocation"
+      },
+      {
+        "name": "android.permission.CALL_PHONE",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.CAMERA",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.CHANGE_WIFI_STATE",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.FOREGROUND_SERVICE",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.FOREGROUND_SERVICE_MICROPHONE",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.FOREGROUND_SERVICE_SPECIAL_USE",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.INTERNET",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.MANAGE_EXTERNAL_STORAGE",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.MODIFY_AUDIO_SETTINGS",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.NEARBY_WIFI_DEVICES",
+        "maxSdkVersion": null,
+        "flags": "neverForLocation"
+      },
+      {
+        "name": "android.permission.PACKAGE_USAGE_STATS",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.POST_NOTIFICATIONS",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.QUERY_ALL_PACKAGES",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.READ_CALENDAR",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.READ_CALL_LOG",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.READ_CONTACTS",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.READ_EXTERNAL_STORAGE",
+        "maxSdkVersion": "32",
+        "flags": null
+      },
+      {
+        "name": "android.permission.READ_MEDIA_AUDIO",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.READ_MEDIA_IMAGES",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.READ_MEDIA_VIDEO",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.READ_MEDIA_VISUAL_USER_SELECTED",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.READ_PHONE_NUMBERS",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.READ_PHONE_STATE",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.READ_SMS",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.RECEIVE_BOOT_COMPLETED",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.RECEIVE_SMS",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.RECORD_AUDIO",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.SCHEDULE_EXACT_ALARM",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.SEND_SMS",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.SYSTEM_ALERT_WINDOW",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.VIBRATE",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.WAKE_LOCK",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.WRITE_CALENDAR",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.WRITE_CALL_LOG",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.WRITE_CONTACTS",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.WRITE_EXTERNAL_STORAGE",
+        "maxSdkVersion": "29",
+        "flags": null
+      },
+      {
+        "name": "android.permission.WRITE_SETTINGS",
+        "maxSdkVersion": null,
+        "flags": null
+      }
+    ],
+    "nativeLibraries": [
+      {
+        "name": "lib/arm64-v8a/libhoyoung_ann.so",
+        "bytes": 1051000,
+        "elfLoadAlignments": [
+          16384,
+          16384,
+          16384
+        ],
+        "zip16KiBAligned": true
+      },
+      {
+        "name": "lib/arm64-v8a/libonnxruntime.so",
+        "bytes": 34208672,
+        "elfLoadAlignments": [
+          16384,
+          16384,
+          16384
+        ],
+        "zip16KiBAligned": true
+      },
+      {
+        "name": "lib/arm64-v8a/libonnxruntime4j_jni.so",
+        "bytes": 92064,
+        "elfLoadAlignments": [
+          16384,
+          16384
+        ],
+        "zip16KiBAligned": true
+      },
+      {
+        "name": "lib/x86_64/libhoyoung_ann.so",
+        "bytes": 1040008,
+        "elfLoadAlignments": [
+          16384,
+          16384,
+          16384
+        ],
+        "zip16KiBAligned": true
+      },
+      {
+        "name": "lib/x86_64/libonnxruntime.so",
+        "bytes": 40827936,
+        "elfLoadAlignments": [
+          16384,
+          16384,
+          16384
+        ],
+        "zip16KiBAligned": true
+      },
+      {
+        "name": "lib/x86_64/libonnxruntime4j_jni.so",
+        "bytes": 88584,
+        "elfLoadAlignments": [
+          16384,
+          16384
+        ],
+        "zip16KiBAligned": true
+      }
+    ],
+    "modelWeightsBundled": false,
+    "physicalPhoneInstallationMeasured": false,
+    "realChatGPTAccountMeasured": false,
+    "continuous24HourRuntimeMeasured": false,
+    "originalProfileSha256": "e8296967706181a2c25c3b64a87b8241b39351ff1c280e575e0dec04cca53f16",
+    "bundledProfileMatchesOriginal": true,
+    "bundledProfilePath": "res/r_.jpg",
+    "buildSourceCommit": "9e04a61771e9ad793106c28face89446e235335d"
+  },
+  "localVerification": {
+    "version": "0.4.0",
+    "versionCode": 7,
+    "sourceCommit": "9e04a61771e9ad793106c28face89446e235335d",
+    "fullUnitSuite": {
+      "tests": 1260,
+      "skipped": 17,
+      "failures": 0,
+      "errors": 0,
+      "passed": 1243,
+      "classes": 116,
+      "result": "SUCCESS",
+      "log": "/tmp/hoyoung-v040-final-full.log",
+      "logSha256": "554c8925aef07dd98e07e8c3ebd6f7a5559f7e6a5fee6b922e085aa97e905049"
     },
-    {
-      "name": "lib/arm64-v8a/libonnxruntime.so",
-      "bytes": 34208672,
-      "elfLoadAlignments": [
-        16384,
-        16384,
-        16384
-      ],
-      "zip16KiBAligned": true
+    "lint": {
+      "debug": {
+        "Warning": 27
+      },
+      "release": {
+        "Warning": 27
+      }
     },
-    {
-      "name": "lib/arm64-v8a/libonnxruntime4j_jni.so",
-      "bytes": 92064,
-      "elfLoadAlignments": [
-        16384,
-        16384
-      ],
-      "zip16KiBAligned": true
+    "debugApkBuilt": true,
+    "debugInstrumentationApkBuilt": true,
+    "signedReleaseApkBuilt": true,
+    "instrumentationBuildLog": "/tmp/hoyoung-v040-final-instrumentation-build.log",
+    "releaseBuildLog": "/tmp/hoyoung-v040-final-release.log",
+    "recoveryPublicationFocusedTestsBeforeFinalAliasRegressions": 165,
+    "finalRadioFocusedTests": 23,
+    "androidBoundaryFocusedTestsEarlierSource": 83,
+    "focusedTestsOverlapFullSuite": true,
+    "nativeRuntimeExecutedLocally": false,
+    "physicalSamsungVerified": false,
+    "actualWorkConnectionVerified": false,
+    "notes": [
+      "Selected opt-in cases are skipped; skipped is not passed.",
+      "27 lint warnings remain; lint error count is zero for both variants.",
+      "Robolectric logs UsageBudgetLedger close warnings in the older WorkStartupRecoveryTest teardown; the complete unit task passed.",
+      "The earlier 1260-case full run had one incorrect Bluetooth denial test fixture; its failed record is retained separately. The final fixture explicitly triggers the accessor exception while runtime grants stay granted."
+    ]
+  },
+  "nativeCiVerification": {
+    "runId": 38550084173,
+    "jobId": 115805629174,
+    "commit": "4e7b929b2d74625fee455f4c46d44fd6e8bb34e1",
+    "applicationSourceCommit": "9e04a61771e9ad793106c28face89446e235335d",
+    "applicationSourceIdenticalToSignedRelease": true,
+    "applicationDiffPaths": [],
+    "url": "https://github.com/dog898996/be3hyu/actions/runs/38550084173",
+    "jobUrl": "https://github.com/dog898996/be3hyu/actions/runs/38550084173/job/115805629174",
+    "status": "completed",
+    "conclusion": "success",
+    "completedAt": "2026-10-14T10:42:31Z",
+    "unitProof": {
+      "errors": 0,
+      "failures": 0,
+      "passed": 1243,
+      "skipped": 17,
+      "testClasses": 116,
+      "tests": 1260
     },
-    {
-      "name": "lib/x86_64/libhoyoung_ann.so",
-      "bytes": 1040008,
-      "elfLoadAlignments": [
-        16384,
-        16384,
-        16384
-      ],
-      "zip16KiBAligned": true
+    "buildUnitLintStepPassed": true,
+    "binaryPackagingStepPassed": true,
+    "nativeRuntimeStepPassed": true,
+    "expectedNativeProductChecks": {
+      "gate": 1,
+      "provider": 4,
+      "full": 20,
+      "total": 25
     },
-    {
-      "name": "lib/x86_64/libonnxruntime.so",
-      "bytes": 40827936,
-      "elfLoadAlignments": [
-        16384,
-        16384,
-        16384
-      ],
-      "zip16KiBAligned": true
+    "actualNativeProductChecks": 25,
+    "actualNativeProductChecksMeaning": "Executed and passed product checks, separate from offline and restart fixtures.",
+    "actualNativeProductPassed": 25,
+    "actualNativeProductFailed": 0,
+    "actualNativePhases": {
+      "deniedGate": {
+        "executed": 1,
+        "passed": 1,
+        "failed": 0
+      },
+      "providers": {
+        "executed": 4,
+        "passed": 4,
+        "failed": 0
+      },
+      "fullyGranted": {
+        "executed": 20,
+        "passed": 20,
+        "failed": 0
+      }
     },
-    {
-      "name": "lib/x86_64/libonnxruntime4j_jni.so",
-      "bytes": 88584,
-      "elfLoadAlignments": [
-        16384,
-        16384
+    "additionalInstrumentation": {
+      "offlinePreflight": {
+        "executed": 1,
+        "passed": 1,
+        "failed": 0
+      },
+      "explicitDataRecovery": {
+        "executed": 1,
+        "passed": 1,
+        "failed": 0
+      },
+      "restartSeed": {
+        "executed": 1,
+        "passed": 1,
+        "failed": 0
+      },
+      "forceStoppedGate": {
+        "executed": 1,
+        "passed": 1,
+        "failed": 0
+      },
+      "ownerReenabledReopen": {
+        "executed": 1,
+        "passed": 1,
+        "failed": 0
+      },
+      "actualSigkillRecovery": {
+        "executed": 1,
+        "passed": 1,
+        "failed": 0
+      },
+      "actualJavaCrashRecovery": {
+        "executed": 1,
+        "passed": 1,
+        "failed": 0
+      },
+      "actualRebootRecovery": {
+        "executed": 1,
+        "passed": 1,
+        "failed": 0
+      }
+    },
+    "actualInstrumentationPassCountsChronological": [
+      1,
+      1,
+      4,
+      20,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "actualAllInstrumentationTests": 33,
+    "actualAllInstrumentationPassed": 33,
+    "actualAllInstrumentationFailed": 0,
+    "allShellAndInstrumentationAssertionsPassed": true,
+    "fullPermissionGateReadyObserved": true,
+    "actualRequiredGrants": 29,
+    "gateCorrectlyBlockedAfterForceStop": true,
+    "explicitFixtureOwnerReenableObserved": true,
+    "fixtureOwnerReenableMarkers": [
+      "HOYOUNG_FIXTURE_OWNER_REENABLE phase=afterExplicitDataRecovery; explicit-Android-accessibility-setting; owned-offline-AVD-only; not-automatic-recovery",
+      "HOYOUNG_FIXTURE_OWNER_REENABLE phase=afterForceStopGate; explicit-Android-accessibility-setting; owned-offline-AVD-only; not-automatic-recovery"
+    ],
+    "automaticForceStopRecoveryClaimed": false,
+    "initialOfflineFrameworkAbsent": true,
+    "postBootOfflineFrameworkAbsent": true,
+    "selinuxModeObserved": null,
+    "selinuxModeNote": "Success-path log does not measure getenforce; no mode is inferred. Driver does not change SELinux mode.",
+    "nativeProofMarkers": {
+      "HOYOUNG_FIXTURE_FRAMEWORK_OFFLINE": "HOYOUNG_FIXTURE_FRAMEWORK_OFFLINE actual-activeNetwork=null; actual-getAllNetworks=0; five-consecutive-observations; no-production-bypass",
+      "HOYOUNG_DEVICE_PERMISSION_GATE": "HOYOUNG_DEVICE_PERMISSION_GATE actual-required-grants=29; all-granted; no-production-bypass",
+      "HOYOUNG_DEVICE_PERMISSION_BLOCK": "HOYOUNG_DEVICE_PERMISSION_BLOCK actual-OS-denial; disabled-start; no-composer-or-sidebar-bypass; no-grant-mutation",
+      "HOYOUNG_DEVICE_PROFILE_UI": "HOYOUNG_DEVICE_PROFILE_UI local-cat-photo; native-circle-pixels; bounded-shared-decode=315x320",
+      "HOYOUNG_DEVICE_TYPING_UI": "HOYOUNG_DEVICE_TYPING_UI actual-native-frames=4->188; hidden-detached-background-stopped; reduced-motion-static-accessible; no-Work-or-runtime-state-injection",
+      "HOYOUNG_DEVICE_DRAWER_UI": "HOYOUNG_DEVICE_DRAWER_UI seven-native-destinations; real-editor-touch-save-reopen; full-permission-gate-ready; offline-no-authenticated-Work",
+      "HOYOUNG_DEVICE_PASSWORD_ENTRY": "HOYOUNG_DEVICE_PASSWORD_ENTRY actual-native-password-EditText; actual-enabled-service-active-window; Binder-ACTION_SET_TEXT-and-CLICK; ordinary-confirmed; password-accepted-not-external-authentication; stale-node-rejected; latest-account-correction-replayed; old-password-mock-rejected; local-synthetic-state-verified; no-real-account-or-credential",
+      "HOYOUNG_DEVICE_SCREEN_CAPTURE": "HOYOUNG_DEVICE_SCREEN_CAPTURE actual-accessibility-Binder-pixels; actual-native-color-fixture; PNG-sha256-verified; immutable-original; device-observation-not-owner-message; actual-OS-redacted-secure-surface; no-real-account-or-private-screen; AI-reading-unconfirmed",
+      "HOYOUNG_DEVICE_EXACT_ALARM": "HOYOUNG_DEVICE_EXACT_ALARM actual-AlarmManager-to-receiver; durable-fired-receipt; no-notification; no-model-invocation; offline-disposable-AVD-only",
+      "HOYOUNG_FORCE_STOP_PERMISSION_REVOKED": "HOYOUNG_FORCE_STOP_PERMISSION_REVOKED actual-accessibility-setting-missing; production-gate-blocked; no-auto-regrant",
+      "HOYOUNG_FORCE_STOP_GATE": "HOYOUNG_FORCE_STOP_GATE actual-required-permission-UI; draft-and-identity-retained; no-FGS; owner-reenable-required",
+      "HOYOUNG_FIXTURE_POSTBOOT_OFFLINE": "HOYOUNG_FIXTURE_POSTBOOT_OFFLINE actual-activeNetwork=null; actual-getAllNetworks=0; observed-inside-boot-proof-after-shell-FGS-check",
+      "HOYOUNG_SYSTEM_PROCESS_DEATH_RECOVERY": "HOYOUNG_SYSTEM_PROCESS_DEATH_RECOVERY actual-own-UID-SIGKILL; new-process-PID; START_STICKY-FGS-recovered-before-test-Activity; not-Java-crash-or-force-stop",
+      "HOYOUNG_SYSTEM_CRASH_RECOVERY": "HOYOUNG_SYSTEM_CRASH_RECOVERY actual-am-crash; new-process-PID; START_STICKY-FGS-recovered-before-test-Activity",
+      "HOYOUNG_SYSTEM_FORCE_STOP": "HOYOUNG_SYSTEM_FORCE_STOP original-process-gone; AutonomyFGS-absent; accessibility-revoked; rebound=actual-system-bound-notification-listener; not-automatic-agent-recovery; explicit-owner-reenable-required",
+      "HOYOUNG_DEVICE_PHOTO_UI": "HOYOUNG_DEVICE_PHOTO_UI actual-private-PNG-decoded; immutable-source-thumbnail; native-viewer-opened; no-cloud-upload-claimed",
+      "HOYOUNG_DEVICE_PAGED_CHAT": "HOYOUNG_DEVICE_PAGED_CHAT 95-synthetic-messages; actual-40-row-view-tree-pages; bounded-8000-char-Unicode-preview; preserved-original-dialog; no-live-account",
+      "HOYOUNG_DEVICE_REPLY_NOTIFICATION": "HOYOUNG_DEVICE_REPLY_NOTIFICATION actual-Android-post; real-SystemUI-tap; older-source-page-anchor; exact-visible-source-hash; no-human-read-claim",
+      "HOYOUNG_DEVICE_TOKEN_OPTIMIZATION": "HOYOUNG_DEVICE_TOKEN_OPTIMIZATION native-API35-policy-and-SQLite; owner-Fast; memory-Medium-floor; Light-effects-promoted; usage-goal-advisory; exact-dedup-correction-gate; lossless-93-native-tool-schemas; exact-source-tool-name-set; no-live-model-or-quota-claim",
+      "HOYOUNG_DEVICE_SCREEN_OFF": "HOYOUNG_DEVICE_SCREEN_OFF foreground-service-alive-after-65s; no 24-hour or physical-phone guarantee"
+    },
+    "restartPhaseSuccess": {
+      "primary": true,
+      "explicitDataRecovery": true,
+      "seed": true,
+      "forceReopen": true,
+      "processDeath": true,
+      "javaCrash": true,
+      "boot": true,
+      "bootstrapAndProofInfrastructure": true,
+      "javaCleanBaseline": true
+    },
+    "restartPhaseMarker": "HOYOUNG_RESTART_PHASE_RESULTS primary=true; explicitDataRecovery=true; seed=true; forceReopen=true; processDeath=true; javaCrash=true; boot=true; bootstrapAndProofInfrastructure=true; javaCleanBaseline=true",
+    "restartRecoveryMarkers": [
+      "HOYOUNG_RESTART_RECOVERED phase=forceReopen; actual-native-draft-and-identity; foreground-service; offline-model-ready-ms=18; actual-512D-unit-vector; no-24-hour-or-S24-claim",
+      "HOYOUNG_RESTART_RECOVERED phase=processDeath; actual-native-draft-and-identity; foreground-service; offline-model-ready-ms=43; actual-512D-unit-vector; no-24-hour-or-S24-claim",
+      "HOYOUNG_RESTART_RECOVERED phase=crash; actual-native-draft-and-identity; foreground-service; offline-model-ready-ms=29; actual-512D-unit-vector; no-24-hour-or-S24-claim",
+      "HOYOUNG_RESTART_RECOVERED phase=boot; actual-native-draft-and-identity; foreground-service; offline-model-ready-ms=45; actual-512D-unit-vector; no-24-hour-or-S24-claim"
+    ],
+    "forceStopObservation": {
+      "enabledAccessibilityServices": "null",
+      "observedPid": "3504",
+      "originalPid": 3345,
+      "originalProcState": "absent",
+      "pidofExit": 0,
+      "regranted": false,
+      "reopened": false
+    },
+    "forceStopBoundary": {
+      "originalProcessGone": true,
+      "originalProcessPid": 3345,
+      "originalProcessExitInfo": {
+        "timestamp": "2026-10-14 10:41:13.273",
+        "reason": 10,
+        "reasonLabel": "USER REQUESTED",
+        "subreason": 21,
+        "subreasonLabel": "FORCE STOP"
+      },
+      "autonomyForegroundServiceAbsent": true,
+      "autonomyServiceRecordAbsent": true,
+      "accessibilitySettingRevoked": true,
+      "newProcessPid": 3504,
+      "newProcessExplanation": "Measured OS-bound notification listener, not automatic autonomous-agent recovery.",
+      "matchingListenerServiceComponent": "com.hoyoung.assistant/.phone.HoyoungNotificationListener",
+      "matchingListenerProcessPid": 3504,
+      "bindingSystemPid": 537,
+      "bindingSystemUid": 1000,
+      "bindingRequested": true,
+      "bindingReceived": true,
+      "bindingHasBound": true,
+      "bindingConnectionAlive": true,
+      "actualBindingEvidence": [
+        "ServiceRecord{e503f16 u0 com.hoyoung.assistant/.phone.HoyoungNotificationListener c:android}",
+        "permission=android.permission.BIND_NOTIFICATION_LISTENER_SERVICE",
+        "app=ProcessRecord{a53284 3504:com.hoyoung.assistant/u0a148}",
+        "recentCallingPackage=android",
+        "recentCallingUid=1000",
+        "requested=true received=true hasBound=true doRebind=false",
+        "Client AppBindRecord{33ab38 ProcessRecord{c7147b1 537:system/1000}}",
+        "ConnectionRecord{6efbc31 u0 CR FGS !PRCP com.hoyoung.assistant/.phone.HoyoungNotificationListener:@836e0d8 flags=0x5000101}"
       ],
-      "zip16KiBAligned": true
+      "serviceRecordComplete": true,
+      "processRecordComplete": true,
+      "exitInfoRecordComplete": true,
+      "servicesRecordSha256": "fec22ca7b62fb962786e4200c32273755a7510aa8b1a6ecc26b685566c8eebeb",
+      "processesRecordSha256": "a2659178ba8c9ac298ae311e573713dfbed91af91718e161813cedbd65babdce",
+      "exitInfoRecordSha256": "d9a7c8979af51467ef0c4890ff00d8780df5c7c07b447720bc02f5c945046818",
+      "reopenedOrRegrantedBeforeObservation": false
+    },
+    "firstExactFailure": null,
+    "memorySourceEquivalenceArtifact": "/workspace/artifacts/hoyoung-v040-9e04a61-memory-source-equivalence.json",
+    "memorySourceEquivalenceRepoProof": "docs/benchmarks/android-v040-memory-source-equivalence.json",
+    "log": "/workspace/artifacts/hoyoung-v040-4e7b929-ci.log",
+    "logSha256": "2bb087be6e35904780e978a5fea0420c862ca2fd0a584eea137900cdbd337623",
+    "evidenceScope": {
+      "device": "Owned disposable accelerated Android API 35 AOSP emulator, offline during runtime tests.",
+      "productionPermissionBypass": false,
+      "physicalSamsungS24Tested": false,
+      "liveWorkOrRealAccountAuthenticationTested": false,
+      "continuous24HourOperationTested": false,
+      "actualProviderQuotaReductionMeasured": false,
+      "explanation": "Native platform callbacks, views, permissions, files, alarms, screenshot and restart behavior are measured within this emulator fixture. Force-stop explicitly revokes accessibility and blocks the app until the fixture owner reenables it."
     }
-  ],
-  "modelWeightsBundled": false,
-  "physicalPhoneInstallationMeasured": false,
-  "realChatGPTAccountMeasured": false,
-  "continuous24HourRuntimeMeasured": false,
-  "sourceCommit": "b634d584b7297b53585998282d2f9e574b288df6",
-  "latestFormColumnAccessibleIdentityPresentInDex": true,
-  "profileImagePathInApk": "res/r_.jpg",
-  "profileImageSha256": "e8296967706181a2c25c3b64a87b8241b39351ff1c280e575e0dec04cca53f16"
+  },
+  "fiveYearMemoryRegression": {
+    "scope": "Synthetic production-source retrieval, original integrity, privacy exclusion, stale-scope rejection, backup restore and managed-local deletion replay using Robolectric SDK28 native SQLite. Three checkpoints across 2,191 simulated calendar days. No model answer/extraction, real Work/provider access, real phone, paid API, provider erasure or actual elapsed years measured. The fixture retains finalAcceptancePassed:false because full product and semantic answer acceptance are not established.",
+    "command": "python3 mobile/tools/run-five-year-memory-simulation.py --source-ref WORKTREE --gateway --physical-delete --exclude-source AccountTools.java --exclude-source AccountMfaTools.java --output /workspace/artifacts/hoyoung-v040-final-memory",
+    "exitCode": 0,
+    "junitTests": 1,
+    "junitWallSeconds": 193.24,
+    "finished": true,
+    "calendarDays": 2191,
+    "distractors": 184044,
+    "originalSourceRecords": 408,
+    "originalMappingsAndHashesEqualToV032": true,
+    "explicitlyDeletedOriginalSourceRecords": 6,
+    "retainedOriginalSourceRecordsVerified": 402,
+    "checkpointSourceChecks": 432,
+    "independentQuestions": 144,
+    "completedSourceChecks": 432,
+    "leakCases": 0,
+    "blockedCases": 0,
+    "checkpoints": [
+      {
+        "checkpoint": "2021-12-31",
+        "cases": 144,
+        "allRequiredSourcesDelivered": 144,
+        "requiredSourceCount": 348,
+        "requiredSourcesDelivered": 348,
+        "rawOnlyCases": 12,
+        "rawOnlyCompleteDelivery": 12,
+        "protectedValueLeakCases": 0,
+        "blockedCases": 0,
+        "p50Millis": 170,
+        "p95Millis": 335,
+        "groundedAnswerAccuracy": "not_measured",
+        "completedUsefulAnswers": "not_measured"
+      },
+      {
+        "checkpoint": "2023-12-31",
+        "cases": 144,
+        "allRequiredSourcesDelivered": 144,
+        "requiredSourceCount": 396,
+        "requiredSourcesDelivered": 396,
+        "rawOnlyCases": 12,
+        "rawOnlyCompleteDelivery": 12,
+        "protectedValueLeakCases": 0,
+        "blockedCases": 0,
+        "p50Millis": 249,
+        "p95Millis": 624,
+        "groundedAnswerAccuracy": "not_measured",
+        "completedUsefulAnswers": "not_measured"
+      },
+      {
+        "checkpoint": "2026-12-31",
+        "cases": 144,
+        "allRequiredSourcesDelivered": 144,
+        "requiredSourceCount": 396,
+        "requiredSourcesDelivered": 396,
+        "rawOnlyCases": 12,
+        "rawOnlyCompleteDelivery": 12,
+        "protectedValueLeakCases": 0,
+        "blockedCases": 0,
+        "p50Millis": 393,
+        "p95Millis": 1584,
+        "groundedAnswerAccuracy": "not_measured",
+        "completedUsefulAnswers": "not_measured"
+      }
+    ],
+    "finalReaderPackets": 144,
+    "contextCharLimit": 12000,
+    "sourceLimit": 12,
+    "oldCachedScopesRejected": 12,
+    "oldBackupRestoredQueryCompletions": 12,
+    "oldBackupRestoredQueryBlocks": 0,
+    "oldBackupProtectedExposureCases": 0,
+    "managedLocalDeletionReconciliation": {
+      "processed": 6,
+      "pending": 0,
+      "allReceiptsManagedLocalVerified": true
+    },
+    "privacyReplayComplete": true,
+    "retrievalExclusionReplayPassed": true,
+    "matrixSha256": "2821867ebb826cb2b873ef5d95e5abbbbf4b9a60923a2755f681e6c26e6ae1c8",
+    "fixtureIdenticalToV032": true,
+    "sourceManifestSha256": "48771eab617c3f04f8424e43c888426caaf4f40155439fc2a21dc49bea97b4ac",
+    "frozenProductionSourceFiles": 37,
+    "excludedProductionActionFacades": [
+      "AccountTools.java",
+      "AccountMfaTools.java"
+    ],
+    "frozenSourceHashMismatches": [],
+    "currentWorktreeSourceHashMismatchesAtReceipt": [],
+    "exactSourcePacketComparison": {
+      "format": "exact-reader-packet-equivalence-v2",
+      "beforeRun": "/workspace/artifacts/hoyoung-v032-five-year-regression",
+      "afterRun": "/workspace/artifacts/hoyoung-v040-final-memory",
+      "beforePacketsSha256": "a6eaf428d992f0e3c7d89a94987cb78564781d1bb7538077f71470d876a6a1d2",
+      "afterPacketsSha256": "a6eaf428d992f0e3c7d89a94987cb78564781d1bb7538077f71470d876a6a1d2",
+      "beforeProductionManifestSha256": "a245e9e6e80ca2f7eca0fdf9061337022dac9cdb46d29e9fc9d5d1b461e32393",
+      "afterProductionManifestSha256": "48771eab617c3f04f8424e43c888426caaf4f40155439fc2a21dc49bea97b4ac",
+      "packetsCompared": 144,
+      "exactUnchangedEvidenceContexts": 144,
+      "changedEvidenceContexts": [],
+      "changedNonEvidencePacketIds": [],
+      "allCanonicalSourceMappingsAndHashesExactlyEqual": true,
+      "normalizationsApplied": [],
+      "semanticAnswerScoreAssigned": false,
+      "followupResponseEquivalence": "not measured by packet comparator",
+      "answerCarryForwardRule": "Changed evidence requires explicit independent review or a new source-grounded answer; unchanged primary bytes do not automatically establish follow-up tool-response equivalence."
+    },
+    "actualModelCalls": 0,
+    "semanticAnswerRegressionMeasured": false,
+    "providerUsagePercentMeasured": false,
+    "actualYearsElapsed": false,
+    "physicalPhoneMeasured": false,
+    "paidApiCalls": 0,
+    "artifactDirectory": "/workspace/artifacts/hoyoung-v040-final-memory",
+    "artifactSha256": {
+      "report.json": "359a2be1d1a4ce861dbc3eb6223e4e8e92901c3eb0a865a92c1a2aea711397c8",
+      "scoring-rows.json": "269b12e78a509133156dc536c01bedf3c276e6d161c66c106da0e37e4b1aa830",
+      "source-map.json": "758afbb7772f5acb4cdee7894f5f42a0a2283b2a3900f1bad181e238279ab091",
+      "source-manifest.json": "48771eab617c3f04f8424e43c888426caaf4f40155439fc2a21dc49bea97b4ac",
+      "reader-inputs.jsonl": "a6eaf428d992f0e3c7d89a94987cb78564781d1bb7538077f71470d876a6a1d2",
+      "privacy-replay-report.json": "fe405f3118b992a571bbd6bcc0a2a373bf6002a93516b9ec52e1dba301c1ef05",
+      "v032-comparison/comparison.json": "3de43d54a35b449803bac2951ec5c306e8184062447b6ddcf3bb1e6081e0a65c",
+      "regression-provenance.json": "fb4a2f5833c97460e304f8c5bdbad4f45ae4c2b13ee4a0eba8ac5574904612f0",
+      "execution.log": "c3422f69aa2bf71c081514279249c4fc10264317d752322d91240e7e6e4bfa76",
+      "canonical-corpus.sqlite": "704ac2f35979840f914c7ae7869ecb7a71714f2d4966d9c67dd63b158b97ff43"
+    }
+  },
+  "memorySourceEquivalence": {
+    "format": "frozen-production-source-equivalence-v1",
+    "commit": "9e04a61771e9ad793106c28face89446e235335d",
+    "sourceManifest": "/workspace/artifacts/hoyoung-v040-final-memory/source-manifest.json",
+    "sourceManifestDocument": "docs/benchmarks/android-v040-five-year-source-manifest.json",
+    "sourceManifestSha256": "48771eab617c3f04f8424e43c888426caaf4f40155439fc2a21dc49bea97b4ac",
+    "regressionReceiptDocument": "docs/benchmarks/android-v040-five-year-memory-regression.json",
+    "regressionReceiptSha256": "041a591d0db3286fec3ae965f22849e7d12739b23f27c0ecf1639a281852d23a",
+    "frozenProductionSourceFiles": 37,
+    "changedSources": [],
+    "frozenSourceHashMismatches": [],
+    "currentWorktreeSourceHashMismatchesAtVerification": [],
+    "allFrozenProductionHashesEqualToCommit": true,
+    "verificationMethod": "SHA-256 of unnormalized git show <commit>:<path> bytes compared to every .java entry in the final source manifest; frozen files and current worktree independently checked.",
+    "verifiedAtUtc": "2026-10-14T10:10:57.631514+00:00",
+    "excludedProductionActionFacades": [
+      "AccountTools.java",
+      "AccountMfaTools.java"
+    ],
+    "scope": "Source identity for the 37 production files compiled by the native SQLite synthetic memory regression. Does not establish identity or behavior of excluded facades, the entire APK, real phone execution, model-generated semantic answers or real Work/provider calls.",
+    "actualModelCalls": 0,
+    "semanticAnswerRegressionMeasured": false,
+    "paidApiCalls": 0
+  },
+  "physicalSamsungVerified": false,
+  "realExternalAccountAuthenticationVerified": false,
+  "notes": [
+    "Unit and instrumentation tests use synthetic data; native CI uses an offline API35 AVD.",
+    "The full memory regression is source retrieval, deletion and backup behavior, not five years of real use or new model answer scoring.",
+    "No real account passwords, cookies, user database or signing private key are bundled.",
+    "SHA256SUMS covers this receipt as well as the APK, source archive and offline UI viewer."
+  ]
 }
