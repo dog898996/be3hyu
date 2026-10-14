@@ -1,0 +1,198 @@
+{
+  "scope": "Earlier failed exact-source attempts retained separately from the final native verdict.",
+  "attempts": [
+    {
+      "runId": 38539585259,
+      "jobId": 115770748126,
+      "commit": "2c7f30b8730c7a82e1e09f0720191bea1e20adec",
+      "url": "https://github.com/dog898996/be3hyu/actions/runs/38539585259",
+      "status": "completed",
+      "conclusion": "failure",
+      "failedStep": "Build debug APKs, unit tests, and lint",
+      "failedTask": ":app:lintDebug",
+      "lintErrors": 10,
+      "lintWarnings": 28,
+      "firstExactFailure": {
+        "file": "mobile/app/src/main/java/com/hoyoung/assistant/phone/PhoneExtendedTools.java",
+        "line": 312,
+        "category": "MissingPermission",
+        "call": "subscriptions.getActiveSubscriptionInfoList()",
+        "diagnostic": "Call requires permission which may be rejected by user: code should explicitly check to see if permission is available (with checkPermission) or explicitly handle a potential SecurityException"
+      },
+      "publicUnitProof": null,
+      "unitCountUnavailableReason": "The count-only proof command follows the combined Gradle invocation and was not reached after lint failed. Local test totals are separate evidence.",
+      "expectedNativeProductChecks": {
+        "gate": 1,
+        "provider": 4,
+        "full": 20,
+        "total": 25
+      },
+      "actualNativeProductChecks": 0,
+      "nativeStepStarted": false,
+      "actualOfflineFixtureVerified": false,
+      "actualFullPermissionGateReadinessVerified": false,
+      "nativeRestartRecoveryVerified": false,
+      "sourceMutationsByWatcher": false,
+      "log": "/workspace/artifacts/hoyoung-v040-2c7f30b-ci.log",
+      "logSha256": "3452a1b7317dca91812b151415b52fa8803bab8a1c60fdc7549ebf67c5e8fc0b"
+    },
+    {
+      "runId": 38541777878,
+      "jobId": 115778030879,
+      "commit": "d2609b620d3b78facadba8efa6d4ddaa9bfa3ea6",
+      "url": "https://github.com/dog898996/be3hyu/actions/runs/38541777878",
+      "status": "completed",
+      "conclusion": "failure",
+      "unitProof": {
+        "errors": 0,
+        "failures": 0,
+        "passed": 1222,
+        "skipped": 17,
+        "testClasses": 115,
+        "tests": 1239
+      },
+      "buildUnitLintStepPassed": true,
+      "binaryPackagingStepPassed": true,
+      "firstExactFailure": {
+        "stage": "initial pre-root network diagnostic",
+        "command": "adb shell ip -o link show",
+        "stderr": "request send failed: Permission denied",
+        "sourceOrder": "capture_network_fixture(initial_before) ran before adb root and UID=0 verification; no network diagnostic marker was emitted.",
+        "diagnosis": "unprivileged netlink inspection blocked before the root transition",
+        "applicationCodeImplicated": false
+      },
+      "nativeStepStarted": true,
+      "expectedNativeProductChecks": {
+        "gate": 1,
+        "provider": 4,
+        "full": 20,
+        "total": 25
+      },
+      "actualNativeProductChecks": 0,
+      "frameworkOfflineProbeStarted": false,
+      "actualOfflineFixtureVerified": false,
+      "actualFullPermissionGateReadinessVerified": false,
+      "nativeRestartRecoveryVerified": false,
+      "fixScope": "Driver root/UID verification before link inspection, skip already-down adapters while verifying all adapters are down; unchanged SELinux mode and unchanged production APK.",
+      "log": "/workspace/artifacts/hoyoung-v040-d2609b6-ci.log",
+      "logSha256": "2e252b913f65669b9a7f341881358c56394093b6fe4b4fbf7e8c65176ef8b9d1"
+    },
+    {
+      "runId": 38543170118,
+      "jobId": 115782649527,
+      "commit": "b5cf3ede6fb03de4d4ffbfc04e7306f8440867ef",
+      "applicationSourceCommit": "d2609b620d3b78facadba8efa6d4ddaa9bfa3ea6",
+      "url": "https://github.com/dog898996/be3hyu/actions/runs/38543170118",
+      "status": "completed",
+      "conclusion": "failure",
+      "unitProof": {
+        "errors": 0,
+        "failures": 0,
+        "passed": 1222,
+        "skipped": 17,
+        "testClasses": 115,
+        "tests": 1239
+      },
+      "buildUnitLintStepPassed": true,
+      "binaryPackagingStepPassed": true,
+      "expectedNativeProductChecks": {
+        "gate": 1,
+        "provider": 4,
+        "full": 20,
+        "total": 25
+      },
+      "actualNativeProductChecks": 25,
+      "actualNativeProductChecksMeaning": "executed, not passed",
+      "actualNativeProductPassed": 16,
+      "actualNativeProductFailed": 9,
+      "actualNativePhases": {
+        "deniedGate": {
+          "executed": 1,
+          "passed": 1,
+          "failed": 0
+        },
+        "providers": {
+          "executed": 4,
+          "passed": 4,
+          "failed": 0
+        },
+        "fullyGranted": {
+          "executed": 20,
+          "passed": 11,
+          "failed": 9
+        }
+      },
+      "offlinePreflight": {
+        "countedAsProductTest": false,
+        "executed": 1,
+        "passed": 1,
+        "activeNetwork": null,
+        "allNetworksCount": 0,
+        "consecutiveObservations": 5,
+        "actualMarker": "HOYOUNG_FIXTURE_FRAMEWORK_OFFLINE actual-activeNetwork=null; actual-getAllNetworks=0; five-consecutive-observations; no-production-bypass"
+      },
+      "postBootOffline": {
+        "guestNonLoopbackAdaptersAllDown": true,
+        "shellDefaultNetwork": "none",
+        "frameworkProbeCompleted": false,
+        "reason": "Automatic FGS failed before the boot instrumentation phase; shell link/dumpsys observations are not a framework allNetworks check."
+      },
+      "fullPermissionGateReadyObserved": true,
+      "actualRequiredGrants": 29,
+      "gateReadinessRetainedAcrossEntireRun": false,
+      "forceStopMissingGrant": "accessibility",
+      "selinuxModeObserved": null,
+      "nativeProofMarkers": {
+        "HOYOUNG_DEVICE_PERMISSION_GATE": "HOYOUNG_DEVICE_PERMISSION_GATE actual-required-grants=29; all-granted; no-production-bypass",
+        "HOYOUNG_DEVICE_PERMISSION_BLOCK": "HOYOUNG_DEVICE_PERMISSION_BLOCK actual-OS-denial; disabled-start; no-composer-or-sidebar-bypass; no-grant-mutation",
+        "HOYOUNG_DEVICE_PROFILE_UI": "HOYOUNG_DEVICE_PROFILE_UI local-cat-photo; native-circle-pixels; bounded-shared-decode=315x320",
+        "HOYOUNG_DEVICE_TYPING_UI": null,
+        "HOYOUNG_DEVICE_DRAWER_UI": null,
+        "HOYOUNG_DEVICE_PASSWORD_ENTRY": null,
+        "HOYOUNG_DEVICE_SCREEN_CAPTURE": null,
+        "HOYOUNG_DEVICE_EXACT_ALARM": "HOYOUNG_DEVICE_EXACT_ALARM actual-AlarmManager-to-receiver; durable-fired-receipt; no-notification; no-model-invocation; offline-disposable-AVD-only"
+      },
+      "firstExactFailure": {
+        "test": "DeviceRuntimeIntegrationTest.aActualSettingsButtonPersistsAndBackupOpensAndroidDocumentPicker",
+        "assertion": "The real settings section must be reachable",
+        "fixture": "DeviceFixtureHealth.expandSection",
+        "fixtureLine": 33
+      },
+      "otherNativeFailures": [
+        "DeviceRuntimeIntegrationTest.cForegroundServiceRemainsForegroundAcrossOneScreenOffMinute: real sidebar unavailable",
+        "DeviceRuntimeIntegrationTest.fActualChatThumbnailAndNativeViewerUseImmutablePhotoOriginal: thumbnail inaccessible",
+        "DeviceRuntimeIntegrationTest.gActualChatPagesFortyMessagesAndOpensLargeUnicodeOriginal: original button inaccessible",
+        "DeviceRuntimeIntegrationTest.jActualNativeOptimizationPreservesFastMemoryAndAdvisoryUsage: stale expected45; actual93",
+        "NativeChatUiDeviceTest.nativeTypingFramesStopWhenHiddenDetachedBackgroundedAndReducedMotion: expectedtrue actualfalse",
+        "NativeChatUiDeviceTest.actualSidebarOpensAllDestinationsAndSavesWritableOwnerInstructions: editor inaccessible",
+        "NativePasswordEntryDeviceTest.actualAccessibilitySetsPasswordAndOrdinaryTextWithoutClaimingAuthentication: real accessibility service not connected",
+        "NativeScreenCaptureDeviceTest.actualAccessibilityScreenshotPreservesPngPixelsSourceAndAndroidSecureSurfaceResult: real accessibility service not connected"
+      ],
+      "restartPhaseSuccess": {
+        "primary": false,
+        "explicitDataRecovery": false,
+        "seed": false,
+        "forceReopen": false,
+        "processDeath": false,
+        "javaCrash": false,
+        "boot": false,
+        "bootstrapAndProofInfrastructure": false,
+        "javaCleanBaseline": false
+      },
+      "restartDataRecovery": {
+        "executed": 1,
+        "passed": 0,
+        "failed": 1,
+        "cause": "Actual required accessibility grant missing after force-stop"
+      },
+      "forceStopDiagnosis": {
+        "officialSource": "https://android.googlesource.com/platform/frameworks/base/+/android-15.0.0_r1/services/accessibility/java/com/android/server/accessibility/AccessibilityManagerService.java",
+        "method": "onPackagesForceStoppedLocked",
+        "finding": "Android15 removes force-stopped packages from ENABLED_ACCESSIBILITY_SERVICES; expecting the grant to survive was an invalid fixture expectation. Production required-permission gate correctly remains blocked."
+      },
+      "fixScope": "Test-only UiAutomation runner preserving actual services; real force-stop revoked-gate/data assertions followed by explicit labeled fixture-owner re-enable before independent recovery phases; geometry and source-catalog fixture corrections. No production auto-grant or weakened offline check.",
+      "log": "/workspace/artifacts/hoyoung-v040-b5cf3ed-ci.log",
+      "logSha256": "c3bd7d9e887a128d6a88384958b2a002e8e905682da9d6fe0b1d72a3d43509cf"
+    }
+  ]
+}

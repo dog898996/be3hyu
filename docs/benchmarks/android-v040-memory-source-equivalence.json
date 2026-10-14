@@ -1,0 +1,24 @@
+{
+  "format": "frozen-production-source-equivalence-v1",
+  "commit": "9e04a61771e9ad793106c28face89446e235335d",
+  "sourceManifest": "/workspace/artifacts/hoyoung-v040-final-memory/source-manifest.json",
+  "sourceManifestDocument": "docs/benchmarks/android-v040-five-year-source-manifest.json",
+  "sourceManifestSha256": "48771eab617c3f04f8424e43c888426caaf4f40155439fc2a21dc49bea97b4ac",
+  "regressionReceiptDocument": "docs/benchmarks/android-v040-five-year-memory-regression.json",
+  "regressionReceiptSha256": "041a591d0db3286fec3ae965f22849e7d12739b23f27c0ecf1639a281852d23a",
+  "frozenProductionSourceFiles": 37,
+  "changedSources": [],
+  "frozenSourceHashMismatches": [],
+  "currentWorktreeSourceHashMismatchesAtVerification": [],
+  "allFrozenProductionHashesEqualToCommit": true,
+  "verificationMethod": "SHA-256 of unnormalized git show <commit>:<path> bytes compared to every .java entry in the final source manifest; frozen files and current worktree independently checked.",
+  "verifiedAtUtc": "2026-10-14T10:10:57.631514+00:00",
+  "excludedProductionActionFacades": [
+    "AccountTools.java",
+    "AccountMfaTools.java"
+  ],
+  "scope": "Source identity for the 37 production files compiled by the native SQLite synthetic memory regression. Does not establish identity or behavior of excluded facades, the entire APK, real phone execution, model-generated semantic answers or real Work/provider calls.",
+  "actualModelCalls": 0,
+  "semanticAnswerRegressionMeasured": false,
+  "paidApiCalls": 0
+}

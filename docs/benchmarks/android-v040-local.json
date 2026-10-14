@@ -1,31 +1,42 @@
 {
   "version": "0.4.0",
   "versionCode": 7,
+  "sourceCommit": "9e04a61771e9ad793106c28face89446e235335d",
   "fullUnitSuite": {
-    "tests": 943,
-    "passed": 926,
+    "tests": 1260,
     "skipped": 17,
     "failures": 0,
     "errors": 0,
-    "classes": 92,
-    "log": "/tmp/hoyoung-ui-final-verification.log",
-    "initialLintErrors": 3,
-    "initialLintErrorsFixed": [
-      "API27-only XML attribute removed while supported runtime flag retained",
-      "Typeface constants named explicitly"
-    ]
+    "passed": 1243,
+    "classes": 116,
+    "result": "SUCCESS",
+    "log": "/tmp/hoyoung-v040-final-full.log",
+    "logSha256": "554c8925aef07dd98e07e8c3ebd6f7a5559f7e6a5fee6b922e085aa97e905049"
   },
-  "followupUiTests": {
-    "tests": 12,
-    "failures": 0,
-    "errors": 0,
-    "log": "/tmp/hoyoung-ui-accessibility-final.log"
+  "lint": {
+    "debug": {
+      "Warning": 27
+    },
+    "release": {
+      "Warning": 27
+    }
   },
-  "latestLint": {
-    "Warning": 20
-  },
-  "debugAndInstrumentationApksBuilt": true,
+  "debugApkBuilt": true,
+  "debugInstrumentationApkBuilt": true,
+  "signedReleaseApkBuilt": true,
+  "instrumentationBuildLog": "/tmp/hoyoung-v040-final-instrumentation-build.log",
+  "releaseBuildLog": "/tmp/hoyoung-v040-final-release.log",
+  "recoveryPublicationFocusedTestsBeforeFinalAliasRegressions": 165,
+  "finalRadioFocusedTests": 23,
+  "androidBoundaryFocusedTestsEarlierSource": 83,
+  "focusedTestsOverlapFullSuite": true,
   "nativeRuntimeExecutedLocally": false,
   "physicalSamsungVerified": false,
-  "actualWorkConnectionVerified": false
+  "actualWorkConnectionVerified": false,
+  "notes": [
+    "Selected opt-in cases are skipped; skipped is not passed.",
+    "27 lint warnings remain; lint error count is zero for both variants.",
+    "Robolectric logs UsageBudgetLedger close warnings in the older WorkStartupRecoveryTest teardown; the complete unit task passed.",
+    "The earlier 1260-case full run had one incorrect Bluetooth denial test fixture; its failed record is retained separately. The final fixture explicitly triggers the accessor exception while runtime grants stay granted."
+  ]
 }

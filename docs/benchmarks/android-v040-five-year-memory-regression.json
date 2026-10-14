@@ -1,22 +1,9 @@
 {
-  "scope": "Frozen actual WORKTREE production memory/store sources with native SQLite. AccountTools and AccountMfaTools are unused action-dispatch facades and explicitly excluded; their phone/UI integrations are outside this fixture. No production source transformation or stub.",
-  "command": [
-    "python3",
-    "mobile/tools/run-five-year-memory-simulation.py",
-    "--source-ref",
-    "WORKTREE",
-    "--gateway",
-    "--physical-delete",
-    "--exclude-source",
-    "AccountTools.java",
-    "--exclude-source",
-    "AccountMfaTools.java",
-    "--output",
-    "/workspace/artifacts/hoyoung-v040-five-year-final"
-  ],
+  "scope": "Synthetic production-source retrieval, original integrity, privacy exclusion, stale-scope rejection, backup restore and managed-local deletion replay using Robolectric SDK28 native SQLite. Three checkpoints across 2,191 simulated calendar days. No model answer/extraction, real Work/provider access, real phone, paid API, provider erasure or actual elapsed years measured. The fixture retains finalAcceptancePassed:false because full product and semantic answer acceptance are not established.",
+  "command": "python3 mobile/tools/run-five-year-memory-simulation.py --source-ref WORKTREE --gateway --physical-delete --exclude-source AccountTools.java --exclude-source AccountMfaTools.java --output /workspace/artifacts/hoyoung-v040-final-memory",
   "exitCode": 0,
   "junitTests": 1,
-  "junitWallSeconds": 196.686,
+  "junitWallSeconds": 193.24,
   "finished": true,
   "calendarDays": 2191,
   "distractors": 184044,
@@ -40,8 +27,8 @@
       "rawOnlyCompleteDelivery": 12,
       "protectedValueLeakCases": 0,
       "blockedCases": 0,
-      "p50Millis": 191,
-      "p95Millis": 537,
+      "p50Millis": 170,
+      "p95Millis": 335,
       "groundedAnswerAccuracy": "not_measured",
       "completedUsefulAnswers": "not_measured"
     },
@@ -55,8 +42,8 @@
       "rawOnlyCompleteDelivery": 12,
       "protectedValueLeakCases": 0,
       "blockedCases": 0,
-      "p50Millis": 247,
-      "p95Millis": 712,
+      "p50Millis": 249,
+      "p95Millis": 624,
       "groundedAnswerAccuracy": "not_measured",
       "completedUsefulAnswers": "not_measured"
     },
@@ -70,8 +57,8 @@
       "rawOnlyCompleteDelivery": 12,
       "protectedValueLeakCases": 0,
       "blockedCases": 0,
-      "p50Millis": 368,
-      "p95Millis": 1085,
+      "p50Millis": 393,
+      "p95Millis": 1584,
       "groundedAnswerAccuracy": "not_measured",
       "completedUsefulAnswers": "not_measured"
     }
@@ -92,7 +79,7 @@
   "retrievalExclusionReplayPassed": true,
   "matrixSha256": "2821867ebb826cb2b873ef5d95e5abbbbf4b9a60923a2755f681e6c26e6ae1c8",
   "fixtureIdenticalToV032": true,
-  "sourceManifestSha256": "01614379a12d231ecaa32dcd5f814683b5738facd69174bf13c99b96bfa1117e",
+  "sourceManifestSha256": "48771eab617c3f04f8424e43c888426caaf4f40155439fc2a21dc49bea97b4ac",
   "frozenProductionSourceFiles": 37,
   "excludedProductionActionFacades": [
     "AccountTools.java",
@@ -103,11 +90,11 @@
   "exactSourcePacketComparison": {
     "format": "exact-reader-packet-equivalence-v2",
     "beforeRun": "/workspace/artifacts/hoyoung-v032-five-year-regression",
-    "afterRun": "/workspace/artifacts/hoyoung-v040-five-year-final",
+    "afterRun": "/workspace/artifacts/hoyoung-v040-final-memory",
     "beforePacketsSha256": "a6eaf428d992f0e3c7d89a94987cb78564781d1bb7538077f71470d876a6a1d2",
     "afterPacketsSha256": "a6eaf428d992f0e3c7d89a94987cb78564781d1bb7538077f71470d876a6a1d2",
     "beforeProductionManifestSha256": "a245e9e6e80ca2f7eca0fdf9061337022dac9cdb46d29e9fc9d5d1b461e32393",
-    "afterProductionManifestSha256": "01614379a12d231ecaa32dcd5f814683b5738facd69174bf13c99b96bfa1117e",
+    "afterProductionManifestSha256": "48771eab617c3f04f8424e43c888426caaf4f40155439fc2a21dc49bea97b4ac",
     "packetsCompared": 144,
     "exactUnchangedEvidenceContexts": 144,
     "changedEvidenceContexts": [],
@@ -124,17 +111,17 @@
   "actualYearsElapsed": false,
   "physicalPhoneMeasured": false,
   "paidApiCalls": 0,
-  "artifactDirectory": "/workspace/artifacts/hoyoung-v040-five-year-final",
+  "artifactDirectory": "/workspace/artifacts/hoyoung-v040-final-memory",
   "artifactSha256": {
-    "report.json": "fa3afdabfb7662b52f3a1fe14f95df0bd13486072292e4b00d7a1b22ed8b413a",
-    "scoring-rows.json": "d6639f067b21326fbeba53226afc2a89d6eea772be4386b4996993b376b68e74",
+    "report.json": "359a2be1d1a4ce861dbc3eb6223e4e8e92901c3eb0a865a92c1a2aea711397c8",
+    "scoring-rows.json": "269b12e78a509133156dc536c01bedf3c276e6d161c66c106da0e37e4b1aa830",
     "source-map.json": "758afbb7772f5acb4cdee7894f5f42a0a2283b2a3900f1bad181e238279ab091",
-    "source-manifest.json": "01614379a12d231ecaa32dcd5f814683b5738facd69174bf13c99b96bfa1117e",
+    "source-manifest.json": "48771eab617c3f04f8424e43c888426caaf4f40155439fc2a21dc49bea97b4ac",
     "reader-inputs.jsonl": "a6eaf428d992f0e3c7d89a94987cb78564781d1bb7538077f71470d876a6a1d2",
-    "privacy-replay-report.json": "6bc911c826a711dd355ee5b7031b4c62140875f25bde202f3477abd18e396198",
-    "v032-comparison/comparison.json": "187dad5ab516681b9b1293135413c78472a8e62cfcdf6375eb10f614d0fda221",
-    "regression-provenance.json": "d4561e938032481e9de7c25f2bfcc702758b209583f42a7a0a72cd3d18451636",
-    "execution.log": "596a70aa05efd3c2b8254436b7dc9e3f1ccd3fe05d57dc7252addad7fc214ae4",
-    "canonical-corpus.sqlite": "029092c266136f7fc786d67bddb6f4a61d1e6b2390bb729a98ad331e6c92302b"
+    "privacy-replay-report.json": "fe405f3118b992a571bbd6bcc0a2a373bf6002a93516b9ec52e1dba301c1ef05",
+    "v032-comparison/comparison.json": "3de43d54a35b449803bac2951ec5c306e8184062447b6ddcf3bb1e6081e0a65c",
+    "regression-provenance.json": "fb4a2f5833c97460e304f8c5bdbad4f45ae4c2b13ee4a0eba8ac5574904612f0",
+    "execution.log": "c3422f69aa2bf71c081514279249c4fc10264317d752322d91240e7e6e4bfa76",
+    "canonical-corpus.sqlite": "704ac2f35979840f914c7ae7869ecb7a71714f2d4966d9c67dd63b158b97ff43"
   }
 }
