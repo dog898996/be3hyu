@@ -1,0 +1,227 @@
+{
+  "runId": 38550084173,
+  "jobId": 115805629174,
+  "commit": "4e7b929b2d74625fee455f4c46d44fd6e8bb34e1",
+  "applicationSourceCommit": "9e04a61771e9ad793106c28face89446e235335d",
+  "applicationSourceIdenticalToSignedRelease": true,
+  "applicationDiffPaths": [],
+  "url": "https://github.com/dog898996/be3hyu/actions/runs/38550084173",
+  "jobUrl": "https://github.com/dog898996/be3hyu/actions/runs/38550084173/job/115805629174",
+  "status": "completed",
+  "conclusion": "success",
+  "completedAt": "2026-10-14T10:42:31Z",
+  "unitProof": {
+    "errors": 0,
+    "failures": 0,
+    "passed": 1243,
+    "skipped": 17,
+    "testClasses": 116,
+    "tests": 1260
+  },
+  "buildUnitLintStepPassed": true,
+  "binaryPackagingStepPassed": true,
+  "nativeRuntimeStepPassed": true,
+  "expectedNativeProductChecks": {
+    "gate": 1,
+    "provider": 4,
+    "full": 20,
+    "total": 25
+  },
+  "actualNativeProductChecks": 25,
+  "actualNativeProductChecksMeaning": "Executed and passed product checks, separate from offline and restart fixtures.",
+  "actualNativeProductPassed": 25,
+  "actualNativeProductFailed": 0,
+  "actualNativePhases": {
+    "deniedGate": {
+      "executed": 1,
+      "passed": 1,
+      "failed": 0
+    },
+    "providers": {
+      "executed": 4,
+      "passed": 4,
+      "failed": 0
+    },
+    "fullyGranted": {
+      "executed": 20,
+      "passed": 20,
+      "failed": 0
+    }
+  },
+  "additionalInstrumentation": {
+    "offlinePreflight": {
+      "executed": 1,
+      "passed": 1,
+      "failed": 0
+    },
+    "explicitDataRecovery": {
+      "executed": 1,
+      "passed": 1,
+      "failed": 0
+    },
+    "restartSeed": {
+      "executed": 1,
+      "passed": 1,
+      "failed": 0
+    },
+    "forceStoppedGate": {
+      "executed": 1,
+      "passed": 1,
+      "failed": 0
+    },
+    "ownerReenabledReopen": {
+      "executed": 1,
+      "passed": 1,
+      "failed": 0
+    },
+    "actualSigkillRecovery": {
+      "executed": 1,
+      "passed": 1,
+      "failed": 0
+    },
+    "actualJavaCrashRecovery": {
+      "executed": 1,
+      "passed": 1,
+      "failed": 0
+    },
+    "actualRebootRecovery": {
+      "executed": 1,
+      "passed": 1,
+      "failed": 0
+    }
+  },
+  "actualInstrumentationPassCountsChronological": [
+    1,
+    1,
+    4,
+    20,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+  ],
+  "actualAllInstrumentationTests": 33,
+  "actualAllInstrumentationPassed": 33,
+  "actualAllInstrumentationFailed": 0,
+  "allShellAndInstrumentationAssertionsPassed": true,
+  "fullPermissionGateReadyObserved": true,
+  "actualRequiredGrants": 29,
+  "gateCorrectlyBlockedAfterForceStop": true,
+  "explicitFixtureOwnerReenableObserved": true,
+  "fixtureOwnerReenableMarkers": [
+    "HOYOUNG_FIXTURE_OWNER_REENABLE phase=afterExplicitDataRecovery; explicit-Android-accessibility-setting; owned-offline-AVD-only; not-automatic-recovery",
+    "HOYOUNG_FIXTURE_OWNER_REENABLE phase=afterForceStopGate; explicit-Android-accessibility-setting; owned-offline-AVD-only; not-automatic-recovery"
+  ],
+  "automaticForceStopRecoveryClaimed": false,
+  "initialOfflineFrameworkAbsent": true,
+  "postBootOfflineFrameworkAbsent": true,
+  "selinuxModeObserved": null,
+  "selinuxModeNote": "Success-path log does not measure getenforce; no mode is inferred. Driver does not change SELinux mode.",
+  "nativeProofMarkers": {
+    "HOYOUNG_FIXTURE_FRAMEWORK_OFFLINE": "HOYOUNG_FIXTURE_FRAMEWORK_OFFLINE actual-activeNetwork=null; actual-getAllNetworks=0; five-consecutive-observations; no-production-bypass",
+    "HOYOUNG_DEVICE_PERMISSION_GATE": "HOYOUNG_DEVICE_PERMISSION_GATE actual-required-grants=29; all-granted; no-production-bypass",
+    "HOYOUNG_DEVICE_PERMISSION_BLOCK": "HOYOUNG_DEVICE_PERMISSION_BLOCK actual-OS-denial; disabled-start; no-composer-or-sidebar-bypass; no-grant-mutation",
+    "HOYOUNG_DEVICE_PROFILE_UI": "HOYOUNG_DEVICE_PROFILE_UI local-cat-photo; native-circle-pixels; bounded-shared-decode=315x320",
+    "HOYOUNG_DEVICE_TYPING_UI": "HOYOUNG_DEVICE_TYPING_UI actual-native-frames=4->188; hidden-detached-background-stopped; reduced-motion-static-accessible; no-Work-or-runtime-state-injection",
+    "HOYOUNG_DEVICE_DRAWER_UI": "HOYOUNG_DEVICE_DRAWER_UI seven-native-destinations; real-editor-touch-save-reopen; full-permission-gate-ready; offline-no-authenticated-Work",
+    "HOYOUNG_DEVICE_PASSWORD_ENTRY": "HOYOUNG_DEVICE_PASSWORD_ENTRY actual-native-password-EditText; actual-enabled-service-active-window; Binder-ACTION_SET_TEXT-and-CLICK; ordinary-confirmed; password-accepted-not-external-authentication; stale-node-rejected; latest-account-correction-replayed; old-password-mock-rejected; local-synthetic-state-verified; no-real-account-or-credential",
+    "HOYOUNG_DEVICE_SCREEN_CAPTURE": "HOYOUNG_DEVICE_SCREEN_CAPTURE actual-accessibility-Binder-pixels; actual-native-color-fixture; PNG-sha256-verified; immutable-original; device-observation-not-owner-message; actual-OS-redacted-secure-surface; no-real-account-or-private-screen; AI-reading-unconfirmed",
+    "HOYOUNG_DEVICE_EXACT_ALARM": "HOYOUNG_DEVICE_EXACT_ALARM actual-AlarmManager-to-receiver; durable-fired-receipt; no-notification; no-model-invocation; offline-disposable-AVD-only",
+    "HOYOUNG_FORCE_STOP_PERMISSION_REVOKED": "HOYOUNG_FORCE_STOP_PERMISSION_REVOKED actual-accessibility-setting-missing; production-gate-blocked; no-auto-regrant",
+    "HOYOUNG_FORCE_STOP_GATE": "HOYOUNG_FORCE_STOP_GATE actual-required-permission-UI; draft-and-identity-retained; no-FGS; owner-reenable-required",
+    "HOYOUNG_FIXTURE_POSTBOOT_OFFLINE": "HOYOUNG_FIXTURE_POSTBOOT_OFFLINE actual-activeNetwork=null; actual-getAllNetworks=0; observed-inside-boot-proof-after-shell-FGS-check",
+    "HOYOUNG_SYSTEM_PROCESS_DEATH_RECOVERY": "HOYOUNG_SYSTEM_PROCESS_DEATH_RECOVERY actual-own-UID-SIGKILL; new-process-PID; START_STICKY-FGS-recovered-before-test-Activity; not-Java-crash-or-force-stop",
+    "HOYOUNG_SYSTEM_CRASH_RECOVERY": "HOYOUNG_SYSTEM_CRASH_RECOVERY actual-am-crash; new-process-PID; START_STICKY-FGS-recovered-before-test-Activity",
+    "HOYOUNG_SYSTEM_FORCE_STOP": "HOYOUNG_SYSTEM_FORCE_STOP original-process-gone; AutonomyFGS-absent; accessibility-revoked; rebound=actual-system-bound-notification-listener; not-automatic-agent-recovery; explicit-owner-reenable-required",
+    "HOYOUNG_DEVICE_PHOTO_UI": "HOYOUNG_DEVICE_PHOTO_UI actual-private-PNG-decoded; immutable-source-thumbnail; native-viewer-opened; no-cloud-upload-claimed",
+    "HOYOUNG_DEVICE_PAGED_CHAT": "HOYOUNG_DEVICE_PAGED_CHAT 95-synthetic-messages; actual-40-row-view-tree-pages; bounded-8000-char-Unicode-preview; preserved-original-dialog; no-live-account",
+    "HOYOUNG_DEVICE_REPLY_NOTIFICATION": "HOYOUNG_DEVICE_REPLY_NOTIFICATION actual-Android-post; real-SystemUI-tap; older-source-page-anchor; exact-visible-source-hash; no-human-read-claim",
+    "HOYOUNG_DEVICE_TOKEN_OPTIMIZATION": "HOYOUNG_DEVICE_TOKEN_OPTIMIZATION native-API35-policy-and-SQLite; owner-Fast; memory-Medium-floor; Light-effects-promoted; usage-goal-advisory; exact-dedup-correction-gate; lossless-93-native-tool-schemas; exact-source-tool-name-set; no-live-model-or-quota-claim",
+    "HOYOUNG_DEVICE_SCREEN_OFF": "HOYOUNG_DEVICE_SCREEN_OFF foreground-service-alive-after-65s; no 24-hour or physical-phone guarantee"
+  },
+  "restartPhaseSuccess": {
+    "primary": true,
+    "explicitDataRecovery": true,
+    "seed": true,
+    "forceReopen": true,
+    "processDeath": true,
+    "javaCrash": true,
+    "boot": true,
+    "bootstrapAndProofInfrastructure": true,
+    "javaCleanBaseline": true
+  },
+  "restartPhaseMarker": "HOYOUNG_RESTART_PHASE_RESULTS primary=true; explicitDataRecovery=true; seed=true; forceReopen=true; processDeath=true; javaCrash=true; boot=true; bootstrapAndProofInfrastructure=true; javaCleanBaseline=true",
+  "restartRecoveryMarkers": [
+    "HOYOUNG_RESTART_RECOVERED phase=forceReopen; actual-native-draft-and-identity; foreground-service; offline-model-ready-ms=18; actual-512D-unit-vector; no-24-hour-or-S24-claim",
+    "HOYOUNG_RESTART_RECOVERED phase=processDeath; actual-native-draft-and-identity; foreground-service; offline-model-ready-ms=43; actual-512D-unit-vector; no-24-hour-or-S24-claim",
+    "HOYOUNG_RESTART_RECOVERED phase=crash; actual-native-draft-and-identity; foreground-service; offline-model-ready-ms=29; actual-512D-unit-vector; no-24-hour-or-S24-claim",
+    "HOYOUNG_RESTART_RECOVERED phase=boot; actual-native-draft-and-identity; foreground-service; offline-model-ready-ms=45; actual-512D-unit-vector; no-24-hour-or-S24-claim"
+  ],
+  "forceStopObservation": {
+    "enabledAccessibilityServices": "null",
+    "observedPid": "3504",
+    "originalPid": 3345,
+    "originalProcState": "absent",
+    "pidofExit": 0,
+    "regranted": false,
+    "reopened": false
+  },
+  "forceStopBoundary": {
+    "originalProcessGone": true,
+    "originalProcessPid": 3345,
+    "originalProcessExitInfo": {
+      "timestamp": "2026-10-14 10:41:13.273",
+      "reason": 10,
+      "reasonLabel": "USER REQUESTED",
+      "subreason": 21,
+      "subreasonLabel": "FORCE STOP"
+    },
+    "autonomyForegroundServiceAbsent": true,
+    "autonomyServiceRecordAbsent": true,
+    "accessibilitySettingRevoked": true,
+    "newProcessPid": 3504,
+    "newProcessExplanation": "Measured OS-bound notification listener, not automatic autonomous-agent recovery.",
+    "matchingListenerServiceComponent": "com.hoyoung.assistant/.phone.HoyoungNotificationListener",
+    "matchingListenerProcessPid": 3504,
+    "bindingSystemPid": 537,
+    "bindingSystemUid": 1000,
+    "bindingRequested": true,
+    "bindingReceived": true,
+    "bindingHasBound": true,
+    "bindingConnectionAlive": true,
+    "actualBindingEvidence": [
+      "ServiceRecord{e503f16 u0 com.hoyoung.assistant/.phone.HoyoungNotificationListener c:android}",
+      "permission=android.permission.BIND_NOTIFICATION_LISTENER_SERVICE",
+      "app=ProcessRecord{a53284 3504:com.hoyoung.assistant/u0a148}",
+      "recentCallingPackage=android",
+      "recentCallingUid=1000",
+      "requested=true received=true hasBound=true doRebind=false",
+      "Client AppBindRecord{33ab38 ProcessRecord{c7147b1 537:system/1000}}",
+      "ConnectionRecord{6efbc31 u0 CR FGS !PRCP com.hoyoung.assistant/.phone.HoyoungNotificationListener:@836e0d8 flags=0x5000101}"
+    ],
+    "serviceRecordComplete": true,
+    "processRecordComplete": true,
+    "exitInfoRecordComplete": true,
+    "servicesRecordSha256": "fec22ca7b62fb962786e4200c32273755a7510aa8b1a6ecc26b685566c8eebeb",
+    "processesRecordSha256": "a2659178ba8c9ac298ae311e573713dfbed91af91718e161813cedbd65babdce",
+    "exitInfoRecordSha256": "d9a7c8979af51467ef0c4890ff00d8780df5c7c07b447720bc02f5c945046818",
+    "reopenedOrRegrantedBeforeObservation": false
+  },
+  "firstExactFailure": null,
+  "memorySourceEquivalenceArtifact": "/workspace/artifacts/hoyoung-v040-9e04a61-memory-source-equivalence.json",
+  "memorySourceEquivalenceRepoProof": "docs/benchmarks/android-v040-memory-source-equivalence.json",
+  "log": "/workspace/artifacts/hoyoung-v040-4e7b929-ci.log",
+  "logSha256": "2bb087be6e35904780e978a5fea0420c862ca2fd0a584eea137900cdbd337623",
+  "evidenceScope": {
+    "device": "Owned disposable accelerated Android API 35 AOSP emulator, offline during runtime tests.",
+    "productionPermissionBypass": false,
+    "physicalSamsungS24Tested": false,
+    "liveWorkOrRealAccountAuthenticationTested": false,
+    "continuous24HourOperationTested": false,
+    "actualProviderQuotaReductionMeasured": false,
+    "explanation": "Native platform callbacks, views, permissions, files, alarms, screenshot and restart behavior are measured within this emulator fixture. Force-stop explicitly revokes accessibility and blocks the app until the fixture owner reenables it."
+  }
+}

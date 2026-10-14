@@ -1,8 +1,8 @@
-# 호영 0.4.0 배포 기록 · 검증 중
+# 호영 0.4.0 배포 기록
 
 0.4.0은 대화 화면을 새로 정리하고, 휴대폰 권한을 실제 실행 도구·계정 기억·추가 인증에 연결한 버전이다. 앱 회원가입·사설 VM·상시 PC 없이 Android 앱에서 ChatGPT Work 임시채팅을 사용하고 원문·기억·작업 파일은 폰에 보관한다.
 
-**현재 문서는 배포 전 초안이다.** 통합 unit suite·5년 원문 회귀·debug/release lint·서명 APK 정적 검증은 통과했다. 실제 API35 CI·공개 다운로드는 아래 표의 증거를 확인한 뒤 확정한다. 마지막 공개 설치 파일은 [0.3.2](https://github.com/dog898996/be3hyu/releases/tag/v0.3.2)이며, 새 UI가 포함된 0.4.0 배포 완료를 뜻하지 않는다.
+통합 unit suite·5년 원문 회귀·debug/release lint·서명 APK·실제 API35 CI를 통과했다. [0.4.0 배포 페이지](https://github.com/dog898996/be3hyu/releases/tag/v0.4.0)에 APK·전체 소스 ZIP·오프라인 UI 미리보기와 각 파일의 SHA256 검증 기록을 제공한다. 아래 표는 앱 빌드 소스와 이후 검증 스크립트 변경을 구분한다.
 
 ## 변경된 동작
 
@@ -32,10 +32,12 @@
 | 장기 원문 회귀 | 432/432 출처 조건·144/144 전체 패킷 동일. [기록](benchmarks/android-v040-five-year-memory-regression.json) |
 | UI 미리보기 | 네이티브 Android15 렌더11개, 오프라인 viewer11개 화면 확인. 실제 Galaxy 캡처가 아님 |
 | 최종 local·lint 기록 | debug/release 오류0개·경고27개, debug·instrumentation·signed release 빌드 통과. [실측 기록](benchmarks/android-v040-local.json) |
-| 실제 API35 KVM CI | **실행 중:** 소스 `9e04a617`의 [공개 실행](https://github.com/dog898996/be3hyu/actions/runs/38547659110). 최종 native·재시작 판정은 아직 대기 |
+| 실제 API35 KVM CI | **통과:** 앱 소스 `9e04a617`과 같은 제품 코드, 드라이버 `4e7b929b`. 제품25/25·전체 계측33/33, 실제 프로세스 종료·Java 충돌·재부팅 복구 및 강제 종료 경계 shell 검사 통과. [공개 실행](https://github.com/dog898996/be3hyu/actions/runs/38550084173) · [실측 기록](benchmarks/android-v040-ci.json) |
 | 서명 release APK | 소스 `9e04a617`, 79,039,224바이트. 선언권한48개·arm64/x86_64·16KiB 정렬·기존 인증서·프사 원본 일치 확인. [APK 기록](benchmarks/android-v040-apk.json) |
-| APK 다운로드·SHA256 | **대기:** 공개 다운로드 후 실제 바이트·지문 검증 필요 |
-| 소스 ZIP·SHA256 | **대기:** 공개 다운로드 후 최종 검증 소스와 대조 필요 |
+| APK 다운로드·SHA256 | [0.4.0 APK와 파일별 검증 기록](https://github.com/dog898996/be3hyu/releases/tag/v0.4.0). APK SHA256 `ab565e2dfa364ba26699f8656abf4c96fbbeed1e8c7ef08518fee388c01b64de` |
+| 소스 ZIP·SHA256 | [0.4.0 전체 소스와 SHA256SUMS](https://github.com/dog898996/be3hyu/releases/tag/v0.4.0). ZIP의 정확한 소스 commit과 앱 빌드 소스의 동일성은 함께 제공하는 `hoyoung-0.4.0-verification.json`에 기록 |
+
+실제 API35에서 사용자가 앱을 강제 종료하면 접근성이 해제되는 경우를 확인했다. 이때 앱은 필수 권한 화면을 표시하며 사용자가 접근성을 다시 허용해야 한다. 알림 리스너의 OS 재연결과 자율 작업 재개는 구분한다.
 
 실제 Galaxy S24 Ultra 장기 운용·배터리, 실계정 Work의 모델·파일·코드 도구, Instagram 등의 로그인과 MFA·CAPTCHA·FIDO, 실제 통화·문자 전달은 이 합성 시험의 검증 범위에 포함되지 않는다. 입력·Android 요청 접수·callback 완료·외부 서비스의 성공을 각각 구분한다. Fast 선택은 즉답 보장이 아니며 OS 강제 종료·전원 꺼짐·네트워크 단절에서24시간 연속 실행을 보장하지 않는다.
 

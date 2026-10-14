@@ -2,11 +2,11 @@
 
 추가 서버 비용 0원, 사설 VM·상시 PC 없이 **Android 전용 앱 → ChatGPT Work 임시채팅**으로 작업하고 원문·기억·파일은 폰에 보관한다. [Android 설치·연결·백업 안내](mobile/README.md)를 먼저 참고한다. 아래 Node/사설 VM 코드는 이전 구현으로 보존한다.
 
-개발 버전 **0.4.0**은 대화 중심 UI, 고양이 프로필, 메시지 애니메이션·입력 중 표시, 기억으로 보존되는 이모지 반응, 계정·추가 인증 보관함과 실제 휴대폰 도구를 연결한다. 설정·권한·기억·계정·파일·Work는 사이드바에서 연다. [11개 앱 화면](docs/ui-redesign.md) · [0.4.0 배포 기록 초안](docs/release-v040.md).
+**0.4.0**은 대화 중심 UI, 고양이 프로필, 메시지 애니메이션·입력 중 표시, 기억으로 보존되는 이모지 반응, 계정·추가 인증 보관함과 실제 휴대폰 도구를 연결한다. 설정·권한·기억·계정·파일·Work는 사이드바에서 연다. [11개 앱 화면](docs/ui-redesign.md) · [0.4.0 배포 기록](docs/release-v040.md).
 
-0.4.0의 최종 실제 OS 검사·lint·서명 APK·공개 다운로드는 확인 중이다. 마지막 공개 설치 파일은 [0.3.2 배포](https://github.com/dog898996/be3hyu/releases/tag/v0.3.2)이며 새 UI 배포 완료를 뜻하지 않는다. 0.4.0 소스는 48개 권한 선언과 실제 grant를 구분하고, 실행기의 전체 목록을 권한 화면에 연결한다. 지원되는 필수 권한은 시작 전에 허용하며 기능별 사용 여부·사용자 지침·모델은 앱과 대화에서 수정한다. [권한별 기능·검증 수준](docs/permission-capability-matrix.md) · [계정·로그인·MFA](docs/account-login-status.md).
+최종 Android15 검증·lint·서명 APK 검증을 통과했다. [0.4.0 배포에서 APK·전체 소스·UI 미리보기를 내려받을 수 있다](https://github.com/dog898996/be3hyu/releases/tag/v0.4.0). 0.4.0 소스는 48개 권한 선언과 실제 grant를 구분하고, 실행기의 전체 목록을 권한 화면에 연결한다. 지원되는 필수 권한은 시작 전에 허용하며 기능별 사용 여부·사용자 지침·모델은 앱과 대화에서 수정한다. [권한별 기능·검증 수준](docs/permission-capability-matrix.md) · [계정·로그인·MFA](docs/account-login-status.md).
 
-통합 unit suite는 **1,260개 중1,243개 통과·선택형17개 제외·실패0개**다. [최종 5년 원문 회귀](docs/benchmarks/android-v040-five-year-memory-regression.json)는432/432개 출처 조건과 0.3.2의144개 전체 기억 패킷 동일성을 확인했다. 합성 기록과 실제 native SQLite를 사용하는 원문 시험이며 새 모델144개 답변 채점이나 실제5년 사용 결과는 아니다. 최종 CI·설치 파일과 지문은 [배포 기록](docs/release-v040.md)에 확정한다.
+통합 unit suite는 **1,260개 중1,243개 통과·선택형17개 제외·실패0개**다. [최종 5년 원문 회귀](docs/benchmarks/android-v040-five-year-memory-regression.json)는432/432개 출처 조건과 0.3.2의144개 전체 기억 패킷 동일성을 확인했다. 합성 기록과 실제 native SQLite를 사용하는 원문 시험이며 새 모델144개 답변 채점이나 실제5년 사용 결과는 아니다. 실제 Android15의 제품25/25·전체 계측33/33과 별도 재시작 shell 검사를 통과했다. 최종 CI·설치 파일과 지문은 [배포 기록](docs/release-v040.md)에 남겼다. 강제 종료로 접근성이 해제되면 앱의 권한 안내에서 사용자가 다시 허용해야 한다.
 
 [재설치 기억 보존](docs/reinstallation-memory-preservation.md)은 같은 공유 폴더에 전체 기억 ZIP과 최신 삭제·제외 정책을 보관한다. 작은 정책은 자동 보존하고 전체 대화·첨부·계정 ZIP은 직접 저장한다. 재설치 후 같은 폴더를 먼저 연결한 뒤 ZIP을 복원한다. [사용량 최적화](docs/token-optimization.md)는 사용자 Fast·기억 Medium 이상을 유지하며10%를 일평균 목표로 관측한다. 목표를 넘었다고 대화·자율 판단·기억을 강제 중단하지 않는다.
 
