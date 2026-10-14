@@ -36,3 +36,8 @@
 추가 Android instrumentation은 TEST APK의 별도 UID document provider, 실제 persistable tree grant와 DocumentsContract IO·rename, 내부 대상 namespace 초기화 후 최신 정책 + 옛 ZIP, 완료 문서 손상 거절을 검증하도록 추가했다. 실제 OS 앱 제거·설치, 삼성 picker·S24 속도·외부 클라우드 제공자의 지원은 별도이며 이 시험으로 보장하지 않는다. 최종 실행 결과는 배포 검증 기록에 연결한다.
 
 이 기능은 공유 폴더 자체 삭제·폰 초기화·보존 완료 전 앱 제거·잘못된 폴더 선택·다른 기기와 동시 쓰기를 해결했다고 주장하지 않는다. 마지막 ZIP 이후의 일반 대화는 아직 외부에 자동 복사되지 않는다. 이미 내보낸 옛 ZIP과 제공자 서버 사본 자체도 지우지 않는다.
+
+
+## 최종 실행 결과
+
+최종 코드 `1606ca6871056b223a749ec2c5d01218ae71e58c`의 [실제 API 35 CI](https://github.com/dog898996/be3hyu/actions/runs/38507360114)는 성공했다. 전체 unit 787개 중 770개 통과·선택형 17개 제외·실패와 오류 0개, 실제 Android 기본 17개와 모든 종료·Java 오류·재부팅 복구 단계가 통과했다. 두 개의 새 SAF 검사는 실제 영속 URI 권한·IO·rename·옛 ZIP + 최신 정책·완료 문서 손상 차단을 확인했다. [로컬 빌드·unit·lint·안정 서명 APK](benchmarks/android-final-v031-local.json)와 [실제 Android 로그 증거](benchmarks/android-final-v031-native.json)를 보존한다.

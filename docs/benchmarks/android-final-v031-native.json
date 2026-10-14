@@ -1,0 +1,343 @@
+{
+  "recordedAtUTC": "2026-10-14T03:50:28.371194+00:00",
+  "sourceCommit": "1606ca6871056b223a749ec2c5d01218ae71e58c",
+  "workflowRun": {
+    "conclusion": "success",
+    "createdAt": "2026-10-14T03:39:15Z",
+    "databaseId": 38507360114,
+    "headSha": "1606ca6871056b223a749ec2c5d01218ae71e58c",
+    "status": "completed",
+    "updatedAt": "2026-10-14T03:48:37Z",
+    "url": "https://github.com/dog898996/be3hyu/actions/runs/38507360114"
+  },
+  "remoteUnitTests": {
+    "errors": 0,
+    "failures": 0,
+    "passed": 770,
+    "skipped": 17,
+    "testClasses": 82,
+    "tests": 787
+  },
+  "primaryActualAndroidTestsPassed": 17,
+  "phaseResults": {
+    "primary": true,
+    "explicitDataRecovery": true,
+    "seed": true,
+    "forceReopen": true,
+    "processDeath": true,
+    "javaCrash": true,
+    "boot": true,
+    "bootstrapAndProofInfrastructure": true,
+    "javaCleanBaseline": true
+  },
+  "criteriaWeakened": false,
+  "ownerPolicySafProofMarkers": [
+    "android\tTest real Android runtime and ONNX on accelerated emulator\t2026-10-14T03:47:51.6518014Z I/HoyoungDeviceProof( 2044): HOYOUNG_DEVICE_PORTABLE_OWNER_POLICY_CORRUPTION actual-SAF-completed-document-corruption; no-fallback-policy-loss; local-exclusion-retained",
+    "android\tTest real Android runtime and ONNX on accelerated emulator\t2026-10-14T03:47:51.6519738Z I/HoyoungDeviceProof( 2044): HOYOUNG_DEVICE_PORTABLE_OWNER_POLICY actual-SAF-persistable-grant; verified-provider-IO-and-rename; streaming-V3-backup; isolated-target-private-reset; latest-policy-before-old-ZIP; deleted-source-absent; other-source-preserved; no-real-uninstall-or-Samsung-claim",
+    "android\tTest real Android runtime and ONNX on accelerated emulator\t2026-10-14T03:48:32.0798488Z I/HoyoungDeviceProof( 2044): HOYOUNG_DEVICE_PORTABLE_OWNER_POLICY_CORRUPTION actual-SAF-completed-document-corruption; no-fallback-policy-loss; local-exclusion-retained",
+    "android\tTest real Android runtime and ONNX on accelerated emulator\t2026-10-14T03:48:32.0801697Z I/HoyoungDeviceProof( 2044): HOYOUNG_DEVICE_PORTABLE_OWNER_POLICY actual-SAF-persistable-grant; verified-provider-IO-and-rename; streaming-V3-backup; isolated-target-private-reset; latest-policy-before-old-ZIP; deleted-source-absent; other-source-preserved; no-real-uninstall-or-Samsung-claim"
+  ],
+  "restartProofMarkers": [
+    "android\tTest real Android runtime and ONNX on accelerated emulator\t2026-10-14T03:47:11.2957497Z HOYOUNG_SYSTEM_FORCE_STOP actual-process-and-FGS-absent; explicit-user-reopen-required",
+    "android\tTest real Android runtime and ONNX on accelerated emulator\t2026-10-14T03:47:19.6244745Z HOYOUNG_PROCESS_DEATH_PROBE oldPid=2931; finalPid=3067; five-minute-bound; exact-system-FGS-required",
+    "android\tTest real Android runtime and ONNX on accelerated emulator\t2026-10-14T03:47:30.6080283Z HOYOUNG_JAVA_CLEAN_BASELINE_READY oldPid=3067; newPid=3201; exact-OS-FGS; actual-automatic-restart; no-post-restart-test-harness-launch",
+    "android\tTest real Android runtime and ONNX on accelerated emulator\t2026-10-14T03:47:47.1117609Z HOYOUNG_JAVA_CRASH_PROBE oldPid=3201; finalPid=3326; two-minute-observation-bound; OS-dialog-wait-is-not-proof-of-service-defect",
+    "android\tTest real Android runtime and ONNX on accelerated emulator\t2026-10-14T03:48:28.3400075Z HOYOUNG_SYSTEM_FGS phase=bootReceiver; real-dumpsys-foreground-before-test-Activity"
+  ],
+  "launcherAnrRecoveryMarkers": [],
+  "rawLog": {
+    "sha256": "a2fea4bbadec6664627a57a4bc492cdd3795f178f17e05d57ca28f754c0f32e0",
+    "bytes": 335425
+  },
+  "signedRelease": {
+    "scope": "Static APK signature, source identity, complete manifest permissions, and native packaging only.",
+    "applicationId": "com.hoyoung.assistant",
+    "label": "호영",
+    "versionName": "0.3.1",
+    "versionCode": 5,
+    "targetSdk": 35,
+    "debuggable": false,
+    "releaseIdentityVerified": true,
+    "certificateSha256": "5b634dac5d4538f871ff0bfdbe1b31b2baa02dbe4390d11d7f6af235b2df1e3e",
+    "apkSha256": "8ec587535cc1d66afbe4aff4065e7990810ebde975cc31a3ccca025916b22388",
+    "apkBytes": 78792664,
+    "sourcePermissionDeclarationsExactlyMatch": true,
+    "permissionCount": 40,
+    "permissions": [
+      {
+        "name": "android.permission.ACCESS_BACKGROUND_LOCATION",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.ACCESS_COARSE_LOCATION",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.ACCESS_FINE_LOCATION",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.ACCESS_NETWORK_STATE",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.ACCESS_NOTIFICATION_POLICY",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.ACCESS_WIFI_STATE",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.ACTIVITY_RECOGNITION",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.BLUETOOTH",
+        "maxSdkVersion": "30",
+        "flags": null
+      },
+      {
+        "name": "android.permission.BLUETOOTH_ADMIN",
+        "maxSdkVersion": "30",
+        "flags": null
+      },
+      {
+        "name": "android.permission.BLUETOOTH_CONNECT",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.BLUETOOTH_SCAN",
+        "maxSdkVersion": null,
+        "flags": "neverForLocation"
+      },
+      {
+        "name": "android.permission.CALL_PHONE",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.CAMERA",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.FOREGROUND_SERVICE",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.FOREGROUND_SERVICE_SPECIAL_USE",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.INTERNET",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.MANAGE_EXTERNAL_STORAGE",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.MODIFY_AUDIO_SETTINGS",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.NEARBY_WIFI_DEVICES",
+        "maxSdkVersion": null,
+        "flags": "neverForLocation"
+      },
+      {
+        "name": "android.permission.PACKAGE_USAGE_STATS",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.POST_NOTIFICATIONS",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.QUERY_ALL_PACKAGES",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.READ_CALENDAR",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.READ_CONTACTS",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.READ_EXTERNAL_STORAGE",
+        "maxSdkVersion": "32",
+        "flags": null
+      },
+      {
+        "name": "android.permission.READ_MEDIA_AUDIO",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.READ_MEDIA_IMAGES",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.READ_MEDIA_VIDEO",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.READ_MEDIA_VISUAL_USER_SELECTED",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.READ_PHONE_NUMBERS",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.READ_PHONE_STATE",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.RECEIVE_BOOT_COMPLETED",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.RECORD_AUDIO",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.SCHEDULE_EXACT_ALARM",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.SYSTEM_ALERT_WINDOW",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.WAKE_LOCK",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.WRITE_CALENDAR",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.WRITE_CONTACTS",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.WRITE_EXTERNAL_STORAGE",
+        "maxSdkVersion": "29",
+        "flags": null
+      },
+      {
+        "name": "android.permission.WRITE_SETTINGS",
+        "maxSdkVersion": null,
+        "flags": null
+      }
+    ],
+    "nativeLibraries": [
+      {
+        "name": "lib/arm64-v8a/libhoyoung_ann.so",
+        "bytes": 1051000,
+        "elfLoadAlignments": [
+          16384,
+          16384,
+          16384
+        ],
+        "zip16KiBAligned": true
+      },
+      {
+        "name": "lib/arm64-v8a/libonnxruntime.so",
+        "bytes": 34208672,
+        "elfLoadAlignments": [
+          16384,
+          16384,
+          16384
+        ],
+        "zip16KiBAligned": true
+      },
+      {
+        "name": "lib/arm64-v8a/libonnxruntime4j_jni.so",
+        "bytes": 92064,
+        "elfLoadAlignments": [
+          16384,
+          16384
+        ],
+        "zip16KiBAligned": true
+      },
+      {
+        "name": "lib/x86_64/libhoyoung_ann.so",
+        "bytes": 1040008,
+        "elfLoadAlignments": [
+          16384,
+          16384,
+          16384
+        ],
+        "zip16KiBAligned": true
+      },
+      {
+        "name": "lib/x86_64/libonnxruntime.so",
+        "bytes": 40827936,
+        "elfLoadAlignments": [
+          16384,
+          16384,
+          16384
+        ],
+        "zip16KiBAligned": true
+      },
+      {
+        "name": "lib/x86_64/libonnxruntime4j_jni.so",
+        "bytes": 88584,
+        "elfLoadAlignments": [
+          16384,
+          16384
+        ],
+        "zip16KiBAligned": true
+      }
+    ],
+    "modelWeightsBundled": false,
+    "physicalPhoneInstallationMeasured": false,
+    "realChatGPTAccountMeasured": false,
+    "continuous24HourRuntimeMeasured": false
+  },
+  "capturedSourceFilesMatchGit": 191,
+  "allSourcesMatch": true,
+  "scopeLimits": {
+    "physicalGalaxyMeasured": false,
+    "actualOSUninstallAndReinstallMeasured": false,
+    "samsungPickerMeasured": false,
+    "liveAuthenticatedWorkMeasured": false,
+    "zeroMillisecondPerformanceImpactMeasured": false,
+    "paidApiOrHostingUsed": false
+  }
+}
