@@ -459,28 +459,79 @@ read_own_pid() {
 }
 
 force_stop_boundary() {
-  local stopped_pid='' pid_status=0 service_dump=''
+  local original_pid='' stopped_pid='' pid_status=0 old_process='' accessibility=''
+  local service_file="$LOG_DIR/force-stop-services.txt" process_file="$LOG_DIR/force-stop-processes.txt" exit_file="$LOG_DIR/force-stop-exit-info.txt"
+  if ! original_pid="$(read_own_pid)"; then
+    echo '::error::Force-stop requires an observed original own PID; no stop boundary is assumed.' >&2; return 1
+  fi
+  echo "HOYOUNG_FORCE_STOP_BOUNDARY_BEGIN originalPid=$original_pid; no-reopen-or-regrant-until-observation"
   if ! timeout 8 "$ADB" -s "$SERIAL" shell am force-stop "$APP_ID"; then
-    echo '::error::The explicit force-stop command failed; no stop boundary is assumed.' >&2
-    return 1
+    echo '::error::The explicit force-stop command failed; no stop boundary is assumed.' >&2; return 1
   fi
   sleep 5
-  if stopped_pid="$(timeout 8 "$ADB" -s "$SERIAL" shell pidof "$APP_ID" 2>/dev/null)"; then
-    pid_status=0
-  else
-    pid_status=$?
-  fi
+  if stopped_pid="$(timeout 8 "$ADB" -s "$SERIAL" shell pidof "$APP_ID" 2>/dev/null)"; then pid_status=0; else pid_status=$?; fi
   stopped_pid="${stopped_pid//$'\r'/}"
-  if ! service_dump="$(timeout 8 "$ADB" -s "$SERIAL" shell dumpsys activity services "$APP_ID" 2>/dev/null)"; then
-    echo '::error::OS service state is unavailable; force-stop absence was not proved.' >&2
-    return 1
+  # The original PID is strictly numeric, validated by read_own_pid above.
+  old_process="$(timeout 8 "$ADB" -s "$SERIAL" shell "if [ -d /proc/$original_pid ]; then echo present; else echo absent; fi" | tr -d '\r')" || return 1
+  accessibility="$(timeout 8 "$ADB" -s "$SERIAL" shell settings get secure enabled_accessibility_services | tr -d '\r')" || return 1
+  if ! timeout 8 "$ADB" -s "$SERIAL" shell dumpsys activity services "$APP_ID" > "$service_file" \
+      || ! timeout 8 "$ADB" -s "$SERIAL" shell dumpsys activity processes "$APP_ID" > "$process_file" \
+      || ! timeout 8 "$ADB" -s "$SERIAL" shell dumpsys activity exit-info "$APP_ID" > "$exit_file"; then
+    echo '::error::Actual force-stop OS diagnostics unavailable; no boundary is proved.' >&2; return 1
   fi
-  if [[ -n "$stopped_pid" ]] || (( pid_status != 0 && pid_status != 1 )) \
-      || [[ "$service_dump" == *".runtime.AutonomyService"* && "$service_dump" == *"isForeground=true"* ]]; then
-    echo '::error::A force-stopped app must have observed process and foreground-service absence.' >&2
-    return 1
-  fi
-  echo 'HOYOUNG_SYSTEM_FORCE_STOP actual-process-and-FGS-absent; explicit-user-reopen-required'
+  # Preserve bounded complete own-package records before any subsequent launch.
+  # This fresh offline emulator contains synthetic fixture data only.
+  python3 - "$original_pid" "$stopped_pid" "$pid_status" "$old_process" "$accessibility" "$service_file" "$process_file" "$exit_file" <<'PY_FORCE_STOP'
+import json,pathlib,re,sys
+old,current,status,presence,accessibility,*paths=sys.argv[1:]
+records=[]
+for label,path in zip(('services','processes','exit-info'),paths):
+    body=pathlib.Path(path).read_text()
+    print('HOYOUNG_FORCE_STOP_OS_RECORD_BEGIN '+label)
+    print(body[:262144])
+    print('HOYOUNG_FORCE_STOP_OS_RECORD_END '+label+'; complete='+str(len(body)<=262144).lower())
+    if len(body)>262144: raise SystemExit('Force-stop diagnostics exceed the bounded complete-record limit.')
+    records.append(body)
+services=records[0]
+observation={'originalPid':int(old),'observedPid':current or None,'pidofExit':int(status),'originalProcState':presence,
+             'enabledAccessibilityServices':accessibility,'reopened':False,'regranted':False}
+print('HOYOUNG_FORCE_STOP_BOUNDARY_OBSERVATION '+json.dumps(observation,sort_keys=True))
+def require(ok, reason):
+    if not ok: raise SystemExit('Force-stop boundary rejected: '+reason)
+require(presence=='absent','original process must actually be absent from /proc')
+require(status in ('0','1'),'pidof must complete normally, not time out or fail')
+require(not current or (status=='0' and re.fullmatch(r'[0-9]+',current) and current!=old), 'a surviving original or unrecognized PID is forbidden')
+require('ACTIVITY MANAGER SERVICES' in services,'actual service-manager output is required')
+ours={'com.hoyoung.assistant/.phone.HoyoungAccessibilityService','com.hoyoung.assistant/com.hoyoung.assistant.phone.HoyoungAccessibilityService'}
+require(not any(component in ours for component in accessibility.split(':')),'accessibility must actually be revoked')
+blocks=re.split(r'(?m)(?=^  \* ServiceRecord\{)',services)
+service_blocks=[block for block in blocks if block.startswith('  * ServiceRecord{')]
+for block in service_blocks:
+    header=block.splitlines()[0]
+    if re.search(r'com\.hoyoung\.assistant/(?:com\.hoyoung\.assistant)?\.runtime\.AutonomyService[ \}]',header):
+        require(not re.search(r'\bisForeground=true\b',block), 'AutonomyService foreground work must be absent')
+# Approved notification listeners are rebound by Android15's package-restart
+# handling (NotificationManagerService -> ManagedServices.onPackagesChanged).
+# A new PID is accepted only with its actual matching system-owned binding;
+# source knowledge alone, an arbitrary replacement PID, or any agent FGS fails.
+rebound=False
+if current:
+    for block in service_blocks:
+        header=block.splitlines()[0]
+        matching=(re.search(r'com\.hoyoung\.assistant/(?:com\.hoyoung\.assistant)?\.phone\.HoyoungNotificationListener[ \}]',header)
+            and 'c:android}' in header
+            and re.search(r'(?m)^\s+permission=android\.permission\.BIND_NOTIFICATION_LISTENER_SERVICE\s*$',block)
+            and re.search(r'(?m)^\s+app=ProcessRecord\{\S+ '+re.escape(current)+r':com\.hoyoung\.assistant/[^}]+\}',block)
+            and re.search(r'(?m)^\s+recentCallingUid=1000\s*$',block)
+            and re.search(r'(?m)^\s+recentCallingPackage=android\s*$',block)
+            and re.search(r'(?m)^\s+requested=true received=true hasBound=true\b',block)
+            and re.search(r'Client AppBindRecord\{[^\n]*ProcessRecord\{[^\n]* [0-9]+:system/1000\}\}',block)
+            and any('ConnectionRecord{' in line and 'HoyoungNotificationListener:' in line and 'DEAD' not in line for line in block.splitlines()))
+        if matching: rebound=True; break
+    require(rebound,'replacement PID lacks a matching live system-bound notification listener')
+print('HOYOUNG_SYSTEM_FORCE_STOP original-process-gone; AutonomyFGS-absent; accessibility-revoked; rebound='
+      +('actual-system-bound-notification-listener' if rebound else 'none')+'; not-automatic-agent-recovery; explicit-owner-reenable-required')
+PY_FORCE_STOP
 }
 
 explicit_restart_bootstrap() {

@@ -49,6 +49,12 @@ elif arguments[:3] == ['shell','am','start']:
     else: state['pid'] += 1; state['running'] = True; state['fgs'] = state['accessibility']
 elif arguments[:3] == ['shell','am','force-stop']:
     state['fgs'] = False; state['running'] = False; state['accessibility'] = False
+    mode = os.environ.get('FAKE_FORCE_STOP_MODE', '')
+    if mode == 'original_alive': state['running'] = True
+    elif mode:
+        state['pid'] += 1; state['running'] = True
+        state['listener'] = mode in ('system_listener', 'mismatched_listener', 'wrong_binding_uid', 'foreground')
+        state['fgs'] = mode == 'foreground'
 elif arguments[:5] == ['shell','settings','put','secure','enabled_accessibility_services']:
     if os.environ.get('FAKE_ADB_REENABLE_FAILURE') == 'true': result = 28
     else: state['accessibility'] = True
@@ -57,8 +63,26 @@ elif arguments[:5] == ['shell','settings','get','secure','enabled_accessibility_
 elif arguments[:2] == ['shell','pidof']:
     if state['running']: print(state['pid'])
     else: result = 1
+elif len(arguments) == 2 and arguments[0] == 'shell' and arguments[1].startswith('if [ -d /proc/'):
+    requested = int(arguments[1].split('/proc/')[1].split()[0])
+    print('present' if state['running'] and state['pid'] == requested else 'absent')
 elif arguments[:4] == ['shell','dumpsys','activity','services']:
-    if state['fgs']: print('.runtime.AutonomyService isForeground=true')
+    print('ACTIVITY MANAGER SERVICES (dumpsys activity services)')
+    if state['fgs']:
+        print('  * ServiceRecord{fixture u0 com.hoyoung.assistant/.runtime.AutonomyService c:com.hoyoung.assistant}')
+        print('    app=ProcessRecord{fixture '+str(state['pid'])+':com.hoyoung.assistant/u0a148}')
+        print('    isForeground=true')
+    if state.get('listener'):
+        mode = os.environ.get('FAKE_FORCE_STOP_MODE', '')
+        bound_pid = state['pid'] + (1 if mode == 'mismatched_listener' else 0)
+        print('  * ServiceRecord{fixture u0 com.hoyoung.assistant/.phone.HoyoungNotificationListener c:android}')
+        print('    permission=android.permission.BIND_NOTIFICATION_LISTENER_SERVICE')
+        print('    app=ProcessRecord{fixture '+str(bound_pid)+':com.hoyoung.assistant/u0a148}')
+        print('    recentCallingUid=' + ('2000' if mode == 'wrong_binding_uid' else '1000'))
+        print('    recentCallingPackage=android')
+        print('      requested=true received=true hasBound=true doRebind=false')
+        print('      * Client AppBindRecord{fixture ProcessRecord{system 542:system/1000}}')
+        print('          ConnectionRecord{fixture u0 CR FGS com.hoyoung.assistant/.phone.HoyoungNotificationListener:@fixture}')
 elif arguments[:2] == ['shell','run-as']:
     print('FIXTURE_PROCESS_SIGNAL')
     state['kill_count'] = state.get('kill_count', 0) + 1
@@ -128,6 +152,27 @@ isolate_emulator_network() {
             result = run('if start_normal_app; then exit 0; else exit 9; fi\n', FAKE_ADB_START_FAILURE='true')
             self.assertEqual(9, result.returncode, result.stdout + result.stderr)
             self.assertIn('launch command failed', result.stderr)
+
+            # A force-stop must kill its actual original PID and stop the agent.
+            # Another PID is valid ONLY with an observed matching Android-bound
+            # notification listener. Source knowledge alone never grants a pass.
+            for mode in ('', 'system_listener'):
+                with self.subTest(force_stop_mode=mode):
+                    result = run('force_stop_boundary\n', FAKE_FORCE_STOP_MODE=mode)
+                    self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+                    self.assertIn('original-process-gone; AutonomyFGS-absent; accessibility-revoked', result.stdout)
+                    self.assertIn('rebound=' + ('actual-system-bound-notification-listener' if mode else 'none'), result.stdout)
+                    self.assertIn('HOYOUNG_FORCE_STOP_BOUNDARY_OBSERVATION', result.stdout)
+            for mode, cause in (('original_alive', 'original process must actually be absent'),
+                                ('unknown_process', 'replacement PID lacks'),
+                                ('mismatched_listener', 'replacement PID lacks'),
+                                ('wrong_binding_uid', 'replacement PID lacks'),
+                                ('foreground', 'AutonomyService foreground work must be absent')):
+                with self.subTest(force_stop_mode=mode):
+                    result = run('force_stop_boundary\n', FAKE_FORCE_STOP_MODE=mode)
+                    self.assertNotEqual(0, result.returncode, result.stdout + result.stderr)
+                    self.assertIn(cause, result.stderr)
+                    self.assertNotIn('HOYOUNG_SYSTEM_FORCE_STOP original-process-gone', result.stdout)
 
             # Execute the actual driver's phase-control section with a fake ADB.
             # A misleading OK plus failing processDeath command must remain fatal,

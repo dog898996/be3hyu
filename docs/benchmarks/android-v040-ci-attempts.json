@@ -193,6 +193,145 @@
       "fixScope": "Test-only UiAutomation runner preserving actual services; real force-stop revoked-gate/data assertions followed by explicit labeled fixture-owner re-enable before independent recovery phases; geometry and source-catalog fixture corrections. No production auto-grant or weakened offline check.",
       "log": "/workspace/artifacts/hoyoung-v040-b5cf3ed-ci.log",
       "logSha256": "c3bd7d9e887a128d6a88384958b2a002e8e905682da9d6fe0b1d72a3d43509cf"
+    },
+    {
+      "runId": 38547659110,
+      "jobId": 115797602580,
+      "commit": "9e04a61771e9ad793106c28face89446e235335d",
+      "url": "https://github.com/dog898996/be3hyu/actions/runs/38547659110",
+      "status": "completed",
+      "conclusion": "failure",
+      "unitProof": {
+        "errors": 0,
+        "failures": 0,
+        "passed": 1243,
+        "skipped": 17,
+        "testClasses": 116,
+        "tests": 1260
+      },
+      "buildUnitLintStepPassed": true,
+      "binaryPackagingStepPassed": true,
+      "expectedNativeProductChecks": {
+        "gate": 1,
+        "provider": 4,
+        "full": 20,
+        "total": 25
+      },
+      "actualNativeProductChecks": 25,
+      "actualNativeProductChecksMeaning": "executed; all25 passed; shell boundary still failed",
+      "actualNativeProductPassed": 25,
+      "actualNativeProductFailed": 0,
+      "actualNativePhases": {
+        "deniedGate": {
+          "executed": 1,
+          "passed": 1,
+          "failed": 0
+        },
+        "providers": {
+          "executed": 4,
+          "passed": 4,
+          "failed": 0
+        },
+        "fullyGranted": {
+          "executed": 20,
+          "passed": 20,
+          "failed": 0
+        }
+      },
+      "additionalInstrumentation": {
+        "offlinePreflight": {
+          "executed": 1,
+          "passed": 1
+        },
+        "explicitDataRecovery": {
+          "executed": 1,
+          "passed": 1
+        },
+        "restartSeed": {
+          "executed": 1,
+          "passed": 1
+        },
+        "forceStoppedGate": {
+          "executed": 1,
+          "passed": 1
+        },
+        "ownerReenabledReopen": {
+          "executed": 1,
+          "passed": 1
+        },
+        "actualSigkillRecovery": {
+          "executed": 1,
+          "passed": 1
+        },
+        "actualJavaCrashRecovery": {
+          "executed": 1,
+          "passed": 1
+        },
+        "actualRebootRecovery": {
+          "executed": 1,
+          "passed": 1
+        }
+      },
+      "actualAllInstrumentationTests": 33,
+      "actualAllInstrumentationPassed": 33,
+      "allShellAndInstrumentationAssertionsPassed": false,
+      "fullPermissionGateReadyObserved": true,
+      "actualRequiredGrants": 29,
+      "gateCorrectlyBlockedAfterForceStop": true,
+      "explicitFixtureOwnerReenableObserved": true,
+      "automaticForceStopRecoveryClaimed": false,
+      "initialOfflineFrameworkAbsent": true,
+      "postBootOfflineFrameworkAbsent": true,
+      "selinuxModeObserved": null,
+      "nativeProofMarkers": {
+        "HOYOUNG_FIXTURE_FRAMEWORK_OFFLINE": "HOYOUNG_FIXTURE_FRAMEWORK_OFFLINE actual-activeNetwork=null; actual-getAllNetworks=0; five-consecutive-observations; no-production-bypass",
+        "HOYOUNG_DEVICE_PERMISSION_GATE": "HOYOUNG_DEVICE_PERMISSION_GATE actual-required-grants=29; all-granted; no-production-bypass",
+        "HOYOUNG_DEVICE_PERMISSION_BLOCK": "HOYOUNG_DEVICE_PERMISSION_BLOCK actual-OS-denial; disabled-start; no-composer-or-sidebar-bypass; no-grant-mutation",
+        "HOYOUNG_DEVICE_PROFILE_UI": "HOYOUNG_DEVICE_PROFILE_UI local-cat-photo; native-circle-pixels; bounded-shared-decode=315x320",
+        "HOYOUNG_DEVICE_TYPING_UI": "HOYOUNG_DEVICE_TYPING_UI actual-native-frames=16->196; hidden-detached-background-stopped; reduced-motion-static-accessible; no-Work-or-runtime-state-injection",
+        "HOYOUNG_DEVICE_DRAWER_UI": "HOYOUNG_DEVICE_DRAWER_UI seven-native-destinations; real-editor-touch-save-reopen; full-permission-gate-ready; offline-no-authenticated-Work",
+        "HOYOUNG_DEVICE_PASSWORD_ENTRY": "HOYOUNG_DEVICE_PASSWORD_ENTRY actual-native-password-EditText; actual-enabled-service-active-window; Binder-ACTION_SET_TEXT-and-CLICK; ordinary-confirmed; password-accepted-not-external-authentication; stale-node-rejected; latest-account-correction-replayed; old-password-mock-rejected; local-synthetic-state-verified; no-real-account-or-credential",
+        "HOYOUNG_DEVICE_SCREEN_CAPTURE": "HOYOUNG_DEVICE_SCREEN_CAPTURE actual-accessibility-Binder-pixels; actual-native-color-fixture; PNG-sha256-verified; immutable-original; device-observation-not-owner-message; actual-OS-redacted-secure-surface; no-real-account-or-private-screen; AI-reading-unconfirmed",
+        "HOYOUNG_DEVICE_EXACT_ALARM": "HOYOUNG_DEVICE_EXACT_ALARM actual-AlarmManager-to-receiver; durable-fired-receipt; no-notification; no-model-invocation; offline-disposable-AVD-only",
+        "HOYOUNG_FORCE_STOP_PERMISSION_REVOKED": "HOYOUNG_FORCE_STOP_PERMISSION_REVOKED actual-accessibility-setting-missing; production-gate-blocked; no-auto-regrant",
+        "HOYOUNG_FORCE_STOP_GATE": "HOYOUNG_FORCE_STOP_GATE actual-required-permission-UI; draft-and-identity-retained; no-FGS; owner-reenable-required",
+        "HOYOUNG_FIXTURE_POSTBOOT_OFFLINE": "HOYOUNG_FIXTURE_POSTBOOT_OFFLINE actual-activeNetwork=null; actual-getAllNetworks=0; observed-inside-boot-proof-after-shell-FGS-check",
+        "HOYOUNG_SYSTEM_PROCESS_DEATH_RECOVERY": "HOYOUNG_SYSTEM_PROCESS_DEATH_RECOVERY actual-own-UID-SIGKILL; new-process-PID; START_STICKY-FGS-recovered-before-test-Activity; not-Java-crash-or-force-stop",
+        "HOYOUNG_SYSTEM_CRASH_RECOVERY": "HOYOUNG_SYSTEM_CRASH_RECOVERY actual-am-crash; new-process-PID; START_STICKY-FGS-recovered-before-test-Activity"
+      },
+      "restartPhaseSuccess": {
+        "primary": true,
+        "explicitDataRecovery": true,
+        "seed": true,
+        "forceReopen": false,
+        "processDeath": true,
+        "javaCrash": true,
+        "boot": true,
+        "bootstrapAndProofInfrastructure": true,
+        "javaCleanBaseline": true
+      },
+      "firstExactFailure": {
+        "stage": "force_stop_boundary shell assertion",
+        "assertion": "A force-stopped app must have observed process and foreground-service absence.",
+        "diagnosticInputsRecorded": false,
+        "cause": "Unresolved: original assertion combines any current PID, pidof exit code and a service-dump substring; the failing branch did not record those values."
+      },
+      "observedOriginalProcessForceStop": {
+        "pid": 3356,
+        "timestamp": "2026-10-14 10:21:08.664",
+        "reason": "10 USER REQUESTED",
+        "subreason": "21 FORCE STOP",
+        "evidence": "Actual AMS ApplicationExitInfo beforeCrash #4"
+      },
+      "laterProcessPid": 3512,
+      "officialSystemRebindEvidence": {
+        "notificationManagerSource": "https://android.googlesource.com/platform/frameworks/base/+/android-15.0.0_r1/services/core/java/com/android/server/notification/NotificationManagerService.java",
+        "managedServicesSource": "https://android.googlesource.com/platform/frameworks/base/+/android-15.0.0_r1/services/core/java/com/android/server/notification/ManagedServices.java",
+        "finding": "ACTION_PACKAGE_RESTARTED is routed to approved listeners onPackagesChanged/rebindServices with BIND_AUTO_CREATE. This supports, but does not prove for the unlogged boundary, a new system-bound notification-listener process."
+      },
+      "memorySourceEquivalenceArtifact": "/workspace/artifacts/hoyoung-v040-9e04a61-memory-source-equivalence.json",
+      "log": "/workspace/artifacts/hoyoung-v040-9e04a61-ci.log",
+      "logSha256": "aaa88ffaece16c11bdcee30797c723a8bf4064378ed455b7c15c68e110c29d37"
     }
   ]
 }
