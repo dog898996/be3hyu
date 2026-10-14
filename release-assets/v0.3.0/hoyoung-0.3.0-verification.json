@@ -1,0 +1,56 @@
+{
+  "sourceCommit": "ad854064da708d656924c5eff9bbb349b96ab574",
+  "version": "0.3.0",
+  "versionCode": 4,
+  "publicationGate": "all required release gates passed; public asset download verification pending",
+  "stableCertificateSHA256": "5b634dac5d4538f871ff0bfdbe1b31b2baa02dbe4390d11d7f6af235b2df1e3e",
+  "assets": {
+    "hoyoung-0.3.0.apk": {
+      "bytes": 78792673,
+      "sha256": "ecb6eb3224d770d86d94e7db7eaa487760fcfa40744a54c88fb8650742843d10"
+    },
+    "hoyoung-0.3.0-source.zip": {
+      "bytes": 52974843,
+      "sha256": "b1c948cb8d2a4128252caa4e54f840db328f1d0191513b6ea6e7464f6cebb5a0"
+    }
+  },
+  "archiveSourceCommit": "ccd222a5f567b902b2076087624e5eedc49ea5bb",
+  "verifiedCodeCommit": "ad854064da708d656924c5eff9bbb349b96ab574",
+  "sourceFileComparison": {
+    "count": 205,
+    "allMatch": true,
+    "archiveContainsSameVerifiedCode": true
+  },
+  "releaseTag": "v0.3.0",
+  "releaseURL": "https://github.com/dog898996/be3hyu/releases/tag/v0.3.0",
+  "preparedAtUTC": "2026-10-14T02:25:13.474535+00:00",
+  "actualAndroidCI": {
+    "url": "https://github.com/dog898996/be3hyu/actions/runs/38499375034",
+    "headSha": "ad854064da708d656924c5eff9bbb349b96ab574",
+    "conclusion": "success",
+    "primaryOSChecksPassed": 15,
+    "allRequiredRecoveryPhasesPassed": true,
+    "criteriaWeakened": false
+  },
+  "memoryEvaluation": {
+    "calendarYearsAtFinalPoint": 5,
+    "distinctSyntheticQuestions": 144,
+    "rawPassed": 144,
+    "writerPassed": 144,
+    "writerCarriedAnswers": 142,
+    "writerFreshAnswers": 2,
+    "answerPrivacyValueReexposures": 0,
+    "sameBudgetBaselinePassed": 144,
+    "twofoldSemanticAccuracyImprovementProven": false
+  },
+  "scopeLimits": {
+    "physicalSamsungS24UltraMeasured": false,
+    "continuous24HourDurationMeasured": false,
+    "liveAuthenticatedChatGPTWorkMeasured": false,
+    "realCloudUploadMeasured": false,
+    "paidApiOrHostingUsed": false,
+    "publicArtifactUploadCacheEnabledInCI": false
+  },
+  "publicationMethod": "versioned Git artifact branch linked from GitHub Release; uploads.github.com rejected this environment credential with HTTP401",
+  "artifactBranch": "release-assets/v0.3.0"
+}
