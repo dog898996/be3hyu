@@ -23,3 +23,5 @@
 - 서명 SHA-256: `5b634dac5d4538f871ff0bfdbe1b31b2baa02dbe4390d11d7f6af235b2df1e3e`
 
 [빌드 기록](benchmarks/android-v043-local.json) · [APK 정적 검증](benchmarks/android-v043-apk.json)
+
+[공개 다운로드 확인](benchmarks/android-v043-downloads.json): APK·소스 ZIP·검증 JSON·SHA256SUMS를 인증 없이 끝까지 받아 HTTP 200, 전체 크기와 SHA-256을 대조했다. Artifact commit `a37324d0a81551a91b5b004455c7d96e68a28563`에 고정되어 있다.
