@@ -1,0 +1,98 @@
+{
+  "raw_only": {
+    "cases": 12,
+    "completeSourceDelivery": 12,
+    "requiredOriginals": 12,
+    "deliveredOriginals": 12,
+    "blockedCases": 0,
+    "protectedExposureCases": 0
+  },
+  "alias_cues": {
+    "cases": 12,
+    "completeSourceDelivery": 12,
+    "requiredOriginals": 24,
+    "deliveredOriginals": 24,
+    "blockedCases": 0,
+    "protectedExposureCases": 0
+  },
+  "temporal_change": {
+    "cases": 12,
+    "completeSourceDelivery": 1,
+    "requiredOriginals": 24,
+    "deliveredOriginals": 13,
+    "blockedCases": 0,
+    "protectedExposureCases": 0
+  },
+  "claim_status": {
+    "cases": 12,
+    "completeSourceDelivery": 12,
+    "requiredOriginals": 20,
+    "deliveredOriginals": 20,
+    "blockedCases": 0,
+    "protectedExposureCases": 0
+  },
+  "episodes": {
+    "cases": 12,
+    "completeSourceDelivery": 12,
+    "requiredOriginals": 36,
+    "deliveredOriginals": 36,
+    "blockedCases": 0,
+    "protectedExposureCases": 0
+  },
+  "decision_reasons": {
+    "cases": 12,
+    "completeSourceDelivery": 12,
+    "requiredOriginals": 24,
+    "deliveredOriginals": 24,
+    "blockedCases": 0,
+    "protectedExposureCases": 0
+  },
+  "procedure_scope": {
+    "cases": 12,
+    "completeSourceDelivery": 12,
+    "requiredOriginals": 24,
+    "deliveredOriginals": 24,
+    "blockedCases": 0,
+    "protectedExposureCases": 0
+  },
+  "active_constraints": {
+    "cases": 12,
+    "completeSourceDelivery": 12,
+    "requiredOriginals": 24,
+    "deliveredOriginals": 24,
+    "blockedCases": 0,
+    "protectedExposureCases": 0
+  },
+  "missing_facts": {
+    "cases": 12,
+    "completeSourceDelivery": 12,
+    "requiredOriginals": 12,
+    "deliveredOriginals": 12,
+    "blockedCases": 0,
+    "protectedExposureCases": 0
+  },
+  "image_wire_scope": {
+    "cases": 12,
+    "completeSourceDelivery": 12,
+    "requiredOriginals": 16,
+    "deliveredOriginals": 16,
+    "blockedCases": 0,
+    "protectedExposureCases": 0
+  },
+  "forget_revoke": {
+    "cases": 12,
+    "completeSourceDelivery": 12,
+    "requiredOriginals": 12,
+    "deliveredOriginals": 12,
+    "blockedCases": 0,
+    "protectedExposureCases": 0
+  },
+  "range_coverage": {
+    "cases": 12,
+    "completeSourceDelivery": 11,
+    "requiredOriginals": 168,
+    "deliveredOriginals": 166,
+    "blockedCases": 0,
+    "protectedExposureCases": 0
+  }
+}

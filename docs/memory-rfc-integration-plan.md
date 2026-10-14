@@ -1,6 +1,36 @@
 # 세션·기억 RFC v1.2의 Android 적용 계획
 
-상태: 설계 제안과 코드 추적 결과. 이 문서는 구현 완료 보고서가 아니다. 검토 기준은 `f2e67c6` 이후의 Android 작업 트리이며, 동시에 진행 중인 부팅·복원 수정은 별도 작업이다. 이 검토에서 제품 소스, Gradle 설정, 계정, 모델 연결, 권한을 변경하지 않았다.
+상태: 최초 코드 추적, Android 적용 계약, 구현된 일부 경계의 검증 기록. RFC 전체 완료 보고서가 아니다. 최초 검토 기준은 `f2e67c6` 이후 작업 트리이며, 이후 `MemoryGateway`, 기억 검토, 활성 목표·작업 영수증의 source privacy 경계와 명시적 원문 제어를 구현했다. 계정·외부 서비스·추가 모델 연결·권한 설정은 이 작업에서 변경하지 않았다.
+
+## 구현된 native 경계와 검증 범위
+
+`MemoryGateway`는 하나의 실제 `ReadSnapshot.database`에서 verbatim·semantic·episodic·procedural·active 질의와 source hydration을 실행한다. 계층 receipt에는 실제 SQL/bind digest·row 수·query ID·scope와 조회 실패가 포함된다. `canonical_query_scope_at_snapshot`은 질의 범위의 완성도이며, 모델이 전체 과거를 읽었다거나 증거의 의미를 정확히 사용했다는 증명은 아니다. optional hybrid 후보는 snapshot 전에 만들고 snapshot 안에서 ID·hash·revision을 검증한다. 현재 사용자 입력, 최신 사용자 정정, 전체 native 활성 제약은 필수다. 동일 snapshot의 FTS에서 제한된 후보 ID를 읽고, canonical literal과 실제 capped term rarity를 검증된 hybrid 후보와 함께 정렬한다. 오래된 원문과 device 근거를 같은 순위에서 패킹하고 최근 원문은 뒤에 둔다. FTS는 후보 인덱스이며 canonical 원문을 대체하지 않는다. 예산에 담지 못한 optional 항목 수를 남기며 필수 제약 초과는 명시 차단한다.
+
+준비된 문맥은 실제 제어 내용과 선택 source·memory revision·원문 범위 hash에 결합된다. dispatch admission 유효기간은 10분이며, 긴 작업의 출력은 이 단순 준비 TTL과 구분한다. 현재·과거 메타데이터의 숫자/ISO `validFrom`·`validTo` 경계, 현재 제어·입력·권한·privacy·source 변경은 출력 재검사에서도 적용된다. 감사 로그 추가만으로 문맥을 무효화하지 않는다. device 원문과 해당 파생 메모는 실제 source visibility predicate를 통과해야 한다.
+
+`MemoryReviewCoordinator`는 source privacy 원장을 고정한 transaction 범위에서 incremental·revisit·원문·neighbor·asset 경로를 검사하고 반환 직전 fingerprint를 재검사한다. 캐시 배치는 `assertBatchAllowed`를 통과해야 한다. 제외된 연속 owner source는 native 정책 receipt(`reviewed:false`, `payloadRead:false`)로 처리한다. 그 앞에 아직 ACK하지 않은 허용 source가 있으면 먼저 그 범위를 검토한다. 처리 cursor와 모델 ACK 수를 구분해, 제외를 읽기/추출 성공으로 보고하지 않는다. 원장이 손상되면 빈 정책으로 바꾸지 않는다. 원문 physical deletion의 전체 범위는 별도 저장소 구현·검증 결과를 따른다.
+
+| 직접 실행한 검증 | 결과와 한계 |
+| --- | --- |
+| SDK 35 standalone `javac`, native gate/review 소스 | 최종 캡처 소스로 통과. Gradle·APK·실제 Galaxy·제공자 연결 시험을 대신하지 않는다. |
+| `MemoryGatewayTest`, SDK 28 실제 native SQLite | 26/26 통과. 다섯 실제 empty의 정상 답변, 각 계층 근거, 현재 입력 비중복, 출처 변조, revision/control/권한/privacy 변경, TTL/ISO 기한, 필수 overflow, invalidated/superseded, 과거 근거 우선 패킹, device replay·known parent copy를 확인했다. |
+| Gateway read snapshot 도중 concurrent WAL writer | 실제 gate를 verbatim와 semantic 사이에서 멈춘 뒤 writer가 memory·지침을 commit했다. 준비 결과는 이전 cut만 포함했고 이후 freshness는 차단했다. API 28 증거이며 API 35 runtime의 동등 시험은 별도다. |
+| `MemoryReviewCoordinatorTest` + `MemoryReviewPrivacyTest` | 기존 44개 + 새 native SQLite 14개, 58/58 통과. prefix/hole/partial/revisit/cache/neighbor/asset/손상 원장/삭제된 raw file/과거 DB restore를 확인했다. |
+| review transaction 도중 source exclusion barrier | hydrated 결과를 반환하기 전 정책을 바꿨을 때 old 결과를 차단하고 진행 쓰기를 rollback했다. 이미 외부 제공자에 전달된 과거 내용의 제거는 보장 범위가 아니다. |
+| 보존된 전체 소스 캡처의 재실행 | 304/304 통과: Gateway 26+indexed/scope 6, 검토 44+privacy 14, 열거 5+visibility 3, 답변 lineage 6+변조 2, 목표 24+privacy 4, 영수증 18+archive privacy 2+hot guard 5, owner 원문 제어 6, 실제 Runtime privacy 5, legacy foreign receipt 1, SourceGraph 19, 기존 runtime fixture 61, reply notification 44, source startup readiness 9. 157개는 NATIVE SQLite 명시, 147개는 기존 테스트의 기본 SQLite 설정이다. 이 캡처와 후속 consumer 수정의 소스 hash를 분리해 보존한다. |
+| 실제 consumer의 후속 수정·회귀 | 최신 Runtime·Retriever·Notifications를 별도 캡처해 68/68 통과: 새로운 native consumer 5, 기존 Runtime 51, Runtime privacy 5, 목표 보고 integration 7. 제외 원장이 비어 있어도 device 파생 메모·원문 읽기·알림에 실제 scope를 적용하고, malformed/non-array/trailing continuation metadata는 wire 전에 차단한다. 위치 권한 부족의 정확한 native 진단은 전달하되 좌표·추가 private text·성공한 위치 결과·다른 phone 도구에 같은 예외를 적용하지 않는다. 10개는 NATIVE SQLite 명시, 58개는 기존 기본 설정이다. |
+| 큰 canonical 원문 fixture의 첫 준비 | 20,001개 메시지에서 hybrid 없이 오래된 긴 원문의 tail을 회수했다. 동일 final run의 후보는 64개, 준비 시간은 38ms였다. 특정 fixture 결과이며 실제 Galaxy 지연 보장은 아니다. 작은 entity의 원문 14개와 다른 entity의 noisy hybrid 앞에 있는 owner pending/device confirmed 근거도 제한 예산에서 보존했다. |
+| 실제 grant·최종 packet marker·provider 보류 | READ_CONTACTS 실제 grant→deny 시 응답과 메모 승격 전에 provider 출력을 보류했다. 실제 최종 text/model/attachment packet 등록 및 one-use 인가로 source-bound dispatch marker를 만들었고, 이후 제외된 source를 쓴 보류 응답의 200k 초과 사설 원문 파일과 request 결과를 명시적 owner 삭제로 정리했다. 독립된 사용자 질문은 남기며 provider 삭제를 주장하지 않는다. |
+| snapshot-local graph memo | 동일 native SQLite view에서 10,001개 허용 node와 10,002개 제외/파생 node를 검증했다. 반복 root fixture의 SQL 조회는 독립 검사 128,256회에서 공유 view 2,130회로 줄었고, 같은 final run 시간은 약 2.78초와 0.081초였다. transaction 밖 영구 verdict 캐시는 없다. |
+
+
+답변 ancestry는 recursive Java 호출과 128-hop 차단 대신 반복 DFS와 DAG 중복 제거를 사용한다. 무관한 tombstone 때문에 130개 정상 연결이 누락되는 문제를 실제 회귀 시험에서 발견하고 수정했다. `GoalLedger`의 progress는 native `goalSources` 및 불변 `goalSourceHistory`에 연결된다. 제외·손상·누락된 근거는 private progress 대신 source가 차단된 opaque 상태로 표시하고 다른 정상 목표는 계속 사용할 수 있다. 작업 영수증의 이전 raw 보관본은 같은 transaction에서 native `answerSources`를 연결한 뒤 공개한다. 알려진 legacy receipt linkage도 검사한다. 임시 `ReadContext`는 하나의 실제 read snapshot과 opening thread에만 존재하며 각 dispatch와 freshness에서 새로 만든다. device ancestor를 참조한 답변·목표·영수증도 현재 source visibility를 따라야 하고, implicit phone scope를 끄면 그 파생 문맥도 제외된다. 잘 알려진 native structured `original`/`sourceRefs`와 legacy raw receipt의 foreign source도 검사한다. 다만 100k 이상의 연결 그래프 성능과 모든 미추적 복사본의 발견은 이 시험의 완전성 주장에 포함하지 않는다.
+
+명시적 owner 원문 제어는 활성 작업과 충돌하지 않는 유지보수 경계에서만 수행한다. 최신 사용자 원문이 제외·삭제되면 과거 발언을 대신 승격하지 않고 `startsNewWork:false`인 native 제어 영수증으로 owner epoch를 단조 증가시킨다. 오래된 백업 복원 후 삭제 요청을 재적용하고 epoch를 복구한 뒤 검색을 허용한다. 원문 row가 이미 지워진 중단 지점도 durable exact-hash 삭제 intent로 재시도한다. `retrieval_excluded`와 검증된 managed local deletion, provider 삭제·외부 보관본·공유 작업 파일의 미확인을 구분한다.
+
+FTS 후보 제한과 예산 때문에 반환되지 않은 근거가 존재할 수 있다. 기간별 합계·횟수·평균은 top-k 문맥을 전체 열거로 간주하지 않으며 paged source enumeration을 사용한다. 또한 inference completion 때마다 다음 due 경계가 이미 지난 상태에서는 strict priority가 review를 지연시킬 수 있다. 장기 과부하 상황의 공정한 검토 진행은 별도 기기 검증 과제로 남긴다.
+
+원문 추출 품질, 검색 전체 corpus 완전성, 최종 blind reader 답변 정확도와 Android 장기 실행은 위 단위 시험에서 측정한 결과가 아니다. 최종 payload의 native 등록·one-use 인가·marker lineage는 확인했지만 실제 제공자 내부 입력 bytes의 독립 검증은 별도다. 최종 standalone runner는 이전 desktop JVM C2 compiler crash를 피하기 위해 모든 suite에 동일한 C1-only 설정을 사용했다. 예전 JVM crash 로그를 테스트 실패나 제품 ART crash와 섞어 보고하지 않는다. 아래 5년 simulation 및 runtime 검증의 별도 산출물을 확인해야 한다.
 
 ## 입력과 적용 범위
 
@@ -25,7 +55,9 @@
 
 새 `MemoryGateway`와 `DispatchGateway`는 앱 내부 이름이다. ChatGPT Work의 공식 내장 API가 존재한다는 뜻이 아니다. 현재 웹 연결의 지원·정책·DOM 관찰 한계는 [모델 기억 평가](model-memory-evaluation.md)와 기존 연결 문서에 계속 남긴다.
 
-## 현재 코드의 재사용 지점과 확인된 차이
+## 최초 검토 시 재사용 지점과 확인된 차이
+
+아래 표는 구현 전의 gap 기록이다. 상단의 구현·검증 기록과 최종 runtime/저장소 결과를 함께 읽는다.
 
 | 구현 | 존재하는 기능 | RFC와의 차이 |
 | --- | --- | --- |
@@ -136,7 +168,7 @@ stop/revoke/forget는 검색·모델에 의존하지 않는 native 제어 경로
 
 ## 수용 시험과 증거
 
-아래 항목은 추가할 시험 계획이다. 이 문서를 작성하며 실행한 시험 수는 0이다. 기존 시험 결과는 각 기존 artifact의 source/실행 범위에만 적용한다.
+아래 항목은 RFC 전체 수용 matrix다. 상단의 직접 실행한 native 시험은 일부 경계를 검증하며, 이 matrix 전체가 통과했다는 뜻은 아니다. 기존 시험 결과는 각 기존 artifact의 source/실행 범위에만 적용한다.
 
 | RFC ID | 실제 시험 조건 |
 | --- | --- |

@@ -1,0 +1,606 @@
+{
+  "scope": "Immutable progress checkpoint 0.3.0 code4, all frozen native Android source/tests compiled and whole unit/lint passed. Public release held for independent semantic/native CI and subsequent memory-review scheduling/batch-scope follow-up.",
+  "verifiedAtUTC": "2026-10-14T01:33:47.465635+00:00",
+  "parentCommit": "653665bd0e32368e202a427d0762d4d1f397e488",
+  "sourceFingerprintFile": "/tmp/hoyoung-memory-final-checkpoint/source-fingerprint.json",
+  "sourceFiles": 201,
+  "appJavaSourceFiles": 146,
+  "wholeUnitTotals": {
+    "tests": 739,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 16,
+    "passed": 723
+  },
+  "wholeUnitClasses": [
+    {
+      "class": "com.hoyoung.assistant.MainActivitySmokeTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.memory.AdaptiveMemoryRecallTest",
+      "tests": 18,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.memory.LargeCorpusRetrievalBenchmarkTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "class": "com.hoyoung.assistant.memory.LongTermRetrievalBenchmarkTest",
+      "tests": 20,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.memory.LongitudinalMemoryProductBenchmarkTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "class": "com.hoyoung.assistant.memory.PublicDatasetRetrievalBenchmarkTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.memory.PublicNeuralRetrievalBenchmarkTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "class": "com.hoyoung.assistant.memory.SemanticAnnCacheTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 2
+    },
+    {
+      "class": "com.hoyoung.assistant.memory.SemanticAnnCheckpointTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 8
+    },
+    {
+      "class": "com.hoyoung.assistant.memory.SemanticAnnScalingBenchmarkTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "class": "com.hoyoung.assistant.memory.SemanticScanScalingBenchmarkTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "class": "com.hoyoung.assistant.memory.StructuredMemoryScalingBenchmarkTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "class": "com.hoyoung.assistant.memory.VectorCodecTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.phone.AutonomyResourceModeTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.phone.NotificationObservedContentTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.phone.PhoneArchiveCompactionTest",
+      "tests": 12,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.phone.PhoneArchivedResultVisibilityTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.phone.PhoneContextTest",
+      "tests": 19,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.phone.PhoneJournalSpoolTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.phone.PhoneSharedFilesTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.phone.PhoneUiInputTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.runtime.ActionReceiptJournalTest",
+      "tests": 18,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.runtime.ActionReceiptPrivacyTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.runtime.ActionReceiptSourceGuardTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.runtime.AssistantReplyNotificationPrivacyTest",
+      "tests": 16,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.runtime.AssistantReplyNotificationsTest",
+      "tests": 28,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.runtime.AssistantRuntimePreparingSteeringTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.runtime.AssistantRuntimeTest",
+      "tests": 51,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.runtime.AutonomyTickPolicyTest",
+      "tests": 12,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.runtime.AutonomyTickRuntimeTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.runtime.DispatchPayloadRegistryTest",
+      "tests": 11,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.runtime.GoalLedgerPrivacyTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.runtime.GoalLedgerTest",
+      "tests": 24,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.runtime.MemoryReviewCoordinatorTest",
+      "tests": 44,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.runtime.MemoryReviewPrivacyTest",
+      "tests": 14,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.runtime.NativeConsumerVisibilityTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.runtime.OwnerDraftStoreTest",
+      "tests": 24,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.runtime.RuntimeGoalArchiveIntegrationTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.runtime.RuntimeMemoryReviewSchedulingTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.runtime.RuntimeModelPreferencesTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.runtime.RuntimeNativeOutcomeMemoryTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.runtime.RuntimeOwnerInputIdentityTest",
+      "tests": 18,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.runtime.RuntimeReadFailureTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.runtime.RuntimeReceiptPrivacyTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.runtime.RuntimeRepresentationAcceptanceTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.runtime.SourceDeletionStartupReadyTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.runtime.StartupRecoveryBootTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.store.AttachmentOriginalsTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.store.BackupCapacityTest",
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.store.BoundedChatMessagePageTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.store.ExclusiveStorageMaintenanceTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.store.FileListingResponsivenessTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.store.FullHistorySearchTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.store.HoyoungStoreTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.store.InternalFilesTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.store.LegacyReceiptSourceVisibilityTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.store.LongTermStorageTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.store.MemoryGatewayIndexedSourceTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.store.MemoryGatewayTest",
+      "tests": 26,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.store.MemorySourceEnumeratorTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.store.SeparateSourceEnumeratorIntegrityTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.store.SnapshotOriginalTextTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.store.SourceControlRuntimeTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.store.SourceGraphVisibilityTest",
+      "tests": 19,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.store.SourcePayloadDeletionTest",
+      "tests": 23,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.store.SourcePrivacyLedgerTest",
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.store.SourceRecordVisibilityTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.store.SourceResponseLineageRegressionTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.store.StartupRestoreRecoveryTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.store.VerifiedImageSourceTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.store.WorkingBinaryStorageTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.ui.AttachmentPreviewTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.ui.ChatAttachmentPreviewsTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.ui.PhotoPreviewStreamingTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.web.OriginBoundaryTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.web.WorkAttachmentRepresentationsTest",
+      "tests": 20,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.web.WorkStartupRecoveryTest",
+      "tests": 12,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.hoyoung.assistant.web.WorkTransportIntegrityTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "wholeUnitXMLPreserved": "/tmp/hoyoung-memory-final-checkpoint/verification/whole-unit-final739",
+  "focusedFollowup68XMLPreserved": "/tmp/hoyoung-memory-final-checkpoint/verification/followup-target68",
+  "initial734FailureProof": "/workspace/artifacts/hoyoung-memory-final-checkpoint-initial-verification.json",
+  "buildStatus": "BUILD SUCCESSFUL in 4m 37s",
+  "buildLog": "/tmp/hoyoung-memory-final-checkpoint-final-full.log",
+  "lint": {
+    "status": "passed",
+    "counts": {
+      "Error": 0,
+      "Fatal": 0,
+      "Warning": 16,
+      "Information": 0
+    },
+    "report": "/tmp/hoyoung-memory-final-checkpoint/mobile/app/build/reports/lint-results-debug.xml"
+  },
+  "artifacts": {
+    "debugAPK": {
+      "path": "/tmp/hoyoung-memory-final-checkpoint/mobile/app/build/outputs/apk/debug/app-debug.apk",
+      "bytes": 79247731,
+      "sha256": "ff8f2e27ab7f59b3ebe0f99161a25c36f186be054defdb55c90a679a151728f3",
+      "staticVerificationReport": "/workspace/artifacts/hoyoung-memory-final-debug-apk-verification.json"
+    },
+    "androidTestAPK": {
+      "path": "/tmp/hoyoung-memory-final-checkpoint/mobile/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk",
+      "bytes": 985967,
+      "sha256": "12be8a7728b116d745a795c1fff0f63f120bd00f594a2f70a61c7568899b6912"
+    }
+  },
+  "artifactSourceVersion": {
+    "name": "0.3.0",
+    "code": 4,
+    "package": "com.hoyoung.assistant",
+    "permissionCount": 40
+  },
+  "capturedFilesChangedInLiveRepoAfterCapture": [
+    "mobile/app/src/main/java/com/hoyoung/assistant/runtime/AssistantRuntime.java",
+    "mobile/tools/longitudinal/FiveYearNativeCounterfactual.java"
+  ],
+  "publicationAuthorized": false,
+  "realChatGPTAccountMeasured": false,
+  "physicalPhoneInstallationMeasured": false,
+  "continuous24HourRuntimeMeasured": false,
+  "actualAPI35FixtureCompiledButNotExecutedYet": true
+}

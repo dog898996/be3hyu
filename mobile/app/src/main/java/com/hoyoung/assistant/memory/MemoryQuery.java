@@ -13,6 +13,7 @@ public final class MemoryQuery {
     public final long from, to, asOf;
     public final int limit, maxChars;
     public final boolean includeHistory;
+    public final boolean requiresExhaustiveCoverage;
 
     public MemoryQuery(JSONObject args) {
         query = args.optString("query", "").trim();
@@ -31,6 +32,8 @@ public final class MemoryQuery {
         limit = Math.max(1, Math.min(50, args.optInt("limit", 20)));
         maxChars = Math.max(1000, Math.min(50_000, args.optInt("maxChars", 12_000)));
         includeHistory = args.optBoolean("includeHistory", false) || asOf > 0;
+        String normal=MemoryText.normalize(query);
+        requiresExhaustiveCoverage=normal.matches("(?s).*(?:합계|총액|총량|총합|평균|전체|전부|모두|횟수|몇 번|몇번|몇 개|몇개|\\bsum\\b|\\bcount\\b|\\btotal\\b|\\baverage\\b|all records|every record).*");
     }
 
     public boolean recordedInRange(long recordedAt) { return (from == 0 || recordedAt >= from) && (to == 0 || recordedAt < to); }

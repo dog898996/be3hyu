@@ -18,7 +18,7 @@ def main():
     if args.log.stat().st_size > 64 * 1024 * 1024:
         raise SystemExit('Expected one bounded CI job log, at most 64 MiB.')
     # GitHub timestamps and Android Logcat prefixes may precede these markers.
-    expression = re.compile(r'(HOYOUNG_UI_FAILURE_DIAG|HOYOUNG_UI_FAILURE_JPEG_BASE64) ([A-Za-z0-9_-]{1,200}) (\d+)/(\d+) (.*)')
+    expression = re.compile(r'(HOYOUNG_UI_FAILURE_DIAG|HOYOUNG_UI_FAILURE_JPEG_BASE64|HOYOUNG_UI_FAILURE_PNG_BASE64) ([A-Za-z0-9_-]{1,200}) (\d+)/(\d+) (.*)')
     records = {}
     for line in args.log.read_text(encoding='utf-8', errors='replace').splitlines():
         found = expression.search(line)
@@ -39,7 +39,13 @@ def main():
             print('Incomplete diagnostics:', test, kind, f"{len(value['parts'])}/{value['count']}")
             continue
         payload = ''.join(value['parts'][part] for part in range(value['count']))
-        if kind.endswith('JPEG_BASE64'):
+        if kind.endswith('PNG_BASE64'):
+            body = base64.b64decode(payload, validate=True)
+            if not body.startswith(b'\x89PNG\r\n\x1a\n') or not body.endswith(b'IEND\xaeB`\x82') or len(body) > 5 * 1024 * 1024:
+                raise SystemExit('Expected a bounded actual Android fixture PNG.')
+            target = args.output / (test + '.png')
+            target.write_bytes(body)
+        elif kind.endswith('JPEG_BASE64'):
             body = base64.b64decode(payload, validate=True)
             if not body.startswith(b'\xff\xd8') or not body.endswith(b'\xff\xd9') or len(body) > 5 * 1024 * 1024:
                 raise SystemExit('Expected a bounded Android fixture JPEG.')

@@ -1,0 +1,10 @@
+{
+  "blind-reader-inputs.jsonl.gz": "49eddd15eab4b5897786827d8ae2c254f87e0246193ad897274ffabd5e9dca46",
+  "execution-receipt.json": "a2a74851fc2af4b64af2acec40357a4e017d6774e52e585ef938a6ac4a361a61",
+  "execution.log": "a6ddb363d7bd80f40811ecb7561d8a8546ff836764e1427f729d18f4824b8337",
+  "fixture-null-guard-failed.execution.log": "133ac8563cc96d87056ba9f80694b9414ac5b5be4d3ae42e3485d50c38f84840",
+  "fixture-null-guard-failed.receipt.json": "8d6f5bfee97daee58532cc75fff210bf0c9c7985e5159a6a424b74c28e7fb2a6",
+  "native-only-summary.json": "0a226cd8cdc0e705189e77bfa13756cf98019ee1941fece466c4486f373ea77d",
+  "scorer-only-intervention-receipts.json": "93111d354545353bf931c9b8475a3a12a85860f63e25cae19c17077211f07b1d",
+  "scorer-only-request.json": "4f9d256ac895e0cb5ff7368aa391ca416eb6b07dbd5808465153545649090f18"
+}

@@ -1,0 +1,17 @@
+{
+  "format": "f2-native-reader-state-export-only-v1",
+  "originalFixture": "/tmp/hoyoung-five-year-f2-writer-baseline/source/benchmark/FiveYearMemorySimulation.java",
+  "originalFixtureSha256": "dd6fc1220025c456e3b80e5be697ff4cf4a8be85ec2fbc74955057fdadc13cf2",
+  "exportFixture": "/tmp/hoyoung-five-year-f2-writer-tool-fixture/FiveYearMemorySimulation.java",
+  "exportFixtureSha256": "86ab811ee0e779ff9dd150dd18e8032bc5be89cde0f61a636c84a20399518283",
+  "changes": [
+    "copy actual private originals if present",
+    "write existing hidden device predicate IDs",
+    "declare f2 gateway disabled and no privacy ledger"
+  ],
+  "retrievalChanged": false,
+  "scoringChanged": false,
+  "queryChanged": false,
+  "corpusChanged": false,
+  "writerNotesChanged": false
+}

@@ -39,6 +39,7 @@ public final class HoyoungStore extends SQLiteOpenHelper {
     private static final int MAX_CONTEXT_CHARS = 100_000;
     private static final int SQL_MESSAGE_EXCERPT_CHARS = 200_000;
     private final OriginalTextFiles originalFiles;
+    private final SourcePrivacyLedger privacyLedger;
     private volatile boolean storageClosed;
     private volatile boolean deviceSearchBootstrapRunning;
     private volatile String deviceSearchError = "";
@@ -52,11 +53,13 @@ public final class HoyoungStore extends SQLiteOpenHelper {
         // pending generation before OriginalTextFiles can create a missing namespace.
         InternalFiles.requireNoPendingRestore(context.getApplicationContext().getFilesDir());
         originalFiles = new OriginalTextFiles(context.getApplicationContext().getFilesDir());
+        privacyLedger = new SourcePrivacyLedger(context.getApplicationContext());
         setWriteAheadLoggingEnabled(true);
         // A process death cannot tell us whether the remote side accepted an in-flight request.
         // Preserve it for explicit owner reconciliation instead of sending it a second time.
         recoverInterruptedRequests();
     }
+    public SourcePrivacyLedger getPrivacyLedger(){return privacyLedger;}
 
     @Override public void onConfigure(SQLiteDatabase db) {
         super.onConfigure(db);
@@ -260,7 +263,17 @@ public final class HoyoungStore extends SQLiteOpenHelper {
     }
 
     public synchronized JSONObject readOriginalText(long id, long offsetChars, int maxChars) throws IOException {
-        JSONObject message = findMessage(id);
+        return readOriginalText(getReadableDatabase(),id,offsetChars,maxChars);
+    }
+
+    /** Hydrate the source from the same established database view as retrieval candidates. */
+    public JSONObject readOriginalText(ReadSnapshot snapshot,long id,long offsetChars,int maxChars)throws IOException {
+        if(snapshot==null)throw new IllegalArgumentException("A read snapshot is required");
+        snapshot.requireOwner();return readOriginalText(snapshot.database,id,offsetChars,maxChars);
+    }
+
+    private JSONObject readOriginalText(SQLiteDatabase database,long id,long offsetChars,int maxChars)throws IOException {
+        JSONObject message = one(database,"SELECT * FROM messages WHERE id = ?",new String[]{String.valueOf(id)});
         if (message == null) throw new IllegalArgumentException("Unknown source message");
         if (offsetChars < 0) throw new IllegalArgumentException("Negative original offset");
         long total = message.optLong("raw_char_count", message.optString("text").length());

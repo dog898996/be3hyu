@@ -1,0 +1,181 @@
+{
+  "status": "completed_production_retrieval_and_managed_local_replay",
+  "finalAcceptancePassed": false,
+  "groundedAnswerQuality": "not_measured",
+  "arms": {
+    "raw": {
+      "checkpoints": [
+        {
+          "checkpoint": "2021-12-31",
+          "cases": 144,
+          "allRequiredSourcesDelivered": 144,
+          "requiredSourceCount": 348,
+          "requiredSourcesDelivered": 348,
+          "rawOnlyCases": 12,
+          "rawOnlyCompleteDelivery": 12,
+          "protectedValueLeakCases": 0,
+          "blockedCases": 0,
+          "p50Millis": 124,
+          "p95Millis": 272,
+          "groundedAnswerAccuracy": "not_measured",
+          "completedUsefulAnswers": "not_measured"
+        },
+        {
+          "checkpoint": "2023-12-31",
+          "cases": 144,
+          "allRequiredSourcesDelivered": 144,
+          "requiredSourceCount": 396,
+          "requiredSourcesDelivered": 396,
+          "rawOnlyCases": 12,
+          "rawOnlyCompleteDelivery": 12,
+          "protectedValueLeakCases": 0,
+          "blockedCases": 0,
+          "p50Millis": 233,
+          "p95Millis": 434,
+          "groundedAnswerAccuracy": "not_measured",
+          "completedUsefulAnswers": "not_measured"
+        },
+        {
+          "checkpoint": "2026-12-31",
+          "cases": 144,
+          "allRequiredSourcesDelivered": 144,
+          "requiredSourceCount": 396,
+          "requiredSourcesDelivered": 396,
+          "rawOnlyCases": 12,
+          "rawOnlyCompleteDelivery": 12,
+          "protectedValueLeakCases": 0,
+          "blockedCases": 0,
+          "p50Millis": 362,
+          "p95Millis": 850,
+          "groundedAnswerAccuracy": "not_measured",
+          "completedUsefulAnswers": "not_measured"
+        }
+      ],
+      "corpus": {
+        "messages": 184428,
+        "device_events": 18,
+        "memories": 0,
+        "message_search": 184428,
+        "integrityCheck": "ok",
+        "databaseBytes": 136089600
+      },
+      "canonicalRawIntegrityVerified": true,
+      "retainedOriginals": 402,
+      "explicitlyDeletedOriginals": 6,
+      "cacheRestoreReplayPassed": true,
+      "sourceDeliveryErrorRatioVsMatchedF2": 0.0,
+      "sourceDeliveryPairedTransitions": {
+        "failToPass": 14,
+        "passToFail": 0,
+        "bothPass": 130,
+        "bothFail": 0
+      },
+      "candidateRecall": {
+        "5": {
+          "requiredSourceDenominator": 396,
+          "requiredSourceHits": 237,
+          "microRecall": 0.5984848484848485,
+          "allRequiredCandidateCases": 83,
+          "cases": 144,
+          "scope": "Native Retriever originalEvidence ranking before independent Gateway candidates/packing. Required sources only; group/source cutoffs differ."
+        },
+        "12": {
+          "requiredSourceDenominator": 396,
+          "requiredSourceHits": 334,
+          "microRecall": 0.8434343434343434,
+          "allRequiredCandidateCases": 96,
+          "cases": 144,
+          "scope": "Native Retriever originalEvidence ranking before independent Gateway candidates/packing. Required sources only; group/source cutoffs differ."
+        }
+      }
+    },
+    "writer": {
+      "checkpoints": [
+        {
+          "checkpoint": "2021-12-31",
+          "cases": 144,
+          "allRequiredSourcesDelivered": 143,
+          "requiredSourceCount": 348,
+          "requiredSourcesDelivered": 346,
+          "rawOnlyCases": 12,
+          "rawOnlyCompleteDelivery": 12,
+          "protectedValueLeakCases": 0,
+          "blockedCases": 0,
+          "p50Millis": 189,
+          "p95Millis": 529,
+          "groundedAnswerAccuracy": "not_measured",
+          "completedUsefulAnswers": "not_measured"
+        },
+        {
+          "checkpoint": "2023-12-31",
+          "cases": 144,
+          "allRequiredSourcesDelivered": 132,
+          "requiredSourceCount": 396,
+          "requiredSourcesDelivered": 383,
+          "rawOnlyCases": 12,
+          "rawOnlyCompleteDelivery": 12,
+          "protectedValueLeakCases": 0,
+          "blockedCases": 0,
+          "p50Millis": 351,
+          "p95Millis": 955,
+          "groundedAnswerAccuracy": "not_measured",
+          "completedUsefulAnswers": "not_measured"
+        },
+        {
+          "checkpoint": "2026-12-31",
+          "cases": 144,
+          "allRequiredSourcesDelivered": 132,
+          "requiredSourceCount": 396,
+          "requiredSourcesDelivered": 383,
+          "rawOnlyCases": 12,
+          "rawOnlyCompleteDelivery": 12,
+          "protectedValueLeakCases": 0,
+          "blockedCases": 0,
+          "p50Millis": 411,
+          "p95Millis": 1081,
+          "groundedAnswerAccuracy": "not_measured",
+          "completedUsefulAnswers": "not_measured"
+        }
+      ],
+      "corpus": {
+        "messages": 184428,
+        "device_events": 18,
+        "memories": 180,
+        "message_search": 184428,
+        "integrityCheck": "ok",
+        "databaseBytes": 136708096
+      },
+      "canonicalRawIntegrityVerified": true,
+      "retainedOriginals": 402,
+      "explicitlyDeletedOriginals": 6,
+      "cacheRestoreReplayPassed": true,
+      "sourceDeliveryErrorRatioVsMatchedF2": 0.36363636363636365,
+      "sourceDeliveryPairedTransitions": {
+        "failToPass": 32,
+        "passToFail": 11,
+        "bothPass": 100,
+        "bothFail": 1
+      },
+      "candidateRecall": {
+        "5": {
+          "requiredSourceDenominator": 396,
+          "requiredSourceHits": 166,
+          "microRecall": 0.41919191919191917,
+          "allRequiredCandidateCases": 69,
+          "cases": 144,
+          "scope": "Native Retriever originalEvidence ranking before independent Gateway candidates/packing. Required sources only; group/source cutoffs differ."
+        },
+        "12": {
+          "requiredSourceDenominator": 396,
+          "requiredSourceHits": 173,
+          "microRecall": 0.43686868686868685,
+          "allRequiredCandidateCases": 76,
+          "cases": 144,
+          "scope": "Native Retriever originalEvidence ranking before independent Gateway candidates/packing. Required sources only; group/source cutoffs differ."
+        }
+      }
+    }
+  },
+  "matrixSha256": "2821867ebb826cb2b873ef5d95e5abbbbf4b9a60923a2755f681e6c26e6ae1c8",
+  "corpusConstructionDigest": "9aa2228ab3f1eae27de0f817791bd80e9a911f9f1ff774c5b3a8bec6e87b7d6a"
+}

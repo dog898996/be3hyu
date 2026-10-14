@@ -1,0 +1,167 @@
+[
+  {
+    "readerId": "277ce9271b1f5981b250",
+    "relevantSource": {
+      "sourceId": "message:1106",
+      "role": "user",
+      "recordedAt": 1610582400000,
+      "recordHash": "58c4d3271832d153c81d02ab29d476ece2363a7cc069efd06e4b4187eb22d2e0",
+      "textSha256": "b0e9144d363c459da654bb2e93495dfbdc52fa7db7d9e2f265c5be76aa0d9a94",
+      "deliveredExactOriginalRange": true,
+      "complete": true,
+      "sourceLocator": {
+        "database": "/tmp/hoyoung-five-year-counterfactual-v5-final/a314c/canonical-corpus.sqlite",
+        "table": "messages",
+        "id": 1106
+      },
+      "inputLocator": {
+        "path": "/tmp/hoyoung-five-year-counterfactual-v5-final/reader-inputs.jsonl",
+        "jsonlLine": 1,
+        "readerId": "277ce9271b1f5981b250",
+        "sourceId": "message:1106"
+      }
+    },
+    "otherEntitySource": {
+      "sourceId": "message:29464",
+      "role": "user",
+      "recordedAt": 1639440000000,
+      "recordHash": "6cdc4234aab2b9b5f100277fd57fdc8eae89de4ef667b15204fdb3ab65b14418",
+      "textSha256": "67d1d82f8868bfa9f18377f315bca27652a4663d152d632c1a3439f45ed71f8e",
+      "deliveredExactOriginalRange": true,
+      "complete": true,
+      "sourceLocator": {
+        "database": "/tmp/hoyoung-five-year-counterfactual-v5-final/a314c/canonical-corpus.sqlite",
+        "table": "messages",
+        "id": 29464
+      },
+      "inputLocator": {
+        "path": "/tmp/hoyoung-five-year-counterfactual-v5-final/reader-inputs.jsonl",
+        "jsonlLine": 1,
+        "readerId": "277ce9271b1f5981b250",
+        "sourceId": "message:29464"
+      }
+    },
+    "actualSourceChange": {},
+    "answerQuoteExactlyMatchesRelevantDeliveredSource": true,
+    "databaseAndDeliveredSourceHashMatch": true,
+    "packetContextHashMatchesReceipt": true
+  },
+  {
+    "readerId": "575b6c348beb730f9fc6",
+    "relevantSource": {
+      "sourceId": "message:1106",
+      "role": "user",
+      "recordedAt": 1610582400000,
+      "recordHash": "72ac42cbabf6531bb32251347658a4640ba67f38ec6c58f3a026b65268e0ba9f",
+      "textSha256": "3b213d9aa08685f5c7bb03c182d93149cf44d9a88ac4d938ce994e33a2bf9da7",
+      "deliveredExactOriginalRange": true,
+      "complete": true,
+      "sourceLocator": {
+        "database": "/tmp/hoyoung-five-year-counterfactual-v5-final/d782f/canonical-corpus.sqlite",
+        "table": "messages",
+        "id": 1106
+      },
+      "inputLocator": {
+        "path": "/tmp/hoyoung-five-year-counterfactual-v5-final/reader-inputs.jsonl",
+        "jsonlLine": 2,
+        "readerId": "575b6c348beb730f9fc6",
+        "sourceId": "message:1106"
+      }
+    },
+    "otherEntitySource": {
+      "sourceId": "message:29464",
+      "role": "user",
+      "recordedAt": 1639440000000,
+      "recordHash": "6cdc4234aab2b9b5f100277fd57fdc8eae89de4ef667b15204fdb3ab65b14418",
+      "textSha256": "67d1d82f8868bfa9f18377f315bca27652a4663d152d632c1a3439f45ed71f8e",
+      "deliveredExactOriginalRange": true,
+      "complete": true,
+      "sourceLocator": {
+        "database": "/tmp/hoyoung-five-year-counterfactual-v5-final/d782f/canonical-corpus.sqlite",
+        "table": "messages",
+        "id": 29464
+      },
+      "inputLocator": {
+        "path": "/tmp/hoyoung-five-year-counterfactual-v5-final/reader-inputs.jsonl",
+        "jsonlLine": 2,
+        "readerId": "575b6c348beb730f9fc6",
+        "sourceId": "message:29464"
+      }
+    },
+    "actualSourceChange": {
+      "type": "message",
+      "id": 1106,
+      "role": "user",
+      "recordedAt": 1610582400000,
+      "oldRecordHash": "58c4d3271832d153c81d02ab29d476ece2363a7cc069efd06e4b4187eb22d2e0",
+      "newRecordHash": "72ac42cbabf6531bb32251347658a4640ba67f38ec6c58f3a026b65268e0ba9f",
+      "oldText": "사진전 보관접수 물품을 맡긴 접수번호는 Q17-R0419야. 다른 번호는 내 것이 아니야.",
+      "newText": "사진전 보관접수 물품을 맡긴 접수번호는 Q17-R0419_CF_NEW야. 다른 번호는 내 것이 아니야.",
+      "oldSpan": "Q17-R0419",
+      "replacementSpan": "Q17-R0419_CF_NEW",
+      "actualProductionHashAndFtsVerified": true
+    },
+    "answerQuoteExactlyMatchesRelevantDeliveredSource": true,
+    "databaseAndDeliveredSourceHashMatch": true,
+    "packetContextHashMatchesReceipt": true
+  },
+  {
+    "readerId": "e1cff302f9e52447db1c",
+    "relevantSource": {
+      "sourceId": "message:1106",
+      "role": "user",
+      "recordedAt": 1610582400000,
+      "recordHash": "58c4d3271832d153c81d02ab29d476ece2363a7cc069efd06e4b4187eb22d2e0",
+      "textSha256": "b0e9144d363c459da654bb2e93495dfbdc52fa7db7d9e2f265c5be76aa0d9a94",
+      "deliveredExactOriginalRange": true,
+      "complete": true,
+      "sourceLocator": {
+        "database": "/tmp/hoyoung-five-year-counterfactual-v5-final/b509e/canonical-corpus.sqlite",
+        "table": "messages",
+        "id": 1106
+      },
+      "inputLocator": {
+        "path": "/tmp/hoyoung-five-year-counterfactual-v5-final/reader-inputs.jsonl",
+        "jsonlLine": 3,
+        "readerId": "e1cff302f9e52447db1c",
+        "sourceId": "message:1106"
+      }
+    },
+    "otherEntitySource": {
+      "sourceId": "message:29464",
+      "role": "user",
+      "recordedAt": 1639440000000,
+      "recordHash": "917e32c7430ddc79f99209f6ebfa5dc79cc7f5ab722da8af74782308ef3f5c32",
+      "textSha256": "258c50ae1feda9e3ba225970c71b2ae749cf40bd2b9de72e65d33a7cfbcd2ca0",
+      "deliveredExactOriginalRange": true,
+      "complete": true,
+      "sourceLocator": {
+        "database": "/tmp/hoyoung-five-year-counterfactual-v5-final/b509e/canonical-corpus.sqlite",
+        "table": "messages",
+        "id": 29464
+      },
+      "inputLocator": {
+        "path": "/tmp/hoyoung-five-year-counterfactual-v5-final/reader-inputs.jsonl",
+        "jsonlLine": 3,
+        "readerId": "e1cff302f9e52447db1c",
+        "sourceId": "message:29464"
+      }
+    },
+    "actualSourceChange": {
+      "type": "message",
+      "id": 29464,
+      "role": "user",
+      "recordedAt": 1639440000000,
+      "oldRecordHash": "6cdc4234aab2b9b5f100277fd57fdc8eae89de4ef667b15204fdb3ab65b14418",
+      "newRecordHash": "917e32c7430ddc79f99209f6ebfa5dc79cc7f5ab722da8af74782308ef3f5c32",
+      "oldText": "독서회 보관접수 물품을 맡긴 접수번호는 Q28-R0826야. 다른 번호는 내 것이 아니야.",
+      "newText": "독서회 보관접수 물품을 맡긴 접수번호는 Q28-R0826_CF_OTHER야. 다른 번호는 내 것이 아니야.",
+      "oldSpan": "Q28-R0826",
+      "replacementSpan": "Q28-R0826_CF_OTHER",
+      "actualProductionHashAndFtsVerified": true
+    },
+    "answerQuoteExactlyMatchesRelevantDeliveredSource": true,
+    "databaseAndDeliveredSourceHashMatch": true,
+    "packetContextHashMatchesReceipt": true
+  }
+]

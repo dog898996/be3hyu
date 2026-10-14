@@ -39,9 +39,13 @@ import androidx.test.uiautomator.Until;
 import com.hoyoung.assistant.runtime.AutonomyService;
 import com.hoyoung.assistant.runtime.HoyoungApplication;
 import com.hoyoung.assistant.runtime.AssistantReplyNotifications;
+import com.hoyoung.assistant.runtime.DispatchPayloadRegistry;
+import com.hoyoung.assistant.runtime.GoalLedger;
 import com.hoyoung.assistant.phone.PhoneEventJournal;
 import com.hoyoung.assistant.store.HoyoungStore;
 import com.hoyoung.assistant.store.InternalFiles;
+import com.hoyoung.assistant.store.MemoryGateway;
+import com.hoyoung.assistant.store.SourcePrivacyLedger;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -196,7 +200,11 @@ public final class DeviceRuntimeIntegrationTest {
                     + app.getStore().getSetting("heartbeatSeconds", "missing"), acknowledgement);
             assertEquals("120", app.getStore().getSetting("heartbeatSeconds", ""));
             acknowledgement.click();
-            device.findObject(By.text("파일")).click();
+            UiObject2 filesTab = DeviceFixtureHealth.waitFor(device,
+                    Until.findObject(By.text("파일").clazz(Button.class)), 10_000);
+            if (filesTab == null) captureFailureUiFixture("aActualSettingsButtonPersistsAndBackupOpensAndroidDocumentPicker-files-tab-before-close");
+            assertNotNull("The real Files tab must return after the Save dialog dismisses", filesTab);
+            filesTab.click();
             UiObject2 export = DeviceFixtureHealth.waitFor(device, Until.findObject(By.text("대화·기억·파일 백업 내보내기")), 10_000);
             assertNotNull(export); export.click();
             assertTrue("Real platform SAF picker must receive the backup request", DeviceFixtureHealth.waitFor(device, Until.hasObject(By.pkg("com.android.documentsui")), 10_000));
@@ -478,6 +486,66 @@ public final class DeviceRuntimeIntegrationTest {
             assertFalse("UI display is not a claim that a human read it", app.getReplyNotifications().state().getBoolean("readConfirmed"));
             android.util.Log.i("HoyoungDeviceProof", "HOYOUNG_DEVICE_REPLY_NOTIFICATION actual-Android-post; real-SystemUI-tap; older-source-page-anchor; exact-visible-source-hash; no-human-read-claim");
         } finally { app.getStore().putSetting("replyNotificationsEnabled", previous); manager.cancel("hoyoung_reply:" + id, AssistantReplyNotifications.NOTIFICATION_ID); device.pressHome(); }
+    }
+
+    @Test public void iActualFiveLayerSnapshotAndFinalPayloadGateRejectStalePrivacy() throws Exception {
+        FixtureContext fixture = new FixtureContext(context);
+        HoyoungStore store = new HoyoungStore(fixture);
+        try {
+            String marker = "FIVE_LAYER_DEVICE_NOTE_7312", rootId = "device-five-layer-root";
+            String originalText = marker + "의 보관 규칙과 프로젝트 결정을 기록해.";
+            store.enqueueRequest(originalText, "user", rootId);
+            JSONObject original = store.addMessage("user", originalText, rootId);
+            long sourceId = original.getLong("id");
+            store.upsertMemory("device-semantic", marker + "의 보관 규칙", "fact", new JSONArray().put(sourceId));
+            store.upsertMemory("device-episodic", marker + "의 프로젝트 결정", "project", new JSONArray().put(sourceId));
+            store.upsertMemory("workflow-device-procedural", marker + "의 보고서는 정중하게 작성", "preference", new JSONArray().put(sourceId));
+            store.putSetting("customInstructions", marker + "의 실제 사용자 형식 지침");
+            new GoalLedger(store).update(rootId, "blocked", sourceId, rootId, marker + "는 재실행 금지", 0);
+            String current = marker + "의 규칙을 확인해 줘.";
+            long inputId = store.addMessage("user", current, rootId).getLong("id");
+            store.putSetting("ownerInputRevision", String.valueOf(inputId));
+            store.putSetting("latestOwnerRequestId", rootId);
+            MemoryGateway gateway = new MemoryGateway(store);
+            MemoryGateway.Prepared prepared = gateway.prepare("device-five-layer-dispatch", rootId, "user", inputId, current, null, 80_000);
+            assertEquals("This check needs the real API35 readonly transaction", "android_readonly_transaction", prepared.diagnostics().getString("snapshotBackend"));
+            assertEquals(5, prepared.receipts().length());
+            java.util.Set<String> layers = new java.util.HashSet<>();
+            for (int i = 0; i < prepared.receipts().length(); i++) {
+                JSONObject receipt = prepared.receipts().getJSONObject(i);
+                assertTrue(layers.add(receipt.getString("layer")));
+                assertEquals("success", receipt.getString("status"));
+                assertEquals(prepared.snapshotId, receipt.getString("snapshotId"));
+                assertTrue(receipt.getJSONArray("queries").length() > 0);
+            }
+            assertEquals(new java.util.HashSet<>(java.util.Arrays.asList("verbatim", "semantic", "episodic", "procedural", "active")), layers);
+            assertTrue(prepared.context.contains(current));
+            assertTrue(prepared.context.contains("device-semantic"));
+            assertTrue(prepared.context.contains("device-episodic"));
+            assertTrue(prepared.context.contains("workflow-device-procedural"));
+            assertTrue(prepared.context.contains("재실행 금지"));
+            java.util.Set<String> populatedMemoryLayers = new java.util.HashSet<>();
+            for (String line : prepared.context.split("\n")) {
+                if (line.startsWith("SEMANTIC ") && line.contains("\"key\":\"device-semantic\"")) populatedMemoryLayers.add("semantic");
+                if (line.startsWith("EPISODIC ") && line.contains("\"key\":\"device-episodic\"")) populatedMemoryLayers.add("episodic");
+                if (line.startsWith("PROCEDURAL ") && line.contains("\"key\":\"workflow-device-procedural\"")) populatedMemoryLayers.add("procedural");
+            }
+            assertEquals(new java.util.HashSet<>(java.util.Arrays.asList("semantic", "episodic", "procedural")), populatedMemoryLayers);
+            gateway.assertFresh(prepared);
+            JSONObject payload = new JSONObject().put("requestId", prepared.dispatchId).put("text", prepared.context)
+                    .put("requiredModel", "gpt-6.1-sol").put("requiredEffort", "medium").put("requiredSpeed", "fast")
+                    .put("requiresNativeAuthorization", true).put("attachments", new JSONArray());
+            DispatchPayloadRegistry registry = new DispatchPayloadRegistry();
+            long registeredAt = SystemClock.elapsedRealtime();
+            String digest = registry.register(prepared.dispatchId, payload, prepared.evidenceFingerprint, registeredAt);
+            assertFalse(registry.consume(prepared.dispatchId, digest, "different-memory-fingerprint", SystemClock.elapsedRealtime()));
+            assertTrue(registry.consume(prepared.dispatchId, digest, prepared.evidenceFingerprint, SystemClock.elapsedRealtime()));
+            assertFalse("A final payload permit can be consumed only once", registry.consume(prepared.dispatchId, digest, prepared.evidenceFingerprint, SystemClock.elapsedRealtime()));
+            store.getPrivacyLedger().excludeSource("message", sourceId, original.getString("content_hash"), SourcePrivacyLedger.RETRIEVAL_EXCLUDE, "synthetic device owner withdrawal");
+            try { gateway.assertFresh(prepared); fail("An excluded source must invalidate a previously prepared context"); }
+            catch (MemoryGateway.Blocked expected) { assertEquals("memory_privacy_changed", expected.reason); }
+            android.util.Log.i("HoyoungDeviceProof", "HOYOUNG_DEVICE_FIVE_LAYER_GATE actual-API35-readonly-SQLite; five-layer-query-receipts; canonical-evidence; one-use-final-payload; withdrawal-rejects-stale-scope; no-live-model-or-S24-claim");
+        } finally { store.close(); fixture.removeOwnFixture(); }
     }
 
     private static java.util.List<String> awaitPageTexts(ActivityScenario<MainActivity> scenario, String marker, String requiredSuffix, int expectedCount) {

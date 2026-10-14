@@ -1,0 +1,311 @@
+{
+  "finished": true,
+  "allProductionSourcesIdentical": true,
+  "allSourceMappingsAndHashesIdentical": true,
+  "allQueriesAndMatrixIdentical": true,
+  "writerNotesIdentical": true,
+  "corpusDigest": "9aa2228ab3f1eae27de0f817791bd80e9a911f9f1ff774c5b3a8bec6e87b7d6a",
+  "scoringRowsCompared": 432,
+  "differences": [
+    {
+      "id": "f5ac7cfff0386762fa22",
+      "field": "contextSha256"
+    },
+    {
+      "id": "cf1dd7d7b9cb5a82f2b3",
+      "field": "contextSha256"
+    },
+    {
+      "id": "f855474f8eb366c744f3",
+      "field": "contextSha256"
+    },
+    {
+      "id": "18b4498ee27e2e410c0d",
+      "field": "contextSha256"
+    },
+    {
+      "id": "fc2f4afb6f8a40f99353",
+      "field": "contextSha256"
+    },
+    {
+      "id": "cc88c2a91cb645dfba85",
+      "field": "contextSha256"
+    },
+    {
+      "id": "fe2dbce4e0220f80f183",
+      "field": "contextSha256"
+    },
+    {
+      "id": "a16a08e01febc49bfa04",
+      "field": "contextSha256"
+    },
+    {
+      "id": "c836c900b0a5f6c2f8fb",
+      "field": "contextSha256"
+    },
+    {
+      "id": "86aa2817821bb2a38fc7",
+      "field": "contextSha256"
+    },
+    {
+      "id": "dd0f3dad5ebca0274042",
+      "field": "contextSha256"
+    },
+    {
+      "id": "ecf63867b2abb61a53e6",
+      "field": "contextSha256"
+    },
+    {
+      "id": "9c0b1a5fd04bb67db13e",
+      "field": "contextSha256"
+    },
+    {
+      "id": "24d2e280c690902a0acd",
+      "field": "contextSha256"
+    },
+    {
+      "id": "36864cb2a58ba7886f88",
+      "field": "contextSha256"
+    },
+    {
+      "id": "b67c57f7fdbbbf3a4627",
+      "field": "contextSha256"
+    },
+    {
+      "id": "f254bbe335d4ed8963b9",
+      "field": "contextSha256"
+    },
+    {
+      "id": "19a38596a7ab3b87b784",
+      "field": "contextSha256"
+    },
+    {
+      "id": "3f11acf0b1e0724350ea",
+      "field": "contextSha256"
+    },
+    {
+      "id": "70cd748b9ec976d3cc7d",
+      "field": "contextSha256"
+    },
+    {
+      "id": "6727d3063ec839122d56",
+      "field": "contextSha256"
+    },
+    {
+      "id": "4e6fc18d5db5a078f936",
+      "field": "contextSha256"
+    },
+    {
+      "id": "4b0fe60bbd5dd6ffec49",
+      "field": "contextSha256"
+    },
+    {
+      "id": "dfab80296affa706dd38",
+      "field": "contextSha256"
+    },
+    {
+      "id": "ac7fd83e34c0fe118793",
+      "field": "contextSha256"
+    },
+    {
+      "id": "fbf7340bd4b3a0bf3790",
+      "field": "contextSha256"
+    },
+    {
+      "id": "b085480536536f5d3e08",
+      "field": "contextSha256"
+    },
+    {
+      "id": "682c4d19921568b9d3a4",
+      "field": "contextSha256"
+    },
+    {
+      "id": "93e16f5ee83a6b0fe3fa",
+      "field": "contextSha256"
+    },
+    {
+      "id": "bdd13d570a14b54a8ebe",
+      "field": "contextSha256"
+    },
+    {
+      "id": "80fbf57ab41ae26c1fb0",
+      "field": "contextSha256"
+    },
+    {
+      "id": "860c15f7b50e84f84270",
+      "field": "contextSha256"
+    },
+    {
+      "id": "6669674bd05335848b11",
+      "field": "contextSha256"
+    },
+    {
+      "id": "d976a5c6270ba5779878",
+      "field": "contextSha256"
+    },
+    {
+      "id": "a3cb631208bfcec240a3",
+      "field": "contextSha256"
+    },
+    {
+      "id": "0719ddcd2533de38409d",
+      "field": "contextChars"
+    },
+    {
+      "id": "0719ddcd2533de38409d",
+      "field": "contextSha256"
+    },
+    {
+      "id": "8b73c2ea420bd27b66a0",
+      "field": "contextChars"
+    },
+    {
+      "id": "8b73c2ea420bd27b66a0",
+      "field": "contextSha256"
+    },
+    {
+      "id": "1bb00b55bb9013f569e9",
+      "field": "contextChars"
+    },
+    {
+      "id": "1bb00b55bb9013f569e9",
+      "field": "contextSha256"
+    },
+    {
+      "id": "b5078fb01805fe294ae3",
+      "field": "contextChars"
+    },
+    {
+      "id": "b5078fb01805fe294ae3",
+      "field": "contextSha256"
+    },
+    {
+      "id": "5c89443b25ebd9a620e6",
+      "field": "contextChars"
+    },
+    {
+      "id": "5c89443b25ebd9a620e6",
+      "field": "contextSha256"
+    },
+    {
+      "id": "c2a7cd25db38b9f628d8",
+      "field": "contextSha256"
+    },
+    {
+      "id": "912f5fd99c7dba7f0eb8",
+      "field": "contextChars"
+    },
+    {
+      "id": "912f5fd99c7dba7f0eb8",
+      "field": "contextSha256"
+    },
+    {
+      "id": "13f40e53cfc758cdcc17",
+      "field": "contextChars"
+    },
+    {
+      "id": "13f40e53cfc758cdcc17",
+      "field": "contextSha256"
+    },
+    {
+      "id": "b32d52ff7df72caccb7f",
+      "field": "contextChars"
+    },
+    {
+      "id": "b32d52ff7df72caccb7f",
+      "field": "contextSha256"
+    },
+    {
+      "id": "47103d53f6128e60b944",
+      "field": "contextSha256"
+    },
+    {
+      "id": "c709db8b6f1def58a787",
+      "field": "contextSha256"
+    },
+    {
+      "id": "5590c3078e782c67a3ae",
+      "field": "contextChars"
+    },
+    {
+      "id": "5590c3078e782c67a3ae",
+      "field": "contextSha256"
+    },
+    {
+      "id": "ff56fa1951c40b52e033",
+      "field": "contextChars"
+    },
+    {
+      "id": "ff56fa1951c40b52e033",
+      "field": "contextSha256"
+    },
+    {
+      "id": "63ab342b64d6c07cf7c5",
+      "field": "contextChars"
+    },
+    {
+      "id": "63ab342b64d6c07cf7c5",
+      "field": "contextSha256"
+    },
+    {
+      "id": "1820b8a6d7e5f573f5b9",
+      "field": "contextChars"
+    },
+    {
+      "id": "1820b8a6d7e5f573f5b9",
+      "field": "contextSha256"
+    },
+    {
+      "id": "a0f3c960a4e8ad029c5e",
+      "field": "contextChars"
+    },
+    {
+      "id": "a0f3c960a4e8ad029c5e",
+      "field": "contextSha256"
+    },
+    {
+      "id": "c260e58a02c748fb3d05",
+      "field": "contextSha256"
+    },
+    {
+      "id": "91c432757ce25ead7b0a",
+      "field": "contextChars"
+    },
+    {
+      "id": "91c432757ce25ead7b0a",
+      "field": "contextSha256"
+    },
+    {
+      "id": "9a7194b21c7b1043d85e",
+      "field": "contextChars"
+    },
+    {
+      "id": "9a7194b21c7b1043d85e",
+      "field": "contextSha256"
+    },
+    {
+      "id": "c59aa60f4d281e349315",
+      "field": "contextChars"
+    },
+    {
+      "id": "c59aa60f4d281e349315",
+      "field": "contextSha256"
+    }
+  ],
+  "frozenFinalCountsPreserved": true,
+  "readerPacketSha256": "60915e0a53e034558282522682a53effb99b55c0cfc998e181854565fe0890c1",
+  "querySourceCaps": {
+    "searchOrEnumerationRequests": 3,
+    "deliveredOrReadSourceRows": 20
+  },
+  "capabilityDelta": "f2 actual native enumeration is absent; search/read supported, unsupported requests logged",
+  "modelAnswerQuality": "not_measured",
+  "nativeCounts": {
+    "messages": 184434,
+    "device_events": 18,
+    "memories": 180,
+    "message_search": 184434,
+    "integrityCheck": "ok"
+  },
+  "elapsedJUnitSeconds": 121.101
+}

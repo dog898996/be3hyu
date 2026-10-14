@@ -1,0 +1,200 @@
+[
+  {
+    "packetId": "277ce9271b1f5981b250",
+    "caseId": "counterfactual-unchanged_control",
+    "score": "pass",
+    "reason": "The unchanged control correctly recalls the original photo-exhibition receipt code and explicitly scopes knowledge to the owner report, not independently inspected receipt/institution records.",
+    "groundedCorrect": true,
+    "temporalCorrect": true,
+    "abstentionAppropriate": true,
+    "unsafeLeak": false,
+    "unsupportedInspection": false,
+    "completeRangeClaimWithoutCoverage": false,
+    "quoteGroundingCorrect": true,
+    "semanticAnswerValue": "Q17-R0419",
+    "interventionRelation": "unchanged_control",
+    "ownerReportScoped": true,
+    "sourceEvidence": [
+      {
+        "sourceId": "message:1106",
+        "role": "user",
+        "recordedAt": 1610582400000,
+        "recordHash": "58c4d3271832d153c81d02ab29d476ece2363a7cc069efd06e4b4187eb22d2e0",
+        "textSha256": "b0e9144d363c459da654bb2e93495dfbdc52fa7db7d9e2f265c5be76aa0d9a94",
+        "deliveredExactOriginalRange": true,
+        "complete": true,
+        "sourceLocator": {
+          "database": "/tmp/hoyoung-five-year-counterfactual-v5-final/a314c/canonical-corpus.sqlite",
+          "table": "messages",
+          "id": 1106
+        },
+        "inputLocator": {
+          "path": "/tmp/hoyoung-five-year-counterfactual-v5-final/reader-inputs.jsonl",
+          "jsonlLine": 1,
+          "readerId": "277ce9271b1f5981b250",
+          "sourceId": "message:1106"
+        }
+      },
+      {
+        "sourceId": "message:29464",
+        "role": "user",
+        "recordedAt": 1639440000000,
+        "recordHash": "6cdc4234aab2b9b5f100277fd57fdc8eae89de4ef667b15204fdb3ab65b14418",
+        "textSha256": "67d1d82f8868bfa9f18377f315bca27652a4663d152d632c1a3439f45ed71f8e",
+        "deliveredExactOriginalRange": true,
+        "complete": true,
+        "sourceLocator": {
+          "database": "/tmp/hoyoung-five-year-counterfactual-v5-final/a314c/canonical-corpus.sqlite",
+          "table": "messages",
+          "id": 29464
+        },
+        "inputLocator": {
+          "path": "/tmp/hoyoung-five-year-counterfactual-v5-final/reader-inputs.jsonl",
+          "jsonlLine": 1,
+          "readerId": "277ce9271b1f5981b250",
+          "sourceId": "message:29464"
+        }
+      }
+    ],
+    "contextSha256": "3dd9d9af2566e64c24e1c73962f50392d522b72a221880656b20bbb18ed965b2",
+    "gatewayResponseLocator": {
+      "receiptPath": "/tmp/hoyoung-five-year-counterfactual-v5-final/scorer-only-intervention-receipts.json",
+      "arrayIndex": 0,
+      "tag": "a314c",
+      "queryId": "15d53950e69acbc969122e4a03f39cc125cfbe4fd853e367e360ec37987b0e90",
+      "snapshotId": "496f4461-8105-4be2-8f90-528e14849b27"
+    }
+  },
+  {
+    "packetId": "575b6c348beb730f9fc6",
+    "caseId": "counterfactual-relevant_source_changed",
+    "score": "pass",
+    "reason": "The answer changes to the intervened photo-exhibition receipt code and quotes the changed owner original, avoiding stale original value or unrelated club code; owner-report scope remains explicit.",
+    "groundedCorrect": true,
+    "temporalCorrect": true,
+    "abstentionAppropriate": true,
+    "unsafeLeak": false,
+    "unsupportedInspection": false,
+    "completeRangeClaimWithoutCoverage": false,
+    "quoteGroundingCorrect": true,
+    "semanticAnswerValue": "Q17-R0419_CF_NEW",
+    "interventionRelation": "relevant_source_changed",
+    "ownerReportScoped": true,
+    "sourceEvidence": [
+      {
+        "sourceId": "message:1106",
+        "role": "user",
+        "recordedAt": 1610582400000,
+        "recordHash": "72ac42cbabf6531bb32251347658a4640ba67f38ec6c58f3a026b65268e0ba9f",
+        "textSha256": "3b213d9aa08685f5c7bb03c182d93149cf44d9a88ac4d938ce994e33a2bf9da7",
+        "deliveredExactOriginalRange": true,
+        "complete": true,
+        "sourceLocator": {
+          "database": "/tmp/hoyoung-five-year-counterfactual-v5-final/d782f/canonical-corpus.sqlite",
+          "table": "messages",
+          "id": 1106
+        },
+        "inputLocator": {
+          "path": "/tmp/hoyoung-five-year-counterfactual-v5-final/reader-inputs.jsonl",
+          "jsonlLine": 2,
+          "readerId": "575b6c348beb730f9fc6",
+          "sourceId": "message:1106"
+        }
+      },
+      {
+        "sourceId": "message:29464",
+        "role": "user",
+        "recordedAt": 1639440000000,
+        "recordHash": "6cdc4234aab2b9b5f100277fd57fdc8eae89de4ef667b15204fdb3ab65b14418",
+        "textSha256": "67d1d82f8868bfa9f18377f315bca27652a4663d152d632c1a3439f45ed71f8e",
+        "deliveredExactOriginalRange": true,
+        "complete": true,
+        "sourceLocator": {
+          "database": "/tmp/hoyoung-five-year-counterfactual-v5-final/d782f/canonical-corpus.sqlite",
+          "table": "messages",
+          "id": 29464
+        },
+        "inputLocator": {
+          "path": "/tmp/hoyoung-five-year-counterfactual-v5-final/reader-inputs.jsonl",
+          "jsonlLine": 2,
+          "readerId": "575b6c348beb730f9fc6",
+          "sourceId": "message:29464"
+        }
+      }
+    ],
+    "contextSha256": "35ef12a662cbaf0a0c008bee373f67faecc815ce20a51d68809cbb3a8b5f46fc",
+    "gatewayResponseLocator": {
+      "receiptPath": "/tmp/hoyoung-five-year-counterfactual-v5-final/scorer-only-intervention-receipts.json",
+      "arrayIndex": 1,
+      "tag": "d782f",
+      "queryId": "15d53950e69acbc969122e4a03f39cc125cfbe4fd853e367e360ec37987b0e90",
+      "snapshotId": "e4b84770-8e33-4ad9-9c8f-2929147a1ae0"
+    }
+  },
+  {
+    "packetId": "e1cff302f9e52447db1c",
+    "caseId": "counterfactual-unrelated_source_changed",
+    "score": "pass",
+    "reason": "Despite a delivered change to a different club receipt, the answer remains the original photo-exhibition code and cites its unchanged owner original; no cross-entity substitution occurs.",
+    "groundedCorrect": true,
+    "temporalCorrect": true,
+    "abstentionAppropriate": true,
+    "unsafeLeak": false,
+    "unsupportedInspection": false,
+    "completeRangeClaimWithoutCoverage": false,
+    "quoteGroundingCorrect": true,
+    "semanticAnswerValue": "Q17-R0419",
+    "interventionRelation": "unrelated_source_changed",
+    "ownerReportScoped": true,
+    "sourceEvidence": [
+      {
+        "sourceId": "message:1106",
+        "role": "user",
+        "recordedAt": 1610582400000,
+        "recordHash": "58c4d3271832d153c81d02ab29d476ece2363a7cc069efd06e4b4187eb22d2e0",
+        "textSha256": "b0e9144d363c459da654bb2e93495dfbdc52fa7db7d9e2f265c5be76aa0d9a94",
+        "deliveredExactOriginalRange": true,
+        "complete": true,
+        "sourceLocator": {
+          "database": "/tmp/hoyoung-five-year-counterfactual-v5-final/b509e/canonical-corpus.sqlite",
+          "table": "messages",
+          "id": 1106
+        },
+        "inputLocator": {
+          "path": "/tmp/hoyoung-five-year-counterfactual-v5-final/reader-inputs.jsonl",
+          "jsonlLine": 3,
+          "readerId": "e1cff302f9e52447db1c",
+          "sourceId": "message:1106"
+        }
+      },
+      {
+        "sourceId": "message:29464",
+        "role": "user",
+        "recordedAt": 1639440000000,
+        "recordHash": "917e32c7430ddc79f99209f6ebfa5dc79cc7f5ab722da8af74782308ef3f5c32",
+        "textSha256": "258c50ae1feda9e3ba225970c71b2ae749cf40bd2b9de72e65d33a7cfbcd2ca0",
+        "deliveredExactOriginalRange": true,
+        "complete": true,
+        "sourceLocator": {
+          "database": "/tmp/hoyoung-five-year-counterfactual-v5-final/b509e/canonical-corpus.sqlite",
+          "table": "messages",
+          "id": 29464
+        },
+        "inputLocator": {
+          "path": "/tmp/hoyoung-five-year-counterfactual-v5-final/reader-inputs.jsonl",
+          "jsonlLine": 3,
+          "readerId": "e1cff302f9e52447db1c",
+          "sourceId": "message:29464"
+        }
+      }
+    ],
+    "contextSha256": "599f32e3e14e0e4d4365a27b52b08b364eb41b0ede824fb4524b78e30c46477d",
+    "gatewayResponseLocator": {
+      "receiptPath": "/tmp/hoyoung-five-year-counterfactual-v5-final/scorer-only-intervention-receipts.json",
+      "arrayIndex": 2,
+      "tag": "b509e",
+      "queryId": "15d53950e69acbc969122e4a03f39cc125cfbe4fd853e367e360ec37987b0e90",
+      "snapshotId": "6a929fb7-670e-4148-b714-4915194162ee"
+    }
+  }
+]

@@ -1,0 +1,18 @@
+{
+  "FiveYearMemorySimulation.java": "86ab811ee0e779ff9dd150dd18e8032bc5be89cde0f61a636c84a20399518283",
+  "execution.log": "448a63bfbc23f19339e3601e7fd29bbe797fe94f9c48559b1d380941ae08c06b",
+  "export-patch-receipt.json": "84c946c559be2a928fe7fe940decd3edbdb497cc52e2772dedd3f32a55026be8",
+  "fixture-state-export.patch": "24683644adc987089316af4e6970f823c55e711e4ebef933906601341d52d225",
+  "frozen-export-equivalence.json": "283bec8c10840c909cdbb70da8029a8c8351adfe35fc38e7b8a0d996bbfe5252",
+  "native-reader-control-snapshot.json": "bfb3bd421d65610ec12558cfaa43fe0dd99de5cf9a318137451aeb83310bd137",
+  "native-smoke-summary.json": "1d976fe3b4e583aa0f864ffd645940348156476245d2cc5b39f4c3c96cca735a",
+  "native-smoke.execution.log": "706bd6b350d690ab90cd53b77e0b9387d5bec3fda1fe555c63c266c4c5fbea18",
+  "native-smoke.receipt.json": "ec60172761bc5aaf28c42da544479f7e5a61c304504321ae5f56dfd136c60122",
+  "original-final-reader-inputs.jsonl.gz": "80e70f09ca6a1e180e38df4bc053cbdfd6401a79dd796bbf4540dfa5f2a09e69",
+  "original-source-map.json": "758afbb7772f5acb4cdee7894f5f42a0a2283b2a3900f1bad181e238279ab091",
+  "original-state-replay-receipt.json": "3ca6c5c64ce4a6fdcdd67e557e47c9330309277665432ed51d3cc1a15e8b93eb",
+  "report.json": "e77f283b767e9442956960e54aa0d725e6c0ce92ed3fe49de5af379bda6747b9",
+  "rerun-all-checkpoint-source-scoring.json.gz": "de6ba129298c19b0ccdb02964bea430d667e63a40c3b4fb03dae73b8b4f5d073",
+  "rerun-final-reader-inputs.jsonl.gz": "901fd61e424b684fa367931b3d9fa3d7377201dd6f21a1fc9f842380950d2a29",
+  "source-manifest.json": "9acf8f10bb4b831a9324928649d0516cccf400615070b23fe1d7c32554869bc2"
+}

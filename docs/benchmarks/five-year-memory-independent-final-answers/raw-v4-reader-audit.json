@@ -1,0 +1,445 @@
+{
+  "date": "2026-10-14T01:22:44.782008+00:00",
+  "readerMethod": "Actual model reasoning; scripts only compact source formatting, format authored answers, preserve source metadata and validate quotes.",
+  "packetSource": "/tmp/hoyoung-five-year-final-gateway-raw-v4/final-reader-inputs.jsonl",
+  "packetSHA256": "f219179da83611b108c1e84e32d431c219ead37a9e13ea7de685714d28d84d60",
+  "allowedDoc": "/workspace/be3hyu/docs/five-year-native-reader-tools.md",
+  "answerSource": "/tmp/hoyoung-five-year-raw-final-reader/answers.jsonl",
+  "answerSHA256": "edbae3de56c398d433aab95b0e6455f55d6ff6bcf3a336475772f90d76575dff",
+  "answerCount": 144,
+  "exactQuoteCountValidated": 377,
+  "latestBatch": [
+    120,
+    143
+  ],
+  "manualSource": "/tmp/hoyoung-five-year-raw-final-reader/batch120-143-manual.json",
+  "manualSourceSHA256": "78a02fe0b4b0657409d0a6eab2a3301d5ab7744f30b1abd50fc24fb6abbb932a",
+  "nativeRequests": "/tmp/hoyoung-five-year-raw-final-reader/requests-131-143.jsonl",
+  "nativeRequestsSHA256": "ca1bcc6e7d14a936705bf161ac1b6b8185e9314ea28ef02bf31f9dbda849be63",
+  "nativeResponses": "/tmp/hoyoung-five-year-raw-final-reader/responses-131-143.jsonl",
+  "nativeResponsesSHA256": "ee7e2933144b44f14169f664eda16dcff6d48dcc0b3e3ecac6be32878905c9ab",
+  "toolTrace": [
+    {
+      "id": "41f8f3847663a9c02ca1",
+      "toolRefs": [
+        {
+          "requestFile": "/tmp/hoyoung-five-year-raw-final-reader/requests-11-23.jsonl",
+          "responseFile": "/tmp/hoyoung-five-year-raw-final-reader/responses-11-23.jsonl",
+          "op": "enumerate",
+          "scope": {
+            "type": "message",
+            "fromInclusive": 1609459200000,
+            "toExclusive": 1612137600000,
+            "containsLiteral": "사진전 자료정리",
+            "cutoffId": 184434
+          },
+          "scopeFingerprint": "5d7006e43fac4a757e537d3f13b034cc039f0008f55b9d5bbc7eb311970f1662",
+          "canonicalMatchingRows": 14,
+          "completeToCutoff": true,
+          "hasMore": false,
+          "semanticRelevanceCompletenessGuaranteed": false,
+          "sourceSearchesUsed": 1,
+          "sourceRowsRead": 14
+        }
+      ]
+    },
+    {
+      "id": "675e990de6fc9ae7be7f",
+      "toolRefs": [
+        {
+          "requestFile": "/tmp/hoyoung-five-year-raw-final-reader/requests-11-23.jsonl",
+          "responseFile": "/tmp/hoyoung-five-year-raw-final-reader/responses-11-23.jsonl",
+          "op": "enumerate",
+          "scope": {
+            "type": "message",
+            "fromInclusive": 1612137600000,
+            "toExclusive": 1614556800000,
+            "containsLiteral": "도서관 자료정리",
+            "cutoffId": 184434
+          },
+          "scopeFingerprint": "963c4dc88cfb3e627b36501aadf00c25c750a67596b30c370b0ebc465f0862e5",
+          "canonicalMatchingRows": 14,
+          "completeToCutoff": true,
+          "hasMore": false,
+          "semanticRelevanceCompletenessGuaranteed": false,
+          "sourceSearchesUsed": 1,
+          "sourceRowsRead": 14
+        }
+      ]
+    },
+    {
+      "id": "2b0b33da150c8e8c2827",
+      "toolRefs": [
+        {
+          "requestFile": "/tmp/hoyoung-five-year-raw-final-reader/requests-35-47.jsonl",
+          "responseFile": "/tmp/hoyoung-five-year-raw-final-reader/responses-35-47.jsonl",
+          "op": "enumerate",
+          "scope": {
+            "type": "message",
+            "fromInclusive": 1614556800000,
+            "toExclusive": 1617235200000,
+            "containsLiteral": "천문대 자료정리",
+            "cutoffId": 184434
+          },
+          "scopeFingerprint": "befa90395702941084adb670951f1563a9a6fbbe69c02202365c9a056ed013b2",
+          "canonicalMatchingRows": 14,
+          "completeToCutoff": true,
+          "hasMore": false,
+          "semanticRelevanceCompletenessGuaranteed": false,
+          "sourceSearchesUsed": 1,
+          "sourceRowsRead": 14
+        }
+      ]
+    },
+    {
+      "id": "b35fbb229e9407a91add",
+      "toolRefs": [
+        {
+          "requestFile": "/tmp/hoyoung-five-year-raw-final-reader/requests-35-47.jsonl",
+          "responseFile": "/tmp/hoyoung-five-year-raw-final-reader/responses-35-47.jsonl",
+          "op": "enumerate",
+          "scope": {
+            "type": "message",
+            "fromInclusive": 1617235200000,
+            "toExclusive": 1619827200000,
+            "containsLiteral": "목공방 자료정리",
+            "cutoffId": 184434
+          },
+          "scopeFingerprint": "04299a0349243f05b7a23e7d3bc9896b2cace49d41f4e8f8664aebf08f798b37",
+          "canonicalMatchingRows": 14,
+          "completeToCutoff": true,
+          "hasMore": false,
+          "semanticRelevanceCompletenessGuaranteed": false,
+          "sourceSearchesUsed": 1,
+          "sourceRowsRead": 14
+        }
+      ]
+    },
+    {
+      "id": "bf096cd908b35e2abe22",
+      "toolRefs": [
+        {
+          "requestFile": "/tmp/hoyoung-five-year-raw-final-reader/requests-59.jsonl",
+          "responseFile": "/tmp/hoyoung-five-year-raw-final-reader/responses-59.jsonl",
+          "op": "enumerate",
+          "scope": {
+            "type": "message",
+            "fromInclusive": 1619827200000,
+            "toExclusive": 1622505600000,
+            "containsLiteral": "음악회 자료정리",
+            "cutoffId": 184434
+          },
+          "scopeFingerprint": "901682587460d65e2d1d9fc99530907a336047c49040b73c433058c9c8aa0551",
+          "canonicalMatchingRows": 14,
+          "completeToCutoff": true,
+          "hasMore": false,
+          "semanticRelevanceCompletenessGuaranteed": false,
+          "sourceSearchesUsed": 1,
+          "sourceRowsRead": 14
+        }
+      ]
+    },
+    {
+      "id": "c54f72d71917abe7719e",
+      "toolRefs": [
+        {
+          "requestFile": "/tmp/hoyoung-five-year-raw-final-reader/requests-71-83.jsonl",
+          "responseFile": "/tmp/hoyoung-five-year-raw-final-reader/responses-71-83.jsonl",
+          "op": "enumerate",
+          "scope": {
+            "type": "message",
+            "fromInclusive": 1622505600000,
+            "toExclusive": 1625097600000,
+            "containsLiteral": "텃밭 자료정리",
+            "cutoffId": 184434
+          },
+          "scopeFingerprint": "801f82c111b85b7d08bca417720051beb91411df7b55319f7479f822bb8368f8",
+          "canonicalMatchingRows": 14,
+          "completeToCutoff": true,
+          "hasMore": false,
+          "semanticRelevanceCompletenessGuaranteed": false,
+          "sourceSearchesUsed": 1,
+          "sourceRowsRead": 14
+        }
+      ]
+    },
+    {
+      "id": "b2e43483789770d9b758",
+      "toolRefs": [
+        {
+          "requestFile": "/tmp/hoyoung-five-year-raw-final-reader/requests-71-83.jsonl",
+          "responseFile": "/tmp/hoyoung-five-year-raw-final-reader/responses-71-83.jsonl",
+          "op": "enumerate",
+          "scope": {
+            "type": "message",
+            "fromInclusive": 1625097600000,
+            "toExclusive": 1627776000000,
+            "containsLiteral": "등산회 자료정리",
+            "cutoffId": 184434
+          },
+          "scopeFingerprint": "e8e6a18e78d4c6fb2cb1277cc115c3cc3161e3bf46163628a11599cfbf5007ab",
+          "canonicalMatchingRows": 14,
+          "completeToCutoff": true,
+          "hasMore": false,
+          "semanticRelevanceCompletenessGuaranteed": false,
+          "sourceSearchesUsed": 1,
+          "sourceRowsRead": 14
+        }
+      ]
+    },
+    {
+      "id": "3baf5880d586d50d157e",
+      "toolRefs": [
+        {
+          "requestFile": "/tmp/hoyoung-five-year-raw-final-reader/requests-95.jsonl",
+          "responseFile": "/tmp/hoyoung-five-year-raw-final-reader/responses-95.jsonl",
+          "op": "enumerate",
+          "scope": {
+            "type": "message",
+            "fromInclusive": 1627776000000,
+            "toExclusive": 1630454400000,
+            "containsLiteral": "번역팀 자료정리",
+            "cutoffId": 184434
+          },
+          "scopeFingerprint": "d8fb8f10af21561d0fb695f1a32825ca3787513eababd1a918d3e5efd4cba66c",
+          "canonicalMatchingRows": 14,
+          "completeToCutoff": true,
+          "hasMore": false,
+          "semanticRelevanceCompletenessGuaranteed": false,
+          "sourceSearchesUsed": 1,
+          "sourceRowsRead": 14
+        }
+      ]
+    },
+    {
+      "id": "39ed7465f4802729ae1e",
+      "toolRefs": [
+        {
+          "requestFile": "/tmp/hoyoung-five-year-raw-final-reader/requests-107-119.jsonl",
+          "responseFile": "/tmp/hoyoung-five-year-raw-final-reader/responses-107-119.jsonl",
+          "op": "enumerate",
+          "scope": {
+            "type": "message",
+            "fromInclusive": 1630454400000,
+            "toExclusive": 1633046400000,
+            "containsLiteral": "수영장 자료정리",
+            "cutoffId": 184434
+          },
+          "scopeFingerprint": "3745ffdb957dbb755b5e59ccfa2adfba0a9cb65903a5412fc97dbd439e5cf876",
+          "canonicalMatchingRows": 14,
+          "completeToCutoff": true,
+          "hasMore": false,
+          "semanticRelevanceCompletenessGuaranteed": false,
+          "sourceSearchesUsed": 1,
+          "sourceRowsRead": 14
+        }
+      ]
+    },
+    {
+      "id": "bc8b60913ac917a67dbf",
+      "toolRefs": [
+        {
+          "requestFile": "/tmp/hoyoung-five-year-raw-final-reader/requests-107-119.jsonl",
+          "responseFile": "/tmp/hoyoung-five-year-raw-final-reader/responses-107-119.jsonl",
+          "op": "enumerate",
+          "scope": {
+            "type": "message",
+            "fromInclusive": 1633046400000,
+            "toExclusive": 1635724800000,
+            "containsLiteral": "박물관 자료정리",
+            "cutoffId": 184434
+          },
+          "scopeFingerprint": "2d4b72d0148901eb9d30f5845acb2b7b20e098b51e69d8d58cf6fe13d240f202",
+          "canonicalMatchingRows": 14,
+          "completeToCutoff": true,
+          "hasMore": false,
+          "semanticRelevanceCompletenessGuaranteed": false,
+          "sourceSearchesUsed": 1,
+          "sourceRowsRead": 14
+        }
+      ]
+    },
+    {
+      "id": "8cd8932ab607b8b36aa3",
+      "toolRefs": [
+        {
+          "requestFile": "/tmp/hoyoung-five-year-raw-final-reader/requests-131-143.jsonl",
+          "responseFile": "/tmp/hoyoung-five-year-raw-final-reader/responses-131-143.jsonl",
+          "op": "enumerate",
+          "scope": {
+            "type": "message",
+            "fromInclusive": 1635724800000,
+            "toExclusive": 1638316800000,
+            "containsLiteral": "도예실 자료정리",
+            "cutoffId": 184434
+          },
+          "scopeFingerprint": "d5d8edf33a693a24a6d5c3d7be87efd0fc8eff59b2ee2adb6ef2f3ef59456073",
+          "canonicalMatchingRows": 14,
+          "completeToCutoff": true,
+          "hasMore": false,
+          "semanticRelevanceCompletenessGuaranteed": false,
+          "sourceSearchesUsed": 1,
+          "sourceRowsRead": 14
+        }
+      ]
+    },
+    {
+      "id": "a1dc766a0fc5960c55ff",
+      "toolRefs": [
+        {
+          "requestFile": "/tmp/hoyoung-five-year-raw-final-reader/requests-131-143.jsonl",
+          "responseFile": "/tmp/hoyoung-five-year-raw-final-reader/responses-131-143.jsonl",
+          "op": "enumerate",
+          "scope": {
+            "type": "message",
+            "fromInclusive": 1638316800000,
+            "toExclusive": 1640995200000,
+            "containsLiteral": "독서회 자료정리",
+            "cutoffId": 184434
+          },
+          "scopeFingerprint": "4763a1e8ba47f0f13fb675bef936ba44ad04958d7380ee95970de0bceefc0119",
+          "canonicalMatchingRows": 14,
+          "completeToCutoff": true,
+          "hasMore": false,
+          "semanticRelevanceCompletenessGuaranteed": false,
+          "sourceSearchesUsed": 1,
+          "sourceRowsRead": 14
+        }
+      ]
+    }
+  ],
+  "nativeResponseArtifacts": [
+    {
+      "path": "/tmp/hoyoung-five-year-raw-final-reader/responses-107-119.jsonl",
+      "sha256": "ca3338698a1ce6067e2592090ec5312946a6d6f40cdc84e600c25c8ff3b71925",
+      "packets": [
+        {
+          "id": "39ed7465f4802729ae1e",
+          "op": "enumerate",
+          "ok": true,
+          "sourceSearchesUsed": 1,
+          "sourceRowsRead": 14
+        },
+        {
+          "id": "bc8b60913ac917a67dbf",
+          "op": "enumerate",
+          "ok": true,
+          "sourceSearchesUsed": 1,
+          "sourceRowsRead": 14
+        }
+      ]
+    },
+    {
+      "path": "/tmp/hoyoung-five-year-raw-final-reader/responses-11-23.jsonl",
+      "sha256": "e62b92cd0cd4f4d1c9daa17beecce00b38bb8e40ed3d94adce19caa8d8a61092",
+      "packets": [
+        {
+          "id": "41f8f3847663a9c02ca1",
+          "op": "enumerate",
+          "ok": true,
+          "sourceSearchesUsed": 1,
+          "sourceRowsRead": 14
+        },
+        {
+          "id": "675e990de6fc9ae7be7f",
+          "op": "enumerate",
+          "ok": true,
+          "sourceSearchesUsed": 1,
+          "sourceRowsRead": 14
+        }
+      ]
+    },
+    {
+      "path": "/tmp/hoyoung-five-year-raw-final-reader/responses-131-143.jsonl",
+      "sha256": "ee7e2933144b44f14169f664eda16dcff6d48dcc0b3e3ecac6be32878905c9ab",
+      "packets": [
+        {
+          "id": "8cd8932ab607b8b36aa3",
+          "op": "enumerate",
+          "ok": true,
+          "sourceSearchesUsed": 1,
+          "sourceRowsRead": 14
+        },
+        {
+          "id": "a1dc766a0fc5960c55ff",
+          "op": "enumerate",
+          "ok": true,
+          "sourceSearchesUsed": 1,
+          "sourceRowsRead": 14
+        }
+      ]
+    },
+    {
+      "path": "/tmp/hoyoung-five-year-raw-final-reader/responses-35-47.jsonl",
+      "sha256": "2e9fedc1e1dbfb310035d4d8d2042237fd358818175e51920dbb562b5baa29af",
+      "packets": [
+        {
+          "id": "2b0b33da150c8e8c2827",
+          "op": "enumerate",
+          "ok": true,
+          "sourceSearchesUsed": 1,
+          "sourceRowsRead": 14
+        },
+        {
+          "id": "b35fbb229e9407a91add",
+          "op": "enumerate",
+          "ok": true,
+          "sourceSearchesUsed": 1,
+          "sourceRowsRead": 14
+        }
+      ]
+    },
+    {
+      "path": "/tmp/hoyoung-five-year-raw-final-reader/responses-59.jsonl",
+      "sha256": "7e1ff7756b21c70ad1dc9445822df359dffeaeba9d7a422f6042e8bc20a52cdb",
+      "packets": [
+        {
+          "id": "bf096cd908b35e2abe22",
+          "op": "enumerate",
+          "ok": true,
+          "sourceSearchesUsed": 1,
+          "sourceRowsRead": 14
+        }
+      ]
+    },
+    {
+      "path": "/tmp/hoyoung-five-year-raw-final-reader/responses-71-83.jsonl",
+      "sha256": "af759536b39e9bff2649eeb2d1666e82997fe430417c39f5e281e6977ed46b44",
+      "packets": [
+        {
+          "id": "c54f72d71917abe7719e",
+          "op": "enumerate",
+          "ok": true,
+          "sourceSearchesUsed": 1,
+          "sourceRowsRead": 14
+        },
+        {
+          "id": "b2e43483789770d9b758",
+          "op": "enumerate",
+          "ok": true,
+          "sourceSearchesUsed": 1,
+          "sourceRowsRead": 14
+        }
+      ]
+    },
+    {
+      "path": "/tmp/hoyoung-five-year-raw-final-reader/responses-95.jsonl",
+      "sha256": "97d4ba35a6ef0ec72f508f131a4c6c3b1386e3f7c172a43e34a9c7a4e29133cb",
+      "packets": [
+        {
+          "id": "3baf5880d586d50d157e",
+          "op": "enumerate",
+          "ok": true,
+          "sourceSearchesUsed": 1,
+          "sourceRowsRead": 14
+        }
+      ]
+    }
+  ],
+  "abstainedCount": 36,
+  "incompleteCount": 0,
+  "enumerationAnswerCount": 12,
+  "totalNativeDeliveredRows": 168,
+  "sourceCapsVerified": true,
+  "finalClaim": "Reader artifacts complete; no acceptance or scoring claim."
+}

@@ -1,0 +1,36 @@
+{
+  "ref": "WORKTREE",
+  "sources": {
+    "mobile/app/src/main/java/com/hoyoung/assistant/memory/MemoryHistory.java": "17a6c3dcd21e796b0b75d90c07965cd98a4e752bcdfe348547d831285a9e0529",
+    "mobile/app/src/main/java/com/hoyoung/assistant/memory/MemoryPolicy.java": "25a109369dde48ebbb7c3e4d8864bc569dbe8199342d687a34d239dee6207f67",
+    "mobile/app/src/main/java/com/hoyoung/assistant/memory/MemoryQuery.java": "19fb3a5102cb24d9a32ae5cf5a0582c88c5960ac483370e53ff66c48bab08de1",
+    "mobile/app/src/main/java/com/hoyoung/assistant/memory/MemoryRetriever.java": "37bfbcf20c4cbebca915bf5a468fe7c773905e84119a3e59f7266f8a786cc2c2",
+    "mobile/app/src/main/java/com/hoyoung/assistant/memory/MemoryText.java": "8f621f4b313fbe23081ded59058df90debe46ad0979c45279c6bba828aa3f09a",
+    "mobile/app/src/main/java/com/hoyoung/assistant/memory/NativeAnnIndex.java": "0e64ae7b8cc2289cb00983682e61af06860449cb7ccc50c2c515325ae7c19d20",
+    "mobile/app/src/main/java/com/hoyoung/assistant/memory/SemanticAnnCache.java": "e792b8e045e30c2012719e184dadcc8f4782222d394d237c84a7e1bcce5db9cf",
+    "mobile/app/src/main/java/com/hoyoung/assistant/memory/SemanticCandidateProvider.java": "dfb07cf9e8de3599b820843e946e1a1542b35dde67d84dc05a7561653c16ca68",
+    "mobile/app/src/main/java/com/hoyoung/assistant/memory/SemanticEncoder.java": "23839c706b37302429d6f5ec4ce6cf78e5e99e33c409d442ea9ae5906ebfd1c1",
+    "mobile/app/src/main/java/com/hoyoung/assistant/memory/SemanticIndex.java": "4b0cb1dfcc00535407c900b86acafe8876db644161b0bafdf169e5ec7a16acb0",
+    "mobile/app/src/main/java/com/hoyoung/assistant/memory/StructuredMemorySearch.java": "9b20c518ea967dc833f359280dbf7fe76fe5b4e91560d088a34eee9da701f687",
+    "mobile/app/src/main/java/com/hoyoung/assistant/memory/VectorCodec.java": "d31cefe95dd153d900329d93a1fb0aeb44b0dc4a1cef31e74fb88dc07502d3c1",
+    "mobile/app/src/main/java/com/hoyoung/assistant/memory/local/BertWordPieceTokenizer.java": "e23fc5a98a11f32fcd2c442c27e0c865e9005fa67b910187904b36894345eb16",
+    "mobile/app/src/main/java/com/hoyoung/assistant/memory/local/LocalSemanticEncoder.java": "9c40c9a0e9b9f72d3273ccfd0d26921f810d76bccef6c703a2f55a025b18d36d",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/AttachmentOriginals.java": "0fecf6d8c710b10ba9dc242dabdd4d1883cc66d68e9148265aef542deebf1a11",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/BackupFailure.java": "66c8680b95fbb8e37c5432415b2a8aee40610f13f6c7e79a92fffa3a7d87e632",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/BackupPolicy.java": "dd6772e05f9b6bcd358a4a55e64a583cc5f49f05d149d9ee837adf998a1ab927",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/DeviceEventSearch.java": "66b9ed4e6e65264072685d68bd1115e958736283ef4ff24e4744e3cd4641657d",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/HoyoungStore.java": "e240ace02dc7a94a589ce3a53b3cdae78b9dbe63d12fae45c77283c67e6fb808",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/InternalFiles.java": "82b89f63a7d8476885812088404af7346db5d3468bd09fadabaa6e3b39da8179",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/MemorySourceEnumerator.java": "97b13870dfbab17fd8e5ee657646b99a7a0a4269a6c400668d7b432bbb3b4c48",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/OriginalTextFiles.java": "7435615d48df98a1dea3f2267d6c986330c5233fd5aef3a9e36d8406485359ce",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/SourcePrivacyLedger.java": "5f3b6e72983da6045dba6ba7f8c6e89df3c38653b177a26696e9fe71a11f7e57",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/SourceRecordVisibility.java": "cb658cad40b53155bebe2ce14e7769048effd0a665b39c61fc2bbcab9752c966",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/StreamingBackup.java": "f35fe79f8a48543a8c6bc275deff5bcd4e9cb429c820900ec00c66f69c8b226c",
+    "benchmarkFixture": "21163d1ddf7d90a7cf7f74bbe3eb3f9761e78a803187db1e3c0044bf9da64f3b"
+  },
+  "excludedProductionFiles": [
+    "SourcePayloadDeletion.java",
+    "MemoryGateway.java"
+  ],
+  "matrixSha256": "2821867ebb826cb2b873ef5d95e5abbbbf4b9a60923a2755f681e6c26e6ae1c8"
+}

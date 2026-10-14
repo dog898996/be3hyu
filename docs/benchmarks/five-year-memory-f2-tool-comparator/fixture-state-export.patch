@@ -1,0 +1,23 @@
+--- f2-frozen-fixture
++++ f2-state-export-only-fixture
+@@ -68,8 +68,20 @@
+             assertEquals(2191,days);assertEquals(184044,distractors);assertEquals(408,sourceMap.size());verifyRawIntegrity();
+             try(Cursor checkpointResult=store.getWritableDatabase().rawQuery("PRAGMA wal_checkpoint(FULL)",null)){while(checkpointResult.moveToNext()){ /* Materialize native checkpoint result. */ }}
+             File database=context.getDatabasePath(HoyoungStore.DATABASE_NAME);Files.copy(database.toPath(),new File(output,"canonical-corpus.sqlite").toPath(),java.nio.file.StandardCopyOption.REPLACE_EXISTING);
++            exportNativeReaderState(context);
+             writeArtifacts(checkpoints,days,distractors,(System.nanoTime()-started)/1000000,true);
+         } finally {store.close();context.deleteDatabase(HoyoungStore.DATABASE_NAME);}
++    }
++
++    /** Export existing native state only; no retrieval, source, query, or scoring changes. */
++    private void exportNativeReaderState(Context context)throws Exception {
++        File directory=new File(output,"native-reader-files");assertTrue(directory.isDirectory()||directory.mkdirs());
++        File originals=new File(context.getFilesDir(),"originals");
++        if(originals.exists())try(java.util.stream.Stream<java.nio.file.Path> paths=Files.walk(originals.toPath())){
++            for(java.nio.file.Path path:(Iterable<java.nio.file.Path>)paths::iterator){java.nio.file.Path destination=directory.toPath().resolve(context.getFilesDir().toPath().relativize(path));if(Files.isDirectory(path))Files.createDirectories(destination);else{Files.createDirectories(destination.getParent());Files.copy(path,destination,java.nio.file.StandardCopyOption.REPLACE_EXISTING);}}
++        }
++        JSONObject controls=json("format","native-reader-replay-v1","date","2026-12-31","gatewayEnabled",false,"excludedDeviceIds",new JSONArray(hiddenDeviceSources),"privacyFingerprint","","scope","Exact frozen f2 native corpus and existing device predicate; f2 has no retrieval-exclusion ledger or source enumerator");
++        Files.writeString(new File(output,"native-reader-control-snapshot.json").toPath(),controls.toString(2));
+     }
+ 
+     private void prepareNotes()throws Exception {

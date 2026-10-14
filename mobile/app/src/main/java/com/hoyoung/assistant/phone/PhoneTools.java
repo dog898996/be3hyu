@@ -421,6 +421,12 @@ public final class PhoneTools {
         }
     }
     boolean mayExpose(JSONObject row) {
+        if(row==null)return false;
+        try {
+            HoyoungStore canonical=journal().canonicalStore();
+            com.hoyoung.assistant.store.SourcePrivacyLedger.Snapshot scope=canonical.getPrivacyLedger().capture();
+            synchronized(canonical){if(!com.hoyoung.assistant.store.SourceRecordVisibility.allowed(canonical.getReadableDatabase(),scope,"device_event",row))return false;}
+        }catch(java.io.IOException|RuntimeException unavailable){return false;}
         String source = row.optString("source"), category = row.optString("category"); PhoneEventJournal journal = journal();
         if (!journal.collectionEnabled()) return false;
         if (source.contains("notification")) return permissions.notificationAccess() && journal.toolAllowed("phone_notifications_read");

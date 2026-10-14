@@ -50,9 +50,15 @@ public final class RuntimeMemoryReviewSchedulingTest {
         assertTrue(transport.prompts.get(0).contains(serialized));assertTrue(transport.prompts.get(0).contains("이번 턴 목적은 기억 검토뿐"));assertEquals(0,store.getWatermark(MemoryReviewCoordinator.WATERMARK));
     }
     @Test public void backgroundReviewIsItsOwnTurnAndDoesNotConsumeAUserGoalSlot()throws Exception{
-        store.putSetting("autonomy.enabled","true");store.putSetting("runtime.lastAutonomyAt","0");runtime.tick();JSONObject request=active();assertEquals("memory-review",request.getString("kind"));
+        // Background review fills the interval between inference ticks; a due
+        // inference judgment has its own priority and is not a review request.
+        long nextDue=System.currentTimeMillis()+300_000L;
+        JSONObject cadence=runtime.getAutonomyTickPolicy().snapshot(System.currentTimeMillis());cadence.put("enabled",true).put("nextDueAt",nextDue);
+        store.putSetting(AutonomyTickPolicy.STATE_KEY,cadence.toString());store.putSetting("runtime.lastMemoryReviewAt","0");
+        store.putSetting("autonomy.enabled","true");runtime.tick();JSONObject request=active();assertEquals("memory-review",request.getString("kind"));
         assertEquals("0",store.getSetting("requestSource:"+request.getString("external_id"),""));assertFalse(store.getSetting("memoryReview:"+request.getString("external_id"),"").isEmpty());
         assertEquals(0,runtime.getGoalLedger().list(null).getLong("totalPending"));assertEquals(0,store.getWatermark(MemoryReviewCoordinator.WATERMARK));assertEquals(1,transport.ids.size());
+        assertEquals(nextDue,runtime.getAutonomyTickPolicy().snapshot(System.currentTimeMillis()).getLong("nextDueAt"));
     }
     private JSONObject active()throws Exception{return store.getRequest(runtime.state().getLong("activeStoreId"));}
     private void complete(JSONObject request,String text)throws Exception{runtime.onWebEvent(object("type","completed","requestId",request.getString("external_id"),"text",text,"rawEnvelopeEligible",true));}

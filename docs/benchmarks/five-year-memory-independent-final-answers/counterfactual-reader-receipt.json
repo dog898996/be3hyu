@@ -1,0 +1,42 @@
+{
+  "method": "independent_model_semantic_read",
+  "inputPath": "/tmp/hoyoung-five-year-counterfactual-v5-final/reader-inputs.jsonl",
+  "inputSha256": "73e19f927000a0f0fffbbe9237bcc95b70b0bab2241f2b0e6d4493b7276c94dd",
+  "outputPath": "/tmp/hoyoung-five-year-counterfactual-blind-reader/answers.jsonl",
+  "outputSha256": "946e5a38e8d604d4f36279bcc1897c0b6995895932a8119c913a9f84172b7a03",
+  "orderedUniqueIds": [
+    "277ce9271b1f5981b250",
+    "575b6c348beb730f9fc6",
+    "e1cff302f9e52447db1c"
+  ],
+  "answerCount": 3,
+  "quoteChecks": [
+    {
+      "id": "277ce9271b1f5981b250",
+      "sourceType": "message",
+      "sourceId": 1106,
+      "exactQuoteVerified": true,
+      "role": "user",
+      "classification": "owner_report"
+    },
+    {
+      "id": "575b6c348beb730f9fc6",
+      "sourceType": "message",
+      "sourceId": 1106,
+      "exactQuoteVerified": true,
+      "role": "user",
+      "classification": "owner_report"
+    },
+    {
+      "id": "e1cff302f9e52447db1c",
+      "sourceType": "message",
+      "sourceId": 1106,
+      "exactQuoteVerified": true,
+      "role": "user",
+      "classification": "owner_report"
+    }
+  ],
+  "readScope": "Only supplied reader-inputs.jsonl; no scorer, gold matrix, simulation fixture, baseline, results, or other agent answers read.",
+  "execution": "Existing delegated model read and reasoned about emitted context; Python used only for serialization and citation verification. No external paid API.",
+  "scoringPerformed": false
+}

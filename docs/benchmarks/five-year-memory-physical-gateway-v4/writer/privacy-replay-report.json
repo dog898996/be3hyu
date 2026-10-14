@@ -1,0 +1,351 @@
+{
+  "actualYearOneStreamingBackup": true,
+  "backupBytes": 3107501,
+  "backupEntries": 11,
+  "privacyFileIncluded": false,
+  "policyFingerprintBeforeRestore": "2731482f06868473fe6c5b4bc5b452465052d029047bf077de88c8a904d95167",
+  "policyFingerprintAfterRestore": "2731482f06868473fe6c5b4bc5b452465052d029047bf077de88c8a904d95167",
+  "cachedYearOneScopes": [
+    {
+      "caseId": "forget_revoke-01",
+      "cachedScopeAvailable": true,
+      "cachedContextSha256": "74109664a3c02db7b5bb96a1c117670700a7ba37e345e6abd1db9c2e88b82f74",
+      "previousPacketContainedProtectedValue": true,
+      "freshOutputRejected": true,
+      "reason": "memory_privacy_changed",
+      "passed": true
+    },
+    {
+      "caseId": "forget_revoke-02",
+      "cachedScopeAvailable": true,
+      "cachedContextSha256": "cc47f68f3c8431f694a71026567593e2553062a920b5b6b65ca969adaa5d3a06",
+      "previousPacketContainedProtectedValue": true,
+      "freshOutputRejected": true,
+      "reason": "memory_privacy_changed",
+      "passed": true
+    },
+    {
+      "caseId": "forget_revoke-03",
+      "cachedScopeAvailable": true,
+      "cachedContextSha256": "437f800a7ed11dfc1c5dde2143ab68110d7ff1ab839882a9cfe55c952a2ee976",
+      "previousPacketContainedProtectedValue": true,
+      "freshOutputRejected": true,
+      "reason": "memory_privacy_changed",
+      "passed": true
+    },
+    {
+      "caseId": "forget_revoke-04",
+      "cachedScopeAvailable": true,
+      "cachedContextSha256": "015089d1db40248103f72498f02a7e435d247acfca744e5d4138fd60c1e7689f",
+      "previousPacketContainedProtectedValue": true,
+      "freshOutputRejected": true,
+      "reason": "memory_privacy_changed",
+      "passed": true
+    },
+    {
+      "caseId": "forget_revoke-05",
+      "cachedScopeAvailable": true,
+      "cachedContextSha256": "1fabdd7929bb9092a9c7f9254aa10df21165aa4c50594fc870ff18ed7dec54f5",
+      "previousPacketContainedProtectedValue": true,
+      "freshOutputRejected": true,
+      "reason": "memory_privacy_changed",
+      "passed": true
+    },
+    {
+      "caseId": "forget_revoke-06",
+      "cachedScopeAvailable": true,
+      "cachedContextSha256": "aa1fd5c343bdde8a716b4a98feb44af046293c83d1841a85bd4cb79ae075f1d8",
+      "previousPacketContainedProtectedValue": true,
+      "freshOutputRejected": true,
+      "reason": "memory_privacy_changed",
+      "passed": true
+    },
+    {
+      "caseId": "forget_revoke-07",
+      "cachedScopeAvailable": true,
+      "cachedContextSha256": "d1f6a8c0861227ff1acbea47278b00c35b698daec828e029d96100f676f6dad6",
+      "previousPacketContainedProtectedValue": true,
+      "freshOutputRejected": true,
+      "reason": "memory_privacy_changed",
+      "passed": true
+    },
+    {
+      "caseId": "forget_revoke-08",
+      "cachedScopeAvailable": true,
+      "cachedContextSha256": "9531943bf36368547b97c3607f6a3ee170b6b89fd60009945795ccf8cfcb8ceb",
+      "previousPacketContainedProtectedValue": true,
+      "freshOutputRejected": true,
+      "reason": "memory_privacy_changed",
+      "passed": true
+    },
+    {
+      "caseId": "forget_revoke-09",
+      "cachedScopeAvailable": true,
+      "cachedContextSha256": "cf438f334bdcdd163e2a5c18d67763214af6ebbe1d39a2dc8242ff4985b52296",
+      "previousPacketContainedProtectedValue": true,
+      "freshOutputRejected": true,
+      "reason": "memory_privacy_changed",
+      "passed": true
+    },
+    {
+      "caseId": "forget_revoke-10",
+      "cachedScopeAvailable": true,
+      "cachedContextSha256": "faa3e9575da3a2e7f02c0071c3c7071f01f16a74b79a1894d98472e00563b98b",
+      "previousPacketContainedProtectedValue": true,
+      "freshOutputRejected": true,
+      "reason": "memory_privacy_changed",
+      "passed": true
+    },
+    {
+      "caseId": "forget_revoke-11",
+      "cachedScopeAvailable": true,
+      "cachedContextSha256": "548b5c7e45eb6d2e8156e4ffc03f34536d32995aac2d90e9b8523f5e013a88fd",
+      "previousPacketContainedProtectedValue": true,
+      "freshOutputRejected": true,
+      "reason": "memory_privacy_changed",
+      "passed": true
+    },
+    {
+      "caseId": "forget_revoke-12",
+      "cachedScopeAvailable": true,
+      "cachedContextSha256": "4a7d205f9d6be9b9422e583483d54c2932aafacdeb5148bfc82b864285352cf5",
+      "previousPacketContainedProtectedValue": true,
+      "freshOutputRejected": true,
+      "reason": "memory_privacy_changed",
+      "passed": true
+    }
+  ],
+  "restoredOldCorpusChecks": [
+    {
+      "caseId": "forget_revoke-01",
+      "protectedValueExposed": false,
+      "contextSha256": "c9ff9e0834815a3a51f8287d98bba3687cfca67a611b31b99b9df1c1cfece301",
+      "contextChars": 11821,
+      "candidateSha256": "7b206d76ead9d9da3c1f218d840dda174fb4a2cd1050263979fad114d01d54cc",
+      "blocked": false,
+      "failure": ""
+    },
+    {
+      "caseId": "forget_revoke-02",
+      "protectedValueExposed": false,
+      "contextSha256": "2e7be87845bccadfb01c9ac0b92e0bfa9e6cee2b666c0149579e7ff57f6d85d6",
+      "contextChars": 11869,
+      "candidateSha256": "9a8cd33bf1b9c14294601c4dcdf4f66982f1d68a96175f76bd816c096fc89c99",
+      "blocked": false,
+      "failure": ""
+    },
+    {
+      "caseId": "forget_revoke-03",
+      "protectedValueExposed": false,
+      "contextSha256": "acdf1ea125102b31f7839411aba9c7a132a259d6142c96f966e2d2faddee9b4c",
+      "contextChars": 11874,
+      "candidateSha256": "dda03ef608218033e08b368b118f1b986ea4ed1fac17d41fd3a2062da00d5b3e",
+      "blocked": false,
+      "failure": ""
+    },
+    {
+      "caseId": "forget_revoke-04",
+      "protectedValueExposed": false,
+      "contextSha256": "216b740823ed9e5aac76279f76deaa0b6aa882d70ba4f9dc17e4b49e41a38ab3",
+      "contextChars": 11899,
+      "candidateSha256": "f96f0ff7ffb6b80388d2d44d17f04db92ec583fac83670dd05c4f048ca772a25",
+      "blocked": false,
+      "failure": ""
+    },
+    {
+      "caseId": "forget_revoke-05",
+      "protectedValueExposed": false,
+      "contextSha256": "4a987c6da77fdac55507dae20c1de13b91bffde24e8cf4db17e94604e26e9832",
+      "contextChars": 11913,
+      "candidateSha256": "f2cab836118ed82fc99a96c58835c78200b7eef12a53be71026293dd3682845a",
+      "blocked": false,
+      "failure": ""
+    },
+    {
+      "caseId": "forget_revoke-06",
+      "protectedValueExposed": false,
+      "contextSha256": "dc3c27f3f07a2b92ed345359b8a9f6a92b6db0230b668f8a48863c3ad0234fed",
+      "contextChars": 11898,
+      "candidateSha256": "7b6a8d7091c3e4cb83f220335d3a882de88699fb9c4a3e4e4a1e0051db13b7f6",
+      "blocked": false,
+      "failure": ""
+    },
+    {
+      "caseId": "forget_revoke-07",
+      "protectedValueExposed": false,
+      "contextSha256": "dfb6835e0c62842b500366316a6f7d6c99f228bf65f71b6cb86a19cfb42bef2d",
+      "contextChars": 11837,
+      "candidateSha256": "bbae18f0e87807bb7f2fbf66123c25bf60bbf2385de7f449fefccec322d75b5b",
+      "blocked": false,
+      "failure": ""
+    },
+    {
+      "caseId": "forget_revoke-08",
+      "protectedValueExposed": false,
+      "contextSha256": "8aad357006c6b6d69670f02f280467d711ef68e98d091d96c1298d64e9925741",
+      "contextChars": 11889,
+      "candidateSha256": "21d1591d38250fd814522cbfd9254fca70922bfb9ba48c8b15d51c02b3b4e2f5",
+      "blocked": false,
+      "failure": ""
+    },
+    {
+      "caseId": "forget_revoke-09",
+      "protectedValueExposed": false,
+      "contextSha256": "e7a34477d3cf74ff5d23ccb30242ce8724fb52f08de87db4ecea8e85f0682a0b",
+      "contextChars": 11887,
+      "candidateSha256": "7ffc9dc614cfc27054c0cb7a9b5cb4f4b08e10e1819582a2f1ad04b7e09c158e",
+      "blocked": false,
+      "failure": ""
+    },
+    {
+      "caseId": "forget_revoke-10",
+      "protectedValueExposed": false,
+      "contextSha256": "506945aa0990c71336a0276b6fe7a78f5f81510e423e0fcbad53ac5fd2e67b1e",
+      "contextChars": 11885,
+      "candidateSha256": "4e64379440eb8d6a0b24e9c83fd840d3829cdaabc32a6a49724cba76a31be94c",
+      "blocked": false,
+      "failure": ""
+    },
+    {
+      "caseId": "forget_revoke-11",
+      "protectedValueExposed": false,
+      "contextSha256": "a8a213d5319cd32f02cf958970db338f56462c1ceee66c654190662409d8db02",
+      "contextChars": 11893,
+      "candidateSha256": "2935549f8c0f28c4a28bfe980b1bb91ac63b42cd5a0b576437ddd6fcde0d50f3",
+      "blocked": false,
+      "failure": ""
+    },
+    {
+      "caseId": "forget_revoke-12",
+      "protectedValueExposed": false,
+      "contextSha256": "fc31a3fe08d7e541b5b1969e9e51c8cf2046479cdedf474b9aa01fc4b6ba6d16",
+      "contextChars": 11543,
+      "candidateSha256": "4c4e5ae0b6f33b893115805d6e054a211eb8342f0b96e5f7ca63bbac1d0589b8",
+      "blocked": false,
+      "failure": ""
+    }
+  ],
+  "restoredQueryCompletions": 12,
+  "restoredQueryBlocks": 0,
+  "protectedExposureCases": 0,
+  "physicalPayloadDeletionMeasured": true,
+  "deletionReconcileAfterRestore": {
+    "processed": 6,
+    "pending": 0,
+    "hasMore": false,
+    "receipts": [
+      {
+        "type": "message",
+        "id": 1116,
+        "hash": "0130514119cc174a52548e1f0aaf7c95d9a676585954d043088657807915e3d9",
+        "status": "completed_managed_local",
+        "requestedMode": "delete_payload",
+        "pendingDeletion": false,
+        "managedLocalDeletionVerified": true,
+        "scope": "tracked_local_source_and_derivations",
+        "providerDeletionVerified": false,
+        "untrackedWorkingCopiesSearched": false,
+        "mutableWorkingCopiesDeleted": false,
+        "knownWorkingCopyCount": 0,
+        "retainedWorkingCopies": 0,
+        "changedWorkingCopiesPreserved": 0,
+        "tombstoneMetadataRetained": true,
+        "retainedSharedPayloads": 0
+      },
+      {
+        "type": "message",
+        "id": 11306,
+        "hash": "c7c06a595315477ddedd3a133905cc2d6c57a46b5d51e0ff9a8301707164a481",
+        "status": "completed_managed_local",
+        "requestedMode": "delete_payload",
+        "pendingDeletion": false,
+        "managedLocalDeletionVerified": true,
+        "scope": "tracked_local_source_and_derivations",
+        "providerDeletionVerified": false,
+        "untrackedWorkingCopiesSearched": false,
+        "mutableWorkingCopiesDeleted": false,
+        "knownWorkingCopyCount": 0,
+        "retainedWorkingCopies": 0,
+        "changedWorkingCopiesPreserved": 0,
+        "tombstoneMetadataRetained": true,
+        "retainedSharedPayloads": 0
+      },
+      {
+        "type": "message",
+        "id": 16485,
+        "hash": "fd9fff085239017c9a69622a5bcceed29a084b82609a39427bdc72fcf87c041f",
+        "status": "completed_managed_local",
+        "requestedMode": "delete_payload",
+        "pendingDeletion": false,
+        "managedLocalDeletionVerified": true,
+        "scope": "tracked_local_source_and_derivations",
+        "providerDeletionVerified": false,
+        "untrackedWorkingCopiesSearched": false,
+        "mutableWorkingCopiesDeleted": false,
+        "knownWorkingCopyCount": 0,
+        "retainedWorkingCopies": 0,
+        "changedWorkingCopiesPreserved": 0,
+        "tombstoneMetadataRetained": true,
+        "retainedSharedPayloads": 0
+      },
+      {
+        "type": "message",
+        "id": 21747,
+        "hash": "35d079d074302c27cda5a576f00f6223f5bf35ed9b23f185bceca19bc611173c",
+        "status": "completed_managed_local",
+        "requestedMode": "delete_payload",
+        "pendingDeletion": false,
+        "managedLocalDeletionVerified": true,
+        "scope": "tracked_local_source_and_derivations",
+        "providerDeletionVerified": false,
+        "untrackedWorkingCopiesSearched": false,
+        "mutableWorkingCopiesDeleted": false,
+        "knownWorkingCopyCount": 0,
+        "retainedWorkingCopies": 0,
+        "changedWorkingCopiesPreserved": 0,
+        "tombstoneMetadataRetained": true,
+        "retainedSharedPayloads": 0
+      },
+      {
+        "type": "message",
+        "id": 26927,
+        "hash": "fe5fcd3214e5f4e31fddbe48d24adbdcb332d35fb609bad1a522ee0770f94b3a",
+        "status": "completed_managed_local",
+        "requestedMode": "delete_payload",
+        "pendingDeletion": false,
+        "managedLocalDeletionVerified": true,
+        "scope": "tracked_local_source_and_derivations",
+        "providerDeletionVerified": false,
+        "untrackedWorkingCopiesSearched": false,
+        "mutableWorkingCopiesDeleted": false,
+        "knownWorkingCopyCount": 0,
+        "retainedWorkingCopies": 0,
+        "changedWorkingCopiesPreserved": 0,
+        "tombstoneMetadataRetained": true,
+        "retainedSharedPayloads": 0
+      },
+      {
+        "type": "message",
+        "id": 6126,
+        "hash": "0d552fc9d6ab7d6ca9d68e7d4c28efcd8c488b41251bbc76516af191f354c2ba",
+        "status": "completed_managed_local",
+        "requestedMode": "delete_payload",
+        "pendingDeletion": false,
+        "managedLocalDeletionVerified": true,
+        "scope": "tracked_local_source_and_derivations",
+        "providerDeletionVerified": false,
+        "untrackedWorkingCopiesSearched": false,
+        "mutableWorkingCopiesDeleted": false,
+        "knownWorkingCopyCount": 0,
+        "retainedWorkingCopies": 0,
+        "changedWorkingCopiesPreserved": 0,
+        "tombstoneMetadataRetained": true,
+        "retainedSharedPayloads": 0
+      }
+    ],
+    "receiptsTruncated": false
+  },
+  "scope": "Tracked managed-local owner deletion replay; provider archives, untracked copies and already delivered bytes are outside verified scope.",
+  "cachedScopesRejectedForPrivacyChange": 12,
+  "retrievalExclusionReplayPassed": true
+}

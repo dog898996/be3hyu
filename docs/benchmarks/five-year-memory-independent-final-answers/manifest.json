@@ -1,0 +1,61 @@
+{
+  "scope": "Actual independent answers and separate semantic review; synthetic six-calendar-year corpus. These older frozen arms are not final APK acceptance. Fair tool-enabled baseline and latest-source packet re-evaluation still pending.",
+  "files": {
+    "raw-v4-answers.jsonl": {
+      "sha256": "edbae3de56c398d433aab95b0e6455f55d6ff6bcf3a336475772f90d76575dff",
+      "bytes": 263547
+    },
+    "raw-v4-reader-audit.json": {
+      "sha256": "dc42e49b30334943cd40a8950afc7afcdd7799513edc99ddf3a8fadad589214f",
+      "bytes": 15549
+    },
+    "writer-v5-answers.jsonl": {
+      "sha256": "b402b8d098fd8633005e8562061122c7f7817b3c6f5ea0917327086ec84bd541",
+      "bytes": 228377
+    },
+    "writer-v5-reader-audit.json": {
+      "sha256": "52299ce54f31005b7e236cd96ebb17147286d0f14bd77c586e5171dacee74a52",
+      "bytes": 557
+    },
+    "raw-v4-semantic-scores.json": {
+      "sha256": "2688a27da5cbf7a21f1a7e9512fa77be34858df4064f93896ea48dc5169cd2c2",
+      "bytes": 69565
+    },
+    "raw-v4-semantic-report.json": {
+      "sha256": "5d634cdeeead6239db350b24550c44d17f113c341cdff7eaf406e69d17b15350",
+      "bytes": 9181
+    },
+    "writer-v5-semantic-scores.json": {
+      "sha256": "2688a27da5cbf7a21f1a7e9512fa77be34858df4064f93896ea48dc5169cd2c2",
+      "bytes": 69565
+    },
+    "writer-v5-semantic-report.json": {
+      "sha256": "e374e1a65026cc0dca889a6a2a313e716621ee5e436f5a06c6d90aa4c0cf6daf",
+      "bytes": 9378
+    },
+    "raw-v4-writer-v5-paired-semantic-report.json": {
+      "sha256": "f7effe37dfcc05f54a5d47a1d669939845706f3842bf52d8299d377af812db74",
+      "bytes": 20759
+    },
+    "counterfactual-semantic-scores.json": {
+      "sha256": "9688fccbccfac2b9e2e2334c4694e650d8696f4c4f6249dd98e2ca25ebbd77c9",
+      "bytes": 8211
+    },
+    "counterfactual-semantic-report.json": {
+      "sha256": "571e73af3003b4ff9ae0f5170fda9bed8824f439f7195050f1d0ac502553f199",
+      "bytes": 12071
+    },
+    "counterfactual-quote-source-audit.json": {
+      "sha256": "19d4d4c75b7debe8995a10d9f599d09ae1e97bc0d1a10cb64a7f14dc493dccf5",
+      "bytes": 6687
+    },
+    "counterfactual-answers.jsonl": {
+      "sha256": "946e5a38e8d604d4f36279bcc1897c0b6995895932a8119c913a9f84172b7a03",
+      "bytes": 2202
+    },
+    "counterfactual-reader-receipt.json": {
+      "sha256": "7f320085afd17213c5da388b75ab49bfc872198bb2d2ff3f8332b4fb94f4c1d5",
+      "bytes": 1484
+    }
+  }
+}

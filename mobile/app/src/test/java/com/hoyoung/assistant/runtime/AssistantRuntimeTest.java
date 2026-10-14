@@ -427,9 +427,17 @@ public class AssistantRuntimeTest {
         store.putSetting("toolPermissions", "not-json");
         ready();
         JSONObject request = runtime.receive("파일 도구", new JSONArray());
+        assertEquals(0, transport.ids.size());
+        assertEquals("blocked", store.getRequest(request.optLong("id")).optString("status"));
+        assertEquals("prompt_unavailable", runtime.state().optString("lastCode"));
+        assertEquals("not-json", store.getSetting("toolPermissions", ""));
+        long source = Long.parseLong(store.getSetting("requestSource:" + request.optString("external_id"), "0"));
+        assertEquals("파일 도구", store.getMessage(source).optString("text"));
+        // A fabricated completion for an unadmitted request cannot start its tool.
         complete(request, envelope("쓰기 요청", new JSONArray().put(action("config", "files.write", object("relativePath", "no.txt", "content", "no"))), null));
         assertEquals(0, files.listFiles().length());
-        assertTrue(transport.prompts.get(1).contains("configuration_invalid"));
+        assertEquals(0, transport.ids.size());
+        assertNull(store.getSetting("actionReceipt:" + request.optString("external_id") + ":config", null));
     }
 
     @Test public void invalidSourcesRejectedButActualOwnerPreferenceRetainsSource() throws Exception {
@@ -528,8 +536,11 @@ public class AssistantRuntimeTest {
         assertFalse(store.listMessages(100).toString().contains("파일 저장 완료라고 주장하는 미확인 답변"));
         assertFalse(store.getSetting("runtime.progress", "").equals("작업 완료"));
         assertEquals(0, store.searchMemories("task-result:" + request.optString("external_id"), 10).length());
-        assertTrue(transport.prompts.get(1).contains("원 요청의 원문"));
-        assertTrue(transport.prompts.get(1).contains("파일 저장"));
+        long source = Long.parseLong(store.getSetting("requestSource:" + request.optString("external_id"), "0"));
+        JSONObject authority = promptSource(transport.prompts.get(1), "AUTHORITATIVE_OWNER_SOURCE ");
+        assertEquals(source, authority.getLong("messageId"));
+        assertEquals(store.getMessage(source).getString("content_hash"), authority.getString("recordHash"));
+        assertEquals("파일 저장", authority.getString("text"));
     }
 
     @Test public void idleAutonomyRecordsJudgmentWithoutInventingChatBubble() throws Exception {
@@ -679,23 +690,34 @@ public class AssistantRuntimeTest {
         assertTrue(transport.prompts.get(1).contains("앱 진행 상태 원문"));
     }
 
-    @Test public void ownerSteeringHoldsOldActionsAndFreshContinuationReceivesExactLatestInput() throws Exception {
+    @Test public void ownerSteeringHoldsOldOutputAndPrioritizesExactLatestInputWithoutContinuation() throws Exception {
         ready(); JSONObject first = runtime.receive("파일을 써 줘", new JSONArray()); accept(first);
         String steering = "  방금 그 파일 작성은 취소야.\n새로 쓰지 마.  ";
         JSONObject newer = runtime.receive(steering, new JSONArray());
-        complete(first, envelope("예전 계획", new JSONArray().put(action("old-write", "files.write", object("relativePath", "cancelled.txt", "content", "should not run"))), null));
+        String oldOutput = envelope("예전 계획", new JSONArray().put(action("old-write", "files.write", object("relativePath", "cancelled.txt", "content", "should not run"))), null)
+                .replace("__CURRENT_REQUEST__", first.optString("external_id"));
+        complete(first, oldOutput);
         assertEquals(0, files.listFiles().length());
         assertEquals("missing", store.getSetting("actionReceipt:" + first.optString("external_id") + ":old-write", "missing"));
+        assertEquals(oldOutput, store.getRequest(first.optLong("id")).getString("result"));
+        JSONObject held = heldOutput(first.optString("external_id"));
+        assertTrue(held.getBoolean("providerResultRetained"));
+        assertFalse(held.getBoolean("replyReleased")); assertFalse(held.getBoolean("memoryPromoted")); assertFalse(held.getBoolean("nativeEffectsStarted"));
+        assertFalse(store.listMessages(100).toString().contains("예전 계획"));
+        assertEquals(0, store.searchMemories("task-result:" + first.optString("external_id"), 10).length());
+        assertEquals(2, transport.ids.size());
         assertEquals(newer.optString("external_id"), transport.ids.get(1));
+        assertTrue(transport.prompts.get(1).contains(steering));
+        long latestSource = Long.parseLong(store.getSetting("requestSource:" + newer.optString("external_id"), "0"));
+        JSONObject authority = promptSource(transport.prompts.get(1), "AUTHORITATIVE_OWNER_SOURCE ");
+        assertEquals(latestSource, authority.getLong("messageId"));
+        assertEquals(store.getMessage(latestSource).getString("content_hash"), authority.getString("recordHash"));
         complete(newer, "취소 요청을 확인했어.");
-        JSONObject replanned = store.getRequest(runtime.state().optLong("activeStoreId"));
-        assertEquals(first.optString("external_id"), store.getSetting("requestRoot:" + replanned.optString("external_id"), ""));
-        assertTrue(transport.prompts.get(2).contains("owner_steering_pending"));
-        assertTrue(transport.prompts.get(2).contains("started:false"));
-        assertTrue(transport.prompts.get(2).contains(steering));
-        complete(replanned, object("protocol", "hoyoung.v1", "requestId", replanned.optString("external_id"), "status", "blocked", "message", "최신 취소 지시에 따라 파일 작성은 수행하지 않았어.").toString());
+        runtime.tick();
+        assertEquals(2, transport.ids.size());
+        assertNull(store.nextQueuedRequest());
         assertEquals(0, files.listFiles().length());
-        assertEquals("blocked", runtime.getGoalLedger().get(first.optString("external_id")).optString("stage"));
+        assertNull(runtime.getGoalLedger().get(first.optString("external_id")));
         assertFalse(store.events(100).toString().contains("\"cloudStopped\":true"));
     }
 
@@ -707,10 +729,18 @@ public class AssistantRuntimeTest {
         assertFalse(paused.getBoolean("cloudStoppedConfirmed"));
         assertEquals(1, transport.cancels);
         assertEquals("accepted", store.getRequest(request.optLong("id")).optString("status"));
-        complete(request, envelope("중지 뒤 옛 제안", new JSONArray().put(action("paused-write", "files.write", object("relativePath", "pause.txt", "content", "no"))), null));
+        String oldOutput = envelope("중지 뒤 옛 제안", new JSONArray().put(action("paused-write", "files.write", object("relativePath", "pause.txt", "content", "no"))), null)
+                .replace("__CURRENT_REQUEST__", request.optString("external_id"));
+        complete(request, oldOutput);
         assertEquals(0, files.listFiles().length()); assertEquals(1, transport.ids.size());
-        assertEquals("blocked", runtime.getGoalLedger().get(request.optString("external_id")).optString("stage"));
-        assertTrue(store.getRequest(request.optLong("id")).optString("result").contains("paused-write"));
+        assertNull(runtime.getGoalLedger().get(request.optString("external_id")));
+        assertEquals(oldOutput, store.getRequest(request.optLong("id")).getString("result"));
+        assertNull(store.getSetting("actionReceipt:" + request.optString("external_id") + ":paused-write", null));
+        JSONObject held = heldOutput(request.optString("external_id"));
+        assertTrue(held.getBoolean("providerResultRetained"));
+        assertFalse(held.getBoolean("replyReleased")); assertFalse(held.getBoolean("memoryPromoted")); assertFalse(held.getBoolean("nativeEffectsStarted"));
+        assertFalse(store.listMessages(100).toString().contains("중지 뒤 옛 제안"));
+        runtime.tick(); assertEquals(1, transport.ids.size()); assertNull(store.nextQueuedRequest());
         assertFalse(store.events(100).toString().contains("\"cloudStoppedConfirmed\":true"));
     }
 
@@ -749,6 +779,20 @@ public class AssistantRuntimeTest {
         return object("batchId", batch.getString("batchId"), "sourceRanges", ranges, "noMemoryNeeded", false, "reason", "받은 원문을 검토하고 출처가 있는 기억을 저장함");
     }
 
+    private static JSONObject promptSource(String prompt, String marker) throws Exception {
+        int start = prompt.indexOf(marker); assertTrue("Canonical source marker must be present", start >= 0);
+        start += marker.length(); int end = prompt.indexOf('\n', start);
+        return new JSONObject(prompt.substring(start, end < 0 ? prompt.length() : end));
+    }
+    private JSONObject heldOutput(String requestId) throws Exception {
+        JSONArray events = store.events(100);
+        for (int i = 0; i < events.length(); i++) {
+            JSONObject event = events.getJSONObject(i); if (!"work_output_held".equals(event.optString("type"))) continue;
+            JSONObject payload = event.optJSONObject("payload"); if (payload == null) payload = new JSONObject(event.getString("payload"));
+            if (requestId.equals(payload.optString("requestId"))) return payload;
+        }
+        fail("Observed stale output must have a durable held-output receipt"); return null;
+    }
     private void ready() throws Exception { runtime.onWebEvent(object("type", "state", "code", "ready", "state", readyState())); }
     private static JSONObject readyState() throws Exception { return object("authenticated", true, "workSelected", true, "temporary", true, "model", "gpt-6.1-sol", "effort", "medium", "speed", "fast", "busy", false, "quota", false); }
     private void accept(JSONObject request) throws Exception { runtime.onWebEvent(object("type", "accepted", "requestId", request.optString("external_id"))); }

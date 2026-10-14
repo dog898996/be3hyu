@@ -3,10 +3,13 @@ package com.hoyoung.assistant.runtime;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import com.hoyoung.assistant.store.HoyoungStore;
+import com.hoyoung.assistant.store.SourcePrivacyLedger;
+import com.hoyoung.assistant.store.SourceRecordVisibility;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import java.nio.charset.StandardCharsets;
+import java.io.IOException;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +48,95 @@ public final class ActionReceiptJournal {
             try { return strict(raw); }
             catch (IllegalArgumentException corrupt) { throw new IllegalStateException("Stored action receipt is unreadable; automatic replay is forbidden", corrupt); }
         }
+    }
+
+    /** I/O-only model-facing fence. Internal get() retains raw owner reconciliation data. */
+    public boolean readAllowed(String rootId,String actionId,Predicate<JSONObject> deviceVisibility)throws IOException {
+        validateKey(RECEIPTS+rootId+":"+actionId);
+        SourcePrivacyLedger.Snapshot privacy=store.getPrivacyLedger().capture();
+        boolean allowed=store.withTransaction(db->{String raw=value(db,RECEIPTS+rootId+":"+actionId);if(raw==null)return false;
+            try{return new ReceiptRead(db,privacy,deviceVisibility).allowed(rootId,strict(raw));}catch(IllegalArgumentException unreadable){return false;}});
+        return allowed&&privacy.fingerprint.equals(store.getPrivacyLedger().fingerprint());
+    }
+    /** Also applies to an already-loaded cached result before any continuation consumes it. */
+    public boolean receiptAllowed(String rootId,JSONObject receipt,Predicate<JSONObject> deviceVisibility)throws IOException {
+        if(receipt==null)return false;SourcePrivacyLedger.Snapshot privacy=store.getPrivacyLedger().capture();
+        boolean allowed=store.withTransaction(db->new ReceiptRead(db,privacy,deviceVisibility).allowed(rootId,receipt));
+        return allowed&&privacy.fingerprint.equals(store.getPrivacyLedger().fingerprint());
+    }
+
+    /** Only canonical refs found in a native result/receipt; never a model's source claim. */
+    public JSONArray nativeSourcesForReceipt(String rootId,JSONObject receipt,Predicate<JSONObject> deviceVisibility)throws IOException {
+        if(receipt==null)throw new IllegalArgumentException("A native receipt is required");
+        SourcePrivacyLedger.Snapshot privacy=store.getPrivacyLedger().capture();
+        JSONArray refs=store.withTransaction(db->{ReceiptRead read=new ReceiptRead(db,privacy,deviceVisibility);
+            if(!read.allowed(rootId,receipt))throw new IllegalStateException("Native receipt sources are unavailable");
+            return new JSONArray(read.verifiedRefs.values());});
+        if(!privacy.fingerprint.equals(store.getPrivacyLedger().fingerprint()))throw new IOException("Receipt source policy changed during read");
+        return refs;
+    }
+
+    private static final class ReceiptRead {
+        final SQLiteDatabase db;final SourcePrivacyLedger.Snapshot privacy;final Predicate<JSONObject> deviceVisibility;
+        final java.util.Set<String> checked=new java.util.HashSet<>();final java.util.Map<String,String> boundHashes=new java.util.HashMap<>();final java.util.Map<String,JSONObject> verifiedRefs=new java.util.LinkedHashMap<>();boolean hasBoundSource;
+        ReceiptRead(SQLiteDatabase db,SourcePrivacyLedger.Snapshot privacy,Predicate<JSONObject> visibility){this.db=db;this.privacy=privacy;this.deviceVisibility=visibility==null?row->false:visibility;}
+        boolean allowed(String root,JSONObject receipt) {
+            if(root==null||root.isEmpty())return false;
+            boolean nativeWithoutOwner=false;
+            JSONObject provenance=receipt.optJSONObject("nativeResultSources");if(receipt.has("nativeResultSources")) {
+                if(provenance==null||provenance.optInt("version")!=1||provenance.optJSONArray("sources")==null||!refs(provenance.optJSONArray("sources")))return false;
+            }
+            String owner=value(db,"requestSource:"+root);if(owner!=null){try{long id=Long.parseLong(owner);if(id<0)return false;
+                if(id==0){
+                    if(provenance==null)return false;
+                    try(Cursor request=db.rawQuery("SELECT kind FROM requests WHERE external_id=?",new String[]{root})) {
+                        if(!request.moveToFirst()||!("autonomy".equals(request.getString(0))||"memory-review".equals(request.getString(0))))return false;
+                        nativeWithoutOwner=true;
+                    }
+                }else{
+                    try(Cursor row=db.rawQuery("SELECT role,request_id FROM messages WHERE id=?",new String[]{String.valueOf(id)})){if(!row.moveToFirst()||!"user".equals(row.getString(0))||!root.equals(row.getString(1)))return false;}
+                    String hash=value(db,"requestSourceHash:"+root);if(hash!=null&&!hash.matches("[a-f0-9]{64}"))return false;
+                    if(!source("message",id,hash==null?boundHashes.getOrDefault("message:"+id,""):hash))return false;
+                }
+            }catch(NumberFormatException invalid){return false;}}
+            for(String field:new String[]{"nativeOutcomeSourceMessageId","previousReceiptSourceMessageId"})if(receipt.has(field)) {
+                String expected=field.equals("nativeOutcomeSourceMessageId")?receipt.optString("nativeOutcomeSourceHash"):"";
+                if(field.equals("nativeOutcomeSourceMessageId")&&!expected.matches("[a-f0-9]{64}"))return false;
+                if(!integer(receipt.opt(field))||receipt.optLong(field)<=0||!source("message",receipt.optLong(field),expected))return false;
+            }
+            java.util.ArrayDeque<Object> pending=new java.util.ArrayDeque<>();JSONObject result=receipt.optJSONObject("result");if(result!=null)pending.add(result);
+            java.util.Set<Object> visited=java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
+            while(!pending.isEmpty()) {
+                Object current=pending.removeFirst();if(!visited.add(current))continue;
+                if(current instanceof JSONArray){JSONArray array=(JSONArray)current;for(int i=0;i<array.length();i++){Object item=array.opt(i);if(item instanceof JSONObject||item instanceof JSONArray)pending.add(item);}continue;}
+                JSONObject object=(JSONObject)current;
+                for(String key:new String[]{"sourceRefs","originalEvidence"})if(object.has(key)){JSONArray array=object.optJSONArray(key);if(array==null||!refs(array))return false;}
+                if(object.has("messageId")&&object.has("recordHash")) {
+                    if(!integer(object.opt("messageId"))||!object.optString("recordHash").matches("[a-f0-9]{64}")||!source("message",object.optLong("messageId"),object.optString("recordHash")))return false;
+                }
+                if(object.has("sourceMessageId")) {long id=object.optLong("sourceMessageId");Object encoded=object.opt("sourceMessageId");if(!(encoded instanceof Number)||((Number)encoded).doubleValue()!=id||id<0)return false;
+                    if(id>0){String hash=object.optString("sourceHash",boundHashes.getOrDefault("message:"+id,""));if(hash.isEmpty()&&privacy.exclusionCount>0||!source("message",id,hash))return false;}}
+                if("device_event".equals(object.optString("type"))&&object.has("id")&&object.has("hash")) {if(!typedRef(object))return false;}
+                java.util.Iterator<String> keys=object.keys();while(keys.hasNext()){Object item=object.opt(keys.next());if(item instanceof JSONObject||item instanceof JSONArray)pending.add(item);}
+            }
+            // Legacy unbound bytes remain owner audit data. A tombstone elsewhere
+            // cannot establish provenance for those bytes, so do not certify them.
+            return hasBoundSource||nativeWithoutOwner||privacy.exclusionCount==0;
+        }
+        boolean refs(JSONArray refs){for(int i=0;i<refs.length();i++){JSONObject ref=refs.optJSONObject(i);if(ref==null||!typedRef(ref))return false;}return true;}
+        boolean typedRef(JSONObject ref){String type=ref.optString("type",ref.optString("source_type"));Object id=ref.has("id")?ref.opt("id"):ref.opt("source_id");String hash=ref.optString("hash",ref.optString("source_hash"));if(!("message".equals(type)||"device_event".equals(type))||!integer(id)||!hash.matches("[a-f0-9]{64}"))return false;boolean allowed=source(type,((Number)id).longValue(),hash);if(allowed)boundHashes.put(type+":"+((Number)id).longValue(),hash);return allowed;}
+        boolean source(String type,long id,String expected) {
+            if(id<=0||!expected.isEmpty()&&!expected.matches("[a-f0-9]{64}"))return false;String identity=type+":"+id+":"+expected;if(checked.contains(identity))return true;
+            if("message".equals(type)&&expected.isEmpty()&&privacy.hasExcludedMessageId(id))return false;
+            String table="message".equals(type)?"messages":"device_events";JSONObject row=new JSONObject();
+            try(Cursor cursor=db.rawQuery("SELECT * FROM "+table+" WHERE id=?",new String[]{String.valueOf(id)})) {
+                if(!cursor.moveToFirst())return false;for(int i=0;i<cursor.getColumnCount();i++)put(row,cursor.getColumnName(i),cursor.isNull(i)?JSONObject.NULL:cursor.getType(i)==Cursor.FIELD_TYPE_INTEGER?cursor.getLong(i):cursor.getType(i)==Cursor.FIELD_TYPE_FLOAT?cursor.getDouble(i):cursor.getString(i));
+            }
+            if(!expected.isEmpty()&&!expected.equals(row.optString("content_hash"))||!SourceRecordVisibility.canonicalRecordMatches(type,row)||!SourceRecordVisibility.allowed(db,privacy,type,row,deviceVisibility))return false;
+            if("device_event".equals(type)){try{put(row,"payload",new JSONObject(row.optString("payload")));}catch(org.json.JSONException malformed){return false;}if(!deviceVisibility.test(row))return false;}
+            checked.add(identity);verifiedRefs.put(type+":"+id+":"+row.optString("content_hash"),object("type",type,"id",id,"hash",row.optString("content_hash")));hasBoundSource=true;return true;
+        }
+        static boolean integer(Object value){return value instanceof Number&&((Number)value).doubleValue()==((Number)value).longValue()&&((Number)value).longValue()>0;}
     }
 
     public JSONObject ensureIndex() { return ensureIndex(false); }
@@ -172,6 +264,7 @@ public final class ActionReceiptJournal {
                     catch (IllegalArgumentException unreadable) { invalid = true; oldReceipt = new JSONObject(); }
                     if (!invalid && finalStatus(oldReceipt.optString("status"))) { index(db, sourceKey, oldReceipt.optString("status")); return 0; }
                     JSONObject preserved = store.addMessage("system", object("receiptKey", sourceKey, "rawReceipt", raw).toString(), null);
+                    bindArchivedReceipt(db,rootRequestId,preserved.optLong("id"),oldReceipt,invalid);
                     JSONObject receipt = object("previousReceiptSourceMessageId", preserved.optLong("id"), "previousReceiptHash", digest(raw));
                     if (invalid) put(receipt, "previousReceiptUnreadable", true);
                     // Keep the request identity in the hot record; the full previous outcome stays in its immutable original.
@@ -205,6 +298,28 @@ public final class ActionReceiptJournal {
             }
         }
         return result;
+    }
+    /** Exact native parents are bound before an immutable raw reconciliation source is published. */
+    private void bindArchivedReceipt(SQLiteDatabase db,String rootId,long sourceId,JSONObject receipt,boolean unreadable){
+        JSONArray refs=new JSONArray();String parent=value(db,"requestSource:"+rootId);
+        if(parent!=null)try{long id=Long.parseLong(parent);if(id>0)addRef(db,refs,"message",id,"");}catch(NumberFormatException invalid){unreadable=true;}
+        for(String field:new String[]{"nativeOutcomeSourceMessageId","previousReceiptSourceMessageId"})if(receipt.optLong(field)>0)addRef(db,refs,"message",receipt.optLong(field),receipt.optString(field.equals("nativeOutcomeSourceMessageId")?"nativeOutcomeSourceHash":""));
+        if(receipt.has("nativeResultSources")){JSONObject provenance=receipt.optJSONObject("nativeResultSources");JSONArray sources=provenance==null?null:provenance.optJSONArray("sources");if(provenance==null||provenance.optInt("version")!=1||sources==null)unreadable=true;
+            for(int i=0;sources!=null&&i<sources.length();i++){JSONObject ref=sources.optJSONObject(i);if(ref==null){unreadable=true;continue;}addRef(db,refs,ref.optString("type"),ref.optLong("id"),ref.optString("hash"));}}
+        JSONObject result=receipt.optJSONObject("result");
+        if(result!=null){JSONObject original=result.optJSONObject("original");if(original!=null&&original.optLong("messageId")>0)addRef(db,refs,"message",original.optLong("messageId"),original.optString("recordHash"));
+            JSONArray originals=result.optJSONArray("originalEvidence");for(int i=0;originals!=null&&i<originals.length();i++){JSONObject ref=originals.optJSONObject(i);if(ref!=null)addRef(db,refs,ref.optString("type"),ref.optLong("id"),ref.optString("hash"));}}
+        // A malformed previous body can have unknown dependencies; preserve it for
+        // owner auditing but do not turn it into available model evidence.
+        store.putSetting("answerSources:"+sourceId,object("version",unreadable?0:1,"sources",refs,"nativeProvenance","owner_receipt_reconciliation").toString());
+    }
+    private static void addRef(SQLiteDatabase db,JSONArray refs,String type,long id,String expectedHash){
+        String table="message".equals(type)?"messages":"device_event".equals(type)?"device_events":null;
+        if(table==null||id<=0){refs.put(object("type",type,"id",id,"hash",expectedHash));return;}
+        try(Cursor row=db.rawQuery("SELECT content_hash FROM "+table+" WHERE id=?",new String[]{String.valueOf(id)})){
+            String actual=row.moveToFirst()?row.getString(0):"";
+            refs.put(object("type",type,"id",id,"hash",expectedHash.isEmpty()?actual:expectedHash));
+        }
     }
     private void index(SQLiteDatabase db, String key, String status) {
         String pendingKey = pendingKey(key);

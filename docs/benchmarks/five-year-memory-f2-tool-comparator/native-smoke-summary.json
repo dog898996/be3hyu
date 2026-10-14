@@ -1,0 +1,28 @@
+{
+  "smokeHasSeparateBudget": true,
+  "results": [
+    {
+      "op": "search",
+      "ok": true,
+      "errorClass": null,
+      "sourceRowsRead": 2,
+      "sourceSearchesUsed": 1
+    },
+    {
+      "op": "read",
+      "ok": true,
+      "errorClass": null,
+      "sourceRowsRead": 3,
+      "sourceSearchesUsed": 1
+    },
+    {
+      "op": "enumerate",
+      "ok": false,
+      "errorClass": "ClassNotFoundException",
+      "sourceRowsRead": 3,
+      "sourceSearchesUsed": 2
+    }
+  ],
+  "elapsedJUnitSeconds": 6.683,
+  "modelAnswerQuality": "not measured"
+}

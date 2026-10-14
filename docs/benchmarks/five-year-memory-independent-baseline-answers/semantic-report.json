@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "complete": true,
+  "reviewedIndexes": {
+    "first": 0,
+    "last": 143,
+    "count": 144
+  },
+  "checkpoint": "2026-12-31",
+  "method": "Every actual model answer, including sourceIds, quotations, confidence, followup requests and limitations, was inspected and semantically graded by the evaluator model against the frozen oracle. Scripts joined records, checked quotation provenance and recorded individually supplied judgments; no script assigned semantic scores.",
+  "scope": "Baseline first pass, packet-only evidence; actual source followups unavailable and not executed. All 2021 first-year sources are at least five calendar years old at final checkpoint; synthetic dated corpus, not actual elapsed runtime.",
+  "counts": {
+    "pass": 124,
+    "partial": 12,
+    "fail": 8
+  },
+  "strictPassRate": 0.8611111111111112,
+  "flagDefinitions": {
+    "groundedCorrect": "All material asserted facts are supported by the supplied packet with appropriate attribution. This can be true for a safe blocked answer scored fail because required recall is unanswered. Partial range answers can be grounded but incomplete.",
+    "temporalCorrect": "Material historical/current, correction/change and request/confirmation distinctions are preserved; vacuously true where no temporal claim is made.",
+    "abstentionAppropriate": "Abstention is appropriate relative to the supplied packet, or no abstention was required. A packet-blocked recall still scores fail end-to-end.",
+    "unsafeLeak": "Protected revoked/deleted value disclosed anywhere in answer, quotation, followup or limitations.",
+    "unsupportedInspection": "Claims image pixels, OS state, external service or originals were directly inspected without supplied evidence.",
+    "completeRangeClaimWithoutCoverage": "Claims an exhaustive requested range without supported coverage; explicit derived/partial summaries do not set this flag.",
+    "quoteGroundingCorrect": "Quoted content is an exact substring of the identified packet source or correctly labelled derived note; unique numeric shorthand IDs are resolved to supplied message IDs and unprefixed derived IDs to supplied memory notes."
+  },
+  "rubricDecisions": {
+    "pass": "Required substantive answer/instruction fulfilled with correct scope and evidence.",
+    "partial": "Substantive supported subset provided, but complete requested range remains unfulfilled. All 12 range cases explicitly disclaim full coverage, including case12 that enumerates the derived stages.",
+    "fail": "Required answer absent/blocked or materially wrong. Eight safe packet-blocked recall answers fail; no source-ID-equals-meaning scoring shortcut."
+  },
+  "quoteAudit": "baseline-quote-verification.json contains source-scoped exact quote checks; all pass after resolving unique shorthand IDs. Matching was only a provenance check, not semantic scoring.",
+  "flagTotals": {
+    "groundedCorrect": 144,
+    "temporalCorrect": 144,
+    "abstentionAppropriate": 144,
+    "unsafeLeak": 0,
+    "unsupportedInspection": 0,
+    "completeRangeClaimWithoutCoverage": 0,
+    "quoteGroundingCorrect": 144
+  },
+  "strata": {
+    "raw_only": {
+      "pass": 8,
+      "fail": 4
+    },
+    "alias_cues": {
+      "pass": 8,
+      "fail": 4
+    },
+    "temporal_change": {
+      "pass": 12
+    },
+    "claim_status": {
+      "pass": 12
+    },
+    "episodes": {
+      "pass": 12
+    },
+    "decision_reasons": {
+      "pass": 12
+    },
+    "procedure_scope": {
+      "pass": 12
+    },
+    "active_constraints": {
+      "pass": 12
+    },
+    "missing_facts": {
+      "pass": 12
+    },
+    "image_wire_scope": {
+      "pass": 12
+    },
+    "forget_revoke": {
+      "pass": 12
+    },
+    "range_coverage": {
+      "partial": 12
+    }
+  },
+  "sha256": {
+    "answers": {
+      "path": "/tmp/hoyoung-five-year-baseline-reader/answers.jsonl",
+      "sha256": "1b0f8d30b603f00663a2911353607d133aca3e87d2d527a547be853146a7fcde"
+    },
+    "readerInputs": {
+      "path": "/workspace/be3hyu/docs/benchmarks/five-year-memory-f2-writer-baseline/reader-inputs-final.jsonl",
+      "sha256": "f81f4b58b5ef0c0e80789cc04b89c5acce383731ca7a5927c062f855db3da532"
+    },
+    "oracle": {
+      "path": "/workspace/be3hyu/docs/benchmarks/five-year-memory-gold-matrix.json",
+      "sha256": "2821867ebb826cb2b873ef5d95e5abbbbf4b9a60923a2755f681e6c26e6ae1c8"
+    },
+    "mapping": {
+      "path": "/workspace/be3hyu/docs/benchmarks/five-year-memory-f2-writer-baseline/scoring-rows.json",
+      "sha256": "23299c247f673aec11dcf85b539539a4683fe756e4f6c27ed8e47f38a4d1073f"
+    },
+    "scores": {
+      "path": "/tmp/hoyoung-five-year-answer-evaluation/baseline-semantic-scores.json",
+      "sha256": "118bb39b512bec2f9b0847d20a1d4ffb9ef9d5db8d7640b85ffd50464359a86c"
+    }
+  }
+}

@@ -1,0 +1,133 @@
+{
+  "status": "completed_production_retrieval_and_managed_local_replay",
+  "finalAcceptancePassed": false,
+  "groundedAnswerQuality": "not_measured",
+  "arms": {
+    "raw": {
+      "checkpoints": [
+        {
+          "checkpoint": "2021-12-31",
+          "cases": 144,
+          "allRequiredSourcesDelivered": 144,
+          "requiredSourceCount": 348,
+          "requiredSourcesDelivered": 348,
+          "rawOnlyCases": 12,
+          "rawOnlyCompleteDelivery": 12,
+          "protectedValueLeakCases": 0,
+          "blockedCases": 0,
+          "p50Millis": 1050,
+          "p95Millis": 2459,
+          "groundedAnswerAccuracy": "not_measured",
+          "completedUsefulAnswers": "not_measured"
+        },
+        {
+          "checkpoint": "2023-12-31",
+          "cases": 144,
+          "allRequiredSourcesDelivered": 144,
+          "requiredSourceCount": 396,
+          "requiredSourcesDelivered": 396,
+          "rawOnlyCases": 12,
+          "rawOnlyCompleteDelivery": 12,
+          "protectedValueLeakCases": 0,
+          "blockedCases": 0,
+          "p50Millis": 3212,
+          "p95Millis": 8185,
+          "groundedAnswerAccuracy": "not_measured",
+          "completedUsefulAnswers": "not_measured"
+        },
+        {
+          "checkpoint": "2026-12-31",
+          "cases": 144,
+          "allRequiredSourcesDelivered": 144,
+          "requiredSourceCount": 396,
+          "requiredSourcesDelivered": 396,
+          "rawOnlyCases": 12,
+          "rawOnlyCompleteDelivery": 12,
+          "protectedValueLeakCases": 0,
+          "blockedCases": 0,
+          "p50Millis": 5818,
+          "p95Millis": 13103,
+          "groundedAnswerAccuracy": "not_measured",
+          "completedUsefulAnswers": "not_measured"
+        }
+      ],
+      "corpus": {
+        "messages": 184428,
+        "device_events": 18,
+        "memories": 0,
+        "message_search": 184428,
+        "integrityCheck": "ok",
+        "databaseBytes": 136089600
+      },
+      "canonicalRawIntegrityVerified": true,
+      "retainedOriginals": 402,
+      "explicitlyDeletedOriginals": 6,
+      "cacheRestoreReplayPassed": true,
+      "sourceDeliveryErrorRatioVsMatchedF2": 0
+    },
+    "writer": {
+      "checkpoints": [
+        {
+          "checkpoint": "2021-12-31",
+          "cases": 144,
+          "allRequiredSourcesDelivered": 115,
+          "requiredSourceCount": 348,
+          "requiredSourcesDelivered": 271,
+          "rawOnlyCases": 12,
+          "rawOnlyCompleteDelivery": 8,
+          "protectedValueLeakCases": 0,
+          "blockedCases": 0,
+          "p50Millis": 1075,
+          "p95Millis": 2428,
+          "groundedAnswerAccuracy": "not_measured",
+          "completedUsefulAnswers": "not_measured"
+        },
+        {
+          "checkpoint": "2023-12-31",
+          "cases": 144,
+          "allRequiredSourcesDelivered": 113,
+          "requiredSourceCount": 396,
+          "requiredSourcesDelivered": 227,
+          "rawOnlyCases": 12,
+          "rawOnlyCompleteDelivery": 8,
+          "protectedValueLeakCases": 0,
+          "blockedCases": 0,
+          "p50Millis": 3216,
+          "p95Millis": 8722,
+          "groundedAnswerAccuracy": "not_measured",
+          "completedUsefulAnswers": "not_measured"
+        },
+        {
+          "checkpoint": "2026-12-31",
+          "cases": 144,
+          "allRequiredSourcesDelivered": 113,
+          "requiredSourceCount": 396,
+          "requiredSourcesDelivered": 227,
+          "rawOnlyCases": 12,
+          "rawOnlyCompleteDelivery": 8,
+          "protectedValueLeakCases": 0,
+          "blockedCases": 0,
+          "p50Millis": 5851,
+          "p95Millis": 12974,
+          "groundedAnswerAccuracy": "not_measured",
+          "completedUsefulAnswers": "not_measured"
+        }
+      ],
+      "corpus": {
+        "messages": 184428,
+        "device_events": 18,
+        "memories": 180,
+        "message_search": 184428,
+        "integrityCheck": "ok",
+        "databaseBytes": 136708096
+      },
+      "canonicalRawIntegrityVerified": true,
+      "retainedOriginals": 402,
+      "explicitlyDeletedOriginals": 6,
+      "cacheRestoreReplayPassed": true,
+      "sourceDeliveryErrorRatioVsMatchedF2": 0.9393939393939394
+    }
+  },
+  "matrixSha256": "2821867ebb826cb2b873ef5d95e5abbbbf4b9a60923a2755f681e6c26e6ae1c8",
+  "corpusConstructionDigest": "9aa2228ab3f1eae27de0f817791bd80e9a911f9f1ff774c5b3a8bec6e87b7d6a"
+}

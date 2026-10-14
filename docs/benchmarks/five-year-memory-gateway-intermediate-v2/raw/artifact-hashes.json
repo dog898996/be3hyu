@@ -1,0 +1,7 @@
+{
+  "fullScoringRowsSha256": "32122eaa934e954b86868c906bee5c524283e24fddaed39e590bb6076d57ee6a",
+  "gzipSha256": "8ada8113e19f05ecbc94dedcb5044be42edf8e6875f2c537fbf7cd542e8a9201",
+  "completedCheckpointRows": 288,
+  "finalCheckpointRows": 0,
+  "productionFixtureSha256": "4995f448f70f8988c344c7b2af855c8af19d5ca5b35e45a713e3c413d983a6da"
+}

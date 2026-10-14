@@ -1,0 +1,1514 @@
+[
+  {
+    "index": 0,
+    "sourceId": "message:1106",
+    "resolvedSourceId": "message:1106",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 1,
+    "sourceId": "message:1107",
+    "resolvedSourceId": "message:1107",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 1,
+    "sourceId": "message:1706",
+    "resolvedSourceId": "message:1706",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 2,
+    "sourceId": "message:1108",
+    "resolvedSourceId": "message:1108",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 2,
+    "sourceId": "message:32083",
+    "resolvedSourceId": "message:32083",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 3,
+    "sourceId": "message:1707",
+    "resolvedSourceId": "message:1707",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 4,
+    "sourceId": "device_event:1",
+    "resolvedSourceId": "device_event:1",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 4,
+    "sourceId": "message:32084",
+    "resolvedSourceId": "message:32084",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 5,
+    "sourceId": "message:1111",
+    "resolvedSourceId": "message:1111",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 5,
+    "sourceId": "message:1708",
+    "resolvedSourceId": "message:1708",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 6,
+    "sourceId": "message:1112",
+    "resolvedSourceId": "message:1112",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 7,
+    "sourceId": "message:1113",
+    "resolvedSourceId": "message:1113",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 7,
+    "sourceId": "message:32086",
+    "resolvedSourceId": "message:32086",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 8,
+    "sourceId": "message:1114",
+    "resolvedSourceId": "message:1114",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 9,
+    "sourceId": "message:1115",
+    "resolvedSourceId": "message:1115",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 10,
+    "sourceId": "message:32087",
+    "resolvedSourceId": "message:32087",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 11,
+    "sourceId": "MEMORY 사진전.preparation.sequence",
+    "resolvedSourceId": "사진전.preparation.sequence",
+    "sourceKind": "MEMORY",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 11,
+    "sourceId": "message:936",
+    "resolvedSourceId": "message:936",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 11,
+    "sourceId": "message:1021",
+    "resolvedSourceId": "message:1021",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 11,
+    "sourceId": "message:1117",
+    "resolvedSourceId": "message:1117",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 13,
+    "sourceId": "message:3739",
+    "resolvedSourceId": "message:3739",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 13,
+    "sourceId": "message:4337",
+    "resolvedSourceId": "message:4337",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 14,
+    "sourceId": "message:3740",
+    "resolvedSourceId": "message:3740",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 14,
+    "sourceId": "message:34692",
+    "resolvedSourceId": "message:34692",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 15,
+    "sourceId": "message:3741",
+    "resolvedSourceId": "message:3741",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 16,
+    "sourceId": "device_event:3",
+    "resolvedSourceId": "device_event:3",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 16,
+    "sourceId": "message:34693",
+    "resolvedSourceId": "message:34693",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 17,
+    "sourceId": "message:3743",
+    "resolvedSourceId": "message:3743",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 17,
+    "sourceId": "message:4338",
+    "resolvedSourceId": "message:4338",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 18,
+    "sourceId": "message:3744",
+    "resolvedSourceId": "message:3744",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 19,
+    "sourceId": "message:3745",
+    "resolvedSourceId": "message:3745",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 19,
+    "sourceId": "message:34695",
+    "resolvedSourceId": "message:34695",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 20,
+    "sourceId": "message:3746",
+    "resolvedSourceId": "message:3746",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 21,
+    "sourceId": "message:3747",
+    "resolvedSourceId": "message:3747",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 22,
+    "sourceId": "message:34696",
+    "resolvedSourceId": "message:34696",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 23,
+    "sourceId": "MEMORY 도서관.preparation.sequence",
+    "resolvedSourceId": "도서관.preparation.sequence",
+    "sourceKind": "MEMORY",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 23,
+    "sourceId": "message:3653",
+    "resolvedSourceId": "message:3653",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 23,
+    "sourceId": "message:3748",
+    "resolvedSourceId": "message:3748",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 24,
+    "sourceId": "message:6116",
+    "resolvedSourceId": "message:6116",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 25,
+    "sourceId": "message:37049",
+    "resolvedSourceId": "message:37049",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 26,
+    "sourceId": "message:6118",
+    "resolvedSourceId": "message:6118",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 26,
+    "sourceId": "message:37049",
+    "resolvedSourceId": "message:37049",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 27,
+    "sourceId": "message:6717",
+    "resolvedSourceId": "message:6717",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 28,
+    "sourceId": "device_event:4",
+    "resolvedSourceId": "device_event:4",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 28,
+    "sourceId": "message:37050",
+    "resolvedSourceId": "message:37050",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 29,
+    "sourceId": "message:6121",
+    "resolvedSourceId": "message:6121",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 29,
+    "sourceId": "message:6718",
+    "resolvedSourceId": "message:6718",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 30,
+    "sourceId": "message:6122",
+    "resolvedSourceId": "message:6122",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 31,
+    "sourceId": "message:6123",
+    "resolvedSourceId": "message:6123",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 31,
+    "sourceId": "message:37052",
+    "resolvedSourceId": "message:37052",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 32,
+    "sourceId": "message:6124",
+    "resolvedSourceId": "message:6124",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 33,
+    "sourceId": "message:6125",
+    "resolvedSourceId": "message:6125",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 33,
+    "sourceId": "message:6719",
+    "resolvedSourceId": "message:6719",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 34,
+    "sourceId": "message:37053",
+    "resolvedSourceId": "message:37053",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 35,
+    "sourceId": "MEMORY 천문대.preparation.sequence",
+    "resolvedSourceId": "천문대.preparation.sequence",
+    "sourceKind": "MEMORY",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 35,
+    "sourceId": "message:6127",
+    "resolvedSourceId": "message:6127",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 36,
+    "sourceId": "message:8749",
+    "resolvedSourceId": "message:8749",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 37,
+    "sourceId": "message:8750",
+    "resolvedSourceId": "message:8750",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 37,
+    "sourceId": "message:9348",
+    "resolvedSourceId": "message:9348",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 38,
+    "sourceId": "message:8751",
+    "resolvedSourceId": "message:8751",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 38,
+    "sourceId": "message:39658",
+    "resolvedSourceId": "message:39658",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 39,
+    "sourceId": "message:9349",
+    "resolvedSourceId": "message:9349",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 40,
+    "sourceId": "device_event:6",
+    "resolvedSourceId": "device_event:6",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 40,
+    "sourceId": "message:39659",
+    "resolvedSourceId": "message:39659",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 41,
+    "sourceId": "message:8754",
+    "resolvedSourceId": "message:8754",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 41,
+    "sourceId": "message:9350",
+    "resolvedSourceId": "message:9350",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 42,
+    "sourceId": "message:8755",
+    "resolvedSourceId": "message:8755",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 43,
+    "sourceId": "message:8756",
+    "resolvedSourceId": "message:8756",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 43,
+    "sourceId": "message:39661",
+    "resolvedSourceId": "message:39661",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 44,
+    "sourceId": "message:8757",
+    "resolvedSourceId": "message:8757",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 45,
+    "sourceId": "message:8758",
+    "resolvedSourceId": "message:8758",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 46,
+    "sourceId": "message:39662",
+    "resolvedSourceId": "message:39662",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 47,
+    "sourceId": "MEMORY 목공방.preparation.sequence",
+    "resolvedSourceId": "목공방.preparation.sequence",
+    "sourceKind": "MEMORY",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 47,
+    "sourceId": "message:8759",
+    "resolvedSourceId": "message:8759",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 49,
+    "sourceId": "message:11297",
+    "resolvedSourceId": "message:11297",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 49,
+    "sourceId": "message:11896",
+    "resolvedSourceId": "message:11896",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 50,
+    "sourceId": "message:11298",
+    "resolvedSourceId": "message:11298",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 50,
+    "sourceId": "message:42183",
+    "resolvedSourceId": "message:42183",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 51,
+    "sourceId": "message:11299",
+    "resolvedSourceId": "message:11299",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 52,
+    "sourceId": "device_event:7",
+    "resolvedSourceId": "device_event:7",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 52,
+    "sourceId": "message:42184",
+    "resolvedSourceId": "message:42184",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 53,
+    "sourceId": "message:11301",
+    "resolvedSourceId": "message:11301",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 53,
+    "sourceId": "message:11897",
+    "resolvedSourceId": "message:11897",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 54,
+    "sourceId": "message:11302",
+    "resolvedSourceId": "message:11302",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 55,
+    "sourceId": "message:11303",
+    "resolvedSourceId": "message:11303",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 55,
+    "sourceId": "message:42186",
+    "resolvedSourceId": "message:42186",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 56,
+    "sourceId": "message:11304",
+    "resolvedSourceId": "message:11304",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 57,
+    "sourceId": "message:11305",
+    "resolvedSourceId": "message:11305",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 58,
+    "sourceId": "message:42187",
+    "resolvedSourceId": "message:42187",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 59,
+    "sourceId": "MEMORY 음악회.preparation.sequence",
+    "resolvedSourceId": "음악회.preparation.sequence",
+    "sourceKind": "MEMORY",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 59,
+    "sourceId": "message:11307",
+    "resolvedSourceId": "message:11307",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 60,
+    "sourceId": "message:13927",
+    "resolvedSourceId": "message:13927",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 61,
+    "sourceId": "message:44792",
+    "resolvedSourceId": "message:44792",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 62,
+    "sourceId": "message:13929",
+    "resolvedSourceId": "message:13929",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 62,
+    "sourceId": "message:44792",
+    "resolvedSourceId": "message:44792",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 63,
+    "sourceId": "message:14527",
+    "resolvedSourceId": "message:14527",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 64,
+    "sourceId": "device_event:9",
+    "resolvedSourceId": "device_event:9",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 64,
+    "sourceId": "message:44793",
+    "resolvedSourceId": "message:44793",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 65,
+    "sourceId": "message:13932",
+    "resolvedSourceId": "message:13932",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 65,
+    "sourceId": "message:14528",
+    "resolvedSourceId": "message:14528",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 66,
+    "sourceId": "message:13933",
+    "resolvedSourceId": "message:13933",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 67,
+    "sourceId": "message:13934",
+    "resolvedSourceId": "message:13934",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 67,
+    "sourceId": "message:44795",
+    "resolvedSourceId": "message:44795",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 68,
+    "sourceId": "message:13935",
+    "resolvedSourceId": "message:13935",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 69,
+    "sourceId": "message:13936",
+    "resolvedSourceId": "message:13936",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 69,
+    "sourceId": "message:14529",
+    "resolvedSourceId": "message:14529",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 70,
+    "sourceId": "message:44796",
+    "resolvedSourceId": "message:44796",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 71,
+    "sourceId": "MEMORY 텃밭.preparation.sequence",
+    "resolvedSourceId": "텃밭.preparation.sequence",
+    "sourceKind": "MEMORY",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 71,
+    "sourceId": "message:13937",
+    "resolvedSourceId": "message:13937",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 72,
+    "sourceId": "message:16475",
+    "resolvedSourceId": "message:16475",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 73,
+    "sourceId": "message:16476",
+    "resolvedSourceId": "message:16476",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 73,
+    "sourceId": "message:17075",
+    "resolvedSourceId": "message:17075",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 74,
+    "sourceId": "message:16477",
+    "resolvedSourceId": "message:16477",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 74,
+    "sourceId": "message:47317",
+    "resolvedSourceId": "message:47317",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 75,
+    "sourceId": "message:17076",
+    "resolvedSourceId": "message:17076",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 76,
+    "sourceId": "device_event:10",
+    "resolvedSourceId": "device_event:10",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 76,
+    "sourceId": "message:47318",
+    "resolvedSourceId": "message:47318",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 77,
+    "sourceId": "message:16480",
+    "resolvedSourceId": "message:16480",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 77,
+    "sourceId": "message:17077",
+    "resolvedSourceId": "message:17077",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 78,
+    "sourceId": "message:16481",
+    "resolvedSourceId": "message:16481",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 79,
+    "sourceId": "message:16482",
+    "resolvedSourceId": "message:16482",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 79,
+    "sourceId": "message:47320",
+    "resolvedSourceId": "message:47320",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 80,
+    "sourceId": "message:16483",
+    "resolvedSourceId": "message:16483",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 81,
+    "sourceId": "message:16484",
+    "resolvedSourceId": "message:16484",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 82,
+    "sourceId": "message:47321",
+    "resolvedSourceId": "message:47321",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 83,
+    "sourceId": "MEMORY 등산회.preparation.sequence",
+    "resolvedSourceId": "등산회.preparation.sequence",
+    "sourceKind": "MEMORY",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 83,
+    "sourceId": "message:16486",
+    "resolvedSourceId": "message:16486",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 85,
+    "sourceId": "message:19108",
+    "resolvedSourceId": "message:19108",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 85,
+    "sourceId": "message:19706",
+    "resolvedSourceId": "message:19706",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 86,
+    "sourceId": "message:19109",
+    "resolvedSourceId": "message:19109",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 86,
+    "sourceId": "message:49926",
+    "resolvedSourceId": "message:49926",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 87,
+    "sourceId": "message:19110",
+    "resolvedSourceId": "message:19110",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 88,
+    "sourceId": "device_event:12",
+    "resolvedSourceId": "device_event:12",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 88,
+    "sourceId": "message:49927",
+    "resolvedSourceId": "message:49927",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 89,
+    "sourceId": "message:19112",
+    "resolvedSourceId": "message:19112",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 89,
+    "sourceId": "message:19707",
+    "resolvedSourceId": "message:19707",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 90,
+    "sourceId": "message:19113",
+    "resolvedSourceId": "message:19113",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 91,
+    "sourceId": "message:19114",
+    "resolvedSourceId": "message:19114",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 91,
+    "sourceId": "message:49929",
+    "resolvedSourceId": "message:49929",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 92,
+    "sourceId": "MEMORY 번역팀.newcomer.meeting",
+    "resolvedSourceId": "번역팀.newcomer.meeting",
+    "sourceKind": "MEMORY",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 93,
+    "sourceId": "message:19116",
+    "resolvedSourceId": "message:19116",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 94,
+    "sourceId": "message:49930",
+    "resolvedSourceId": "message:49930",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 95,
+    "sourceId": "MEMORY 번역팀.preparation.sequence",
+    "resolvedSourceId": "번역팀.preparation.sequence",
+    "sourceKind": "MEMORY",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 95,
+    "sourceId": "message:19117",
+    "resolvedSourceId": "message:19117",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 96,
+    "sourceId": "message:21737",
+    "resolvedSourceId": "message:21737",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 97,
+    "sourceId": "message:52535",
+    "resolvedSourceId": "message:52535",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 98,
+    "sourceId": "message:21739",
+    "resolvedSourceId": "message:21739",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 98,
+    "sourceId": "message:52535",
+    "resolvedSourceId": "message:52535",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 99,
+    "sourceId": "message:22338",
+    "resolvedSourceId": "message:22338",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 100,
+    "sourceId": "device_event:13",
+    "resolvedSourceId": "device_event:13",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 100,
+    "sourceId": "message:52536",
+    "resolvedSourceId": "message:52536",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 101,
+    "sourceId": "message:21742",
+    "resolvedSourceId": "message:21742",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 101,
+    "sourceId": "message:22339",
+    "resolvedSourceId": "message:22339",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 102,
+    "sourceId": "message:21743",
+    "resolvedSourceId": "message:21743",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 103,
+    "sourceId": "message:21744",
+    "resolvedSourceId": "message:21744",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 103,
+    "sourceId": "message:52538",
+    "resolvedSourceId": "message:52538",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 104,
+    "sourceId": "message:21745",
+    "resolvedSourceId": "message:21745",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 105,
+    "sourceId": "message:21746",
+    "resolvedSourceId": "message:21746",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 105,
+    "sourceId": "message:22340",
+    "resolvedSourceId": "message:22340",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 106,
+    "sourceId": "message:52539",
+    "resolvedSourceId": "message:52539",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 107,
+    "sourceId": "MEMORY 수영장.preparation.sequence",
+    "resolvedSourceId": "수영장.preparation.sequence",
+    "sourceKind": "MEMORY",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 107,
+    "sourceId": "message:21748",
+    "resolvedSourceId": "message:21748",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 108,
+    "sourceId": "message:24286",
+    "resolvedSourceId": "message:24286",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 109,
+    "sourceId": "message:24287",
+    "resolvedSourceId": "message:24287",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 109,
+    "sourceId": "message:24885",
+    "resolvedSourceId": "message:24885",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 110,
+    "sourceId": "message:24288",
+    "resolvedSourceId": "message:24288",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 110,
+    "sourceId": "message:55060",
+    "resolvedSourceId": "message:55060",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 111,
+    "sourceId": "message:24886",
+    "resolvedSourceId": "message:24886",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 112,
+    "sourceId": "device_event:15",
+    "resolvedSourceId": "device_event:15",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 112,
+    "sourceId": "message:55061",
+    "resolvedSourceId": "message:55061",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 113,
+    "sourceId": "message:24291",
+    "resolvedSourceId": "message:24291",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 113,
+    "sourceId": "message:24887",
+    "resolvedSourceId": "message:24887",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 114,
+    "sourceId": "message:24292",
+    "resolvedSourceId": "message:24292",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 115,
+    "sourceId": "message:24293",
+    "resolvedSourceId": "message:24293",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 115,
+    "sourceId": "message:55063",
+    "resolvedSourceId": "message:55063",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 116,
+    "sourceId": "message:24294",
+    "resolvedSourceId": "message:24294",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 117,
+    "sourceId": "message:24295",
+    "resolvedSourceId": "message:24295",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 118,
+    "sourceId": "message:55064",
+    "resolvedSourceId": "message:55064",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 119,
+    "sourceId": "MEMORY 박물관.preparation.sequence",
+    "resolvedSourceId": "박물관.preparation.sequence",
+    "sourceKind": "MEMORY",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 119,
+    "sourceId": "message:24296",
+    "resolvedSourceId": "message:24296",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 121,
+    "sourceId": "message:26918",
+    "resolvedSourceId": "message:26918",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 121,
+    "sourceId": "message:27517",
+    "resolvedSourceId": "message:27517",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 122,
+    "sourceId": "message:26919",
+    "resolvedSourceId": "message:26919",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 122,
+    "sourceId": "message:57669",
+    "resolvedSourceId": "message:57669",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 123,
+    "sourceId": "message:26920",
+    "resolvedSourceId": "message:26920",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 124,
+    "sourceId": "device_event:16",
+    "resolvedSourceId": "device_event:16",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 124,
+    "sourceId": "message:57670",
+    "resolvedSourceId": "message:57670",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 125,
+    "sourceId": "message:26922",
+    "resolvedSourceId": "message:26922",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 125,
+    "sourceId": "message:27518",
+    "resolvedSourceId": "message:27518",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 126,
+    "sourceId": "message:26923",
+    "resolvedSourceId": "message:26923",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 127,
+    "sourceId": "message:26924",
+    "resolvedSourceId": "message:26924",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 127,
+    "sourceId": "message:57672",
+    "resolvedSourceId": "message:57672",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 128,
+    "sourceId": "message:26925",
+    "resolvedSourceId": "message:26925",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 129,
+    "sourceId": "message:26926",
+    "resolvedSourceId": "message:26926",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 130,
+    "sourceId": "message:57673",
+    "resolvedSourceId": "message:57673",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 131,
+    "sourceId": "MEMORY 도예실.preparation.sequence",
+    "resolvedSourceId": "도예실.preparation.sequence",
+    "sourceKind": "MEMORY",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 131,
+    "sourceId": "message:26928",
+    "resolvedSourceId": "message:26928",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 132,
+    "sourceId": "message:29464",
+    "resolvedSourceId": "message:29464",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 133,
+    "sourceId": "message:60194",
+    "resolvedSourceId": "message:60194",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 134,
+    "sourceId": "message:29466",
+    "resolvedSourceId": "message:29466",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 134,
+    "sourceId": "message:60194",
+    "resolvedSourceId": "message:60194",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 135,
+    "sourceId": "30064",
+    "resolvedSourceId": "message:30064",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 136,
+    "sourceId": "device_event:18",
+    "resolvedSourceId": "device_event:18",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 136,
+    "sourceId": "60195",
+    "resolvedSourceId": "message:60195",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 137,
+    "sourceId": "29469",
+    "resolvedSourceId": "message:29469",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 137,
+    "sourceId": "30065",
+    "resolvedSourceId": "message:30065",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 138,
+    "sourceId": "29470",
+    "resolvedSourceId": "message:29470",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 139,
+    "sourceId": "29471",
+    "resolvedSourceId": "message:29471",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 139,
+    "sourceId": "60197",
+    "resolvedSourceId": "message:60197",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 140,
+    "sourceId": "29472",
+    "resolvedSourceId": "message:29472",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 140,
+    "sourceId": "29464",
+    "resolvedSourceId": "message:29464",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 141,
+    "sourceId": "29473",
+    "resolvedSourceId": "message:29473",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 141,
+    "sourceId": "30066",
+    "resolvedSourceId": "message:30066",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 142,
+    "sourceId": "60198",
+    "resolvedSourceId": "message:60198",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 143,
+    "sourceId": "독서회.preparation.sequence",
+    "resolvedSourceId": "독서회.preparation.sequence",
+    "sourceKind": "MEMORY",
+    "exactScopedPacketSubstring": true
+  },
+  {
+    "index": 143,
+    "sourceId": "29474",
+    "resolvedSourceId": "message:29474",
+    "sourceKind": "ORIGINAL",
+    "exactScopedPacketSubstring": true
+  }
+]

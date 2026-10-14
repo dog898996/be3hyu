@@ -616,16 +616,19 @@
         rejectAuthorization('dispatch_authorization_timeout');
     }, DISPATCH_AUTHORIZATION_TTL_MS);
     remember({ requestId: dispatch.requestId, text: dispatch.text, phase: 'awaiting_authorization' });
-    if (!notify({ type: 'progress', code: 'dispatch_authorization_requested', requestId: dispatch.requestId, nonce, authorizationTtlMs: DISPATCH_AUTHORIZATION_TTL_MS })) {
+    if (!notify({ type: 'progress', code: 'dispatch_authorization_requested', requestId: dispatch.requestId, nonce,
+      payloadDigest: dispatch.payloadDigest || '', authorizationTtlMs: DISPATCH_AUTHORIZATION_TTL_MS })) {
       if (active === dispatch && !dispatch.clicked) rejectAuthorization('dispatch_authorization_delivery_failed');
     }
   }
-  function authorizeDispatch(requestId, nonce, allowed) {
+  function authorizeDispatch(requestId, nonce, allowed, payloadDigest) {
     if (disposed || document !== initialDocument || location.origin !== 'https://chatgpt.com' || location.pathname !== initialPath)
       return result('bridge_stale', { retryAllowed: false });
     if (!active || active.requestId !== requestId || active.phase !== 'awaiting_authorization'
       || !active.requiresNativeAuthorization || active.authorizationNonce !== nonce || typeof allowed !== 'boolean')
       return result('dispatch_authorization_mismatch', { retryAllowed: false });
+    if (active.requiresNativePayloadDigest && (typeof payloadDigest !== 'string' || payloadDigest !== active.payloadDigest))
+      return rejectAuthorization('dispatch_payload_digest_mismatch');
     if (performance.now() >= active.authorizationDeadline) return rejectAuthorization('dispatch_authorization_expired');
     if (!allowed) return rejectAuthorization('dispatch_authorization_denied');
     if (!submissionStillUnobserved(active)) return rejectAuthorization('dispatch_authorization_submission_unverified');
@@ -674,6 +677,11 @@
     if (payload.text.length > MAX_PROMPT_CHARS) return alreadyKnown ? result('message_too_large') : preflightFailure('message_too_large', requestId);
     if (payload.requiresNativeAuthorization !== undefined && typeof payload.requiresNativeAuthorization !== 'boolean')
       return alreadyKnown ? result('invalid_request') : preflightFailure('invalid_request', requestId);
+    if (payload.requiresNativePayloadDigest !== undefined && typeof payload.requiresNativePayloadDigest !== 'boolean')
+      return alreadyKnown ? result('invalid_request') : preflightFailure('invalid_request', requestId);
+    if (payload.requiresNativePayloadDigest === true && (payload.requiresNativeAuthorization !== true
+      || typeof payload.nativePayloadDigest !== 'string' || !/^[a-f0-9]{64}$/.test(payload.nativePayloadDigest)))
+      return alreadyKnown ? result('invalid_request') : preflightFailure('native_payload_digest_missing', requestId);
     const receipt = receipts.get(payload.requestId);
     const ownerRetryAuthorized = !!(receipt && receipt.phase === 'known_not_sent' && receipt.ownerRetryAuthorized);
     if (receipt) {
@@ -703,7 +711,7 @@
     if (sendButtons(editor).length !== 1) return preflightFailure('send_control_unverified', payload.requestId);
     const snapshot = turnSnapshot();
     if (!snapshot.valid) return preflightFailure('turn_identity_unverified', payload.requestId);
-    active = { requestId: payload.requestId, text: payload.text, preferences, phase: files.length ? 'preparing_attachments' : 'preparing', preparingAt: Date.now(), editor, baseline: snapshot.known, clicked: false, lastText: '', attachmentNames: files.map(file => file.name), requiresNativeAuthorization: payload.requiresNativeAuthorization === true, authorizationGranted: false };
+    active = { requestId: payload.requestId, text: payload.text, preferences, phase: files.length ? 'preparing_attachments' : 'preparing', preparingAt: Date.now(), editor, baseline: snapshot.known, clicked: false, lastText: '', attachmentNames: files.map(file => file.name), requiresNativeAuthorization: payload.requiresNativeAuthorization === true, requiresNativePayloadDigest: payload.requiresNativePayloadDigest === true, payloadDigest: payload.nativePayloadDigest || '', authorizationGranted: false };
     remember({ requestId: active.requestId, text: active.text, phase: 'preparing' });
     let filled = false;
     try { filled = fillEditor(editor, payload.text); } catch (_) { /* An editor implementation changed; do not guess another editing path. */ }

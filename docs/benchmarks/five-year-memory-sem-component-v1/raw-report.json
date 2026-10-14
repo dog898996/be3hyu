@@ -1,0 +1,361 @@
+{
+  "benchmark": "six-calendar-year-production-source-delivery-v1",
+  "finished": true,
+  "matrixSha256": "2821867ebb826cb2b873ef5d95e5abbbbf4b9a60923a2755f681e6c26e6ae1c8",
+  "productionCommit": "WORKTREE",
+  "arm": "raw chronological storage; no model extraction or hand-seeded derived notes",
+  "calendarDays": 2191,
+  "distractors": 184044,
+  "sourceRecords": 408,
+  "messages": 184434,
+  "memoryNotes": 0,
+  "writerNotesSha256": "",
+  "writerNotesInserted": 0,
+  "writerNotesRejected": [],
+  "gatewayEnabled": false,
+  "privacyReplayRequested": false,
+  "privacyReplayComplete": false,
+  "ownerPrivacyControlsApplied": [
+    {
+      "controlSourceId": "src-0020",
+      "target": {
+        "type": "message",
+        "id": 1116,
+        "recordHash": "0130514119cc174a52548e1f0aaf7c95d9a676585954d043088657807915e3d9",
+        "textSha256": "53d8d98f14f288d00a944c700e8babbf6e63e8cf7ec2ec78beb0a101de7b2ab3",
+        "revision": 1,
+        "date": "2021-01-14"
+      },
+      "receipt": {
+        "changed": true,
+        "version": 1,
+        "fingerprint": "97d5bc822e03374ab331e1d27a62107a7d5172fdd2308c54534c9fc37269e8a4",
+        "scope": "retrieval_exclude",
+        "retrievalExcluded": true,
+        "originalPayloadDeleted": false,
+        "originalPayloadRetained": true
+      },
+      "physicalDeleteRequested": true,
+      "physicalDeleteUnsupported": true,
+      "controlParsing": "fixture-supplied explicit owner event; no LM command parsing measured"
+    },
+    {
+      "controlSourceId": "src-0053",
+      "target": {
+        "type": "device_event",
+        "id": 2,
+        "recordHash": "cb7a11b7f567b12c7e73a3133ac90889eedb042024173afdf3e372d8ff45397f",
+        "textSha256": "2b9580fc6f7113ccbdc3f115d1e2bcffaf9f2c84c3c151199a11b2e2765ea75d",
+        "revision": 1,
+        "date": "2021-02-14"
+      },
+      "receipt": {
+        "changed": true,
+        "version": 2,
+        "fingerprint": "cf3deb139cf337e6de4c4833934dbdc0874e1009db0018457c9e81a722f2c231",
+        "scope": "retrieval_exclude",
+        "retrievalExcluded": true,
+        "originalPayloadDeleted": false,
+        "originalPayloadRetained": true
+      },
+      "physicalDeleteRequested": false,
+      "physicalDeleteUnsupported": false,
+      "controlParsing": "fixture-supplied explicit owner event; no LM command parsing measured"
+    },
+    {
+      "controlSourceId": "src-0088",
+      "target": {
+        "type": "message",
+        "id": 6126,
+        "recordHash": "0d552fc9d6ab7d6ca9d68e7d4c28efcd8c488b41251bbc76516af191f354c2ba",
+        "textSha256": "71de90e4e36bd9565c575e8b675dd5e006c47e7168e83b490ed830747f34edd7",
+        "revision": 1,
+        "date": "2021-03-14"
+      },
+      "receipt": {
+        "changed": true,
+        "version": 3,
+        "fingerprint": "84dbfc578912b90615f68ad8e61e3a3bfa50e4a44e076b407bc5721c8fcd76f9",
+        "scope": "retrieval_exclude",
+        "retrievalExcluded": true,
+        "originalPayloadDeleted": false,
+        "originalPayloadRetained": true
+      },
+      "physicalDeleteRequested": true,
+      "physicalDeleteUnsupported": true,
+      "controlParsing": "fixture-supplied explicit owner event; no LM command parsing measured"
+    },
+    {
+      "controlSourceId": "src-0122",
+      "target": {
+        "type": "device_event",
+        "id": 5,
+        "recordHash": "d45cba976fce44943452e1cc1476d48ed2d502a4a1512e81ea2456ab3936bf39",
+        "textSha256": "fab2c809c024eb17cb90e18c357632efb39e0cd1efffa8f6cd6a71285dedb637",
+        "revision": 1,
+        "date": "2021-04-14"
+      },
+      "receipt": {
+        "changed": true,
+        "version": 4,
+        "fingerprint": "38caa56f562f27a0759c1cfbfa5a0255581aff485eebb4653a5cf0549f3fade3",
+        "scope": "retrieval_exclude",
+        "retrievalExcluded": true,
+        "originalPayloadDeleted": false,
+        "originalPayloadRetained": true
+      },
+      "physicalDeleteRequested": false,
+      "physicalDeleteUnsupported": false,
+      "controlParsing": "fixture-supplied explicit owner event; no LM command parsing measured"
+    },
+    {
+      "controlSourceId": "src-0155",
+      "target": {
+        "type": "message",
+        "id": 11306,
+        "recordHash": "c7c06a595315477ddedd3a133905cc2d6c57a46b5d51e0ff9a8301707164a481",
+        "textSha256": "284d8ca5a88856417947492016cb62aaab7450b9b5f22ec61b7d630e2eb2559d",
+        "revision": 1,
+        "date": "2021-05-14"
+      },
+      "receipt": {
+        "changed": true,
+        "version": 5,
+        "fingerprint": "e5ac71083cfc9d0eece02592c78cf8424b5123c27ac09510495c2a12b57dea57",
+        "scope": "retrieval_exclude",
+        "retrievalExcluded": true,
+        "originalPayloadDeleted": false,
+        "originalPayloadRetained": true
+      },
+      "physicalDeleteRequested": true,
+      "physicalDeleteUnsupported": true,
+      "controlParsing": "fixture-supplied explicit owner event; no LM command parsing measured"
+    },
+    {
+      "controlSourceId": "src-0190",
+      "target": {
+        "type": "device_event",
+        "id": 8,
+        "recordHash": "4d834d728b13eda3f700d92d7c0f40b248abe5f10840ed5ac29d921eebca445c",
+        "textSha256": "c0c49d8e0ab875e53793ed66819570cd169dc88e0c2d09e6138a037205ef633a",
+        "revision": 1,
+        "date": "2021-06-14"
+      },
+      "receipt": {
+        "changed": true,
+        "version": 6,
+        "fingerprint": "e425c040058e0e9b99dee646d17397b4c863c753aef1bda4fd33c26f8c01c4da",
+        "scope": "retrieval_exclude",
+        "retrievalExcluded": true,
+        "originalPayloadDeleted": false,
+        "originalPayloadRetained": true
+      },
+      "physicalDeleteRequested": false,
+      "physicalDeleteUnsupported": false,
+      "controlParsing": "fixture-supplied explicit owner event; no LM command parsing measured"
+    },
+    {
+      "controlSourceId": "src-0224",
+      "target": {
+        "type": "message",
+        "id": 16485,
+        "recordHash": "fd9fff085239017c9a69622a5bcceed29a084b82609a39427bdc72fcf87c041f",
+        "textSha256": "69bdeae7f79d592524543e609f74beca9b1375dc4fbdfbc38fe1e78d753f7c81",
+        "revision": 1,
+        "date": "2021-07-14"
+      },
+      "receipt": {
+        "changed": true,
+        "version": 7,
+        "fingerprint": "de9b5a97e5e3f8682fde6681c9b6c19bb2a360171513f544023cafc2154e7ad1",
+        "scope": "retrieval_exclude",
+        "retrievalExcluded": true,
+        "originalPayloadDeleted": false,
+        "originalPayloadRetained": true
+      },
+      "physicalDeleteRequested": true,
+      "physicalDeleteUnsupported": true,
+      "controlParsing": "fixture-supplied explicit owner event; no LM command parsing measured"
+    },
+    {
+      "controlSourceId": "src-0257",
+      "target": {
+        "type": "device_event",
+        "id": 11,
+        "recordHash": "41c9678cce01598b2269bcf0dadb76bcbcd444d39c8ba9543d0073e63a3b1b8a",
+        "textSha256": "3e497d2f9e458bea3cf0015bf36597c0e1d303ac2e7031aa5a413590573de17f",
+        "revision": 1,
+        "date": "2021-08-14"
+      },
+      "receipt": {
+        "changed": true,
+        "version": 8,
+        "fingerprint": "965a69e2ba8d6be074cfb63a04edbea1cb6ee19f90b94ef5cc8cb2a86ce6e81f",
+        "scope": "retrieval_exclude",
+        "retrievalExcluded": true,
+        "originalPayloadDeleted": false,
+        "originalPayloadRetained": true
+      },
+      "physicalDeleteRequested": false,
+      "physicalDeleteUnsupported": false,
+      "controlParsing": "fixture-supplied explicit owner event; no LM command parsing measured"
+    },
+    {
+      "controlSourceId": "src-0292",
+      "target": {
+        "type": "message",
+        "id": 21747,
+        "recordHash": "35d079d074302c27cda5a576f00f6223f5bf35ed9b23f185bceca19bc611173c",
+        "textSha256": "3a5883d7d859d23462431cdab7f0adc3c7659c8828a363728dbd55611a0b3bfd",
+        "revision": 1,
+        "date": "2021-09-14"
+      },
+      "receipt": {
+        "changed": true,
+        "version": 9,
+        "fingerprint": "9cc39c1e0c8d1c5a96379f323145e561c00841f6ed34c4123f0e64a728d5e757",
+        "scope": "retrieval_exclude",
+        "retrievalExcluded": true,
+        "originalPayloadDeleted": false,
+        "originalPayloadRetained": true
+      },
+      "physicalDeleteRequested": true,
+      "physicalDeleteUnsupported": true,
+      "controlParsing": "fixture-supplied explicit owner event; no LM command parsing measured"
+    },
+    {
+      "controlSourceId": "src-0326",
+      "target": {
+        "type": "device_event",
+        "id": 14,
+        "recordHash": "0f5e83a0442765a929053c4a24190e6d0f44f1831f8578300be4b9a3a9f80712",
+        "textSha256": "7098170e91a01640b2274ed028e5fb41501c2e663b58f527e4e623ddf28c9c82",
+        "revision": 1,
+        "date": "2021-10-14"
+      },
+      "receipt": {
+        "changed": true,
+        "version": 10,
+        "fingerprint": "91388b5af45048cc0d549190cb9c66bc0cbf4741708ab48f3c4ba54de94f22d0",
+        "scope": "retrieval_exclude",
+        "retrievalExcluded": true,
+        "originalPayloadDeleted": false,
+        "originalPayloadRetained": true
+      },
+      "physicalDeleteRequested": false,
+      "physicalDeleteUnsupported": false,
+      "controlParsing": "fixture-supplied explicit owner event; no LM command parsing measured"
+    },
+    {
+      "controlSourceId": "src-0359",
+      "target": {
+        "type": "message",
+        "id": 26927,
+        "recordHash": "fe5fcd3214e5f4e31fddbe48d24adbdcb332d35fb609bad1a522ee0770f94b3a",
+        "textSha256": "d36dc4cfbef2e92db41324e6128003e7bebe9fafee3082153766c694ddc06c26",
+        "revision": 1,
+        "date": "2021-11-14"
+      },
+      "receipt": {
+        "changed": true,
+        "version": 11,
+        "fingerprint": "bca8de5fcc3ea0e42ac9cbf7b16240b0706137e8b4fe0ff09ce5f91e528c8c00",
+        "scope": "retrieval_exclude",
+        "retrievalExcluded": true,
+        "originalPayloadDeleted": false,
+        "originalPayloadRetained": true
+      },
+      "physicalDeleteRequested": true,
+      "physicalDeleteUnsupported": true,
+      "controlParsing": "fixture-supplied explicit owner event; no LM command parsing measured"
+    },
+    {
+      "controlSourceId": "src-0394",
+      "target": {
+        "type": "device_event",
+        "id": 17,
+        "recordHash": "b5801be26a286a5f66afdc11cb1e56e08e961272eb8c7e998f03f679df2b6307",
+        "textSha256": "b4d2e5e740eb22bd0d98833cfe0fe29e1dc121b2a98663b295ec1787e25f113f",
+        "revision": 1,
+        "date": "2021-12-14"
+      },
+      "receipt": {
+        "changed": true,
+        "version": 12,
+        "fingerprint": "454134cb4815dbe6cc1162b42687e794deebb159394692df3f91973b32bb9ea9",
+        "scope": "retrieval_exclude",
+        "retrievalExcluded": true,
+        "originalPayloadDeleted": false,
+        "originalPayloadRetained": true
+      },
+      "physicalDeleteRequested": false,
+      "physicalDeleteUnsupported": false,
+      "controlParsing": "fixture-supplied explicit owner event; no LM command parsing measured"
+    }
+  ],
+  "checkpoints": [
+    {
+      "checkpoint": "2021-12-31",
+      "cases": 144,
+      "allRequiredSourcesDelivered": 127,
+      "requiredSourceCount": 348,
+      "requiredSourcesDelivered": 327,
+      "rawOnlyCases": 12,
+      "rawOnlyCompleteDelivery": 10,
+      "protectedValueLeakCases": 0,
+      "blockedCases": 0,
+      "p50Millis": 67,
+      "p95Millis": 232,
+      "groundedAnswerAccuracy": "not_measured",
+      "completedUsefulAnswers": "not_measured"
+    },
+    {
+      "checkpoint": "2023-12-31",
+      "cases": 144,
+      "allRequiredSourcesDelivered": 125,
+      "requiredSourceCount": 396,
+      "requiredSourcesDelivered": 373,
+      "rawOnlyCases": 12,
+      "rawOnlyCompleteDelivery": 9,
+      "protectedValueLeakCases": 0,
+      "blockedCases": 0,
+      "p50Millis": 174,
+      "p95Millis": 537,
+      "groundedAnswerAccuracy": "not_measured",
+      "completedUsefulAnswers": "not_measured"
+    },
+    {
+      "checkpoint": "2026-12-31",
+      "cases": 144,
+      "allRequiredSourcesDelivered": 125,
+      "requiredSourceCount": 396,
+      "requiredSourcesDelivered": 373,
+      "rawOnlyCases": 12,
+      "rawOnlyCompleteDelivery": 9,
+      "protectedValueLeakCases": 0,
+      "blockedCases": 0,
+      "p50Millis": 384,
+      "p95Millis": 1154,
+      "groundedAnswerAccuracy": "not_measured",
+      "completedUsefulAnswers": "not_measured"
+    }
+  ],
+  "elapsedMillis": 154976,
+  "corpusDigest": "9aa2228ab3f1eae27de0f817791bd80e9a911f9f1ff774c5b3a8bec6e87b7d6a",
+  "runtime": "Robolectric SDK28 native SQLite; JDK17 host",
+  "semanticEncoder": "absent; lexical production fallback only",
+  "contextChars": 12000,
+  "sourceLimit": 12,
+  "oracleNeverInReaderPacket": true,
+  "actualModelExtractionMeasured": false,
+  "writerDerivedNotesLoaded": false,
+  "writerModelRuntimeVerifiedByHarness": false,
+  "chronologicalIncrementalWriterVerified": false,
+  "actualGroundedAnswerQualityMeasured": false,
+  "actualFiveYearsElapsed": false,
+  "actualWorkCalls": 0,
+  "physicalPhoneMeasured": false,
+  "paidApiCalls": 0,
+  "finalAcceptancePassed": false,
+  "scope": "Explicit owner controls applied through production retrieval-exclusion ledger; physical payload deletion unsupported. No model command parsing, answer quality, managed cache or restore replay is established by this run."
+}

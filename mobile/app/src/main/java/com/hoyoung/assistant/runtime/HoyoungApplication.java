@@ -10,6 +10,7 @@ import com.hoyoung.assistant.memory.SemanticAnnCache;
 import com.hoyoung.assistant.memory.local.LocalSemanticEncoder;
 import com.hoyoung.assistant.store.HoyoungStore;
 import com.hoyoung.assistant.store.InternalFiles;
+import com.hoyoung.assistant.store.SourcePayloadDeletion;
 import com.hoyoung.assistant.web.WorkWebController;
 
 /** One application-owned WebView transport; Activity recreation only reparents its view. */
@@ -25,6 +26,9 @@ public final class HoyoungApplication extends Application {
     private AssistantReplyNotifications replyNotifications;
     private final java.util.concurrent.ExecutorService maintenance = java.util.concurrent.Executors.newSingleThreadExecutor();
     private final java.util.concurrent.atomic.AtomicBoolean indexing = new java.util.concurrent.atomic.AtomicBoolean();
+    private final java.util.concurrent.atomic.AtomicBoolean sourceControlPending = new java.util.concurrent.atomic.AtomicBoolean();
+    private final android.os.Handler main = new android.os.Handler(android.os.Looper.getMainLooper());
+    private boolean sourceReconciliationRunning;
     private volatile boolean startupReady;
     private volatile org.json.JSONObject startupState = state(false, "starting", "");
 
@@ -35,7 +39,7 @@ public final class HoyoungApplication extends Application {
 
     /** Recovery never manufactures an empty canonical namespace before checking the journal. */
     private synchronized void initializeCore() {
-        if (startupReady) return;
+        if (startupReady||sourceReconciliationRunning) return;
         try {
             files = new InternalFiles(this);
             if (files.startupBlocked()) { startupState = files.startupDiagnostics(); return; }
@@ -44,6 +48,44 @@ public final class HoyoungApplication extends Application {
             startupState = state(false, "storage_unavailable", storageUnavailable.getClass().getSimpleName());
             return;
         }
+        // Deletion intent survives backups outside their restored namespaces.
+        // Recheck tracked originals on an IO worker before any UI/Work/index sees them.
+        if(hasSourceDeletionState()) {
+            sourceReconciliationRunning=true;
+            startupState=state(false,"source_deletion_reconciling","");
+            maintenance.execute(()->{
+                Throwable failed=null;
+                try {
+                    new SourcePayloadDeletion(this,store).reconcileDeletionRequests();
+                    AssistantRuntime.reconcileOwnerSourceAuthority(store);
+                }catch(java.io.IOException|RuntimeException failure){failed=failure;}
+                final Throwable result=failed;
+                main.post(()->{
+                    synchronized(HoyoungApplication.this) {
+                        sourceReconciliationRunning=false;
+                        if(result!=null){startupState=state(false,"source_deletion_reconciliation_failed",result.getClass().getSimpleName());return;}
+                        initializeReadyComponents();
+                        if("true".equals(store.getSetting("autonomy.enabled","false")))runtime.startAutonomy();
+                    }
+                });
+            });
+            return;
+        }
+        // Retrieval-only exclusions can also change the restored latest owner source.
+        try {AssistantRuntime.reconcileOwnerSourceAuthority(store);}
+        catch(java.io.IOException|RuntimeException invalid){startupState=state(false,"owner_source_reconciliation_failed",invalid.getClass().getSimpleName());return;}
+        initializeReadyComponents();
+    }
+
+    private boolean hasSourceDeletionState() {
+        for(String name:new String[]{"source-deletions.anchor.json","source-deletions.key","source-deletions"}) {
+            java.io.File path=new java.io.File(getFilesDir(),name);
+            if(path.exists()||java.nio.file.Files.isSymbolicLink(path.toPath()))return true;
+        }
+        return false;
+    }
+
+    private void initializeReadyComponents() {
         phoneTools = new PhoneTools(this, store);
         phoneContext = new PhoneContextCollector(this, phoneTools, store);
         files.setBackupParticipant(new InternalFiles.BackupParticipant() {
@@ -73,6 +115,24 @@ public final class HoyoungApplication extends Application {
         webController.start();
     }
 
+    /** Native owner UI only, called on an IO worker. Serializes index maintenance and backups. */
+    public org.json.JSONObject controlStoredSource(String type,long id,String hash,boolean deletePayload) throws java.io.IOException {
+        if(!startupReady)throw new java.io.IOException("Private source storage is not ready");
+        if(!sourceControlPending.compareAndSet(false,true))throw new java.io.IOException("Another source control is running");
+        try {
+            java.util.concurrent.Future<org.json.JSONObject> work=maintenance.submit(()->
+                    files.withExclusiveStorageMaintenance(()->runtime.controlStoredSource(type,id,hash,deletePayload)));
+            try {return work.get();}
+            catch(InterruptedException interrupted){Thread.currentThread().interrupt();throw new java.io.IOException("Source control remains unconfirmed; do not claim deletion",interrupted);}
+            catch(java.util.concurrent.ExecutionException failed){
+                Throwable cause=failed.getCause();
+                if(cause instanceof java.io.IOException)throw (java.io.IOException)cause;
+                if(cause instanceof RuntimeException)throw (RuntimeException)cause;
+                throw new java.io.IOException("Source control failed",cause);
+            }
+        } finally {sourceControlPending.set(false);}
+    }
+
     public boolean isStartupReady() { return startupReady; }
     public org.json.JSONObject startupState() {
         try { return new org.json.JSONObject(startupState.toString()); }
@@ -95,14 +155,14 @@ public final class HoyoungApplication extends Application {
     public AssistantReplyNotifications getReplyNotifications() { return replyNotifications; }
 
     public void maintainMemory() {
-        if (!startupReady) return;
+        if (!startupReady||sourceControlPending.get()||runtime.isRestoringBackup()) return;
         boolean enabled = "true".equals(store.getSetting("semanticSearchEnabled", "true"));
         memoryRetriever.setSemanticEnabled(enabled);
         if (!enabled) return;
         semanticEncoder.prepareAsync();
         if (!semanticEncoder.isReady() || !indexing.compareAndSet(false, true)) return;
         maintenance.execute(() -> {
-            try { memoryRetriever.indexPending(8, 2500); }
+            try {if(!sourceControlPending.get()&&!runtime.isRestoringBackup())memoryRetriever.indexPending(8, 2500); }
             catch (RuntimeException error) { store.recordEvent("semantic_index_deferred", new org.json.JSONObject()); }
             finally { indexing.set(false); }
         });

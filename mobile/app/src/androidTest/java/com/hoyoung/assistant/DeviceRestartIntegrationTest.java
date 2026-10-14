@@ -29,7 +29,7 @@ import org.junit.Assume;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** Selected by the offline AVD driver only; real stop/crash/reboot happen outside instrumentation. */
+/** Selected by the offline AVD driver only; real stop/death/crash/reboot happen outside instrumentation. */
 @RunWith(AndroidJUnit4.class)
 public final class DeviceRestartIntegrationTest {
     @Test public void selectedRealProcessRecoveryPhase() throws Exception {
@@ -80,7 +80,7 @@ public final class DeviceRestartIntegrationTest {
             int boot = Settings.Global.getInt(context.getContentResolver(), Settings.Global.BOOT_COUNT, -1);
             assertTrue("An actual Android reboot must advance its boot counter", boot > marker.getInt("bootCount"));
         } else {
-            assertTrue("Force-stop or crash must produce another process", Process.myPid() != marker.getInt("seedPid"));
+            assertTrue("Force-stop, process death or crash must produce another process", Process.myPid() != marker.getInt("seedPid"));
         }
         try (ActivityScenario<MainActivity> activity = ActivityScenario.launch(MainActivity.class)) {
             assertTrue("The native composer must load the exact durable unsent draft", DeviceFixtureHealth.waitFor(device, Until.hasObject(

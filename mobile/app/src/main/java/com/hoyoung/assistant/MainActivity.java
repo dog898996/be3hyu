@@ -31,6 +31,7 @@ import com.hoyoung.assistant.ui.ChatAttachmentPreviews;
 import com.hoyoung.assistant.runtime.AssistantReplyNotifications;
 import com.hoyoung.assistant.runtime.OwnerDraftStore;
 import com.hoyoung.assistant.store.BackupFailure;
+import com.hoyoung.assistant.store.SourceRecordVisibility;
 
 import com.hoyoung.assistant.phone.PermissionCatalog;
 import com.hoyoung.assistant.runtime.AutonomyService;
@@ -64,7 +65,7 @@ public final class MainActivity extends Activity {
     private boolean resumed;
     private OwnerDraftStore draftStore;
     private OwnerDraftStore.Snapshot draftState;
-    private boolean applyingDraft, messagesLoading, draftSaveFailed;
+    private boolean applyingDraft, messagesLoading, draftSaveFailed, sourceControlBusy;
     private long chatBeforeId, nextBeforeId, chatGeneration;
     private LinearLayout chatNavigation;
     private HoyoungApplication app;
@@ -92,6 +93,14 @@ public final class MainActivity extends Activity {
     }
 
     private boolean uiReady;
+    private final Runnable startupRefresh=new Runnable(){
+        @Override public void run(){
+            if(isDestroyed()||isFinishing()||uiReady)return;
+            if(app.isStartupReady()){initializeReadyUi();if(resumed)resumeReadyUi();}
+            else if("source_deletion_reconciling".equals(app.startupState().optString("status")))main.postDelayed(this,500);
+            else showStartupRecovery();
+        }
+    };
     private void initializeReadyUi() {
         if (uiReady || !app.isStartupReady()) return;
         uiReady = true;
@@ -123,9 +132,15 @@ public final class MainActivity extends Activity {
     }
 
     private void showStartupRecovery() {
+        main.removeCallbacks(startupRefresh);
         LinearLayout panel = column(); panel.setBackgroundColor(BG); panel.setPadding(dp(20), dp(32), dp(20), dp(20));
-        panel.addView(label("호영 · 원문 복구 확인 필요", 23, INK));
         JSONObject diagnosis = app.startupState();
+        if("source_deletion_reconciling".equals(diagnosis.optString("status"))) {
+            panel.addView(label("호영 · 기억을 준비하고 있어",23,INK));
+            panel.addView(label("이전에 삭제한 기록이 다시 사용되지 않도록 확인 중이야. 완료하면 대화를 열게.",16,INK));
+            setContentView(panel);main.postDelayed(startupRefresh,500);return;
+        }
+        panel.addView(label("호영 · 원문 복구 확인 필요", 23, INK));
         panel.addView(label(diagnosis.optBoolean("recoveryPending")
                 ? "원문 복구를 완료하지 못했어. 이전 파일과 복원 기록을 보존하고 새 저장소 생성과 자동 작업을 멈췄어."
                 : "폰 저장소를 열지 못해서 자동 작업을 멈췄어. 저장 공간과 저장소 접근을 확인해 줘.", 16, INK));
@@ -466,12 +481,119 @@ public final class MainActivity extends Activity {
                             String type = original.optString("type", original.optString("sourceType"));
                             long id = original.optLong("id", original.optLong("sourceId"));
                             if ("message".equals(type) && id > 0) results.addView(button("원문 " + id + " 읽기", () -> showOriginal(id, original.optLong("offsetChars", 0))));
+                            if (("message".equals(type) || "device_event".equals(type)) && id > 0) {
+                                Button manage = button(("message".equals(type) ? "대화" : "기기") + " 원문 " + id + " 관리", () -> { });
+                                manage.setOnClickListener(view -> inspectStoredSource(type, id, manage)); results.addView(manage);
+                            }
                         }
                     });
                 } catch (Exception error) { main.post(() -> { results.removeAllViews(); results.addView(label("검색을 완료하지 못했어. 원문은 보존돼 있어.", 13, SUBTLE)); }); }
             });
         }));
         panel.addView(results);
+        panel.addView(label("저장 원문 관리", 18, INK));
+        panel.addView(label("검색 근거의 관리 버튼을 쓰거나 원문 유형과 ID를 선택해. 원문을 확인한 뒤 네가 직접 AI 기억에서 제외하거나 앱의 원문·파생 기록 삭제를 요청할 수 있어.", 13, SUBTLE));
+        android.widget.Spinner sourceType = new android.widget.Spinner(this);
+        String[] sourceTypes = {"message", "device_event"};
+        sourceType.setAdapter(new android.widget.ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, new String[]{"대화 원문", "기기 기록 원문"})); panel.addView(sourceType);
+        EditText sourceId = new EditText(this); sourceId.setSingleLine(true); sourceId.setInputType(android.text.InputType.TYPE_CLASS_NUMBER); sourceId.setHint("원문 ID"); panel.addView(sourceId);
+        Button inspect = button("원문 확인 후 관리", () -> { });
+        inspect.setOnClickListener(view -> {
+            try {
+                long id = Long.parseLong(sourceId.getText().toString().trim());
+                if (id <= 0) throw new IllegalArgumentException();
+                inspectStoredSource(sourceTypes[sourceType.getSelectedItemPosition()], id, inspect);
+            } catch (IllegalArgumentException invalid) { notice("원문 ID는 1 이상의 정수로 입력해."); }
+        }); panel.addView(inspect);
+    }
+
+    /** Only a direct owner click reaches this control; model tools never receive its authority. */
+    private void inspectStoredSource(String type, long id, Button inspect) {
+        if (isFinishing() || isDestroyed()) return;
+        if (sourceControlBusy) { notice("선택한 원문의 처리 상태를 확인하고 있어."); return; }
+        if (app.getRuntime().isRestoringBackup()) { notice("백업 복구를 마친 뒤 원문을 관리해 줘."); return; }
+        sourceControlBusy = true; inspect.setEnabled(false);
+        io.execute(() -> {
+            try {
+                if (app.getRuntime().isRestoringBackup()) throw new IllegalStateException("Restore in progress");
+                JSONObject source = "message".equals(type) ? app.getStore().getMessage(id) : app.getStore().getDeviceEvent(id);
+                if (source == null || !SourceRecordVisibility.canonicalRecordMatches(type, source)) throw new IllegalArgumentException("Source unavailable or changed");
+                final String hash = source.optString("content_hash");
+                String body = source.optString("message".equals(type) ? "text" : "payload");
+                int end = Math.min(body.length(), 600);
+                if (end > 0 && end < body.length() && Character.isHighSurrogate(body.charAt(end - 1))) end--;
+                final String excerpt = body.substring(0, end) + (end < body.length() ? "…" : "");
+                main.post(() -> {
+                    sourceControlBusy = false; inspect.setEnabled(true);
+                    if (isFinishing() || isDestroyed() || !inspect.isAttachedToWindow() || app.getRuntime().isRestoringBackup()) return;
+                    new AlertDialog.Builder(this).setTitle(("message".equals(type) ? "대화" : "기기") + " 원문 " + id)
+                            .setMessage(excerpt + "\n\nAI 기억에서 제외하면 원문은 보관돼. 삭제는 추적된 폰 원문과 파생 기록의 완료 상태를 확인하는 별도 요청이야.")
+                            .setPositiveButton("AI 기억에서 제외", (dialog, which) -> controlStoredSource(type, id, hash, false))
+                            .setNeutralButton("원문·파생 기록 삭제", (dialog, which) -> new AlertDialog.Builder(this)
+                                    .setTitle("앱에서 원문·파생 기록 삭제")
+                                    .setMessage("선택한 원문 " + id + "와 연결된 기억·답장 등 추적된 폰 기록의 삭제를 요청할까? 진행 중 작업, 공유 원문, 작업 사본 때문에 대기할 수 있어. 외부 제공자·클라우드 사본과 추적되지 않은 작업 사본의 삭제는 확인하지 않아.")
+                                    .setPositiveButton("삭제 요청", (confirmation, choice) -> controlStoredSource(type, id, hash, true))
+                                    .setNegativeButton("유지", null).show())
+                            .setNegativeButton("닫기", null).show();
+                });
+            } catch (Exception unavailable) {
+                main.post(() -> { sourceControlBusy = false; inspect.setEnabled(true); if (inspect.isAttachedToWindow()) notice("선택한 원문의 내용과 식별 정보를 확인하지 못했어. 원문을 변경하거나 삭제하지 않았어."); });
+            }
+        });
+    }
+
+    private void controlStoredSource(String type, long id, String hash, boolean deletePayload) {
+        if (isFinishing() || isDestroyed()) return;
+        if (sourceControlBusy) { notice("선택한 원문의 처리 상태를 확인하고 있어."); return; }
+        if (app.getRuntime().isRestoringBackup()) { notice("백업 복구를 마친 뒤 원문을 관리해 줘."); return; }
+        sourceControlBusy = true;
+        io.execute(() -> {
+            try {
+                JSONObject receipt = app.controlStoredSource(type, id, hash, deletePayload);
+                if (receipt == null) throw new IllegalStateException("Missing owner control receipt");
+                main.post(() -> {
+                    sourceControlBusy = false;
+                    if (isFinishing() || isDestroyed()) return;
+                    if (deletePayload) { displayedMessageId = -1; chatGeneration++; if ("대화".equals(tab)) refreshMessages(); }
+                    showStoredSourceReceipt(type, id, hash, deletePayload, receipt);
+                });
+            } catch (Exception unavailable) {
+                main.post(() -> {
+                    sourceControlBusy = false;
+                    if (isFinishing() || isDestroyed()) return;
+                    new AlertDialog.Builder(this).setTitle("원문 " + id + " 처리 확인 필요")
+                            .setMessage("처리 완료를 확인하지 못했어. 저장된 요청이 있을 수 있으니 완료로 표시하지 않았어.")
+                            .setPositiveButton("같은 원문 처리 다시 확인", (view, which) -> controlStoredSource(type, id, hash, deletePayload))
+                            .setNegativeButton("닫기", null).show();
+                });
+            }
+        });
+    }
+
+    private void showStoredSourceReceipt(String type, long id, String hash, boolean deletePayload, JSONObject receipt) {
+        String text = receipt.optBoolean("retrievalExcluded") ? "AI 기억에서 제외됨" : "AI 기억 제외 완료 확인 필요";
+        boolean pending = receipt.optBoolean("pendingDeletion", true);
+        boolean verified = receipt.optBoolean("managedLocalDeletionVerified") && !pending;
+        if (!deletePayload) text += "\n저장 원문은 보관돼. 이미 전달된 내용은 되돌리지 않아.";
+        else {
+            text += verified ? "\n추적된 폰 원문·파생 기록의 삭제를 확인했어." : pending
+                    ? "\n삭제 요청은 대기 중이야. 원문·파생 기록의 물리 삭제 완료는 확인하지 못했어."
+                    : "\n원문·파생 기록의 물리 삭제 완료를 확인하지 못했어.";
+            if (!verified) text += "\n" + switch (receipt.optString("status")) {
+                case "pending_inflight_request" -> "진행 중 작업 상태 확인 필요";
+                case "pending_external_archive" -> "휴대폰 보관 기록 삭제 확인 필요";
+                case "pending_shared_payload" -> "다른 기록과 공유하는 원문이 남아 있어";
+                case "pending_working_copy_retained" -> "작업용 사본이 보존돼 있어";
+                case "pending_sqlite_cleanup", "pending_database", "pending_files" -> "폰 저장소 정리 확인 필요";
+                case "pending_attachment_manifest", "pending_source_manifest" -> "원문·첨부 식별 정보 확인 필요";
+                case "pending_source_generation_changed", "pending_source_integrity_changed", "pending_descendant_generation_changed" -> "선택한 원문·파생 기록의 변경 상태 확인 필요";
+                default -> "삭제 요청의 완료 상태 확인 필요";
+            };
+            text += "\n외부 제공자·클라우드 사본과 추적되지 않은 작업 사본의 삭제는 확인하지 않아. 삭제 요청의 식별 기록은 남아 있어.";
+        }
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this).setTitle("원문 " + id + " 처리 상태").setMessage(text).setNegativeButton("닫기", null);
+        if (deletePayload && !verified) dialog.setPositiveButton("같은 삭제 요청 다시 확인", (view, which) -> controlStoredSource(type, id, hash, true));
+        dialog.show();
     }
 
     private void showOriginal(long id, long offset) {
@@ -542,7 +664,7 @@ public final class MainActivity extends Activity {
         JSONArray tools = app.getPhoneTools().catalog();
         JSONArray fileTools = app.getFiles().catalog();
         for (int i = 0; i < fileTools.length(); i++) tools.put(fileTools.optJSONObject(i));
-        for (String name : new String[]{"memory.search", "memory.save", "memory.source.read", "memory.history", "memory.review", "tasks.list", "tasks.update", "tasks.report_completed", "actions.receipt.read", "memory.asset.analyze", "app.settings.get", "app.settings.update", "app.work.pause"}) {
+        for (String name : new String[]{"memory.search", "memory.save", "memory.source.read", "memory.source.enumerate", "memory.history", "memory.review", "tasks.list", "tasks.update", "tasks.report_completed", "actions.receipt.read", "memory.asset.analyze", "app.settings.get", "app.settings.update", "app.work.pause"}) {
             try { tools.put(new JSONObject().put("name", name)); } catch (Exception ignored) { }
         }
         JSONObject allowed;
@@ -901,6 +1023,7 @@ public final class MainActivity extends Activity {
             case "phone_files_list" -> "휴대폰 공유 파일 목록"; case "phone_files_read" -> "휴대폰 공유 파일 읽기"; case "phone_files_write" -> "휴대폰 공유 파일 쓰기";
             case "files.list" -> "작업 파일 목록"; case "files.read" -> "작업 파일 읽기"; case "files.write" -> "작업 파일 쓰기";
             case "memory.search" -> "저장된 기억 검색"; case "memory.save" -> "기억 추가·수정"; case "app.settings.get" -> "앱 설정 확인"; case "app.settings.update" -> "대화에서 앱 설정 변경";
+            case "memory.source.enumerate" -> "조건에 맞는 저장 원문 목록 확인";
             case "app.work.pause" -> "현재 작업의 새 폰·앱 실행 중지";
             default -> name;
         };

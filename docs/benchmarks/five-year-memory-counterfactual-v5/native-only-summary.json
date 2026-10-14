@@ -1,0 +1,15 @@
+{
+  "run": "/tmp/hoyoung-five-year-final-gateway-raw-v5",
+  "originalCanonicalSnapshotSha256": "016ace41a836476ce779ee8aeb442c4d4d9725e26cb2ab81542d1e0030803bee",
+  "productionSourceManifestSha256": "393b0ddaf90b0b1a2e6149cc8ba10bf128c33ad4ef957dac65032fe89c63a969",
+  "helperSha256": "52d41c9c3847d1a872938bfe072fa090cf23ff7550a683637b9787d66c58f9c7",
+  "requestSha256": "4f9d256ac895e0cb5ff7368aa391ca416eb6b07dbd5808465153545649090f18",
+  "readerPacketsSha256": "73e19f927000a0f0fffbbe9237bcc95b70b0bab2241f2b0e6d4493b7276c94dd",
+  "exitCode": 0,
+  "scope": "Actual native source/context interventions only; no gold, generated expected answer or semantic model-answer score",
+  "groundedAnswerQuality": "not measured",
+  "paidApiCalls": 0,
+  "nativeJUnitSeconds": 20.088,
+  "independentReaderAnswerQuality": "not measured",
+  "variants": 3
+}

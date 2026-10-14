@@ -1,0 +1,121 @@
+{
+  "recordedAtUtc": "2026-10-14T00:28:29.850872+00:00",
+  "kind": "component_verification",
+  "inputs": "synthetic only; no personal data or login sessions",
+  "productionSourceSha256": {
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/SourcePrivacyLedger.java": "ac9410effaedf804d5fe45434fe272c29bfd4f4d9d8a0faacf83d18cc7a56eb4",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/SourcePayloadDeletion.java": "099f11968c653209bf5f9ca72e79d0bebde64396feafbe59ea7d110b519e8ce4",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/InternalFiles.java": "aee854e2730987797987a07e469ea88ed74d4529a77adbc3be1da2ae2e5e42a1",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/HoyoungStore.java": "e240ace02dc7a94a589ce3a53b3cdae78b9dbe63d12fae45c77283c67e6fb808"
+  },
+  "testSourceSha256": {
+    "mobile/app/src/test/java/com/hoyoung/assistant/store/SourcePayloadDeletionTest.java": "65bcb6e7d46612507c874f278188ae955cf3ae74607ab5597b43d4849b038010",
+    "mobile/app/src/test/java/com/hoyoung/assistant/store/ExclusiveStorageMaintenanceTest.java": "82768a7ef3c845c2ee8c350e4d0f39373cf68092f998d1e8697ad178c34d31f0",
+    "mobile/app/src/test/java/com/hoyoung/assistant/store/SourcePrivacyLedgerTest.java": "ce6c2a0efdc0919acac1626ac3e7a052cc1db94733633e62f39e593be3de6ea8",
+    "mobile/app/src/test/java/com/hoyoung/assistant/store/SnapshotOriginalTextTest.java": "e3aeac3d417e707cfeb8c0624c0598edc13224f53f5e9d8c8664793f08652e50",
+    "mobile/app/src/test/java/com/hoyoung/assistant/store/InternalFilesTest.java": "4c599638c2fa6424ae0e7588b823dc5a32b8d3325f9152db6aba5cbd65646e50",
+    "mobile/app/src/test/java/com/hoyoung/assistant/store/BackupCapacityTest.java": "fcf3671301f1cd5292e9e67bb6205bc20a2604ae9dbc9c8658658bbdae678eb2",
+    "mobile/app/src/test/java/com/hoyoung/assistant/store/StartupRestoreRecoveryTest.java": "49ef4f3c57902050c8ce246fe96dd94afa1ee2df55522ebaedbdf5055ba1b65a"
+  },
+  "compiler": {
+    "tool": "javac",
+    "jdk": "17.0.16+8",
+    "sourceTarget": 11,
+    "androidSdk": 35,
+    "sdkFirstClasspath": true,
+    "gradleRunByStorageAgent": false
+  },
+  "runs": [
+    {
+      "runner": "Robolectric JUnitCore",
+      "androidSdk": 28,
+      "explicitNativeSqliteClasses": [
+        "SourcePayloadDeletionTest",
+        "ExclusiveStorageMaintenanceTest"
+      ],
+      "classes": [
+        "SourcePayloadDeletionTest",
+        "ExclusiveStorageMaintenanceTest",
+        "InternalFilesTest",
+        "BackupCapacityTest",
+        "StartupRestoreRecoveryTest"
+      ],
+      "tests": 58,
+      "passed": 58,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 42.986,
+      "log": "/tmp/hoyoung-storage-check/physical-storage-lock-final.log"
+    },
+    {
+      "runner": "Robolectric JUnitCore",
+      "androidSdk": 28,
+      "classes": [
+        "SourcePayloadDeletionTest (21-case checkpoint)",
+        "SourcePrivacyLedgerTest",
+        "SnapshotOriginalTextTest"
+      ],
+      "tests": 35,
+      "passed": 35,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 21.282,
+      "log": "/tmp/hoyoung-storage-check/physical-privacy-snapshot-final-35.log"
+    },
+    {
+      "runner": "Robolectric JUnitCore",
+      "androidSdk": 28,
+      "explicitNativeSqliteClasses": [
+        "SourcePrivacyLedgerTest"
+      ],
+      "classes": [
+        "SourcePrivacyLedgerTest",
+        "SnapshotOriginalTextTest"
+      ],
+      "tests": 15,
+      "passed": 15,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 6.325,
+      "log": "/tmp/hoyoung-storage-check/privacy-legacy-id-helper-final-15.log",
+      "additiveApi": "Snapshot.hasExcludedMessageId(long id)",
+      "serializedPolicyFormatChanged": false,
+      "exactHashSourceRulesChanged": false
+    }
+  ],
+  "finalFocusedTestCounts": {
+    "SourcePayloadDeletionTest": 23,
+    "ExclusiveStorageMaintenanceTest": 4,
+    "SourcePrivacyLedgerTest": 13,
+    "SnapshotOriginalTextTest": 2,
+    "InternalFilesTest": 9,
+    "BackupCapacityTest": 13,
+    "StartupRestoreRecoveryTest": 9
+  },
+  "verifiedScopes": [
+    "canonical source generation/integrity",
+    "outside-backup privacy policy and signed durable deletion intentions",
+    "transitive answerSources including 260 replies over paginated full history",
+    "native memory review/continuation/goal source-history/legacy receipt archival copies",
+    "distinct later owner questions preserved",
+    "all source-linked memory revisions removed",
+    "true shared raw and immutable attachment preserved with pending status",
+    "UI fileMeta/uploadedAssetsObserved shape and parsed JSON asset identities",
+    "known working copies explicitly pending",
+    "SQL rollback and commit-before-files interruption restart",
+    "completed deletion re-purged after old backup restore",
+    "missing/tampered intent/key inventory fail closed",
+    "backup -> files maintenance serialization and narrow startup guard",
+    "immutable O(1) message-only legacy-ID lookup; new-hash owner re-supply still allowed; format/fingerprint preserved"
+  ],
+  "unverifiedOrUnsupported": [
+    "provider/server copies and external backups are not erased",
+    "phone spool/HJA physical removal has no verified purge hook and stays pending_external_archive",
+    "RAM/open-file-descriptor/OS notification/forensic flash erasure is outside persistence verification",
+    "reinstall/data-clear removes outside-backup policy too",
+    "exact retained general working project copies are preserved and remain pending",
+    "whole Runtime owner-control UI and mandatory latest-owner authority repair require separate integration tests",
+    "real S24 device/performance not measured"
+  ],
+  "latestAdditiveChangeAtUtc": "2026-10-14T00:45:27.704376+00:00"
+}

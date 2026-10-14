@@ -135,7 +135,6 @@ public final class RuntimeReadFailureTest {
     }
 
     @Test public void unknownLegacyToolFailureCannotBeReclassifiedAsSafeReadToArchiveGoal() throws Exception {
-        ready();
         JSONObject request = runtime.receive("기존 작업의 결과 확인", new JSONArray());
         String root = request.getString("external_id");
         long source = Long.parseLong(store.getSetting("requestSource:" + root, "0"));
@@ -143,6 +142,12 @@ public final class RuntimeReadFailureTest {
         new ActionReceiptJournal(store).put(receiptKey(request, "unknown-legacy"), object(
                 "status", "completed", "name", "legacy.future_tool", "fingerprint", "fixture-unknown",
                 "result", object("ok", false, "code", "operation_failed")));
+        // Admit the existing goal and receipt into the fresh dispatch, rather than
+        // invalidating an already prepared response before its classification runs.
+        assertEquals("queued", store.getRequest(request.getLong("id")).getString("status"));
+        assertTrue(transport.ids.isEmpty());
+        ready();
+        assertEquals(1, transport.ids.size());
         complete(request, finalReport("완료했다고 주장하는 제공자 응답"));
         JSONObject goal = runtime.getGoalLedger().get(root);
         assertNotNull(goal);

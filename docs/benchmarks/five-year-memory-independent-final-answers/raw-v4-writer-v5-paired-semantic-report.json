@@ -1,0 +1,885 @@
+{
+  "complete": true,
+  "sampleUnits": 144,
+  "checkpoint": "2026-12-31",
+  "rawV4Counts": {
+    "pass": 144
+  },
+  "writerV5Counts": {
+    "pass": 144
+  },
+  "pairedRows": [
+    {
+      "caseId": "raw_only-01",
+      "packetId": "f504885e1f62d52b5806",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "alias_cues-01",
+      "packetId": "a83a589197c107d6974a",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "temporal_change-01",
+      "packetId": "135fd1a5dc1f5552bd07",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "claim_status-01",
+      "packetId": "5e8d673d48f2b426d528",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "episodes-01",
+      "packetId": "7feadae2186c9043801f",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "decision_reasons-01",
+      "packetId": "c6f1d6f4aea7bcf97d71",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "procedure_scope-01",
+      "packetId": "ccf2947c0a9f985ae49a",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "active_constraints-01",
+      "packetId": "6c35ab337c108f49a302",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "missing_facts-01",
+      "packetId": "bb8cdf070a18c60a9a5e",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "image_wire_scope-01",
+      "packetId": "4e066eca74fd2bec6c3c",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "forget_revoke-01",
+      "packetId": "a53b518b385050d1ddda",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "range_coverage-01",
+      "packetId": "41f8f3847663a9c02ca1",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "raw_only-02",
+      "packetId": "a6a6d309ea350c50139e",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "alias_cues-02",
+      "packetId": "06de574bccb45eeaf0f9",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "temporal_change-02",
+      "packetId": "ab57cf2a3a0dca62e097",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "claim_status-02",
+      "packetId": "f7bb4dc52953481e372b",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "episodes-02",
+      "packetId": "293b7d5f96771b675d85",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "decision_reasons-02",
+      "packetId": "c5457776750a10316bcc",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "procedure_scope-02",
+      "packetId": "0ba32b38a695ff60f4cc",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "active_constraints-02",
+      "packetId": "26f4542dd5052ee11fab",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "missing_facts-02",
+      "packetId": "34bebce28f8373ec808b",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "image_wire_scope-02",
+      "packetId": "4bd98a5f6cb3e9d240ea",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "forget_revoke-02",
+      "packetId": "5c56f4881ca4b51fc4c6",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "range_coverage-02",
+      "packetId": "675e990de6fc9ae7be7f",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "raw_only-03",
+      "packetId": "b731b069ac16299b7230",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "alias_cues-03",
+      "packetId": "57a7d13c9cad7b4afd63",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "temporal_change-03",
+      "packetId": "1305aa284f4dc207e732",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "claim_status-03",
+      "packetId": "b42dc9886cd3db8836aa",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "episodes-03",
+      "packetId": "7e48577cce495ce021c3",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "decision_reasons-03",
+      "packetId": "07df4c96e7f0b16e83ae",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "procedure_scope-03",
+      "packetId": "3a1631405e7c5a26ea97",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "active_constraints-03",
+      "packetId": "193d277ed329b9faf46a",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "missing_facts-03",
+      "packetId": "cd813c4781bed7db2f16",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "image_wire_scope-03",
+      "packetId": "b1ab231d574ad653162c",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "forget_revoke-03",
+      "packetId": "acb7aed394026703c458",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "range_coverage-03",
+      "packetId": "2b0b33da150c8e8c2827",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "raw_only-04",
+      "packetId": "47103d53f6128e60b944",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "alias_cues-04",
+      "packetId": "4ad9c7eab5371cc2b676",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "temporal_change-04",
+      "packetId": "56f7ca13b91bc5a7abc9",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "claim_status-04",
+      "packetId": "985a7644dddf051a059a",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "episodes-04",
+      "packetId": "3c95645a78f854f1bdbd",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "decision_reasons-04",
+      "packetId": "c46d5e9474eb353cd6ab",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "procedure_scope-04",
+      "packetId": "b3556b583f09fcf01795",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "active_constraints-04",
+      "packetId": "c709db8b6f1def58a787",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "missing_facts-04",
+      "packetId": "902e1ee92cd7498d3865",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "image_wire_scope-04",
+      "packetId": "5110f4db874283771ac8",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "forget_revoke-04",
+      "packetId": "b579c9921a0d8726e081",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "range_coverage-04",
+      "packetId": "b35fbb229e9407a91add",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "raw_only-05",
+      "packetId": "f8b87a5037bfae9b5886",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "alias_cues-05",
+      "packetId": "92b8e54840a93eee28c8",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "temporal_change-05",
+      "packetId": "df6b20d0b46e0d9da8bf",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "claim_status-05",
+      "packetId": "c5105f6c773dd0c09a76",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "episodes-05",
+      "packetId": "a27831f58d85aec2851b",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "decision_reasons-05",
+      "packetId": "28ec06e272e6d40a2d33",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "procedure_scope-05",
+      "packetId": "5ee0401b93a4765414d3",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "active_constraints-05",
+      "packetId": "0860b055a15fcd9f3f91",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "missing_facts-05",
+      "packetId": "206fff84cf6d7d55b946",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "image_wire_scope-05",
+      "packetId": "c4fc209c7a1aff5b9d57",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "forget_revoke-05",
+      "packetId": "fd6a5ffd94c609df8f08",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "range_coverage-05",
+      "packetId": "bf096cd908b35e2abe22",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "raw_only-06",
+      "packetId": "4783a435bd64701cdfae",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "alias_cues-06",
+      "packetId": "eb6ca4a9c2f551c40064",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "temporal_change-06",
+      "packetId": "644c1734e5c2b9fdf175",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "claim_status-06",
+      "packetId": "0f33714b77f913b0fbc5",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "episodes-06",
+      "packetId": "65918a21a85ddc69597b",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "decision_reasons-06",
+      "packetId": "9f28b45516d1963a4c7e",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "procedure_scope-06",
+      "packetId": "f16ee754c80f06d6f83a",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "active_constraints-06",
+      "packetId": "4254040e29a8079aa561",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "missing_facts-06",
+      "packetId": "9a39f67201365f17fe48",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "image_wire_scope-06",
+      "packetId": "4690730de11bd50c2273",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "forget_revoke-06",
+      "packetId": "9b142d6cbbce9a7af552",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "range_coverage-06",
+      "packetId": "c54f72d71917abe7719e",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "raw_only-07",
+      "packetId": "5590c3078e782c67a3ae",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "alias_cues-07",
+      "packetId": "9a0dcc1b37a84a1ce50a",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "temporal_change-07",
+      "packetId": "58764e69284c4162cb8d",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "claim_status-07",
+      "packetId": "8d528ded41bd14ef7245",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "episodes-07",
+      "packetId": "eb0091f2ba5483197f03",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "decision_reasons-07",
+      "packetId": "ff56fa1951c40b52e033",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "procedure_scope-07",
+      "packetId": "9668d89b42f0fb783a87",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "active_constraints-07",
+      "packetId": "63ab342b64d6c07cf7c5",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "missing_facts-07",
+      "packetId": "0426c0d6154f1856a2de",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "image_wire_scope-07",
+      "packetId": "32db18c9e0429665625d",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "forget_revoke-07",
+      "packetId": "310d4cce3556bfb84cef",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "range_coverage-07",
+      "packetId": "b2e43483789770d9b758",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "raw_only-08",
+      "packetId": "7cb26ad1637c877112d7",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "alias_cues-08",
+      "packetId": "603082397a8883fee0e6",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "temporal_change-08",
+      "packetId": "3d8d8c2c4831ceec4c64",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "claim_status-08",
+      "packetId": "9c995f22884764a07735",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "episodes-08",
+      "packetId": "2bc929f04004b6bb3e5f",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "decision_reasons-08",
+      "packetId": "a969a040aed42025eb03",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "procedure_scope-08",
+      "packetId": "d4116da5a9583617994a",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "active_constraints-08",
+      "packetId": "4a3989a6040d1a85b864",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "missing_facts-08",
+      "packetId": "aa44520eedcdb8a9f5f0",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "image_wire_scope-08",
+      "packetId": "ef7dc86770c05011f4e7",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "forget_revoke-08",
+      "packetId": "3371e1db947cf223523d",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "range_coverage-08",
+      "packetId": "3baf5880d586d50d157e",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "raw_only-09",
+      "packetId": "1820b8a6d7e5f573f5b9",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "alias_cues-09",
+      "packetId": "b8b3314cff908998dad1",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "temporal_change-09",
+      "packetId": "9ddb51449c910e59e80e",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "claim_status-09",
+      "packetId": "a8e2710869bc77ee8104",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "episodes-09",
+      "packetId": "34cbdf73282c0cd9569a",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "decision_reasons-09",
+      "packetId": "83b1a953080ff7e2ce73",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "procedure_scope-09",
+      "packetId": "2b752af378233d829382",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "active_constraints-09",
+      "packetId": "a0f3c960a4e8ad029c5e",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "missing_facts-09",
+      "packetId": "c260e58a02c748fb3d05",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "image_wire_scope-09",
+      "packetId": "f71e80eda56a62254651",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "forget_revoke-09",
+      "packetId": "414d7b1d2901ba8fa1e4",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "range_coverage-09",
+      "packetId": "39ed7465f4802729ae1e",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "raw_only-10",
+      "packetId": "91c432757ce25ead7b0a",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "alias_cues-10",
+      "packetId": "c79122c55f6853215aac",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "temporal_change-10",
+      "packetId": "55f7b6db941a40699d65",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "claim_status-10",
+      "packetId": "67af9a6c02df982d40aa",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "episodes-10",
+      "packetId": "2653bccc4a05480e076c",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "decision_reasons-10",
+      "packetId": "9a7194b21c7b1043d85e",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "procedure_scope-10",
+      "packetId": "ba061464011573bf1b86",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "active_constraints-10",
+      "packetId": "c59aa60f4d281e349315",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "missing_facts-10",
+      "packetId": "34eb1d0511586a11e3d8",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "image_wire_scope-10",
+      "packetId": "31ba69ad1d02e8c0b18e",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "forget_revoke-10",
+      "packetId": "d439bc9a66f03d05ecf4",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "range_coverage-10",
+      "packetId": "bc8b60913ac917a67dbf",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "raw_only-11",
+      "packetId": "ab52237575bf0108b36b",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "alias_cues-11",
+      "packetId": "f47ffeea2b0cc21c5820",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "temporal_change-11",
+      "packetId": "6bb8dc101c3eec3579f2",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "claim_status-11",
+      "packetId": "73bfbdf25d140d8e8cd4",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "episodes-11",
+      "packetId": "7f9680c465afd0568b5b",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "decision_reasons-11",
+      "packetId": "6116bae16bf4f342f61a",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "procedure_scope-11",
+      "packetId": "7516b259fc36f72f1d8b",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "active_constraints-11",
+      "packetId": "f9f67a7113d3f49a88ff",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "missing_facts-11",
+      "packetId": "4e0ab30b9ed5a8448336",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "image_wire_scope-11",
+      "packetId": "913d923a0833973e6c2e",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "forget_revoke-11",
+      "packetId": "3382a900eccabcfe4dd0",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "range_coverage-11",
+      "packetId": "8cd8932ab607b8b36aa3",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "raw_only-12",
+      "packetId": "17c71e5bb842063e8e97",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "alias_cues-12",
+      "packetId": "b87cbb672c43324577b9",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "temporal_change-12",
+      "packetId": "3380bf6716574cd152e6",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "claim_status-12",
+      "packetId": "eda7e221e9616bb82eb3",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "episodes-12",
+      "packetId": "2eb53cf0ccd825aea6c1",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "decision_reasons-12",
+      "packetId": "bdd7d90484275f4ba634",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "procedure_scope-12",
+      "packetId": "d6521c5733046d5c25a4",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "active_constraints-12",
+      "packetId": "98270fca47f96775005d",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "missing_facts-12",
+      "packetId": "e69b25eba7707602cd3f",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "image_wire_scope-12",
+      "packetId": "27ab15c10b639631f66a",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "forget_revoke-12",
+      "packetId": "c726f5d2c962eda36301",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    },
+    {
+      "caseId": "range_coverage-12",
+      "packetId": "a1dc766a0fc5960c55ff",
+      "rawV4": "pass",
+      "writerV5": "pass"
+    }
+  ],
+  "packetOnlyF2Reference": {
+    "pass": 124,
+    "partial": 12,
+    "fail": 8,
+    "fairCapabilityComparison": false
+  },
+  "fairToolEnabledF2Comparison": "pending; do not claim fair semantic error reduction before all144 actual baseline-tool answers are independently graded",
+  "interpretation": "Both final arms fulfilled the frozen144 rubric in actual semantic review; no relative accuracy advantage between final arms measured. Native literal enumeration proved complete requested stage coverage with honest semantic-scope caveats."
+}

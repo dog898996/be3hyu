@@ -1,0 +1,221 @@
+{
+  "complete": true,
+  "actualAnswersReviewed": 3,
+  "counts": {
+    "pass": 3,
+    "partial": 0,
+    "fail": 0
+  },
+  "method": "Evaluator independently inspected all actual answer meaning, every claim, supplied original source and private intervention receipt. Scripts only verified native database/context/quote hashes and recorded these manually supplied semantic judgments. No oracle or intervention relationship was fed to blind reader.",
+  "sampleUnits": "One receipt-recall scenario under three conditions; not three independent corpus scenarios.",
+  "controlValue": "Q17-R0419",
+  "relevantInterventionValue": "Q17-R0419_CF_NEW",
+  "unrelatedInterventionPreservedValue": "Q17-R0419",
+  "relevantEditChangesAnswer": true,
+  "unrelatedEditPreservesAnswerMeaning": true,
+  "unrelatedAnswerTextByteIdenticalToControl": true,
+  "relevantAnswerTextDiffersFromControl": true,
+  "allThreeOwnerReportScoped": true,
+  "allThreeExactOriginalQuotationGrounding": true,
+  "interventionSourceProof": [
+    {
+      "readerId": "277ce9271b1f5981b250",
+      "relevantSource": {
+        "sourceId": "message:1106",
+        "role": "user",
+        "recordedAt": 1610582400000,
+        "recordHash": "58c4d3271832d153c81d02ab29d476ece2363a7cc069efd06e4b4187eb22d2e0",
+        "textSha256": "b0e9144d363c459da654bb2e93495dfbdc52fa7db7d9e2f265c5be76aa0d9a94",
+        "deliveredExactOriginalRange": true,
+        "complete": true,
+        "sourceLocator": {
+          "database": "/tmp/hoyoung-five-year-counterfactual-v5-final/a314c/canonical-corpus.sqlite",
+          "table": "messages",
+          "id": 1106
+        },
+        "inputLocator": {
+          "path": "/tmp/hoyoung-five-year-counterfactual-v5-final/reader-inputs.jsonl",
+          "jsonlLine": 1,
+          "readerId": "277ce9271b1f5981b250",
+          "sourceId": "message:1106"
+        }
+      },
+      "otherEntitySource": {
+        "sourceId": "message:29464",
+        "role": "user",
+        "recordedAt": 1639440000000,
+        "recordHash": "6cdc4234aab2b9b5f100277fd57fdc8eae89de4ef667b15204fdb3ab65b14418",
+        "textSha256": "67d1d82f8868bfa9f18377f315bca27652a4663d152d632c1a3439f45ed71f8e",
+        "deliveredExactOriginalRange": true,
+        "complete": true,
+        "sourceLocator": {
+          "database": "/tmp/hoyoung-five-year-counterfactual-v5-final/a314c/canonical-corpus.sqlite",
+          "table": "messages",
+          "id": 29464
+        },
+        "inputLocator": {
+          "path": "/tmp/hoyoung-five-year-counterfactual-v5-final/reader-inputs.jsonl",
+          "jsonlLine": 1,
+          "readerId": "277ce9271b1f5981b250",
+          "sourceId": "message:29464"
+        }
+      },
+      "actualSourceChange": {},
+      "answerQuoteExactlyMatchesRelevantDeliveredSource": true,
+      "databaseAndDeliveredSourceHashMatch": true,
+      "packetContextHashMatchesReceipt": true
+    },
+    {
+      "readerId": "575b6c348beb730f9fc6",
+      "relevantSource": {
+        "sourceId": "message:1106",
+        "role": "user",
+        "recordedAt": 1610582400000,
+        "recordHash": "72ac42cbabf6531bb32251347658a4640ba67f38ec6c58f3a026b65268e0ba9f",
+        "textSha256": "3b213d9aa08685f5c7bb03c182d93149cf44d9a88ac4d938ce994e33a2bf9da7",
+        "deliveredExactOriginalRange": true,
+        "complete": true,
+        "sourceLocator": {
+          "database": "/tmp/hoyoung-five-year-counterfactual-v5-final/d782f/canonical-corpus.sqlite",
+          "table": "messages",
+          "id": 1106
+        },
+        "inputLocator": {
+          "path": "/tmp/hoyoung-five-year-counterfactual-v5-final/reader-inputs.jsonl",
+          "jsonlLine": 2,
+          "readerId": "575b6c348beb730f9fc6",
+          "sourceId": "message:1106"
+        }
+      },
+      "otherEntitySource": {
+        "sourceId": "message:29464",
+        "role": "user",
+        "recordedAt": 1639440000000,
+        "recordHash": "6cdc4234aab2b9b5f100277fd57fdc8eae89de4ef667b15204fdb3ab65b14418",
+        "textSha256": "67d1d82f8868bfa9f18377f315bca27652a4663d152d632c1a3439f45ed71f8e",
+        "deliveredExactOriginalRange": true,
+        "complete": true,
+        "sourceLocator": {
+          "database": "/tmp/hoyoung-five-year-counterfactual-v5-final/d782f/canonical-corpus.sqlite",
+          "table": "messages",
+          "id": 29464
+        },
+        "inputLocator": {
+          "path": "/tmp/hoyoung-five-year-counterfactual-v5-final/reader-inputs.jsonl",
+          "jsonlLine": 2,
+          "readerId": "575b6c348beb730f9fc6",
+          "sourceId": "message:29464"
+        }
+      },
+      "actualSourceChange": {
+        "type": "message",
+        "id": 1106,
+        "role": "user",
+        "recordedAt": 1610582400000,
+        "oldRecordHash": "58c4d3271832d153c81d02ab29d476ece2363a7cc069efd06e4b4187eb22d2e0",
+        "newRecordHash": "72ac42cbabf6531bb32251347658a4640ba67f38ec6c58f3a026b65268e0ba9f",
+        "oldText": "사진전 보관접수 물품을 맡긴 접수번호는 Q17-R0419야. 다른 번호는 내 것이 아니야.",
+        "newText": "사진전 보관접수 물품을 맡긴 접수번호는 Q17-R0419_CF_NEW야. 다른 번호는 내 것이 아니야.",
+        "oldSpan": "Q17-R0419",
+        "replacementSpan": "Q17-R0419_CF_NEW",
+        "actualProductionHashAndFtsVerified": true
+      },
+      "answerQuoteExactlyMatchesRelevantDeliveredSource": true,
+      "databaseAndDeliveredSourceHashMatch": true,
+      "packetContextHashMatchesReceipt": true
+    },
+    {
+      "readerId": "e1cff302f9e52447db1c",
+      "relevantSource": {
+        "sourceId": "message:1106",
+        "role": "user",
+        "recordedAt": 1610582400000,
+        "recordHash": "58c4d3271832d153c81d02ab29d476ece2363a7cc069efd06e4b4187eb22d2e0",
+        "textSha256": "b0e9144d363c459da654bb2e93495dfbdc52fa7db7d9e2f265c5be76aa0d9a94",
+        "deliveredExactOriginalRange": true,
+        "complete": true,
+        "sourceLocator": {
+          "database": "/tmp/hoyoung-five-year-counterfactual-v5-final/b509e/canonical-corpus.sqlite",
+          "table": "messages",
+          "id": 1106
+        },
+        "inputLocator": {
+          "path": "/tmp/hoyoung-five-year-counterfactual-v5-final/reader-inputs.jsonl",
+          "jsonlLine": 3,
+          "readerId": "e1cff302f9e52447db1c",
+          "sourceId": "message:1106"
+        }
+      },
+      "otherEntitySource": {
+        "sourceId": "message:29464",
+        "role": "user",
+        "recordedAt": 1639440000000,
+        "recordHash": "917e32c7430ddc79f99209f6ebfa5dc79cc7f5ab722da8af74782308ef3f5c32",
+        "textSha256": "258c50ae1feda9e3ba225970c71b2ae749cf40bd2b9de72e65d33a7cfbcd2ca0",
+        "deliveredExactOriginalRange": true,
+        "complete": true,
+        "sourceLocator": {
+          "database": "/tmp/hoyoung-five-year-counterfactual-v5-final/b509e/canonical-corpus.sqlite",
+          "table": "messages",
+          "id": 29464
+        },
+        "inputLocator": {
+          "path": "/tmp/hoyoung-five-year-counterfactual-v5-final/reader-inputs.jsonl",
+          "jsonlLine": 3,
+          "readerId": "e1cff302f9e52447db1c",
+          "sourceId": "message:29464"
+        }
+      },
+      "actualSourceChange": {
+        "type": "message",
+        "id": 29464,
+        "role": "user",
+        "recordedAt": 1639440000000,
+        "oldRecordHash": "6cdc4234aab2b9b5f100277fd57fdc8eae89de4ef667b15204fdb3ab65b14418",
+        "newRecordHash": "917e32c7430ddc79f99209f6ebfa5dc79cc7f5ab722da8af74782308ef3f5c32",
+        "oldText": "독서회 보관접수 물품을 맡긴 접수번호는 Q28-R0826야. 다른 번호는 내 것이 아니야.",
+        "newText": "독서회 보관접수 물품을 맡긴 접수번호는 Q28-R0826_CF_OTHER야. 다른 번호는 내 것이 아니야.",
+        "oldSpan": "Q28-R0826",
+        "replacementSpan": "Q28-R0826_CF_OTHER",
+        "actualProductionHashAndFtsVerified": true
+      },
+      "answerQuoteExactlyMatchesRelevantDeliveredSource": true,
+      "databaseAndDeliveredSourceHashMatch": true,
+      "packetContextHashMatchesReceipt": true
+    }
+  ],
+  "scope": "Observed sensitivity and invariance in these three actual native canonical-source/context interventions with a blind model reader. This does not prove all app paths, all wire behavior, all memory layers, causal internal reasoning or general counterfactual reliability. No image/OS/server inspection claimed.",
+  "preservedFailedFirstRun": {
+    "path": "/tmp/hoyoung-five-year-counterfactual-v5/execution-receipt.json",
+    "exitCode": 1,
+    "readerPacketsSha256": null,
+    "includedAsSuccessfulSemanticEvidence": false,
+    "modifiedByEvaluator": false
+  },
+  "frozenOracleUnchanged": true,
+  "fairBaselineToolComparison": "pending; no fair error-reduction claim from this counterfactual test",
+  "sha256": {
+    "/tmp/hoyoung-five-year-counterfactual-blind-reader/answers.jsonl": "946e5a38e8d604d4f36279bcc1897c0b6995895932a8119c913a9f84172b7a03",
+    "/tmp/hoyoung-five-year-counterfactual-v5-final/reader-inputs.jsonl": "73e19f927000a0f0fffbbe9237bcc95b70b0bab2241f2b0e6d4493b7276c94dd",
+    "/tmp/hoyoung-five-year-counterfactual-v5-final/scorer-only-intervention-receipts.json": "93111d354545353bf931c9b8475a3a12a85860f63e25cae19c17077211f07b1d",
+    "/tmp/hoyoung-five-year-counterfactual-v5-final/execution-receipt.json": "a2a74851fc2af4b64af2acec40357a4e017d6774e52e585ef938a6ac4a361a61",
+    "/tmp/hoyoung-five-year-counterfactual-v5-final/scorer-only-request.json": "4f9d256ac895e0cb5ff7368aa391ca416eb6b07dbd5808465153545649090f18",
+    "/tmp/hoyoung-five-year-counterfactual-blind-reader/receipt.json": "7f320085afd17213c5da388b75ab49bfc872198bb2d2ff3f8332b4fb94f4c1d5",
+    "/tmp/hoyoung-five-year-counterfactual-v5/execution-receipt.json": "8d6f5bfee97daee58532cc75fff210bf0c9c7985e5159a6a424b74c28e7fb2a6",
+    "/workspace/be3hyu/docs/benchmarks/five-year-memory-gold-matrix.json": "2821867ebb826cb2b873ef5d95e5abbbbf4b9a60923a2755f681e6c26e6ae1c8",
+    "/tmp/hoyoung-five-year-counterfactual-v5-final/a314c/canonical-corpus.sqlite": "016ace41a836476ce779ee8aeb442c4d4d9725e26cb2ab81542d1e0030803bee",
+    "/tmp/hoyoung-five-year-counterfactual-v5-final/a314c/scorer-only-intervention-receipt.json": "07cc8b89028988cccce09c576bdefafbe77428ce2da2135c809c8277b555a176",
+    "/tmp/hoyoung-five-year-counterfactual-v5-final/a314c/final-reader-inputs.jsonl": "c881af5b60d5fa78762840e78684e049c39889ffcf91c818dbcbcf9bf01e3f76",
+    "/tmp/hoyoung-five-year-counterfactual-v5-final/a314c/source-manifest.json": "393b0ddaf90b0b1a2e6149cc8ba10bf128c33ad4ef957dac65032fe89c63a969",
+    "/tmp/hoyoung-five-year-counterfactual-v5-final/d782f/canonical-corpus.sqlite": "ba4855e39398d2dc0703ed924fb6be3bd00ed8df67af96a7cb8e4d3eb23a9198",
+    "/tmp/hoyoung-five-year-counterfactual-v5-final/d782f/scorer-only-intervention-receipt.json": "dbcf21c8dd1153a64a742dccb67c20106cfe7f77048272e85fb2ba419ef4e966",
+    "/tmp/hoyoung-five-year-counterfactual-v5-final/d782f/final-reader-inputs.jsonl": "d8f538362d2d71341aaa65d8f43351e888c1e97abdc3be919893406e6b4e7968",
+    "/tmp/hoyoung-five-year-counterfactual-v5-final/d782f/source-manifest.json": "393b0ddaf90b0b1a2e6149cc8ba10bf128c33ad4ef957dac65032fe89c63a969",
+    "/tmp/hoyoung-five-year-counterfactual-v5-final/b509e/canonical-corpus.sqlite": "6dcb50ac64411b4eb29d8da3075e610ce36296b63b15a8d9e6ed51c65966054f",
+    "/tmp/hoyoung-five-year-counterfactual-v5-final/b509e/scorer-only-intervention-receipt.json": "08b0dd1a6bde26e1386742d493036a33924ed5aae260465c8ed50ffb8565d079",
+    "/tmp/hoyoung-five-year-counterfactual-v5-final/b509e/final-reader-inputs.jsonl": "6c2e50a62e13337258a3b082e1d63774c2d04a0e07b2aa4d20049cb1c48b866f",
+    "/tmp/hoyoung-five-year-counterfactual-v5-final/b509e/source-manifest.json": "393b0ddaf90b0b1a2e6149cc8ba10bf128c33ad4ef957dac65032fe89c63a969",
+    "/tmp/hoyoung-five-year-answer-evaluation/counterfactual-semantic-scores.json": "9688fccbccfac2b9e2e2334c4694e650d8696f4c4f6249dd98e2ca25ebbd77c9",
+    "/tmp/hoyoung-five-year-answer-evaluation/counterfactual-quote-source-audit.json": "19d4d4c75b7debe8995a10d9f599d09ae1e97bc0d1a10cb64a7f14dc493dccf5"
+  }
+}

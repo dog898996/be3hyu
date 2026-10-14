@@ -1,0 +1,138 @@
+{
+  "benchmark": "six-calendar-year-production-source-delivery-v1",
+  "finished": true,
+  "matrixSha256": "2821867ebb826cb2b873ef5d95e5abbbbf4b9a60923a2755f681e6c26e6ae1c8",
+  "productionCommit": "f2e67c6fced3db82b1950c7c9382e57094fd2b6e",
+  "arm": "writer-derived notes replayed at latest referenced date; writer execution separate",
+  "calendarDays": 2191,
+  "distractors": 184044,
+  "sourceRecords": 408,
+  "messages": 184434,
+  "memoryNotes": 180,
+  "writerNotesSha256": "22b735a36acaf91a1be030b0610b7502c7d00e231e59157dd7d69f35ffa3edfa",
+  "writerNotesInserted": 180,
+  "writerNotesRejected": [
+    {
+      "noteIndex": 0,
+      "key": "사진전.receipt",
+      "reason": "raw_only_derived_notes_forbidden"
+    },
+    {
+      "noteIndex": 16,
+      "key": "도서관.receipt",
+      "reason": "raw_only_derived_notes_forbidden"
+    },
+    {
+      "noteIndex": 32,
+      "key": "천문대.receipt",
+      "reason": "raw_only_derived_notes_forbidden"
+    },
+    {
+      "noteIndex": 48,
+      "key": "목공방.receipt",
+      "reason": "raw_only_derived_notes_forbidden"
+    },
+    {
+      "noteIndex": 64,
+      "key": "음악회.receipt",
+      "reason": "raw_only_derived_notes_forbidden"
+    },
+    {
+      "noteIndex": 80,
+      "key": "텃밭.receipt",
+      "reason": "raw_only_derived_notes_forbidden"
+    },
+    {
+      "noteIndex": 96,
+      "key": "등산회.receipt",
+      "reason": "raw_only_derived_notes_forbidden"
+    },
+    {
+      "noteIndex": 112,
+      "key": "번역팀.receipt",
+      "reason": "raw_only_derived_notes_forbidden"
+    },
+    {
+      "noteIndex": 128,
+      "key": "수영장.receipt",
+      "reason": "raw_only_derived_notes_forbidden"
+    },
+    {
+      "noteIndex": 144,
+      "key": "박물관.receipt",
+      "reason": "raw_only_derived_notes_forbidden"
+    },
+    {
+      "noteIndex": 160,
+      "key": "도예실.receipt",
+      "reason": "raw_only_derived_notes_forbidden"
+    },
+    {
+      "noteIndex": 176,
+      "key": "독서회.receipt",
+      "reason": "raw_only_derived_notes_forbidden"
+    }
+  ],
+  "checkpoints": [
+    {
+      "checkpoint": "2021-12-31",
+      "cases": 144,
+      "allRequiredSourcesDelivered": 125,
+      "requiredSourceCount": 348,
+      "requiredSourcesDelivered": 323,
+      "rawOnlyCases": 12,
+      "rawOnlyCompleteDelivery": 8,
+      "protectedValueLeakCases": 0,
+      "p50Millis": 69,
+      "p95Millis": 204,
+      "groundedAnswerAccuracy": "not_measured",
+      "completedUsefulAnswers": "not_measured"
+    },
+    {
+      "checkpoint": "2023-12-31",
+      "cases": 144,
+      "allRequiredSourcesDelivered": 111,
+      "requiredSourceCount": 396,
+      "requiredSourcesDelivered": 218,
+      "rawOnlyCases": 12,
+      "rawOnlyCompleteDelivery": 8,
+      "protectedValueLeakCases": 6,
+      "p50Millis": 141,
+      "p95Millis": 441,
+      "groundedAnswerAccuracy": "not_measured",
+      "completedUsefulAnswers": "not_measured"
+    },
+    {
+      "checkpoint": "2026-12-31",
+      "cases": 144,
+      "allRequiredSourcesDelivered": 111,
+      "requiredSourceCount": 396,
+      "requiredSourcesDelivered": 218,
+      "rawOnlyCases": 12,
+      "rawOnlyCompleteDelivery": 8,
+      "protectedValueLeakCases": 6,
+      "p50Millis": 248,
+      "p95Millis": 572,
+      "groundedAnswerAccuracy": "not_measured",
+      "completedUsefulAnswers": "not_measured"
+    }
+  ],
+  "elapsedMillis": 115927,
+  "corpusDigest": "9aa2228ab3f1eae27de0f817791bd80e9a911f9f1ff774c5b3a8bec6e87b7d6a",
+  "runtime": "Robolectric SDK28 native SQLite; JDK17 host",
+  "semanticEncoder": "absent; lexical production fallback only",
+  "contextChars": 12000,
+  "sourceLimit": 12,
+  "oracleNeverInReaderPacket": true,
+  "actualModelExtractionMeasured": false,
+  "writerDerivedNotesLoaded": true,
+  "writerModelRuntimeVerifiedByHarness": false,
+  "chronologicalIncrementalWriterVerified": false,
+  "actualGroundedAnswerQualityMeasured": false,
+  "actualFiveYearsElapsed": false,
+  "actualWorkCalls": 0,
+  "physicalPhoneMeasured": false,
+  "paidApiCalls": 0,
+  "finalAcceptancePassed": false,
+  "scope": "Delivery\/integrity baseline only. Forget messages are not executed by a model. Permission revocation uses production device visibility predicate. Neither successful answers nor product forget enforcement are established."
+}

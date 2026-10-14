@@ -1,0 +1,71 @@
+{
+  "status": "incomplete_obsolete_component",
+  "finalAcceptancePassed": false,
+  "matrixSha256": "2821867ebb826cb2b873ef5d95e5abbbbf4b9a60923a2755f681e6c26e6ae1c8",
+  "arms": {
+    "raw": [
+      {
+        "checkpoint": "2021-12-31",
+        "cases": 144,
+        "allRequiredSourcesDelivered": 122,
+        "requiredSourceCount": 348,
+        "requiredSourcesDelivered": 322,
+        "rawOnlyCases": 12,
+        "rawOnlyCompleteDelivery": 12,
+        "protectedValueLeakCases": 0,
+        "blockedCases": 0,
+        "p50Millis": 672,
+        "p95Millis": 1465,
+        "groundedAnswerAccuracy": "not_measured",
+        "completedUsefulAnswers": "not_measured"
+      },
+      {
+        "checkpoint": "2023-12-31",
+        "cases": 144,
+        "allRequiredSourcesDelivered": 128,
+        "requiredSourceCount": 396,
+        "requiredSourcesDelivered": 376,
+        "rawOnlyCases": 12,
+        "rawOnlyCompleteDelivery": 12,
+        "protectedValueLeakCases": 0,
+        "blockedCases": 0,
+        "p50Millis": 2993,
+        "p95Millis": 9276,
+        "groundedAnswerAccuracy": "not_measured",
+        "completedUsefulAnswers": "not_measured"
+      }
+    ],
+    "writer": [
+      {
+        "checkpoint": "2021-12-31",
+        "cases": 144,
+        "allRequiredSourcesDelivered": 102,
+        "requiredSourceCount": 348,
+        "requiredSourcesDelivered": 194,
+        "rawOnlyCases": 12,
+        "rawOnlyCompleteDelivery": 8,
+        "protectedValueLeakCases": 0,
+        "blockedCases": 0,
+        "p50Millis": 722,
+        "p95Millis": 1606,
+        "groundedAnswerAccuracy": "not_measured",
+        "completedUsefulAnswers": "not_measured"
+      },
+      {
+        "checkpoint": "2023-12-31",
+        "cases": 144,
+        "allRequiredSourcesDelivered": 108,
+        "requiredSourceCount": 396,
+        "requiredSourcesDelivered": 248,
+        "rawOnlyCases": 12,
+        "rawOnlyCompleteDelivery": 8,
+        "protectedValueLeakCases": 0,
+        "blockedCases": 0,
+        "p50Millis": 3877,
+        "p95Millis": 10250,
+        "groundedAnswerAccuracy": "not_measured",
+        "completedUsefulAnswers": "not_measured"
+      }
+    ]
+  }
+}

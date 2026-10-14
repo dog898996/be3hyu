@@ -95,7 +95,7 @@ async function nativeAuthorization(page, mode) {
       if (event.code !== 'dispatch_authorization_requested' || window.nativeAuthorizationMode === 'manual') return;
       window.nativePolicyChecks++;
       const allowed = window.nativeAuthorizationMode === 'allow' && window.nativePolicyAllowed;
-      window.authorizationReplies.push(window.HoyoungWorkBridge.authorizeDispatch(event.requestId, event.nonce, allowed));
+      window.authorizationReplies.push(window.HoyoungWorkBridge.authorizeDispatch(event.requestId, event.nonce, allowed, event.payloadDigest));
     };
   }, mode);
 }
@@ -1008,4 +1008,30 @@ test('DOM drift cannot mistake unrelated forms or a manual different turn for th
     assert.equal((await events(page)).some(event => event.code === 'turn_ambiguous'), true);
     assert.equal((await inspect(page)).phase, 'uncertain');
   }, { setup: `window.autoAck=false` });
+});
+
+test('native final payload digest is required and returned in before-click authorization', async () => {
+  await pageFixture(async page => {
+    const missing=await send(page,{requiresNativeAuthorization:true,requiresNativePayloadDigest:true});
+    assert.equal(missing.code,'native_payload_digest_missing');assert.equal(await page.evaluate(()=>window.clicks),0);
+    await nativeAuthorization(page,'allow');
+    const digest='a'.repeat(64);
+    assert.equal((await send(page,{requestId:'digest-valid',requiresNativeAuthorization:true,requiresNativePayloadDigest:true,nativePayloadDigest:digest})).ok,true);
+    await advance(page,250);
+    assert.equal((await events(page)).find(event=>event.code==='dispatch_authorization_requested').payloadDigest,digest);
+    assert.equal(await page.evaluate(()=>window.clicks),1);
+  });
+});
+
+test('a different payload digest denies the staged prompt before submission', async () => {
+  await pageFixture(async page => {
+    await nativeAuthorization(page,'manual');
+    await send(page,{requiresNativeAuthorization:true,requiresNativePayloadDigest:true,nativePayloadDigest:'b'.repeat(64)});
+    await advance(page,250);
+    const auth=(await events(page)).find(event=>event.code==='dispatch_authorization_requested');
+    await page.evaluate(({auth})=>window.HoyoungWorkBridge.authorizeDispatch(auth.requestId,auth.nonce,true,'c'.repeat(64)),{auth});
+    await advance(page,250);
+    assert.equal(await page.evaluate(()=>window.clicks),0);
+    assert.equal((await events(page)).some(event=>event.code==='dispatch_payload_digest_mismatch'),true);
+  });
 });

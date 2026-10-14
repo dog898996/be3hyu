@@ -1,0 +1,258 @@
+{
+  "raw": {
+    "strata": {
+      "raw_only": {
+        "cases": 12,
+        "completeDelivery": 9,
+        "deliveredSources": 9,
+        "requiredSources": 12,
+        "leakCases": 0
+      },
+      "alias_cues": {
+        "cases": 12,
+        "completeDelivery": 0,
+        "deliveredSources": 8,
+        "requiredSources": 24,
+        "leakCases": 0
+      },
+      "temporal_change": {
+        "cases": 12,
+        "completeDelivery": 12,
+        "deliveredSources": 24,
+        "requiredSources": 24,
+        "leakCases": 0
+      },
+      "claim_status": {
+        "cases": 12,
+        "completeDelivery": 8,
+        "deliveredSources": 16,
+        "requiredSources": 20,
+        "leakCases": 0
+      },
+      "episodes": {
+        "cases": 12,
+        "completeDelivery": 12,
+        "deliveredSources": 36,
+        "requiredSources": 36,
+        "leakCases": 0
+      },
+      "decision_reasons": {
+        "cases": 12,
+        "completeDelivery": 12,
+        "deliveredSources": 24,
+        "requiredSources": 24,
+        "leakCases": 0
+      },
+      "procedure_scope": {
+        "cases": 12,
+        "completeDelivery": 12,
+        "deliveredSources": 24,
+        "requiredSources": 24,
+        "leakCases": 0
+      },
+      "active_constraints": {
+        "cases": 12,
+        "completeDelivery": 12,
+        "deliveredSources": 24,
+        "requiredSources": 24,
+        "leakCases": 0
+      },
+      "missing_facts": {
+        "cases": 12,
+        "completeDelivery": 12,
+        "deliveredSources": 12,
+        "requiredSources": 12,
+        "leakCases": 0
+      },
+      "image_wire_scope": {
+        "cases": 12,
+        "completeDelivery": 12,
+        "deliveredSources": 16,
+        "requiredSources": 16,
+        "leakCases": 0
+      },
+      "forget_revoke": {
+        "cases": 12,
+        "completeDelivery": 12,
+        "deliveredSources": 12,
+        "requiredSources": 12,
+        "leakCases": 0
+      },
+      "range_coverage": {
+        "cases": 12,
+        "completeDelivery": 12,
+        "deliveredSources": 168,
+        "requiredSources": 168,
+        "leakCases": 0
+      }
+    },
+    "frozenBaselineCompleteDelivery": 130,
+    "componentCompleteDelivery": 125,
+    "cases": 144,
+    "deliveryErrorRatio": 1.3571428571428572,
+    "deliveryErrorHalvingMet": false,
+    "protectedLeakCasesBefore": 6,
+    "protectedLeakCasesAfter": 0,
+    "failedDeliveryCases": [
+      "alias_cues-01",
+      "raw_only-02",
+      "alias_cues-02",
+      "alias_cues-03",
+      "claim_status-03",
+      "alias_cues-04",
+      "raw_only-05",
+      "alias_cues-05",
+      "alias_cues-06",
+      "claim_status-06",
+      "alias_cues-07",
+      "raw_only-08",
+      "alias_cues-08",
+      "alias_cues-09",
+      "claim_status-09",
+      "alias_cues-10",
+      "alias_cues-11",
+      "alias_cues-12",
+      "claim_status-12"
+    ],
+    "groundedAnswerAccuracy": "not_measured",
+    "finalAcceptancePassed": false
+  },
+  "writer": {
+    "strata": {
+      "raw_only": {
+        "cases": 12,
+        "completeDelivery": 8,
+        "deliveredSources": 8,
+        "requiredSources": 12,
+        "leakCases": 0
+      },
+      "alias_cues": {
+        "cases": 12,
+        "completeDelivery": 8,
+        "deliveredSources": 16,
+        "requiredSources": 24,
+        "leakCases": 0
+      },
+      "temporal_change": {
+        "cases": 12,
+        "completeDelivery": 12,
+        "deliveredSources": 24,
+        "requiredSources": 24,
+        "leakCases": 0
+      },
+      "claim_status": {
+        "cases": 12,
+        "completeDelivery": 8,
+        "deliveredSources": 16,
+        "requiredSources": 20,
+        "leakCases": 0
+      },
+      "episodes": {
+        "cases": 12,
+        "completeDelivery": 0,
+        "deliveredSources": 24,
+        "requiredSources": 36,
+        "leakCases": 0
+      },
+      "decision_reasons": {
+        "cases": 12,
+        "completeDelivery": 12,
+        "deliveredSources": 24,
+        "requiredSources": 24,
+        "leakCases": 0
+      },
+      "procedure_scope": {
+        "cases": 12,
+        "completeDelivery": 12,
+        "deliveredSources": 24,
+        "requiredSources": 24,
+        "leakCases": 0
+      },
+      "active_constraints": {
+        "cases": 12,
+        "completeDelivery": 12,
+        "deliveredSources": 24,
+        "requiredSources": 24,
+        "leakCases": 0
+      },
+      "missing_facts": {
+        "cases": 12,
+        "completeDelivery": 11,
+        "deliveredSources": 11,
+        "requiredSources": 12,
+        "leakCases": 0
+      },
+      "image_wire_scope": {
+        "cases": 12,
+        "completeDelivery": 12,
+        "deliveredSources": 16,
+        "requiredSources": 16,
+        "leakCases": 0
+      },
+      "forget_revoke": {
+        "cases": 12,
+        "completeDelivery": 12,
+        "deliveredSources": 12,
+        "requiredSources": 12,
+        "leakCases": 0
+      },
+      "range_coverage": {
+        "cases": 12,
+        "completeDelivery": 0,
+        "deliveredSources": 12,
+        "requiredSources": 168,
+        "leakCases": 0
+      }
+    },
+    "frozenBaselineCompleteDelivery": 111,
+    "componentCompleteDelivery": 107,
+    "cases": 144,
+    "deliveryErrorRatio": 1.121212121212121,
+    "deliveryErrorHalvingMet": false,
+    "protectedLeakCasesBefore": 6,
+    "protectedLeakCasesAfter": 0,
+    "failedDeliveryCases": [
+      "episodes-01",
+      "range_coverage-01",
+      "raw_only-02",
+      "episodes-02",
+      "range_coverage-02",
+      "alias_cues-03",
+      "claim_status-03",
+      "episodes-03",
+      "range_coverage-03",
+      "episodes-04",
+      "range_coverage-04",
+      "raw_only-05",
+      "episodes-05",
+      "range_coverage-05",
+      "alias_cues-06",
+      "claim_status-06",
+      "episodes-06",
+      "range_coverage-06",
+      "episodes-07",
+      "range_coverage-07",
+      "raw_only-08",
+      "episodes-08",
+      "missing_facts-08",
+      "range_coverage-08",
+      "alias_cues-09",
+      "claim_status-09",
+      "episodes-09",
+      "range_coverage-09",
+      "episodes-10",
+      "range_coverage-10",
+      "raw_only-11",
+      "episodes-11",
+      "range_coverage-11",
+      "alias_cues-12",
+      "claim_status-12",
+      "episodes-12",
+      "range_coverage-12"
+    ],
+    "groundedAnswerAccuracy": "not_measured",
+    "finalAcceptancePassed": false
+  },
+  "identicalProductionSourceSnapshots": true,
+  "scope": "Frozen intermediate retriever+ledger component, Gateway/physical deletion excluded; future source updates invalidate use as final release evidence."
+}

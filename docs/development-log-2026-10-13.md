@@ -102,3 +102,26 @@ Android debug 앱·instrumentation APK 빌드, 전체 JVM 단위 테스트와 li
 실제 private 파일/SQLite 검증에서 Store 초기화가 복원 저널보다 먼저 실행되면 빈 originals 경로를 만들고 유일한 이전 원문 세대를 삭제할 수 있음을 재현했다. 복원 검사부터 초기화하고, 실패 시 원문·저널을 보존하며 읽기 전용 복구 화면과 worker 재시도를 제공한다. 차단 상태의 파일 변경도 거절한다. 저장소 회귀41개와 실제 Application/서비스 경계8개가 통과했다. 동결 소스의 전체526개는510통과·16개 명시적 opt-in 건너뜀·실패/오류0, lint 오류0·경고16이었다. debug/AndroidTest APK 컴파일도 완료했다. 이전 실제 Android CI는 Quickstep 시스템 ANR와 instrumentation 종료가 대상 앱을 force-stop하는 fixture 영향으로 실패했고, 실제 assertion을 유지한 수정으로 새 CI를 수행한다.
 
 마지막 합격 기준은 5년보다 오래된 첫해 기록 회상으로 강화했다. 결과를 보기 전에 최종 시점2026-12-31·첫해2021·2,191일·방해 기록184,044개·고정144질문으로 preregistration v2를 수정했다. 동일한 생산 검색기의 실제 기준선은 원문 전달130/144, 원문만 저장한 상세 질문10/12였다. 별명 다단계 연결12개와 식별번호2개를 놓쳤고 삭제 요청 뒤 노출6건이 있었다. [기준선 전체 결과](five-year-memory-baseline-results.md)를 공개하며 불합격으로 기록한다. 모델 답변 정확도, 개선 버전, 실제 Work 서비스와 실폰 장기 실행은 이 수치에서 측정되지 않았다. 추가 유료 API·호스팅을 사용하지 않았다.
+
+
+## 10월 14일 01시 00분 UTC — 정정·삭제와 장기 기억의 제품 경계 보강
+
+사용자는 5년 이상 지난 대화의 실제 답변 평가가 통과해야 완료로 인정하며, 정정·삭제도 철저히 검증하라고 요청했다. 첫 동결 구현과 동일한 독립 모델 작성 기억을 사용한 144개 최종 질문에서, 정답을 보지 않은 GPT-6.1 Sol/Medium reader의 실제 답변을 별도 평가자가 모두 읽었다. 124개 통과·12개 부분 충족·8개 실패, 엄격한 통과율은 86.11%다. 실패는 필요한 원문을 전달받지 못한 회상이며 부분 충족은 범위 전체 확인 부족이었다. 정확한 인용과 누출 없는 답변은 확인했지만 이 결과는 완료 기준을 통과하지 못했다. [실제 출력과 판정](benchmarks/five-year-memory-independent-baseline-answers/artifact-manifest.json)을 보존했다. RFC 자체는 수치가 있는 실행 기준 구현이 아니므로 그 정확도를 만들어 비교하지 않았다.
+
+실제 원문·revision·첨부의 해시를 같은 짧은 SQLite 읽기 snapshot에서 확인하는 다섯 계층 gateway와 native 최종 전송 digest를 연결했다. 새 원문·정정·권한·삭제 정책이 바뀌면 이전 provider 원문은 저장하되 화면·기억 승격·폰 행동에 그대로 사용하지 않는다. 큰 전송문 해시는 스트리밍으로, 최종 JS 문자열 생성은 IO worker에서 처리한다. 20MiB 해시가 40MiB JVM 힙에서 동작했고 JVM 11개와 실제 Android JSON SDK 28·35 10개 검증이 통과했다. 실제 provider 응답 지연을 측정한 결과는 아니다.
+
+원문 삭제 의도와 검색 제외 정책은 복원 대상 세 namespace 밖에서 원자적으로 보존한다. 알려진 답변·기억 revision·도구 결과·목표 보관 기록·전용 원문 파일을 추적하며, 공유 파일·작업 사본·휴대폰 HJA 보관본·실행 중 작업은 확인 없이 완료로 표시하지 않는다. 저장소 삭제/잠금 회귀 58개, 명시적인 owner 제어와 최신 입력 epoch 복구 6개가 통과했다. 마지막 사용자 원문을 지운 후에도 이전 원문으로 돌아가지 않고 새 native UI 제어 기록으로 authority를 단조 증가시켜 다음 다섯 계층 준비가 정상 작동한다. 예전 백업을 가져오면 삭제 재검사를 먼저 수행한다.
+
+앱 시작은 삭제 의도를 IO worker에서 검사하는 동안 Runtime·WebView·폰 수집기를 만들지 않는다. 서명된 의도나 키·앵커가 손상되거나 사라지면 준비 완료로 바꾸지 않는다. 실제 화면의 로딩→자동 준비 전환·제외/삭제 버튼과 초안 UUID/revision 보존을 포함한 9개 회귀가 통과했다. 알림에서도 원문·known ancestry·ID/hash 세대를 검사하고, 예전 백업·지연 콜백·재시작으로 제외 내용을 재알림하는 경로를 막아 44개 회귀가 통과했다. 이전에 OS·외부 제공자에 전달한 내용의 삭제를 검증했다고 주장하지 않는다.
+
+전체 통합의 이전 622개 검사에는 12개 실패가 있어 새 APK 공개를 보류했다. 실제 canonical source가 없는 옛 테스트 데이터, 새로운 native 준비/IO 경계를 기다리지 않은 테스트를 고쳤고, 90~95k 원문이 20k 검색 query 제한과 충돌하던 실제 결함과 50k 계속 목표의 중복 주입도 고쳤다. 원문을 줄여 통과시키지 않았다. 관련 Runtime 61개와 Phone 24개 재검사가 통과했으며 최종 전체 검사와 실제 Android API 35 실행은 새 소스 동결 뒤 다시 수행한다.
+
+기억이 늘면서 파생 메모가 필요한 원문을 밀어내는 현상과 snapshot fallback의 전체 SQL LIKE scan을 실제 18만 원문에서 확인했다. corpus/질문/정답을 바꾸지 않고 원문 우선 예산·희귀 literal/동일 entity 순위·같은 snapshot의 FTS 후보를 보완 중이다. 아직 최종 5년 답변 평가·최종 APK·실계정 Work·Galaxy S24 Ultra 24시간 검증을 완료했다고 기록하지 않는다. 유료 API·호스팅·유료 CI는 추가하지 않았다.
+
+## 2026-10-14 01:35 UTC — memory/privacy progress checkpoint
+
+The immutable 0.3.0/code4 Android checkpoint completed 739 unit tests: 723 passed, 16 explicit opt-in skips, zero failures/errors. Its separate affected 68-test native consumer run passed; lint had zero errors and 16 warnings. Both debug APKs compiled, with all 40 requested permissions and the existing package identity. Exact captured-source/artifact hashes are retained in the two android-memory-checkpoint-v030 benchmark receipts. This is a tested progress checkpoint; no signed/public final release is claimed.
+
+Independent actual Korean readers completed all 144 final-checkpoint questions for raw V4 and writer V5. A separate oracle-aware reviewer manually scored every material claim in both runs: 144 pass each. Each reader used actual native retrieval for fourteen-source monthly ranges; corrections, deleted/revoked facts, absent evidence and image-modality limitations passed their distinct rubrics. Actual answers, quote audits, scores and hashes are retained under five-year-memory-independent-final-answers. Three tagged native counterfactual conditions also passed separate model/semantic review; this covers one scenario, not general proof of model reasoning.
+
+Fair comparison still requires the identical f2 writer baseline to use the same three-search/twenty-source allowance. The old 124/144 packet-only baseline cannot substantiate a semantic twofold improvement. A latest-source V6 run already exposed a timing-dependent adaptive query regression: a completed bounded SQL query was discarded after a 350 ms deadline under contention. Its failure remains recorded. The autonomous runtime also needs bounded memory-review work during overdue inference and exact review-source binding. Those fixes, fresh whole verification and real API35 process/reboot checks remain pending; actual Work account, S24 Ultra endurance and five elapsed years remain unmeasured.

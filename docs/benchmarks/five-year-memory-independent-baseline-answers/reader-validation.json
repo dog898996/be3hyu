@@ -1,0 +1,18 @@
+{
+  "inputCount": 144,
+  "outputCount": 144,
+  "uniqueInputIds": 144,
+  "uniqueOutputIds": 144,
+  "missingIds": [],
+  "extraIds": [],
+  "errors": [],
+  "inputSHA256": "f81f4b58b5ef0c0e80789cc04b89c5acce383731ca7a5927c062f855db3da532",
+  "outputSHA256": "1b0f8d30b603f00663a2911353607d133aca3e87d2d527a547be853146a7fcde",
+  "requestedModel": "gpt-6.1-sol",
+  "requestedReasoningEffort": "medium",
+  "backendSpeedVerified": false,
+  "modelReasonedAnswers": 144,
+  "sourceQueriesExecuted": 0,
+  "oracleAccesses": 0,
+  "imagePixelInspections": 0
+}

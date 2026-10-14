@@ -125,6 +125,16 @@ public final class InternalFiles {
         catch (RuntimeException deferred) { startupWarning=new IOException("Abandoned staging cleanup is deferred",deferred); }
     }
 
+    @FunctionalInterface public interface StorageMaintenance<T> { T run() throws IOException; }
+
+    /** Run on an IO worker without already holding a Store monitor. This uses the
+     * same backup -> files order as import and also excludes ordinary file mutation.
+     * The callback must not delegate a nested storage operation to another thread. */
+    public <T> T withExclusiveStorageMaintenance(StorageMaintenance<T> action)throws IOException {
+        if(action==null)throw new IllegalArgumentException("Storage maintenance callback is required");
+        synchronized(backupLock){synchronized(this){assertStartupWritable();return action.run();}}
+    }
+
     public synchronized JSONObject saveFromUri(Uri uri, String displayName) throws IOException {
         assertStartupWritable();
         if (uri == null) throw new IllegalArgumentException("A source URI is required");

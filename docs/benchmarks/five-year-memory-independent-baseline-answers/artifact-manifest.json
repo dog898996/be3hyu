@@ -1,0 +1,17 @@
+{
+  "scope": "Independent fresh GPT-6.1 Sol/medium baseline reader of actual f2+same-writer bounded final packets; separate semantic grader; no product Work model call or paid external API",
+  "hashes": {
+    "answers.jsonl": "1b0f8d30b603f00663a2911353607d133aca3e87d2d527a547be853146a7fcde",
+    "reader-validation.json": "c4ae8013bb4edd14b6e9add99a87fcf565419947fac8fb554c2e73573e102d0f",
+    "semantic-scores.json": "118bb39b512bec2f9b0847d20a1d4ffb9ef9d5db8d7640b85ffd50464359a86c",
+    "semantic-report.json": "4715498496d4d245faaea5e058ba740d5b025b9c9137a96edbfffb89dbb8af80",
+    "quote-audit.json": "fcd6b740abc6de9410d2e71f41e8653ef878ed38215fbcba299ed9e5b1c6818b"
+  },
+  "strictPassCount": 124,
+  "partialCount": 12,
+  "failedCount": 8,
+  "totalCases": 144,
+  "followupToolsUsed": false,
+  "finalFiveYearAcceptancePassed": false,
+  "comparisonToOriginalRFCAccuracyMeasured": false
+}

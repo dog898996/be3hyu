@@ -1,0 +1,11 @@
+{
+  "scoring-rows.json": {
+    "rawSha256": "1b42f5301d16eac3cc73fd4e4fad8ca6b3a6bb1521a77a5fbe77f0f3538d9e36",
+    "gzipSha256": "5c8e36640857a45a209ceab7c0026f0f1d1be2962c4d7cf6a70253a43e729c02"
+  },
+  "final-reader-inputs.jsonl": {
+    "rawSha256": "1f45b7b5c89009690c875b339554af1cfe68fa578317dd2e72ef9caee2e41eed",
+    "gzipSha256": "d5f2d5b64fa9d0fceb73377ab2314769a36ba1c2768cd39ec16e5d2191bf893f"
+  },
+  "fixtureSha256": "d93ea88c42d6ed59c5c21b3b6c0de6b206563e51968e46dcce21b980759bbe0b"
+}

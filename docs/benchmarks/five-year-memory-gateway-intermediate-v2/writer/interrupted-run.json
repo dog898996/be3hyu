@@ -1,0 +1,9 @@
+{
+  "status": "terminated_obsolete_incomplete",
+  "reason": "Parent prioritized latest combined physical-deletion and generic-alias run; obsolete full-scan phases released CPU. Existing completed checkpoints remain available.",
+  "terminatedAtUtc": "2026-10-14T00:33:40.269735+00:00",
+  "finalFiveYearCheckpointComplete": false,
+  "finalAcceptancePassed": false,
+  "partialReportSha256": "f616919ca15e00754777dc3169e32d06d3e96d1a3049b36fad7d4e7142d1a4b4",
+  "scope": "No final-answer accuracy, final source score, cache rejection or old-backup replay result is inferred from this partial run."
+}

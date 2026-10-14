@@ -395,11 +395,11 @@ public final class WorkWebController implements AssistantRuntime.Transport {
             // File reads/base64 can be tens of MiB. Keep owner input and Android's
             // main thread responsive while the immutable dispatch is prepared.
             attachmentPreparation.execute(() -> {
-              final JSONObject request;
+              final String call;
               try {
-                request = new JSONObject().put("requestId", requestId).put("text", prompt)
+                JSONObject request = new JSONObject().put("requestId", requestId).put("text", prompt)
                     .put("requiredModel", preferences.getString("requiredModel")).put("requiredEffort", preferences.getString("requiredEffort")).put("requiredSpeed", preferences.getString("requiredSpeed"))
-                    .put("requiresNativeAuthorization", true);
+                    .put("requiresNativeAuthorization", true).put("requiresNativePayloadDigest", true);
                 JSONArray ids = new JSONArray(((HoyoungApplication) context).getStore().getSetting("attachments:" + requestId, "[]"));
                 JSONArray attachments = attachmentPayload(requestId, ids);
                 if (attachments.length() > 0) {
@@ -407,10 +407,18 @@ public final class WorkWebController implements AssistantRuntime.Transport {
                     String plan = ((HoyoungApplication) context).getStore().getSetting("workAttachmentRepresentations:" + requestId, "[]");
                     request.put("text", attachmentPrompt(prompt, plan));
                 }
+                // Bind the actual final text and encoded attachment bytes after the
+                // representation table is appended. This receipt stays native.
+                request.put("nativePayloadDigest",runtime.registerPreparedPayload(requestId,request));
+                // Serialization of tens of MiB belongs beside file preparation,
+                // not on the UI thread. The posted task retains only its wire string.
+                call="window.HoyoungWorkBridge ? JSON.stringify(window.HoyoungWorkBridge.send("+request+")) : null";
               } catch (WorkAttachmentRepresentations.RepresentationFailure preparationFailure) {
                 emitPreflight("attachment_" + preparationFailure.code, requestId); return;
               } catch (AttachmentPreparationFailure preparationFailure) {
                 emitPreflight(preparationFailure.code, requestId); return;
+              } catch (com.hoyoung.assistant.store.MemoryGateway.Blocked staleMemory) {
+                emitPreflight("PREPARED_MEMORY_CHANGED",requestId); return;
               } catch (Exception preparationFailure) { emitPreflight("ATTACHMENT_NOT_READY", requestId); return; }
               main.post(() -> {
                 if (view != destination || !loaded) { emitPreflight("WEBVIEW_NOT_READY", requestId); return; }
@@ -420,7 +428,6 @@ public final class WorkWebController implements AssistantRuntime.Transport {
                 // during that interval; recheck immediately before any JS wire
                 // send, without reclassifying an already accepted cloud outcome.
                 if (!runtime.preparedDispatchStillAllowed(requestId)) { emitPreflight("PREPARED_DISPATCH_POLICY_CHANGED", requestId); return; }
-                String call = "window.HoyoungWorkBridge ? JSON.stringify(window.HoyoungWorkBridge.send(" + request + ")) : null";
                 try { destination.evaluateJavascript(call, raw -> {
                     try {
                         if (raw == null || "null".equals(raw)) { emitError("BRIDGE_NOT_READY", requestId); return; }
@@ -453,20 +460,27 @@ public final class WorkWebController implements AssistantRuntime.Transport {
 
     private void authorizePreparedDispatch(WebView source, JSONObject event) {
         String requestId = event.optString("requestId", ""), nonce = event.optString("nonce", "");
+        String payloadDigest=event.optString("payloadDigest","");
         if (!requestId.matches("[A-Za-z0-9_.:-]{1,128}") || !nonce.matches("[a-f0-9]{32}")) return;
         main.post(() -> {
             if (source != view || !loaded || !isChatGptOrigin(Uri.parse(currentOrigin))) return;
-            boolean allowed = false;
-            try { allowed = runtime.preparedDispatchStillAllowed(requestId); }
-            catch (RuntimeException policyUnavailable) { /* An unreadable policy never authorizes a click. */ }
-            JSONArray arguments = new JSONArray().put(requestId).put(nonce).put(allowed);
-            try {
-                source.evaluateJavascript("window.HoyoungWorkBridge && window.HoyoungWorkBridge.authorizeDispatch && window.HoyoungWorkBridge.authorizeDispatch.apply(null," + arguments + ")", ignored -> { });
-            } catch (RuntimeException | LinkageError replyLost) {
-                // Evaluation may have reached JS before the provider reported a
-                // failure. Never turn that ambiguity into a known-not-sent retry.
-                emitError("DISPATCH_AUTHORIZATION_UNCERTAIN", requestId); startupFailed(replyLost);
-            }
+            // Source hash reads and snapshot checks belong on the I/O worker.
+            attachmentPreparation.execute(() -> {
+                boolean admitted=false;
+                try { admitted=runtime.authorizeFinalPayload(requestId,payloadDigest); }
+                catch(RuntimeException unavailable){ /* Never click with an unreadable memory dependency. */ }
+                final boolean authorized=admitted;
+                main.post(() -> {
+                    if(source!=view||!loaded||!isChatGptOrigin(Uri.parse(currentOrigin)))return;
+                    boolean allowed=authorized&&runtime.preparedDispatchStillAllowed(requestId);
+                    JSONArray arguments=new JSONArray().put(requestId).put(nonce).put(allowed).put(payloadDigest);
+                    try {
+                        source.evaluateJavascript("window.HoyoungWorkBridge && window.HoyoungWorkBridge.authorizeDispatch && window.HoyoungWorkBridge.authorizeDispatch.apply(null,"+arguments+")",ignored->{ });
+                    }catch(RuntimeException|LinkageError replyLost){
+                        emitError("DISPATCH_AUTHORIZATION_UNCERTAIN",requestId);startupFailed(replyLost);
+                    }
+                });
+            });
         });
     }
 

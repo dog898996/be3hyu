@@ -205,10 +205,17 @@ public final class WorkStartupRecoveryTest {
         controller.start(); idle(); markLoaded(controller); ready();
         field(WorkWebController.class, "currentOrigin").set(controller, WorkWebController.TEMPORARY_URL);
         JSONObject original = runtime.receive("JS로 전달된 권한의 결과는 확인 필요", new JSONArray());
+        String payloadDigest = runtime.registerPreparedPayload(original.getString("external_id"),
+                object("requestId", original.getString("external_id"), "text", "native prepared test payload"));
         views.get(0).javascriptLinkageFailure = new UnsatisfiedLinkError("Injected authorization provider failure");
         java.lang.reflect.Method authorize = WorkWebController.class.getDeclaredMethod("authorizePreparedDispatch", WebView.class, JSONObject.class);
         authorize.setAccessible(true);
-        authorize.invoke(controller, views.get(0), object("requestId", original.getString("external_id"), "nonce", "0123456789abcdef0123456789abcdef"));
+        authorize.invoke(controller, views.get(0), object("requestId", original.getString("external_id"), "nonce", "0123456789abcdef0123456789abcdef", "payloadDigest", payloadDigest));
+        idle();
+        // Native source validation now runs on the attachment worker; await that
+        // actual boundary before draining the posted WebView authorization.
+        ((java.util.concurrent.ExecutorService) field(WorkWebController.class, "attachmentPreparation").get(controller))
+                .submit(() -> { }).get(10, java.util.concurrent.TimeUnit.SECONDS);
         idle(); assertEquals("uncertain", store.getRequest(original.getLong("id")).getString("status"));
         assertTrue(runtime.state().getBoolean("uncertaintyBlocked")); assertNull(controller.getExistingView());
         advance(120_000); assertEquals(1, views.size());

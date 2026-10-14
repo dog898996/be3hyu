@@ -18,12 +18,14 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
+import org.robolectric.annotation.SQLiteMode;
 import java.util.ArrayDeque;
 import java.util.concurrent.Executor;
 import static org.junit.Assert.*;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk=28,application=Application.class)
+@SQLiteMode(SQLiteMode.Mode.NATIVE)
 public final class AssistantReplyNotificationsTest {
     private Context context; private HoyoungStore store; private NotificationManager manager; private AssistantReplyNotifications replies;
     @Before public void before(){context=RuntimeEnvironment.getApplication();context.deleteDatabase(HoyoungStore.DATABASE_NAME);store=new HoyoungStore(context);manager=(NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);manager.cancelAll();Shadows.shadowOf(manager).setNotificationsEnabled(true);Shadows.shadowOf((Application)context).grantPermissions(Manifest.permission.POST_NOTIFICATIONS);replies=new AssistantReplyNotifications(context,store,Runnable::run);}

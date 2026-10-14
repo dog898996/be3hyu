@@ -1,0 +1,18 @@
+{
+  "5": {
+    "requiredSourceDenominator": 396,
+    "requiredSourceHits": 166,
+    "microRecall": 0.41919191919191917,
+    "allRequiredCandidateCases": 69,
+    "cases": 144,
+    "scope": "Native Retriever originalEvidence ranking before independent Gateway candidates/packing. Required sources only; group/source cutoffs differ."
+  },
+  "12": {
+    "requiredSourceDenominator": 396,
+    "requiredSourceHits": 173,
+    "microRecall": 0.43686868686868685,
+    "allRequiredCandidateCases": 76,
+    "cases": 144,
+    "scope": "Native Retriever originalEvidence ranking before independent Gateway candidates/packing. Required sources only; group/source cutoffs differ."
+  }
+}

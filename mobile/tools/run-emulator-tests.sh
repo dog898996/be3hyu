@@ -160,7 +160,7 @@ if failure or not success or int(success.group(1)) < int(sys.argv[2]):
 print('Verified real Android instrumentation:', success.group(1), 'passing tests.')
 PY
 }
-if ! verify_instrumentation "$LOG_DIR/instrumentation.log" 14; then
+if ! verify_instrumentation "$LOG_DIR/instrumentation.log" 15; then
   primary_passed=false
   echo '::error::Primary Android checks failed; independent real restart checks will still run, and this job remains failed.' >&2
 fi
@@ -179,6 +179,32 @@ system_foreground_present() {
   local service_dump
   service_dump="$(timeout 8 "$ADB" -s "$SERIAL" shell dumpsys activity services "$APP_ID" 2>/dev/null)" || return 1
   [[ "$service_dump" == *".runtime.AutonomyService"* && "$service_dump" == *"isForeground=true"* ]]
+}
+capture_restart_failure() {
+  local phase="$1" screenshot="$LOG_DIR/restart-$1-failure.png"
+  echo "HOYOUNG_RESTART_FAILURE phase=$phase; offline-disposable-emulator-only; observing-OS-state-without-dismissing-own-app-errors"
+  timeout 8 "$ADB" -s "$SERIAL" shell pidof "$APP_ID" || true
+  timeout 8 "$ADB" -s "$SERIAL" shell dumpsys activity services "$APP_ID" | head -180 || true
+  timeout 8 "$ADB" -s "$SERIAL" shell dumpsys activity processes "$APP_ID" | head -180 || true
+  timeout 8 "$ADB" -s "$SERIAL" shell dumpsys activity exit-info "$APP_ID" | head -100 || true
+  timeout 8 "$ADB" -s "$SERIAL" shell dumpsys window windows | python3 -c 'import sys; print("".join(line for line in sys.stdin if "mCurrentFocus=" in line or "mFocusedApp=" in line))' || true
+  timeout 8 "$ADB" -s "$SERIAL" logcat -d -v brief \
+    'ActivityManager:I' 'ActivityTaskManager:I' 'AndroidRuntime:E' '*:S' | tail -180 || true
+  # The driver already proved this is a freshly wiped, offline AVD. Preserve its
+  # real system dialog as PNG; never close an own-app crash/ANR to hide a failure.
+  if timeout 8 "$ADB" -s "$SERIAL" exec-out screencap -p > "$screenshot"; then
+    python3 - "$screenshot" "$phase" <<'PY'
+import base64, pathlib, sys
+body = pathlib.Path(sys.argv[1]).read_bytes()
+if body.startswith(b'\x89PNG\r\n\x1a\n') and 0 < len(body) <= 5 * 1024 * 1024:
+    encoded = base64.b64encode(body).decode('ascii')
+    chunks = [encoded[offset:offset+2000] for offset in range(0, len(encoded), 2000)]
+    for index, chunk in enumerate(chunks):
+        print(f'HOYOUNG_UI_FAILURE_PNG_BASE64 restart-{sys.argv[2]} {index}/{len(chunks)} {chunk}')
+else:
+    print('Bounded actual restart screenshot could not be captured.')
+PY
+  fi
 }
 await_system_foreground() {
   local phase="$1" deadline=$((SECONDS + 120))
@@ -230,6 +256,33 @@ echo 'HOYOUNG_SYSTEM_FORCE_STOP actual-process-and-FGS-absent; explicit-user-reo
 start_normal_app
 run_restart_phase forceReopen
 await_system_foreground forceReopen
+# Abrupt process death is a separate OS path from Java's crash-dialog policy.
+# run-as targets only this debuggable fixture's own UID; it never signals another
+# package or counts a user force-stop as something Android may auto-recover.
+process_death_pid="$(timeout 8 "$ADB" -s "$SERIAL" shell pidof "$APP_ID" | tr -d '\r')"
+if [[ ! "$process_death_pid" =~ ^[0-9]+$ ]]; then echo '::error::Expected one actual app PID before process death.' >&2; exit 1; fi
+timeout 8 "$ADB" -s "$SERIAL" shell run-as "$APP_ID" /system/bin/kill -9 "$process_death_pid"
+process_death_deadline=$((SECONDS + 300))
+replacement_pid=''
+while (( SECONDS < process_death_deadline )); do
+  replacement_pid="$(timeout 8 "$ADB" -s "$SERIAL" shell pidof "$APP_ID" 2>/dev/null | tr -d '\r' || true)"
+  if [[ "$replacement_pid" =~ ^[0-9]+$ && "$replacement_pid" != "$process_death_pid" ]] && system_foreground_present; then break; fi
+  sleep 2
+done
+process_death_passed=true
+echo "HOYOUNG_PROCESS_DEATH_PROBE oldPid=$process_death_pid; finalPid=${replacement_pid:-absent}; five-minute-bound; exact-system-FGS-required"
+if [[ ! "$replacement_pid" =~ ^[0-9]+$ || "$replacement_pid" == "$process_death_pid" ]] || ! system_foreground_present; then
+  echo '::error::Abrupt actual process death did not auto-recover a new PID and foreground service within five minutes.' >&2
+  process_death_passed=false
+  capture_restart_failure processDeath
+  echo 'HOYOUNG_PROCESS_DEATH_BOOTSTRAP explicit-user-reopen-for-independent-Java-crash-and-reboot-checks; not-auto-recovery'
+  "$ADB" -s "$SERIAL" shell am force-stop "$APP_ID"
+  start_normal_app
+  await_system_foreground afterProcessDeathExplicitReopen
+else
+  echo 'HOYOUNG_SYSTEM_PROCESS_DEATH_RECOVERY actual-own-UID-SIGKILL; new-process-PID; START_STICKY-FGS-recovered-before-test-Activity; not-Java-crash-or-force-stop'
+  run_restart_phase processDeath
+fi
 crash_pid="$(timeout 8 "$ADB" -s "$SERIAL" shell pidof "$APP_ID" | tr -d '\r')"
 if [[ ! "$crash_pid" =~ ^[0-9]+$ ]]; then echo '::error::Expected one actual app PID before crash.' >&2; exit 1; fi
 "$ADB" -s "$SERIAL" shell am crash "$crash_pid"
@@ -240,12 +293,22 @@ while (( SECONDS < crash_deadline )); do
   if [[ "$replacement_pid" =~ ^[0-9]+$ && "$replacement_pid" != "$crash_pid" ]] && system_foreground_present; then break; fi
   sleep 2
 done
+crash_passed=true
+echo "HOYOUNG_JAVA_CRASH_PROBE oldPid=$crash_pid; finalPid=${replacement_pid:-absent}; two-minute-observation-bound; OS-dialog-wait-is-not-proof-of-service-defect"
 if [[ ! "$replacement_pid" =~ ^[0-9]+$ || "$replacement_pid" == "$crash_pid" ]] || ! system_foreground_present; then
   echo '::error::An actual crashed app failed to replace its process and recover the foreground service.' >&2
-  exit 1
+  crash_passed=false
+  capture_restart_failure crash
+  # Keep this automatic-crash check failed. An explicit fixture reopen only
+  # prepares the independent reboot check; it is never called auto recovery.
+  echo 'HOYOUNG_CRASH_BOOTSTRAP explicit-force-stop-and-user-launch-for-independent-reboot-proof; not-auto-crash-recovery'
+  "$ADB" -s "$SERIAL" shell am force-stop "$APP_ID"
+  start_normal_app
+  await_system_foreground afterCrashExplicitReopen
+else
+  echo 'HOYOUNG_SYSTEM_CRASH_RECOVERY actual-am-crash; new-process-PID; START_STICKY-FGS-recovered-before-test-Activity'
+  run_restart_phase crash
 fi
-echo 'HOYOUNG_SYSTEM_CRASH_RECOVERY actual-am-crash; new-process-PID; START_STICKY-FGS-recovered-before-test-Activity'
-run_restart_phase crash
 await_system_foreground beforeBoot
 "$ADB" -s "$SERIAL" logcat -d -v brief 'HoyoungDeviceProof:I' '*:S' | tee "$LOG_DIR/device-proof-preboot.log"
 "$ADB" -s "$SERIAL" reboot
@@ -267,7 +330,7 @@ fi
 await_system_foreground bootReceiver
 run_restart_phase boot
 { cat "$LOG_DIR/device-proof-preboot.log"; "$ADB" -s "$SERIAL" logcat -d -v brief 'HoyoungDeviceProof:I' '*:S'; } | tee "$LOG_DIR/device-proof.log"
-if ! $primary_passed || ! $explicit_recovery_passed; then
+if ! $primary_passed || ! $explicit_recovery_passed || ! $process_death_passed || ! $crash_passed; then
   echo '::error::Independent restart phases finished, but an earlier Android test failure still prevents a successful job.' >&2
   exit 1
 fi
@@ -276,8 +339,9 @@ import pathlib, sys
 text = pathlib.Path(sys.argv[1]).read_text()
 for marker in ('HOYOUNG_REAL_ANDROID_NN', 'HOYOUNG_REAL_ANDROID_ANN', 'HOYOUNG_DEVICE_SCREEN_OFF',
                'HOYOUNG_DEVICE_RECOVERY verified-after-explicit-force-stop', 'HOYOUNG_DEVICE_APP_JOURNAL_BACKUP',
-               'HOYOUNG_DEVICE_PHOTO_UI', 'HOYOUNG_DEVICE_PAGED_CHAT', 'HOYOUNG_DEVICE_REPLY_NOTIFICATION',
-               'HOYOUNG_RESTART_RECOVERED phase=forceReopen', 'HOYOUNG_RESTART_RECOVERED phase=crash',
+               'HOYOUNG_DEVICE_PHOTO_UI', 'HOYOUNG_DEVICE_PAGED_CHAT', 'HOYOUNG_DEVICE_REPLY_NOTIFICATION', 'HOYOUNG_DEVICE_FIVE_LAYER_GATE',
+               'HOYOUNG_RESTART_RECOVERED phase=forceReopen', 'HOYOUNG_RESTART_RECOVERED phase=processDeath',
+               'HOYOUNG_RESTART_RECOVERED phase=crash',
                'HOYOUNG_RESTART_RECOVERED phase=boot'):
     if marker not in text:
         raise SystemExit('Missing actual Android proof marker: ' + marker)

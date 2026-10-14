@@ -3,6 +3,8 @@ package com.hoyoung.assistant.runtime;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import com.hoyoung.assistant.store.HoyoungStore;
+import com.hoyoung.assistant.store.SourcePrivacyLedger;
+import com.hoyoung.assistant.store.SourceRecordVisibility;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -18,6 +20,7 @@ public final class MemoryReviewCoordinator {
     private static final String ASSET_PENDING = "pendingAssetReview:", ASSET_PENDING_END = "pendingAssetReview;";
     private static final int SOURCE_CHARS = 8_000, BATCH_CHARS = 24_000, OVERLAP_CHARS = 512;
     private final HoyoungStore store;
+    private final ThreadLocal<SourcePrivacyLedger.Snapshot> privacyScope = new ThreadLocal<>();
     public MemoryReviewCoordinator(HoyoungStore store) { this.store = store; }
 
     public JSONObject prepareBatch() { return prepareBatch(60_000); }
@@ -26,7 +29,7 @@ public final class MemoryReviewCoordinator {
     public JSONObject prepareBatch(int maxSerializedChars) {
         if (maxSerializedChars < 4_096 || maxSerializedChars > 250_000)
             throw new IllegalArgumentException("Review JSON budget must be 4,096..250,000 characters");
-        return store.withTransaction(db -> {
+        return withPrivacyTransaction(db -> {
             discoverAssetSources(db, 256); refreshPendingSources(db, 32);
             boolean revisit = revisitPending();
             String partialPrefix = revisit ? PREFIX + "revisit." : PREFIX;
@@ -34,6 +37,10 @@ public final class MemoryReviewCoordinator {
             long through = revisit ? number(store.getSetting(PREFIX + "revisit.through", "0")) : Long.MAX_VALUE;
             long partialId = number(store.getSetting(partialPrefix + "partialId", "0"));
             long partialOffset = number(store.getSetting(partialPrefix + "partialOffset", "0"));
+            JSONObject policyProgress = skipLeadingExcluded(db, revisit, cursor, through, partialPrefix);
+            cursor = policyProgress.optLong("cursorEnd");
+            partialId = number(store.getSetting(partialPrefix + "partialId", "0"));
+            partialOffset = number(store.getSetting(partialPrefix + "partialOffset", "0"));
             JSONArray originals = store.listUserMessagesAfter(cursor, 16), ranges = new JSONArray(), blocked = new JSONArray();
             int budget = BATCH_CHARS, contextBudget = 4_000;
             long nextCursor = cursor, nextPartialId = 0, nextPartialOffset = 0;
@@ -42,6 +49,10 @@ public final class MemoryReviewCoordinator {
                 JSONObject original = originals.optJSONObject(i);
                 if (original == null || original.optLong("id") > through) break;
                 long id = original.optLong("id"), offset = id == partialId ? partialOffset : 0;
+                if (!sourceAllowed(db, original)) {
+                    blocked.put(object("messageId", id, "code", "source_excluded_waiting_prior_ack", "reviewed", false));
+                    break;
+                }
                 JSONObject chunk;
                 try { chunk = store.readOriginalText(id, offset, Math.min(SOURCE_CHARS, budget)); }
                 catch (IOException | IllegalArgumentException unreadable) {
@@ -81,6 +92,7 @@ public final class MemoryReviewCoordinator {
                     "partialIdStart", partialId, "partialOffsetStart", partialOffset, "cursorEnd", nextCursor,
                     "partialIdEnd", nextPartialId, "partialOffsetEnd", nextPartialOffset,
                     "sourceRanges", ranges, "blockedSources", blocked, "assetsPending", assetPendingCount(db),
+                    "sourcePrivacyFingerprint", privacyScope.get().fingerprint, "policyExcludedRange", policyProgress,
                     "noMemoryDecisionNeedsSecondPass", risk, "coverageMeaning", "source_ranges_acknowledged_by_model_not_verified_semantic_recall");
             if (revisit) {
                 put(batch, "revisitEpoch", store.getSetting(PREFIX + "revisit.epoch", ""));
@@ -107,7 +119,7 @@ public final class MemoryReviewCoordinator {
     public boolean requestRevisit(long fromMessageIdInclusive, long throughMessageId, String reason) {
         if (fromMessageIdInclusive < 0 || throughMessageId < 0 || reason == null || reason.trim().isEmpty())
             throw new IllegalArgumentException("A nonnegative source range and revisit reason are required");
-        return store.withTransaction(db -> {
+        return withPrivacyTransaction(db -> {
             if (revisitPending()) return false;
             long after = Math.max(0, fromMessageIdInclusive - 1), through = 0;
             try (Cursor lastSource = db.rawQuery("SELECT MAX(id) FROM messages WHERE role='user' AND id > ? AND id <= ?",
@@ -128,18 +140,24 @@ public final class MemoryReviewCoordinator {
     }
 
     public boolean hasPending() {
-        return store.withTransaction(db -> {
+        return withPrivacyTransaction(db -> {
             discoverAssetSources(db, 32); auditAssetSources(db, 32); refreshPendingSources(db, 32);
+            skipLeadingExcluded(db, false, store.getWatermark(WATERMARK), Long.MAX_VALUE, PREFIX);
+            if (revisitPending()) skipLeadingExcluded(db, true, number(store.getSetting(PREFIX + "revisit.after", "0")),
+                    number(store.getSetting(PREFIX + "revisit.through", "0")), PREFIX + "revisit.");
             return revisitPending() || store.lastUserMessageId() > store.getWatermark(WATERMARK) || assetPendingCount(db) > 0;
         });
     }
 
     public JSONObject status() {
+        return withPrivacyTransaction(db -> {
+        boolean pending = hasPending();
         return object("reviewedThroughMessageId", store.getWatermark(WATERMARK),
-                "lastOwnerMessageId", store.lastUserMessageId(), "hasPending", hasPending(),
-                "textReviewedThroughMessageId", store.getWatermark(WATERMARK),
-                "assetsPending", store.withTransaction(MemoryReviewCoordinator::assetPendingCount),
-                "assetSourcesPending", store.withTransaction(MemoryReviewCoordinator::assetPendingSourceCount),
+                "lastOwnerMessageId", store.lastUserMessageId(), "hasPending", pending,
+                "textReviewedThroughMessageId", number(store.getSetting(PREFIX + "modelAcknowledgedThrough", "0")),
+                "modelAcknowledgedSourceRangeCount", number(store.getSetting(PREFIX + "modelAcknowledgedRangeCount", "0")),
+                "assetsPending", withPrivacyTransaction(MemoryReviewCoordinator::assetPendingCount),
+                "assetSourcesPending", withPrivacyTransaction(MemoryReviewCoordinator::assetPendingSourceCount),
                 "assetReviewCursor", assetReviewCursor(),
                 "assetDiscoveryCursor", number(store.getSetting(PREFIX + "assetDiscoveryCursor", "0")),
                 "assetIntegrityAuditCursor", number(store.getSetting(PREFIX + "assetIntegrityAuditCursor", "0")),
@@ -149,10 +167,15 @@ public final class MemoryReviewCoordinator {
                 "revisitPending", revisitPending(), "revisitAfterMessageId", number(store.getSetting(PREFIX + "revisit.after", "0")),
                 "revisitThroughMessageId", number(store.getSetting(PREFIX + "revisit.through", "0")),
                 "lastReviewCode", store.getSetting(PREFIX + "lastCode", "not_started"),
+                "cursorMeaning", "processed_by_model_range_ack_or_explicit_native_source_exclusion",
+                "nativePolicyExcludedSourceCount", number(store.getSetting(PREFIX + "policyExcludedCount", "0")),
                 "coverageMeaning", "source_ranges_acknowledged_by_model_not_verified_semantic_recall");
+        });
     }
 
     public boolean acknowledge(JSONObject expected, JSONObject review, boolean memoriesAccepted, int proposedMemories) {
+        try { assertBatchAllowed(expected); }
+        catch (IllegalStateException excluded) { return reject("source_privacy_changed_or_excluded"); }
         if (expected != null && "asset".equals(expected.optString("reviewMode")))
             return acknowledgeObservedAssets(expected);
         if (expected == null || expected.optJSONArray("sourceRanges") == null
@@ -172,7 +195,8 @@ public final class MemoryReviewCoordinator {
                     || !exactLong(a, "nextOffsetChars", w.optLong("nextOffsetChars"))
                     || !w.optString("contentHash").equals(a.optString("contentHash"))) return reject("source_range_mismatch");
         }
-        return store.withTransaction(db -> {
+        return withPrivacyTransaction(db -> {
+            requireBatchAllowed(db, expected);
             boolean revisit = "revisit".equals(expected.optString("reviewMode"));
             String partialPrefix = revisit ? PREFIX + "revisit." : PREFIX;
             long old = expected.optLong("cursorStart");
@@ -206,6 +230,8 @@ public final class MemoryReviewCoordinator {
             else if (!store.advanceWatermark(WATERMARK, old, expected.optLong("cursorEnd"))) return reject("cursor_conflict");
             store.putSetting(partialPrefix + "partialId", String.valueOf(expected.optLong("partialIdEnd")));
             store.putSetting(partialPrefix + "partialOffset", String.valueOf(expected.optLong("partialOffsetEnd")));
+            store.putSetting(PREFIX + "modelAcknowledgedThrough", String.valueOf(Math.max(number(store.getSetting(PREFIX + "modelAcknowledgedThrough", "0")), expected.optLong("cursorEnd"))));
+            store.putSetting(PREFIX + "modelAcknowledgedRangeCount", String.valueOf(number(store.getSetting(PREFIX + "modelAcknowledgedRangeCount", "0")) + wanted.length()));
             store.putSetting(PREFIX + "lastCode", "reviewed"); store.putSetting(PREFIX + "noMemoryCandidate", "{}");
             store.recordEvent("memory_reviewed", object("batchId", expected.optString("batchId"),
                     "sourceCount", wanted.length(), "cursorEnd", expected.optLong("cursorEnd"), "noMemoryNeeded", none,
@@ -216,12 +242,12 @@ public final class MemoryReviewCoordinator {
 
     /** Root calls this after saving immutable attachment metadata in the same owner-message transaction. */
     public boolean registerAssetSource(long messageId) {
-        return store.withTransaction(db -> registerAssetSource(db, messageId));
+        return withPrivacyTransaction(db -> registerAssetSource(db, messageId));
     }
 
     public JSONObject discoverPendingAssets(int limit) {
         if (limit < 1 || limit > 1_000) throw new IllegalArgumentException("Asset discovery limit must be 1..1,000");
-        return store.withTransaction(db -> {
+        return withPrivacyTransaction(db -> {
             int scanned = discoverAssetSources(db, limit);
             return object("scannedOwnerMessages", scanned, "assetDiscoveryCursor", number(store.getSetting(PREFIX + "assetDiscoveryCursor", "0")),
                     "assetsPending", assetPendingCount(db), "analysisIndependentlyVerified", false);
@@ -229,9 +255,14 @@ public final class MemoryReviewCoordinator {
     }
 
     public JSONObject assetCoverage(long messageId) {
-        return store.withTransaction(db -> {
+        return withPrivacyTransaction(db -> {
             JSONObject source = store.getMessage(messageId);
             if (source == null || !"user".equals(source.optString("role"))) throw new IllegalArgumentException("Unknown owner asset source");
+            if (!sourceAllowed(db, source)) {
+                JSONObject excluded = object("messageId", messageId, "stage", "source_excluded", "assets", new JSONArray(),
+                        "analysisVerified", false, "sourcePolicyExcluded", true);
+                updateAssetPendingIndex(db, messageId, excluded); return excluded;
+            }
             JSONObject coverage = loadAssetCoverage(source, messageId);
             updateAssetPendingIndex(db, messageId, coverage);
             put(coverage, "messageId", messageId); put(coverage, "analysisVerified", false); return coverage;
@@ -251,7 +282,7 @@ public final class MemoryReviewCoordinator {
                 || providerAnalysis.trim().isEmpty() || providerAnalysis.length() > 10_000_000)
             throw new IllegalArgumentException("An exact asset source and nonempty provider analysis are required");
         JSONObject receipt = trustedReceipt == null ? new JSONObject() : parse(trustedReceipt.toString());
-        return store.withTransaction(db -> {
+        return withPrivacyTransaction(db -> {
             JSONObject coverage = assetCoverage(messageId); JSONArray assets = coverage.optJSONArray("assets");
             JSONObject asset = findAsset(assets, assetId);
             if (asset == null || !sha256.equals(asset.optString("sha256"))) return assetReject("asset_source_mismatch");
@@ -314,9 +345,10 @@ public final class MemoryReviewCoordinator {
 
     /** Record a real owner confirmation as another source, without inventing the semantic extent of that confirmation. */
     public JSONObject confirmAssetAnalysis(long messageId, String assetId, String sha256, long confirmationMessageId) {
-        return store.withTransaction(db -> {
+        return withPrivacyTransaction(db -> {
             JSONObject confirmation = store.getMessage(confirmationMessageId);
             if (confirmation == null || !"user".equals(confirmation.optString("role"))) throw new IllegalArgumentException("Actual owner confirmation source required");
+            if (!sourceAllowed(db, confirmation)) return assetReject("confirmation_source_excluded");
             JSONObject coverage = assetCoverage(messageId), asset = findAsset(coverage.optJSONArray("assets"), assetId);
             if (asset == null || !sha256.equals(asset.optString("sha256")) || asset.optLong("analysisSourceMessageId") <= 0
                     || confirmationMessageId <= asset.optLong("analysisSourceMessageId"))
@@ -333,7 +365,7 @@ public final class MemoryReviewCoordinator {
 
     public boolean markAssetNeedsReanalysis(long messageId, String assetId, String reason) {
         if (reason == null || reason.trim().isEmpty()) throw new IllegalArgumentException("A reanalysis reason is required");
-        return store.withTransaction(db -> {
+        return withPrivacyTransaction(db -> {
             JSONObject coverage = assetCoverage(messageId), asset = findAsset(coverage.optJSONArray("assets"), assetId);
             if (asset == null) return false;
             put(asset, "coverageStage", "needs_reanalysis"); put(asset, "reanalysisReason", safePrefix(reason, 512));
@@ -355,7 +387,12 @@ public final class MemoryReviewCoordinator {
 
     private boolean registerAssetSource(SQLiteDatabase db, long messageId) {
         JSONObject source = store.getMessage(messageId);
-        if (source == null || !"user".equals(source.optString("role"))) throw new IllegalArgumentException("Unknown owner asset source");
+        if (source == null) {
+            if (knownExcludedMessageId(messageId)) return updateAssetPendingIndex(db, messageId, object("assets", new JSONArray()));
+            throw new IllegalArgumentException("Unknown owner asset source");
+        }
+        if (!"user".equals(source.optString("role"))) throw new IllegalArgumentException("Unknown owner asset source");
+        if (!sourceAllowed(db, source)) return updateAssetPendingIndex(db, messageId, object("assets", new JSONArray()));
         JSONObject coverage = loadAssetCoverage(source, messageId);
         return updateAssetPendingIndex(db, messageId, coverage);
     }
@@ -380,7 +417,8 @@ public final class MemoryReviewCoordinator {
         if (sources.length() > 0) store.putSetting(PREFIX + "assetIntegrityAuditCursor", String.valueOf(last));
     }
     private boolean acknowledgeObservedAssets(JSONObject expected) {
-        return store.withTransaction(db -> {
+        return withPrivacyTransaction(db -> {
+            requireBatchAllowed(db, expected);
             long id = expected.optLong("assetSourceMessageId"); JSONArray ranges = expected.optJSONArray("sourceRanges");
             if (id <= 0 || ranges == null || ranges.length() != 1) return reject("asset_analysis_receipt_required");
             JSONObject range = ranges.optJSONObject(0); JSONArray refs = range == null ? null : range.optJSONArray("assetRefs");
@@ -418,6 +456,8 @@ public final class MemoryReviewCoordinator {
         for (long id : pending) {
             JSONObject source = store.getMessage(id);
             if (source != null && "user".equals(source.optString("role"))) registerAssetSource(db, id);
+            else if (source == null && knownExcludedMessageId(id))
+                updateAssetPendingIndex(db, id, object("assets", new JSONArray()));
             // An orphaned pending source is still an integrity failure, not evidence that it was analyzed.
         }
     }
@@ -477,6 +517,9 @@ public final class MemoryReviewCoordinator {
 
     private boolean analysisProofExists(long messageId, JSONObject asset) {
         JSONObject analysis = store.getMessage(asset.optLong("analysisSourceMessageId"));
+        if (analysis == null || !sourceAllowed(store.getReadableDatabase(), analysis)) return false;
+        if (asset.optLong("confirmationMessageId") > 0
+                && !sourceAllowed(store.getReadableDatabase(), store.getMessage(asset.optLong("confirmationMessageId")))) return false;
         String sha = asset.optString("sha256"), hash = asset.optString("analysisHash"), assetId = asset.optString("originalAssetId", asset.optString("id"));
         if (analysis == null || !"assistant".equals(analysis.optString("role")) || hash.isEmpty()
                 || !hash.equals(analysis.optString("raw_content_hash"))) return false;
@@ -603,7 +646,9 @@ public final class MemoryReviewCoordinator {
         }
         JSONArray ranges = new JSONArray(), blocked = new JSONArray();
         try {
-            JSONObject source = store.getMessage(id), caption = store.readOriginalText(id, 0, 1_000);
+            JSONObject source = store.getMessage(id);
+            if (!sourceAllowed(db, source)) throw new IllegalArgumentException("Asset source excluded");
+            JSONObject caption = store.readOriginalText(id, 0, 1_000);
             JSONObject range = object("messageId", id, "offsetChars", caption.optLong("offsetChars"), "nextOffsetChars", caption.optLong("nextOffsetChars"),
                     "totalChars", caption.optLong("totalChars"), "contentHash", caption.optString("contentHash"), "recordHash", caption.optString("recordHash"),
                     "createdAt", source.optLong("created_at"), "text", caption.optString("text"), "reviewScope", "asset_caption_context_only_text_cursor_unchanged");
@@ -612,6 +657,7 @@ public final class MemoryReviewCoordinator {
         JSONObject batch = object("reviewMode", "asset", "cursorStart", cursor, "cursorEnd", cursor,
                 "partialIdStart", partialId, "partialIdEnd", partialId, "partialOffsetStart", partialOffset, "partialOffsetEnd", partialOffset,
                 "sourceRanges", ranges, "blockedSources", blocked, "assetSourceMessageId", id, "assetsPending", assetPendingCount(db),
+                "sourcePrivacyFingerprint", privacyScope.get().fingerprint,
                 "assetAnalysisRequiresObservedUploadReceipt", true, "analysisIndependentlyVerified", false,
                 "coverageMeaning", "caption_context_is_not_image_analysis_use_memory.asset.analyze");
         fitToSerializedBudget(batch, maxSerializedChars - 128); put(batch, "batchId", coverageDigest(batch)); return batch;
@@ -785,6 +831,7 @@ public final class MemoryReviewCoordinator {
 
     private JSONObject overlap(long id, long start, long end) {
         if (end <= start) return null;
+        if (!sourceAllowed(store.getReadableDatabase(), store.getMessage(id))) return null;
         try {
             JSONObject original;
             try { original = store.readOriginalText(id, start, (int) (end - start)); }
@@ -810,7 +857,7 @@ public final class MemoryReviewCoordinator {
 
     private int addNeighbor(JSONArray result, long id, int budget, boolean previous) {
         JSONObject message = store.getMessage(id);
-        if (message == null) return 0;
+        if (message == null || !sourceAllowed(store.getReadableDatabase(), message)) return 0;
         try {
             int count = Math.min(700, budget);
             long total = message.optLong("raw_char_count", message.optString("text").length());
@@ -840,12 +887,110 @@ public final class MemoryReviewCoordinator {
     }
     private static long number(String value) { try { return Math.max(0, Long.parseLong(value)); } catch (Exception invalid) { return 0; } }
     private static JSONObject parse(String value) { try { return new JSONObject(value); } catch (Exception invalid) { return new JSONObject(); } }
+    /** Cached review payloads are not exempt from a later source exclusion. Call on the I/O executor. */
+    public void assertBatchAllowed(JSONObject batch) {
+        if (batch == null) return;
+        withPrivacyTransaction(db -> { requireBatchAllowed(db, batch); return null; });
+    }
+
+    private <T> T withPrivacyTransaction(HoyoungStore.TransactionOperation<T> operation) {
+        SourcePrivacyLedger.Snapshot parent = privacyScope.get();
+        if (parent != null) return store.withTransaction(operation);
+        final SourcePrivacyLedger.Snapshot frozen;
+        try { frozen = store.getPrivacyLedger().capture(); }
+        catch (IOException unavailable) { throw new IllegalStateException("memory_review_privacy_unavailable", unavailable); }
+        privacyScope.set(frozen);
+        try {
+            return store.withTransaction(db -> {
+                T result = operation.run(db);
+                try {
+                    if (!frozen.fingerprint.equals(store.getPrivacyLedger().capture().fingerprint))
+                        throw new IllegalStateException("memory_review_privacy_changed");
+                } catch (IOException unavailable) { throw new IllegalStateException("memory_review_privacy_unavailable", unavailable); }
+                return result;
+            });
+        } finally { privacyScope.remove(); }
+    }
+
+    private boolean sourceAllowed(SQLiteDatabase db, JSONObject source) {
+        if (source == null) return false;
+        SourcePrivacyLedger.Snapshot policy = privacyScope.get();
+        if (policy == null) throw new IllegalStateException("Source access requires a frozen privacy scope");
+        return SourceRecordVisibility.allowed(db, policy, "message", source);
+    }
+
+    private boolean knownExcludedMessageId(long id) {
+        JSONArray exclusions = privacyScope.get().toJson().optJSONArray("exclusions");
+        for (int i = 0; i < exclusions.length(); i++) {
+            JSONObject exclusion = exclusions.optJSONObject(i);
+            if ("message".equals(exclusion.optString("type")) && id == exclusion.optLong("id")) return true;
+        }
+        return false;
+    }
+
+    private void requireBatchAllowed(SQLiteDatabase db, JSONObject batch) {
+        String expected = batch.optString("sourcePrivacyFingerprint");
+        if (!expected.isEmpty() && !expected.equals(privacyScope.get().fingerprint))
+            throw new IllegalStateException("memory_review_privacy_changed");
+        JSONArray ranges = batch.optJSONArray("sourceRanges");
+        for (int i = 0; ranges != null && i < ranges.length(); i++) {
+            JSONObject range = ranges.optJSONObject(i);
+            if (range == null) throw new IllegalStateException("memory_review_source_invalid");
+            requireSourceAllowed(db, range, true);
+            JSONArray neighbors = range.optJSONArray("contextMessages");
+            for (int n = 0; neighbors != null && n < neighbors.length(); n++) requireSourceAllowed(db, neighbors.optJSONObject(n), false);
+            JSONArray assets = range.optJSONArray("assetRefs");
+            for (int a = 0; assets != null && a < assets.length(); a++) {
+                JSONObject asset = assets.optJSONObject(a);
+                if (asset != null && asset.optLong("analysisSourceMessageId") > 0
+                        && !sourceAllowed(db, store.getMessage(asset.optLong("analysisSourceMessageId"))))
+                    throw new IllegalStateException("memory_review_asset_analysis_excluded");
+            }
+        }
+    }
+
+    private void requireSourceAllowed(SQLiteDatabase db, JSONObject reference, boolean recordHashRequired) {
+        if (reference == null) throw new IllegalStateException("memory_review_source_invalid");
+        JSONObject current = store.getMessage(reference.optLong("messageId"));
+        if (!sourceAllowed(db, current)) throw new IllegalStateException("memory_review_source_excluded_or_missing");
+        String expected = reference.optString("recordHash");
+        if (recordHashRequired && !expected.equals(current.optString("content_hash")))
+            throw new IllegalStateException("memory_review_source_changed");
+    }
+
+    /** Advance only a contiguous excluded prefix. A policy skip is never a model review receipt. */
+    private JSONObject skipLeadingExcluded(SQLiteDatabase db, boolean revisit, long cursor, long through, String prefix) {
+        long end = cursor; int count = 0; boolean stop = false;
+        while (!stop && count < 4096) {
+            JSONArray records = store.listUserMessagesAfter(end, 500);
+            if (records.length() == 0) break;
+            for (int i = 0; i < records.length(); i++) {
+                JSONObject record = records.optJSONObject(i); long id = record.optLong("id");
+                if (id > through || sourceAllowed(db, record)) { stop = true; break; }
+                end = id; count++;
+                updateAssetPendingIndex(db, id, object("assets", new JSONArray()));
+                if (count >= 4096) break;
+            }
+        }
+        JSONObject receipt = object("cursorStart", cursor, "cursorEnd", end, "sourceCount", count,
+                "scope", "contiguous_owner_sources_excluded_by_native_policy", "reviewed", false, "payloadRead", false);
+        if (end != cursor) {
+            if (revisit) store.putSetting(PREFIX + "revisit.after", String.valueOf(end));
+            else if (!store.advanceWatermark(WATERMARK, cursor, end)) throw new IllegalStateException("memory_review_cursor_conflict");
+            store.putSetting(prefix + "partialId", "0"); store.putSetting(prefix + "partialOffset", "0");
+            store.putSetting(PREFIX + "noMemoryCandidate", "{}");
+            store.putSetting(PREFIX + "policyExcludedCount", String.valueOf(number(store.getSetting(PREFIX + "policyExcludedCount", "0")) + count));
+            store.recordEvent("memory_review_native_source_exclusion", receipt);
+        }
+        return receipt;
+    }
     /** Context may grow between passes; only the exact acknowledged source coverage identifies a batch. */
     private static String coverageDigest(JSONObject batch) {
         JSONObject signature = object("reviewMode", batch.optString("reviewMode"), "cursorStart", batch.optLong("cursorStart"),
                 "partialIdStart", batch.optLong("partialIdStart"), "partialOffsetStart", batch.optLong("partialOffsetStart"),
                 "cursorEnd", batch.optLong("cursorEnd"), "partialIdEnd", batch.optLong("partialIdEnd"),
-                "partialOffsetEnd", batch.optLong("partialOffsetEnd"), "revisitEpoch", batch.optString("revisitEpoch"));
+                "partialOffsetEnd", batch.optLong("partialOffsetEnd"), "revisitEpoch", batch.optString("revisitEpoch"),
+                "sourcePrivacyFingerprint", batch.optString("sourcePrivacyFingerprint"));
         JSONArray ranges = new JSONArray(), sources = batch.optJSONArray("sourceRanges");
         for (int i = 0; sources != null && i < sources.length(); i++) {
             JSONObject source = sources.optJSONObject(i);

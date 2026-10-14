@@ -1,0 +1,52 @@
+{
+  "scope": "Host Robolectric SDK28 with native SQLite; SDK35 javac compilation of independently snapshotted sources",
+  "testClasses": {
+    "AdaptiveMemoryRecallTest": 14,
+    "LongTermRetrievalBenchmarkTest": 20
+  },
+  "testsRun": 34,
+  "failed": 0,
+  "skipped": 0,
+  "junitElapsedSeconds": 8.676,
+  "trainedModelMeasured": false,
+  "actualOwnerCorpusMeasured": false,
+  "actualPhoneMeasured": false,
+  "liveProviderCalled": false,
+  "logSha256": "369273dfbe2b47706212040de7a01b240f05ec32270bab953e59426299f09623",
+  "sourceSha256": {
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/HoyoungStore.java": "e240ace02dc7a94a589ce3a53b3cdae78b9dbe63d12fae45c77283c67e6fb808",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/OriginalTextFiles.java": "7435615d48df98a1dea3f2267d6c986330c5233fd5aef3a9e36d8406485359ce",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/DeviceEventSearch.java": "66b9ed4e6e65264072685d68bd1115e958736283ef4ff24e4744e3cd4641657d",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/InternalFiles.java": "82b89f63a7d8476885812088404af7346db5d3468bd09fadabaa6e3b39da8179",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/AttachmentOriginals.java": "0fecf6d8c710b10ba9dc242dabdd4d1883cc66d68e9148265aef542deebf1a11",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/StreamingBackup.java": "f35fe79f8a48543a8c6bc275deff5bcd4e9cb429c820900ec00c66f69c8b226c",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/BackupPolicy.java": "dd6772e05f9b6bcd358a4a55e64a583cc5f49f05d149d9ee837adf998a1ab927",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/BackupFailure.java": "66c8680b95fbb8e37c5432415b2a8aee40610f13f6c7e79a92fffa3a7d87e632",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/SourcePrivacyLedger.java": "5f3b6e72983da6045dba6ba7f8c6e89df3c38653b177a26696e9fe71a11f7e57",
+    "mobile/app/src/main/java/com/hoyoung/assistant/memory/MemoryRetriever.java": "6ea7ac954308f0e85593e84ebd045f210eab2638f1dd1f0b6ae4c8c2d827397e",
+    "mobile/app/src/main/java/com/hoyoung/assistant/memory/MemoryQuery.java": "19fb3a5102cb24d9a32ae5cf5a0582c88c5960ac483370e53ff66c48bab08de1",
+    "mobile/app/src/main/java/com/hoyoung/assistant/memory/MemoryText.java": "5ed0f913c3dfa34ccfdcdbe5bfcab218f88e8ea3cda634931b37571ef488b628",
+    "mobile/app/src/test/java/com/hoyoung/assistant/memory/AdaptiveMemoryRecallTest.java": "8369ca3e6a763a057e08932a87c23a9de71c866d72168a7a624db8735fee7b05",
+    "mobile/app/src/test/java/com/hoyoung/assistant/memory/LongTermRetrievalBenchmarkTest.java": "00a7359c2a686019731afa23a8e107048e125e1b50c1c73ff75733615271754c",
+    "mobile/app/src/main/java/com/hoyoung/assistant/store/SourceRecordVisibility.java": "599f4ddef884bfddff8fe0c6941ab84ec8ad72d8365e74c01f063f0a4a3facf5"
+  },
+  "log": "JUnit version 4.13.2\n..................................SYNTHETIC_RETRIEVAL {messages:2191,labeledDays:730,goldRecallAt5:1,actualLmMeasured:false,elapsedMillis:88}\n\nTime: 8.676\n\nOK (34 tests)\n\n",
+  "bounds": {
+    "maxAdditionalQueries": 3,
+    "maxAdditionalSourceReadAttempts": 20,
+    "maxInitialCueReadAttempts": 6,
+    "sourceWindowChars": 6000,
+    "operationStartBudgetMillis": 350,
+    "singleOperationMayExceedBudget": true,
+    "contextRawSourceSlots": 20,
+    "allDependenciesMax": 10000
+  },
+  "limitations": [
+    "Hand-authored owner originals with random unseen names; tests do not establish natural-language model accuracy.",
+    "Deterministic 3-dimensional encoder is a protocol seam for privacy and policy changes, not a trained model.",
+    "Relationship cues are bounded search hints, not verified equivalence or new instructions.",
+    "Conservatively negative or corrected relation clauses are skipped.",
+    "Range sums/counts/averages require native paged source enumeration; ranked retrieval is incomplete.",
+    "Privacy exclusions retain original payloads; deletion has a separate API and lifecycle."
+  ]
+}

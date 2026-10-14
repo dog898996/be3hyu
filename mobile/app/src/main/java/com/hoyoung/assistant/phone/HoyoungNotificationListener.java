@@ -90,8 +90,11 @@ public final class HoyoungNotificationListener extends NotificationListenerServi
             if (assistantReply) {
                 Object sourceId = extras.get("com.hoyoung.assistant.assistant_message_id");
                 long messageId = sourceId instanceof Long ? (Long) sourceId : -1;
+                Object sourceHash=extras.get("com.hoyoung.assistant.source_message_hash");
+                String messageHash=sourceHash instanceof String&&((String)sourceHash).matches("[a-f0-9]{64}")?(String)sourceHash:"";
                 payload.put("assistantMessageId", messageId > 0 ? messageId : JSONObject.NULL);
-                payload.put("sourceReferencePresent", messageId > 0);
+                payload.put("assistantSourceHash",messageHash);
+                payload.put("sourceReferencePresent", messageId > 0&&!messageHash.isEmpty());
                 payload.put("replyStage", extras.get("com.hoyoung.assistant.reply_stage") instanceof String ? limit((String) extras.get("com.hoyoung.assistant.reply_stage"), 64) : "");
                 payload.put("externalInputTriggerEligible", false);
             }

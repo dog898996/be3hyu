@@ -219,6 +219,8 @@ public final class PhoneEventJournal {
     public JSONArray recent(String category, String source, int limit) { return store.recentDeviceEvents(category, source, limit); }
     public JSONArray search(String query, String category, int limit) { return store.searchDeviceEvents(query, category, limit); }
     public JSONObject read(long id) { return store.getDeviceEvent(id); }
+    /** Native I/O readers share this canonical store; callbacks do not call this. */
+    HoyoungStore canonicalStore() { return store; }
     public JSONObject stats() { return store.deviceEventStats(); }
     /** Local state is fsynced independently; background mirroring is only for backup/index compatibility. */
     public String get(String key, String fallback) { String cached = localState.get(key); if (cached != null) return cached; String value = spool.readState(key, fallback); localState.put(key, value); return value; }

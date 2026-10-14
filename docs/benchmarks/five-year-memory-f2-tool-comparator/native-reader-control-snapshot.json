@@ -1,0 +1,15 @@
+{
+  "format": "native-reader-replay-v1",
+  "date": "2026-12-31",
+  "gatewayEnabled": false,
+  "excludedDeviceIds": [
+    17,
+    2,
+    5,
+    8,
+    11,
+    14
+  ],
+  "privacyFingerprint": "",
+  "scope": "Exact frozen f2 native corpus and existing device predicate; f2 has no retrieval-exclusion ledger or source enumerator"
+}

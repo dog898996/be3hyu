@@ -1,0 +1,11 @@
+{
+  "run": "/tmp/hoyoung-five-year-f2-reader-native-smoke",
+  "productionSourceManifestSha256": "9acf8f10bb4b831a9324928649d0516cccf400615070b23fe1d7c32554869bc2",
+  "helperSha256": "471c5d3ef24df5c5e245018deaf831220029c31db1c3f96616dcf2258d50a51d",
+  "requestSha256": "ea809823d7ac5f267768178e7a72d12f9c0dd1063929ef02abc77599c2f02634",
+  "responseSha256": "fa7ac388c88fb1506c9cc32131e1ad2cb2db45a5c8183bb4d4794630f2727f7b",
+  "budgetBeforeSha256": null,
+  "budgetAfterSha256": "98669e72025b5c1236987e03cedf7563a0a7c45ab99e199a5ff6d9eb4fe1cf2b",
+  "exitCode": 0,
+  "scope": "Actual native source tools only; no gold or answer rubric read by helper. Search/row budgets persist across invocations for each packet."
+}

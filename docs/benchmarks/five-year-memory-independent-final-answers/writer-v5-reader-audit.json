@@ -1,0 +1,18 @@
+{
+  "validationType": "schema_native_identity_exact_quote_and_tool_budget_only",
+  "semanticAcceptanceClaimed": false,
+  "rows": 144,
+  "uniqueIds": 144,
+  "chronologicalIndexBase": 0,
+  "inputHasQuestionIndex": false,
+  "claimsValidated": 364,
+  "answered": 108,
+  "abstained": 36,
+  "nativeToolOperations": {
+    "read": 11,
+    "enumerate": 12
+  },
+  "canonicalFollowupRows": 179,
+  "inputSha256": "1f45b7b5c89009690c875b339554af1cfe68fa578317dd2e72ef9caee2e41eed",
+  "answersSha256": "b402b8d098fd8633005e8562061122c7f7817b3c6f5ea0917327086ec84bd541"
+}

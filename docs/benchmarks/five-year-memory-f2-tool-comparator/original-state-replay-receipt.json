@@ -1,0 +1,28 @@
+{
+  "format": "original-f2-native-state-with-verified-export-v1",
+  "canonicalSnapshotOrigin": "/tmp/hoyoung-five-year-f2-writer-baseline",
+  "canonicalSnapshotSha256": "5dc3c26bb60132f08ab5844bdb0732a349ae271b5498b7e2a6592d51ec522fc7",
+  "allPrimaryPacketsOrigin": "/tmp/hoyoung-five-year-f2-writer-baseline/reader-inputs.jsonl",
+  "finalReaderPacketSha256": "1fc53e1215fbd331bfb669d5e156e11b3169b017574839bb697b65e460b6e129",
+  "productionSourceManifestSha256": "89c9ad43038d14aeb45f751f266f63ac986a7151941fff37d7b72d44f0780819",
+  "controlExportOrigin": "/tmp/hoyoung-five-year-f2-writer-tool-baseline",
+  "controlExportSha256": "bfb3bd421d65610ec12558cfaa43fe0dd99de5cf9a318137451aeb83310bd137",
+  "sourceMappingAndHashEquality": true,
+  "messageExternalOriginals": {
+    "raw_file_id": 0
+  },
+  "primaryPacketsChanged": false,
+  "canonicalSnapshotChanged": false,
+  "productionSourcesChanged": false,
+  "controlsReconstructedFromGold": false,
+  "allowedSourceQueries": 3,
+  "allowedDeliveredOrReadSources": 20,
+  "f2Enumeration": "not implemented; native failure exposed",
+  "groundedAnswerQuality": "not measured",
+  "sourceMappingSha256": "758afbb7772f5acb4cdee7894f5f42a0a2283b2a3900f1bad181e238279ab091",
+  "exportOnlyFixtureSha256": "86ab811ee0e779ff9dd150dd18e8032bc5be89cde0f61a636c84a20399518283",
+  "exportOnlyPatchSha256": "24683644adc987089316af4e6970f823c55e711e4ebef933906601341d52d225",
+  "exportOnlySourceManifestSha256": "9acf8f10bb4b831a9324928649d0516cccf400615070b23fe1d7c32554869bc2",
+  "sourceMappingArtifact": "original-source-map.json",
+  "nativeDeviceControlArtifact": "native-reader-control-snapshot.json"
+}
