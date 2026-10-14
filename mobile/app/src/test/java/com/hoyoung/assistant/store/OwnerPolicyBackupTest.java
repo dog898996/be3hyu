@@ -114,6 +114,12 @@ public final class OwnerPolicyBackupTest {
         reset();OwnerPolicyBackup.merge(context,store,controls);Files.delete(new File(context.getFilesDir(),"owner-policy-portable.json").toPath());
         assertThrows(IOException.class,()->OwnerPolicyBackup.reconcile(context,store));assertFalse(allowed(source));
     }
+    @Test public void restoringPortableDeletionRunsIrreversibleDatabasePhaseOnce()throws Exception{
+        JSONObject source=store.addMessage("user","portable deletion must not replay twice",null);byte[] old=backup();delete(source);JSONObject controls=OwnerPolicyBackup.capture(context,store);
+        reset();OwnerPolicyBackup.merge(context,store,controls);files.importBackup(new ByteArrayInputStream(old),store);int[] executions={0};
+        SourcePayloadDeletion counted=new SourcePayloadDeletion(context,store,phase->{if("after_database".equals(phase))executions[0]++;});
+        JSONObject result=OwnerPolicyBackup.reconcile(context,store,counted);assertEquals(1,executions[0]);assertEquals(1,result.getInt("processed"));assertNull(store.getMessage(source.getLong("id")));
+    }
     @Test public void largePolicyUnionIsIdempotentAndDoesNotTouchOriginals()throws Exception{
         Context other=new android.content.ContextWrapper(context){@Override public Context getApplicationContext(){return this;}@Override public File getFilesDir(){File path=new File(context.getFilesDir(),"other-policy");path.mkdirs();return path;}};
         SourcePrivacyLedger remote=new SourcePrivacyLedger(other);

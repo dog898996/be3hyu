@@ -70,6 +70,19 @@ public final class SourcePayloadDeletion {
             return result;
         }
     }
+    /** Recreate a missing installation-local intent, without executing it twice during restore.
+     * Existing intents are authenticated and replayed by the single reconcile pass below. */
+    void seedPortableControl(String type,long id,String hash)throws IOException {
+        validate(type,id,hash);
+        synchronized(LOCK){
+            assertResolvedGeneration();verifyIntentInventory(true);File path=jobPath(type,id,hash);if(path.exists())return;
+            JSONObject selected=source(type,id);
+            if(selected==null||!hash.equals(selected.optString("content_hash"))||!SourceRecordVisibility.canonicalRecordMatches(type,selected))throw new IOException("Portable deletion source generation changed before intent capture");
+            JSONObject job=newJob(type,id,hash);captureManifest(job,selected);
+            privacy.excludeSource(type,id,hash,SourcePrivacyLedger.RETRIEVAL_EXCLUDE,"owner-authorized portable deletion restore");
+            put(job,"ownerDeletionRequested",true);put(job,"mode","delete_payload");put(job,"status","pending_database");writeJob(path,job);
+        }
+    }
     /** Invoke after backup recovery and before exposing restored sources. Completed jobs are inspected again. */
     public JSONObject reconcileDeletionRequests(int limit)throws IOException{
         return reconcileDeletionRequests("",limit);

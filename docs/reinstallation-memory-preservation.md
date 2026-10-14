@@ -14,7 +14,7 @@
 
 - 새 ZIP은 V3이며 체크섬 index에 `owner-policy/controls.json`도 넣는다. V1/V2는 계속 읽을 수 있지만 이식 정책이 없는 과거 백업이다.
 - `OwnerPolicyBackup`은 기존 검증된 privacy snapshot과 `{type,id,hash}` 삭제 의도만 보관한다. 제공자 기록 삭제나 실제 바이트 정리 완료를 가정하지 않는다. 설치별 HMAC 키, 파일 삭제 경로, 큰 파생 파일 manifest는 내보내지 않는다.
-- 삭제 식별 정보는 인증된 로컬 intent inventory에서 가져온다. 작은 정책을 보존하기 위해 큰 파일 manifest 전체를 매번 읽지 않는다. 재설치에서는 원본 hash·세대·실제 출처 관계를 다시 확인해 새 설치의 로컬 삭제 의도를 만든다.
+- 삭제 식별 정보는 인증된 로컬 intent inventory에서 가져온다. 작은 정책을 보존하기 위해 큰 파일 manifest 전체를 매번 읽지 않는다. 재설치에서는 원본 hash·세대·실제 출처 관계를 다시 확인해 새 설치의 로컬 삭제 의도를 만든다. 누락 의도를 먼저 등록한 뒤 기존·새 삭제 의도를 단일 pass에서 재검사하여 같은 복원 작업에서 DB·파일 정리를 두 번 반복하지 않는다.
 - 모든 입력은 schema·정수 ID·typed source hash·개수·byte bound·전체 JSON·checksum을 검증한다. 잘못된 기록은 빈 정책으로 대체하지 않는다.
 - `SourcePrivacyLedger.mergeSnapshot`은 이미 있는 결정을 유지하고 빠진 제외만 한 번에 추가한다. 동일·오래된 부분집합은 fingerprint를 바꾸거나 운영 정책을 다시 쓰지 않는다.
 - 완전한 ZIP의 SQL·원문·첨부·휴대폰 journal 검증 후, 원문 namespace를 바꾸기 전에 이식 정책을 내부의 독립 보존 영역에 먼저 합친다. 이후 DB 복원이 실패해도 제외 정책이 약해지지 않는다.
@@ -31,7 +31,7 @@
 
 ## 확인 범위
 
-새 24개 unit 시험은 실제 Robolectric native SQLite와 파일 IO로 최신 정책 + 옛 ZIP, 내부 namespace 초기화 후 복원, 정정 이력, 다른 세대 보존, 정책 변조·누락, V2 호환, 저장 중 실패, rename 실패, read-back 불일치, 완료 문서 손상, 세대 경합, 최대 두 개 snapshot, 상태 확인의 provider IO 0개를 검증한다. 저장 제공자 인터페이스의 unit 시험은 파일 fixture이며 실제 Android 권한 부여를 가장하지 않는다.
+새 25개 저장·보존 unit 시험은 실제 Robolectric native SQLite와 파일 IO로 최신 정책 + 옛 ZIP, 내부 namespace 초기화 후 복원, 정정 이력, 다른 세대 보존, 정책 변조·누락, V2 호환, 저장 중 실패, rename 실패, read-back 불일치, 완료 문서 손상, 세대 경합, 최대 두 개 snapshot, 상태 확인의 provider IO 0개와 삭제 DB 정리가 한 번만 실행됨을 검증한다. 추가 runtime 호출 경로 3개는 작업 중 정책 변경 거절, 최신 owner epoch 재조정, 제외 원문 보존·삭제 원문 정리와 추가 모델 전송 0개를 확인한다. 저장 제공자 인터페이스의 unit 시험은 파일 fixture이며 실제 Android 권한 부여를 가장하지 않는다.
 
 추가 Android instrumentation은 TEST APK의 별도 UID document provider, 실제 persistable tree grant와 DocumentsContract IO·rename, 내부 대상 namespace 초기화 후 최신 정책 + 옛 ZIP, 완료 문서 손상 거절을 검증하도록 추가했다. 실제 OS 앱 제거·설치, 삼성 picker·S24 속도·외부 클라우드 제공자의 지원은 별도이며 이 시험으로 보장하지 않는다. 최종 실행 결과는 배포 검증 기록에 연결한다.
 

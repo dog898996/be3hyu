@@ -679,7 +679,7 @@ public final class AssistantRuntime {
             for(String requestId:preparedMemory.keySet())dispatchPayloads.forget(requestId);
             preparedMemory.clear();preparedReviews.clear();
             JSONObject result=com.hoyoung.assistant.store.OwnerPolicyBackup.reconcile(context,store);
-            new SourcePayloadDeletion(context,store).reconcileDeletionRequests();reconcileOwnerSourceAuthority(store);
+            reconcileOwnerSourceAuthority(store);
             receipts.ensureIndex(true);recomputeUncertainty();return result;
         }catch(IOException|RuntimeException failure){failed=true;storageRecoveryBlocked=true;throw failure;}
         finally{
@@ -710,7 +710,7 @@ public final class AssistantRuntime {
         files.importBackup(input, store);
         for(String requestId:preparedMemory.keySet())dispatchPayloads.forget(requestId);
         preparedMemory.clear();preparedReviews.clear();
-        try {com.hoyoung.assistant.store.OwnerPolicyBackup.reconcile(context,store);new SourcePayloadDeletion(context,store).reconcileDeletionRequests();reconcileOwnerSourceAuthority(store);}
+        try {com.hoyoung.assistant.store.OwnerPolicyBackup.reconcile(context,store);reconcileOwnerSourceAuthority(store);}
         catch(IOException|RuntimeException failure){deletionRecoveryFailed=true;throw failure;}
         store.withTransaction(db -> {
             JSONArray queued = new JSONArray();

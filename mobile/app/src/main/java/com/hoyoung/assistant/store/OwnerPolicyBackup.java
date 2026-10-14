@@ -52,11 +52,14 @@ public final class OwnerPolicyBackup {
 
     /** Startup/restore only, before WebView, collectors, indexes or originals become ready. */
     public static JSONObject reconcile(Context context,HoyoungStore store)throws IOException {
+        return reconcile(context,store,new SourcePayloadDeletion(context,store));
+    }
+    static JSONObject reconcile(Context context,HoyoungStore store,SourcePayloadDeletion deletion)throws IOException {
         synchronized(LOCK){
             JSONObject saved=readSaved(context);JSONObject result=new JSONObject();int checked=0,pending=0,different=0;
             if(saved!=null){
                 store.getPrivacyLedger().mergeSnapshot(saved.optJSONObject("privacy"));
-                JSONArray controls=saved.optJSONArray("deletions");SourcePayloadDeletion deletion=new SourcePayloadDeletion(context,store);
+                JSONArray controls=saved.optJSONArray("deletions");
                 for(int i=0;i<controls.length();i++){
                     JSONObject ref=controls.optJSONObject(i);String type=ref.optString("type"),expected=ref.optString("hash");long id=ref.optLong("id");
                     JSONObject source="message".equals(type)?store.getMessage(id):store.getDeviceEvent(id);
@@ -65,10 +68,12 @@ public final class OwnerPolicyBackup {
                     if(source==null)continue;
                     if(!expected.equals(source.optString("content_hash"))){different++;continue;}
                     if(!SourceRecordVisibility.canonicalRecordMatches(type,source))throw new IOException("Portable deletion source integrity changed");
-                    JSONObject receipt=deletion.deleteSource(type,id,expected,"owner-authorized portable policy restore");checked++;
-                    if(receipt.optBoolean("pendingDeletion"))pending++;
+                    deletion.seedPortableControl(type,id,expected);checked++;
                 }
             }
+            // Replay every installation-local intent once, including pending older controls.
+            // Do not run a second whole-file/SQLite cleanup pass for newly restored sources.
+            JSONObject replay=deletion.reconcileDeletionRequests();pending=replay.optInt("pending");put(result,"processed",replay.optInt("processed"));
             put(result,"checked",checked);put(result,"pending",pending);put(result,"distinctGenerationsPreserved",different);put(result,"modelCalls",0);return result;
         }
     }

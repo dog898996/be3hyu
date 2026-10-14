@@ -97,6 +97,35 @@ public final class SourceControlRuntimeTest {
         assertComplete(receipt);assertTrue(receipt.getBoolean("retrievalExcluded"));assertNativeControl(prior);
         assertHealthyWithout("interrupted exact selected private payload");
     }
+    @Test public void folderPolicyImportPreservesOriginalRepairsOwnerEpochAndMakesNoModelRequest()throws Exception {
+        JSONObject source=completedOwner("folder-only private owner payload");
+        JSONObject portable=portableExclusion(source);FakeTransport transport=new FakeTransport();runtime.attachTransport(transport);
+        int requests=store.listRequests(100).length();runtime.importOwnerControls(portable);
+        assertFalse(store.getPrivacyLedger().allowedSource("message",source.getLong("id"),source.getString("content_hash")));
+        assertEquals(source.getString("text"),store.getMessage(source.getLong("id")).getString("text"));assertNativeControl(source.getLong("id"));
+        String owner=store.getSetting("ownerInputRevision","0");runtime.importOwnerControls(portable);
+        assertEquals(owner,store.getSetting("ownerInputRevision","0"));assertEquals(requests,store.listRequests(100).length());assertTrue(transport.sent.isEmpty());
+        assertHealthyWithout("folder-only private owner payload");
+    }
+    @Test public void activeWorkRejectsPortableImportBeforeChangingAnyPolicy()throws Exception {
+        FakeTransport transport=new FakeTransport();runtime.attachTransport(transport);runtime.onWebEvent(object("type","state","code","ready","state",readyState()));
+        JSONObject request=runtime.receive("active source must not race folder reconnect",new JSONArray()),source=sourceFor(request),portable=portableExclusion(source);
+        String before=store.getPrivacyLedger().fingerprint();assertEquals(1,transport.sent.size());
+        assertThrows(IllegalStateException.class,()->runtime.importOwnerControls(portable));
+        assertEquals(before,store.getPrivacyLedger().fingerprint());assertEquals("dispatching",store.getRequest(request.getLong("id")).getString("status"));assertEquals(1,transport.sent.size());
+    }
+    @Test public void portableDeleteReconciliationInsideRuntimeRemovesOlderPayloadBeforeNextMemoryPrepare()throws Exception {
+        JSONObject source=completedOwner("portable erased owner payload");ByteArrayOutputStream old=new ByteArrayOutputStream();files.exportBackup(old,store);
+        assertComplete(runtime.controlStoredSource("message",source.getLong("id"),source.getString("content_hash"),true));JSONObject controls=OwnerPolicyBackup.capture(context,store);
+        files.importBackup(new ByteArrayInputStream(old.toByteArray()),store);assertNotNull(store.getMessage(source.getLong("id")));
+        runtime.importOwnerControls(controls);assertNull(store.getMessage(source.getLong("id")));assertNativeControl(source.getLong("id"));assertHealthyWithout("portable erased owner payload");
+    }
+    private JSONObject portableExclusion(JSONObject source)throws Exception {
+        Context remote=new android.content.ContextWrapper(context){@Override public Context getApplicationContext(){return this;}@Override public File getFilesDir(){File root=new File(context.getFilesDir(),"remote-owner-controls");root.mkdirs();return root;}};
+        SourcePrivacyLedger ledger=new SourcePrivacyLedger(remote);ledger.excludeSource("message",source.getLong("id"),source.getString("content_hash"),"retrieval_exclude","explicit remote owner folder policy");
+        JSONObject body=object("format",OwnerPolicyBackup.FORMAT,"privacy",ledger.snapshot(),"deletions",new JSONArray());
+        body.put("checksum",OriginalTextFiles.hex(OriginalTextFiles.digest().digest(body.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8))));return OwnerPolicyBackup.validate(body);
+    }
     private JSONObject completedOwner(String text)throws Exception {
         JSONObject request=runtime.receive(text,new JSONArray());JSONObject source=sourceFor(request);
         store.markRequest(request.getLong("id"),"completed","synthetic completed locally; no transport");return source;

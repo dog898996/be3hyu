@@ -60,7 +60,6 @@ public final class HoyoungApplication extends Application {
                 Throwable failed=null;
                 try {
                     com.hoyoung.assistant.store.OwnerPolicyBackup.reconcile(HoyoungApplication.this,store);
-                    new SourcePayloadDeletion(this,store).reconcileDeletionRequests();
                     AssistantRuntime.reconcileOwnerSourceAuthority(store);
                 }catch(java.io.IOException|RuntimeException failure){failed=failure;}
                 final Throwable result=failed;
