@@ -153,6 +153,16 @@ public final class WorkWebController implements AssistantRuntime.Transport {
         return active == JSONObject.NULL || active instanceof String && ((String) active).isEmpty();
     }
 
+    /** Preparing owns a frozen route but has not crossed the JavaScript send boundary. */
+    static boolean canAutomaticallySelectPreferences(JSONObject state) {
+        if (canAutomaticallyOpen(state)) return true;
+        if (state == null || !state.optBoolean("receiptIndexReady", false)
+                || state.optBoolean("uncertaintyBlocked") || state.optBoolean("restoringBackup") || state.optBoolean("storageRecoveryBlocked")
+                || !"preparing".equals(state.optString("activePhase"))) return false;
+        Object active = state.opt("activeRequestId");
+        return active instanceof String && !((String) active).isEmpty();
+    }
+
     static final class StartupRetryPolicy {
         private int failures;
         private long nextAttemptAt;
@@ -354,7 +364,11 @@ public final class WorkWebController implements AssistantRuntime.Transport {
             try { preferences = bridgePreferences(); }
             catch (Exception invalidPreferences) { emitState(new JSONObject(), "unsupported_preferences"); return; }
             WebView destination = view; int epoch = documentEpoch;
-            try { destination.evaluateJavascript("window.HoyoungWorkBridge ? JSON.stringify(window.HoyoungWorkBridge.configurePreferences(" + preferences + ")) : null", raw -> {
+            // A native preparing request owns immutable preferences but has not
+            // been handed to JavaScript. It may select that frozen route before
+            // send; dispatched/recovered/uncertain outcomes remain read-only.
+            String operation = canAutomaticallySelectPreferences(runtime.state()) && !ownerRecoveryRequired ? "ensurePreferences" : "configurePreferences";
+            try { destination.evaluateJavascript("window.HoyoungWorkBridge ? JSON.stringify(window.HoyoungWorkBridge." + operation + "(" + preferences + ")) : null", raw -> {
                 if (view != destination || !loaded || documentEpoch != epoch) return;
                 try {
                     JSONObject receipt = decodeResult(raw);
@@ -374,12 +388,82 @@ public final class WorkWebController implements AssistantRuntime.Transport {
         });
     }
 
+    /** Owner-triggered, read-only capture. This method is never exposed as a WebView JavaScript interface. */
+    public void captureUsageObservation(String accountScope) {
+        if (accountScope == null || accountScope.trim().isEmpty() || accountScope.length() > 256
+                || accountScope.contains("\n") || accountScope.contains("\r") || accountScope.indexOf('\0') >= 0) {
+            runtime.localNotice("usage_capture_scope_required", "사용량을 기록할 계정 구분 이름을 입력해 줘."); return;
+        }
+        final String scope = accountScope.trim();
+        main.post(() -> {
+            if (view == null || !loaded || !isChatGptOrigin(Uri.parse(currentOrigin))) {
+                runtime.localNotice("usage_capture_unavailable", "로그인한 Work 화면에서 사용량 페이지를 직접 열어 줘. 확인 전에는 사용량을 추정하지 않아."); return;
+            }
+            final WebView destination = view; final int epoch = documentEpoch;
+            final String nonce = UUID.randomUUID().toString().replace("-", "");
+            final long requestedAt = System.currentTimeMillis();
+            final java.util.concurrent.atomic.AtomicBoolean consumed = new java.util.concurrent.atomic.AtomicBoolean();
+            final JSONObject arguments = new JSONObject();
+            try { arguments.put("accountScope", scope).put("captureNonce", nonce); }
+            catch (Exception invalidArguments) { return; }
+            try { destination.evaluateJavascript("window.HoyoungWorkBridge && window.HoyoungWorkBridge.captureUsageObservation ? JSON.stringify(window.HoyoungWorkBridge.captureUsageObservation(" + arguments + ")) : null", raw -> {
+                if (!consumed.compareAndSet(false, true)) return;
+                // An old page/callback, a different account label or replayed
+                // capture cannot create verified ledger evidence.
+                if (view != destination || !loaded || documentEpoch != epoch || !isChatGptOrigin(Uri.parse(currentOrigin))) return;
+                try {
+                    JSONObject receipt = decodeResult(raw);
+                    JSONObject observation = verifiedUsageObservation(receipt, scope, nonce, requestedAt, System.currentTimeMillis());
+                    runtime.recordProviderUsageObservation(observation);
+                } catch (Exception unavailable) {
+                    runtime.localNotice("usage_capture_unavailable", "이 사용량 화면에서는 Pro의 주간 전체 Work/Codex 수치와 정확한 초기화 시점을 함께 확인하지 못했어. 사용량은 미확인으로 유지해.");
+                }
+            }); } catch (RuntimeException | LinkageError unavailable) {
+                runtime.localNotice("usage_capture_unavailable", "사용량 화면을 읽지 못했어. 실제 사용량을 확인한 것으로 기록하지 않았어.");
+            }
+        });
+    }
+
+    static JSONObject verifiedUsageObservation(JSONObject receipt, String scope, String nonce, long requestedAt, long now) throws Exception {
+        if (receipt == null || !Boolean.TRUE.equals(receipt.opt("ok")) || !"usage_observed".equals(receipt.optString("code")))
+            throw new IllegalArgumentException("No observed usage panel");
+        JSONObject value = receipt.getJSONObject("observation");
+        if (!(value.opt("schemaVersion") instanceof Number) || value.getDouble("schemaVersion") != 1
+                || !scope.equals(value.optString("accountScope")) || !nonce.equals(value.optString("captureNonce"))
+                || !"https://chatgpt.com".equals(value.optString("sourceOrigin")) || !"visible-usage-panel".equals(value.optString("sourceKind"))
+                || !"weekly".equals(value.optString("period"))) throw new IllegalArgumentException("Unbound usage receipt");
+        for (String field : new String[]{"observedAt", "resetAt", "usedPercent", "precisionPercent"})
+            if (!(value.opt(field) instanceof Number)) throw new IllegalArgumentException("Non-numeric usage field");
+        long observedAt = value.getLong("observedAt"), resetAt = value.getLong("resetAt");
+        double used = value.getDouble("usedPercent"), precision = value.getDouble("precisionPercent");
+        if (value.getDouble("observedAt") != observedAt || value.getDouble("resetAt") != resetAt
+                || observedAt < requestedAt || observedAt > now || now - observedAt > 15_000 || resetAt <= now || resetAt - observedAt > 8L * 24 * 60 * 60 * 1000
+                || !Double.isFinite(used) || used < 0 || used > 100 || !Double.isFinite(precision)
+                || !(precision == 1 || precision == .1 || precision == .01 || precision == .001)
+                || !("work-codex:weekly:" + resetAt).equals(value.optString("poolId"))) throw new IllegalArgumentException("Stale or invalid usage evidence");
+        String evidence = value.getString("evidenceText");
+        if (evidence.trim().isEmpty() || evidence.length() > 4_000) throw new IllegalArgumentException("Missing usage evidence");
+        byte[] hash = MessageDigest.getInstance("SHA-256").digest(evidence.getBytes(StandardCharsets.UTF_8));
+        StringBuilder digest = new StringBuilder();
+        for (byte b : hash) digest.append("0123456789abcdef".charAt((b & 255) >>> 4)).append("0123456789abcdef".charAt(b & 15));
+        JSONObject verified = new JSONObject(value.toString()); verified.remove("captureNonce");
+        return verified.put("origin", "provider_ui_observed").put("accountScopeSource", "owner_label").put("accountIdentityVerified", false).put("evidenceSha256", digest.toString())
+                .put("evidenceRef", "work-dom-sha256:" + digest + "@" + observedAt);
+    }
+
     // UTF-16 character limit shared with work-bridge.js and AssistantRuntime.
     // Do not shorten a prepared prompt to fit: its original remains in the queue.
     private static final int MAX_PROMPT_CHARS = 250_000;
 
     private JSONObject bridgePreferences() throws Exception {
-        JSONObject required = runtime.requiredModelPreferences();
+        return bridgePreferences(runtime.requiredModelPreferences());
+    }
+
+    private JSONObject bridgePreferences(String requestId) throws Exception {
+        return bridgePreferences(runtime.requiredModelPreferences(requestId));
+    }
+
+    private static JSONObject bridgePreferences(JSONObject required) throws Exception {
         return new JSONObject().put("requiredModel", required.getString("model"))
             .put("requiredEffort", required.getString("effort")).put("requiredSpeed", required.getString("speed"));
     }
@@ -389,7 +473,7 @@ public final class WorkWebController implements AssistantRuntime.Transport {
             if (view == null || !loaded) { emitPreflight("WEBVIEW_NOT_READY", requestId); return; }
             if (prompt == null || prompt.isEmpty() || prompt.length() > MAX_PROMPT_CHARS) { emitPreflight("MESSAGE_TOO_LARGE_OR_EMPTY", requestId); return; }
             final JSONObject preferences;
-            try { preferences = bridgePreferences(); }
+            try { preferences = bridgePreferences(requestId); }
             catch (Exception invalidPreferences) { emitPreflight("MODEL_PREFERENCES_INVALID", requestId); return; }
             WebView destination = view;
             // File reads/base64 can be tens of MiB. Keep owner input and Android's

@@ -40,6 +40,23 @@ public final class AutonomyTickPolicyTest {
         for(int i=0;i<16;i++){Thread t=new Thread(()->{try{start.await();if(poll(new AutonomyTickPolicy(db),START).shouldDispatch)claims.incrementAndGet();}catch(InterruptedException e){throw new AssertionError(e);}});threads.add(t);t.start();}
         start.countDown();for(Thread t:threads)t.join();assertEquals(1,claims.get());assertEquals(1,db.events.size());
     }
+    @Test public void sevenDaysWithoutEventsKeep2016JudgmentSlotsAcrossRestarts() {
+        // Scheduling replay with simulated admission/completion receipts, not live AI inference.
+        Durable db=new Durable();AutonomyTickPolicy policy=new AutonomyTickPolicy(db);
+        java.util.Set<String> identities=new java.util.HashSet<>();
+        for(int slot=0;slot<7*288;slot++) {
+            if(slot%97==0)policy=new AutonomyTickPolicy(db);
+            long now=START+slot*PERIOD;
+            AutonomyTickPolicy.Decision due=poll(policy,now);
+            assertTrue("Every no-change slot still requires a judgment: "+slot,due.shouldDispatch);
+            assertTrue(identities.add(due.tickId));
+            assertTrue(policy.markDispatched(due.tickId,now+1));
+            assertTrue(policy.complete(due.tickId,true,now+2));
+            assertFalse("A repeated local pulse cannot repeat the submitted task",poll(policy,now+3).shouldDispatch);
+        }
+        assertEquals(2016,identities.size());assertEquals(2016*3,db.events.size());
+        assertEquals("no_action",policy.snapshot(START+2015*PERIOD+4).optString("lastOutcome"));
+    }
     @Test public void ownerControlAndBusyCoalesceInsteadOfQueueingBehindOwner() {
         Durable db=new Durable();AutonomyTickPolicy p=new AutonomyTickPolicy(db);
         AutonomyTickPolicy.Decision owner=p.poll(START,true,true,false,true,false,false);

@@ -54,6 +54,7 @@ public final class MainActivity extends Activity {
     private static final int BG = Color.rgb(247, 249, 253);
     private static final int PICK_FILES = 201, EXPORT_BACKUP = 202, IMPORT_BACKUP = 203, WORK_FILE_PICKER = 204, EXPORT_FILE = 205, OWNER_FOLDER = 206;
     private TextView ownerFolderState;
+    private TextView usageBudgetState;
     private final Handler main = new Handler(Looper.getMainLooper());
     private final ExecutorService io = Executors.newSingleThreadExecutor();
     private final ExecutorService commands = Executors.newSingleThreadExecutor();
@@ -801,8 +802,37 @@ public final class MainActivity extends Activity {
         addSettingToggle(panel, "호영의 답장·선톡 알림", "replyNotificationsEnabled", true);
         EditText backupLimit = new EditText(this); backupLimit.setInputType(android.text.InputType.TYPE_CLASS_NUMBER); backupLimit.setHint("백업 용량 한도(GiB, 1~64)");
         backupLimit.setText(app.getStore().getSetting("backupMaxGiB", "64")); panel.addView(backupLimit);
-        panel.addView(label("사용할 모델과 실행 옵션", 17, INK));
-        panel.addView(label("기본값은 GPT-6.1 Sol · Medium · Fast야. 모델이 바뀌면 여기서 요구값을 수정하고 Work에서 같은 선택을 해 줘. 선택이 확인될 때만 전송해.", 12, SUBTLE));
+        panel.addView(label("사용량 절약 · 하루 10% 목표", 17, INK));
+        CheckBox optimize = new CheckBox(this); optimize.setText("판단·기억 처리에 맞춰 실행 옵션 분리");
+        optimize.setChecked("true".equals(app.getStore().getSetting("usageOptimizationEnabled", "true"))); panel.addView(optimize);
+        panel.addView(label("네 대화와 지시의 응답은 Fast를 유지해. 정기 판단은 기본 Light·Standard, 기억 검토는 최소 Medium으로 분리해. 판단 간격과 기억 보관량은 줄이지 않아. Fast 선택이 실제로 확인되어야 전송하며, 즉시 답변 완료를 보장하는 설정은 아니야.", 12, SUBTLE));
+        usageBudgetState = label(usageBudgetDescription(app.getRuntime().state().optJSONObject("usageBudget")), 13, INK);
+        panel.addView(usageBudgetState);
+        panel.addView(label("공개된 고정 하루 토큰 한도는 없어. 아래 목표는 사용량 화면의 한도 비율을 기준으로 해. 실제 사용량을 확인하지 못하면 10% 달성으로 표시하지 않아. 다른 ChatGPT·Codex 작업도 같은 계정 한도를 사용할 수 있어.", 12, SUBTLE));
+        panel.addView(button("열린 Work 사용량 화면 읽기", this::showProviderUsageObservation));
+        panel.addView(label("Work 탭에서 실제 사용량 화면을 먼저 열고 이 버튼을 눌러. 화면을 이동하거나 AI를 호출하지 않고 현재 보이는 Work·Codex 한도 비율과 리셋 시각만 읽어. 화면 형식이 지원되지 않거나 값이 불분명하면 관찰 완료로 처리하지 않아.", 12, SUBTLE));
+        panel.addView(button("사용량 화면에서 확인한 수치 입력", this::showUsageObservation));
+        EditText budgetTarget = new EditText(this); budgetTarget.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
+        budgetTarget.setHint("일평균 절약 목표(%, 1~100)"); budgetTarget.setText(app.getStore().getSetting("budgetTargetPercent", "10")); panel.addView(budgetTarget);
+        android.widget.Spinner budgetBasisChoice = new android.widget.Spinner(this);
+        String[] budgetBases = {"pool_per_day", "daily_share"};
+        budgetBasisChoice.setAdapter(new android.widget.ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item,
+                new String[]{"사용량 화면의 전체 한도 중 하루 목표 비율", "고급 · 전체 한도를 7일로 나눈 하루 몫 중 목표 비율"}));
+        budgetBasisChoice.setSelection("daily_share".equals(app.getStore().getSetting("budgetBasis", "pool_per_day")) ? 1 : 0); panel.addView(budgetBasisChoice);
+        panel.addView(label("10%는 평균 사용량을 줄이는 목표야. 목표에 도달해도 대화·자율 판단·기억 처리를 중단하지 않아. 두 번째 기준은 전체 한도를 7로 나누므로 같은 10%여도 7배 엄격해.", 12, SUBTLE));
+        android.widget.Spinner autonomyEffortChoice = new android.widget.Spinner(this), memoryEffortChoice = new android.widget.Spinner(this), backgroundSpeedChoice = new android.widget.Spinner(this);
+        String[] autonomyEfforts = {"low", "medium", "high", "xhigh", "max", "ultra"}, memoryEfforts = {"medium", "high", "xhigh", "max", "ultra"}, backgroundSpeeds = {"standard", "fast"};
+        panel.addView(label("정기 판단 추론 강도 · Low는 Work의 Light", 12, SUBTLE));
+        autonomyEffortChoice.setAdapter(new android.widget.ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, autonomyEfforts));
+        autonomyEffortChoice.setSelection(Math.max(0, java.util.Arrays.asList(autonomyEfforts).indexOf(app.getStore().getSetting("autonomousEffort", "low")))); panel.addView(autonomyEffortChoice);
+        panel.addView(label("기억 검토 최소 추론 강도", 12, SUBTLE));
+        memoryEffortChoice.setAdapter(new android.widget.ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, memoryEfforts));
+        memoryEffortChoice.setSelection(Math.max(0, java.util.Arrays.asList(memoryEfforts).indexOf(app.getStore().getSetting("memoryMinimumEffort", "medium")))); panel.addView(memoryEffortChoice);
+        panel.addView(label("백그라운드 작업 속도 · Standard 권장", 12, SUBTLE));
+        backgroundSpeedChoice.setAdapter(new android.widget.ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, backgroundSpeeds));
+        backgroundSpeedChoice.setSelection(Math.max(0, java.util.Arrays.asList(backgroundSpeeds).indexOf(app.getStore().getSetting("backgroundSpeed", "standard")))); panel.addView(backgroundSpeedChoice);
+        panel.addView(label("사용할 모델과 사용자 응답 옵션", 17, INK));
+        panel.addView(label("기본값은 GPT-6.1 Sol · Medium · Fast야. 추론 강도는 사용자 응답의 품질 기준이야. 사용량 절약을 켜면 응답 속도는 Fast로 고정하고, 백그라운드 선택을 별도로 사용해. 모델이 바뀌면 여기서 요구값을 수정해. Work에서 선택이 확인될 때만 전송해.", 12, SUBTLE));
         EditText modelChoice = new EditText(this); modelChoice.setSingleLine(true); modelChoice.setHint("gpt-6.1-sol"); modelChoice.setText(app.getStore().getSetting("requiredModel", "gpt-6.1-sol")); panel.addView(modelChoice);
         android.widget.Spinner effortChoice = new android.widget.Spinner(this), speedChoice = new android.widget.Spinner(this);
         String[] efforts = {"low", "medium", "high", "xhigh", "max", "ultra"}, speeds = {"fast", "standard"};
@@ -811,13 +841,19 @@ public final class MainActivity extends Activity {
         effortChoice.setSelection(Math.max(0, java.util.Arrays.asList(efforts).indexOf(app.getStore().getSetting("requiredEffort", "medium"))));
         speedChoice.setSelection(Math.max(0, java.util.Arrays.asList(speeds).indexOf(app.getStore().getSetting("requiredSpeed", "fast"))));
         panel.addView(effortChoice); panel.addView(speedChoice);
+        if (optimize.isChecked()) { speedChoice.setSelection(0); speedChoice.setEnabled(false); }
+        optimize.setOnCheckedChangeListener((view, enabled) -> {
+            speedChoice.setEnabled(!enabled);
+            if (enabled) speedChoice.setSelection(0);
+        });
         EditText instructions = new EditText(this); instructions.setMinLines(8); instructions.setGravity(Gravity.TOP);
         instructions.setText(app.getStore().getSetting("customInstructions", bundledInstructions())); panel.addView(instructions);
         panel.addView(button("설정 저장", () -> {
             try {
                 int seconds = Integer.parseInt(interval.getText().toString()); if (seconds < 60 || seconds > 86400) throw new IllegalArgumentException();
                 int backupGiB = Integer.parseInt(backupLimit.getText().toString()); if (backupGiB < 1 || backupGiB > 64) throw new IllegalArgumentException();
-                String chosenModel = modelChoice.getText().toString().trim(), chosenEffort = efforts[effortChoice.getSelectedItemPosition()], chosenSpeed = speeds[speedChoice.getSelectedItemPosition()];
+                int targetPercent = Integer.parseInt(budgetTarget.getText().toString()); if (targetPercent < 1 || targetPercent > 100) throw new IllegalArgumentException();
+                String chosenModel = modelChoice.getText().toString().trim(), chosenEffort = efforts[effortChoice.getSelectedItemPosition()], chosenSpeed = optimize.isChecked() ? "fast" : speeds[speedChoice.getSelectedItemPosition()];
                 com.hoyoung.assistant.runtime.AssistantRuntime.validateModelPreferences(chosenModel, chosenEffort, chosenSpeed);
                 String goalText = goals.getText().toString(), instructionText = instructions.getText().toString();
                 if (goalText.length() > 50_000 || instructionText.length() > 50_000) throw new IllegalArgumentException();
@@ -826,16 +862,27 @@ public final class MainActivity extends Activity {
                     app.getStore().putSetting("standingGoals", goalText);
                     app.getStore().putSetting("customInstructions", instructionText);
                     app.getStore().putSetting("requiredModel", chosenModel); app.getStore().putSetting("requiredEffort", chosenEffort); app.getStore().putSetting("requiredSpeed", chosenSpeed);
+                    app.getStore().putSetting("usageOptimizationEnabled", String.valueOf(optimize.isChecked()));
+                    app.getStore().putSetting("autonomousEffort", autonomyEfforts[autonomyEffortChoice.getSelectedItemPosition()]);
+                    app.getStore().putSetting("memoryMinimumEffort", memoryEfforts[memoryEffortChoice.getSelectedItemPosition()]);
+                    app.getStore().putSetting("backgroundSpeed", backgroundSpeeds[backgroundSpeedChoice.getSelectedItemPosition()]);
+                    app.getStore().putSetting("budgetBasis", budgetBases[budgetBasisChoice.getSelectedItemPosition()]);
+                    app.getStore().putSetting("budgetTargetPercent", String.valueOf(targetPercent));
                     app.getStore().putSetting("backupMaxGiB", String.valueOf(backupGiB)); return null;
                 });
-                notice("지침과 판단 간격을 저장했어.");
-            } catch (Exception e) { notice("판단 간격은 60~86,400초, 백업 한도는 1~64GiB, 모델은 gpt-… 형식, 지침과 목표는 각각 50,000자 이내로 입력해."); }
+                notice("지침과 실행 옵션을 저장했어. 10% 목표 달성 여부는 실제 사용량 확인이 필요해.");
+            } catch (Exception e) { notice("판단 간격은 60~86,400초, 백업 한도는 1~64GiB, 사용량 목표는 1~100%, 모델은 gpt-… 형식, 지침과 목표는 각각 50,000자 이내로 입력해."); }
         }));
         panel.addView(button("한도·연결 상태 다시 확인", () -> { app.getWebController().manualRetryCheck(); refreshStatus(); }));
         panel.addView(button("연결 진단 복사", () -> {
             JSONObject diagnosis = app.getRuntime().state();
             // Progress can contain a streamed answer; diagnostics are state flags only.
             diagnosis.remove("progress");
+            JSONObject budget = diagnosis.optJSONObject("usageBudget");
+            if (budget != null) {
+                budget.remove("observation"); budget.remove("latestProviderObservation");
+                budget.remove("accountScope"); budget.remove("poolId"); budget.remove("evidenceRef");
+            }
             try { diagnosis.put("androidSdk", android.os.Build.VERSION.SDK_INT).put("appVersion", getPackageManager().getPackageInfo(getPackageName(), 0).versionName).put("permissions", new PermissionCatalog(this).snapshot()); }
             catch (Exception ignored) { }
             android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
@@ -877,6 +924,92 @@ public final class MainActivity extends Activity {
         refreshStatus();
     }
 
+    /** The owner identifies the account; the bridge reads only the already open usage view. */
+    private void showProviderUsageObservation() {
+        LinearLayout form = column(); form.setPadding(dp(18), dp(8), dp(18), dp(8));
+        form.addView(label("Work 탭에서 네 계정의 실제 사용량 화면을 먼저 열어. 현재 열린 화면만 읽고, 다른 페이지 이동·계정 변경·AI 호출은 하지 않아. 같은 계정의 관찰에 같은 구분 이름을 써. 다른 계정이나 한도 관찰은 합치지 않아.", 13, SUBTLE));
+        EditText scope = new EditText(this); scope.setSingleLine(true); scope.setHint("계정 구분 이름 · 비밀번호 입력 금지"); form.addView(scope);
+        AlertDialog dialog = new AlertDialog.Builder(this).setTitle("열린 사용량 화면 관찰").setView(form)
+                .setPositiveButton("보이는 사용량 읽기", null).setNegativeButton("취소", null).create();
+        dialog.setOnShowListener(unused -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(view -> {
+            String account = scope.getText().toString().trim();
+            if (account.isEmpty() || account.length() > 80 || account.contains("\n")) {
+                notice("같은 계정의 관찰에 사용할 구분 이름을 80자 이내로 입력해. 비밀번호나 인증정보는 입력하지 마."); return;
+            }
+            if (app.getWebController().getExistingView() == null) {
+                notice("Work 탭에서 실제 사용량 화면을 먼저 열어 줘. 새로운 페이지를 자동으로 열지 않았어."); return;
+            }
+            try {
+                app.getWebController().captureUsageObservation(account);
+                dialog.dismiss();
+                notice("열린 화면의 사용량 관찰을 요청했어. 실제 수치와 리셋 시각을 확인한 경우에만 기록해. 결과는 사용량 상태에서 확인해.");
+            } catch (RuntimeException unavailable) {
+                notice("열린 사용량 화면을 읽지 못했어. 사용량 관찰이나 10% 달성으로 기록하지 않았어.");
+            }
+        }));
+        dialog.show();
+    }
+
+    /** Owner-entered figures remain reports rather than provider-observed telemetry. */
+    private void showUsageObservation() {
+        LinearLayout form = column(); form.setPadding(dp(18), dp(8), dp(18), dp(8));
+        form.addView(label("Work·Codex 사용량 화면의 현재 '사용한 비율'을 입력해. 남은 비율이나 오늘 토큰 수가 아니야. 같은 계정·한도·리셋 시각의 관찰 두 개가 있어야 변화량을 계산할 수 있어. 수동 입력은 서버 확인이나 10% 달성 증거로 취급하지 않아.", 13, SUBTLE));
+        EditText scope = new EditText(this); scope.setSingleLine(true); scope.setHint("계정 구분 이름 · 비밀번호 입력 금지"); form.addView(scope);
+        EditText percent = new EditText(this); percent.setSingleLine(true); percent.setHint("현재 사용한 비율(%, 0~100)");
+        percent.setInputType(android.text.InputType.TYPE_CLASS_NUMBER | android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL); form.addView(percent);
+        EditText reset = new EditText(this); reset.setSingleLine(true); reset.setHint("화면의 다음 리셋 시각 · 2026-10-18T15:00+09:00"); form.addView(reset);
+        form.addView(label("리셋 날짜·시각과 시간대는 화면에서 확인한 값으로 입력해. 확인할 수 없으면 입력을 취소해. 정수 비율 표시의 오차는 1%p로 보수적으로 반영해.", 12, SUBTLE));
+        AlertDialog dialog = new AlertDialog.Builder(this).setTitle("사용량 수동 관찰 기록").setView(form)
+                .setPositiveButton("관찰 기록", null).setNegativeButton("취소", null).create();
+        dialog.setOnShowListener(unused -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(view -> {
+            try {
+                String account = scope.getText().toString().trim();
+                if (account.isEmpty() || account.length() > 80 || account.contains("\n")) throw new IllegalArgumentException();
+                double used = Double.parseDouble(percent.getText().toString().trim());
+                if (!Double.isFinite(used) || used < 0 || used > 100) throw new IllegalArgumentException();
+                long resetAt = java.time.OffsetDateTime.parse(reset.getText().toString().trim()).toInstant().toEpochMilli();
+                if (resetAt <= System.currentTimeMillis()) throw new IllegalArgumentException();
+                JSONObject observation = new JSONObject().put("accountScope", account).put("poolId", "work-codex:" + resetAt)
+                        .put("resetAt", resetAt).put("usedPercent", used).put("precisionPercent", 1)
+                        .put("origin", "owner_reported").put("evidenceRef", "owner_settings_manual");
+                app.getRuntime().recordUsageObservation(observation);
+                dialog.dismiss();
+                if (usageBudgetState != null) usageBudgetState.setText(usageBudgetDescription(app.getRuntime().state().optJSONObject("usageBudget")));
+                notice("수동 관찰을 저장했어. 서버 검증이나 10% 달성 확인으로 취급하지 않아.");
+            } catch (Exception invalid) {
+                notice("계정 구분 이름, 0~100%의 사용 비율, 시간대가 포함된 미래 리셋 시각을 입력해. 수치를 확인하지 못했으면 취소해.");
+            }
+        }));
+        dialog.show();
+    }
+
+    static String usageBudgetDescription(JSONObject budget) {
+        if (budget == null) return "실제 한도 사용량 미확인 · 10% 달성 미검증";
+        StringBuilder text = new StringBuilder("일평균 절약 목표 ").append(budget.optDouble("targetPercent", 10)).append("%");
+        if ("daily_share".equals(budget.optString("basis"))) text.append(" · 전체 한도의 하루 몫 기준");
+        else text.append(" · 전체 한도 기준");
+        JSONObject observation = budget.optJSONObject("observation");
+        boolean ownerReported = observation != null && "owner_reported".equals(observation.optString("origin"));
+        boolean verified = budget.optBoolean("verifiedObservationFresh", false);
+        String budgetState = budget.optString("budgetState", "unknown");
+        if (verified && budget.has("measuredLowerPercent") && budget.has("measuredUpperPercent")) {
+            text.append("\n관찰 구간 사용량 ").append(budget.optDouble("measuredLowerPercent")).append("~")
+                    .append(budget.optDouble("measuredUpperPercent")).append("%p · 공유 계정 전체");
+        } else if (ownerReported) {
+            text.append("\n사용자 수동 관찰 있음 · 실제 한도·10% 달성 미검증");
+        } else text.append("\n실제 한도 사용량 미확인 · 10% 달성 미검증");
+        if (budget.optBoolean("partialDayCoverage", true)) text.append("\n하루 전체 관찰이 아니므로 하루 사용량 달성을 확인할 수 없어.");
+        if ("target_exceeded".equals(budgetState)) text.append("\n관찰 구간의 사용량이 목표보다 높아. 작업은 계속 진행해.");
+        JSONObject statistics = budget.optJSONObject("requestStatistics");
+        if (statistics != null) {
+            text.append("\n앱에서 접수 확인된 호출 ").append(statistics.optLong("acceptedRequests")).append("회");
+            text.append(" · 전달 문맥 ").append(statistics.optLong("promptUtf16Chars")).append("자(UTF-16)");
+        }
+        text.append("\n호출 수·문자 수는 실제 토큰이나 한도 차감량이 아니야.");
+        text.append("\n절약 목표에 따른 호출 차단은 없어. 실제 서비스 한도 소진은 별도로 처리해.");
+        return text.toString();
+    }
+
     private boolean isActive() {
         JSONObject state = app.getRuntime().state();
         return !state.isNull("activeRequestId") && !state.optString("activeRequestId").isEmpty();
@@ -886,6 +1019,7 @@ public final class MainActivity extends Activity {
         if("파일".equals(tab)&&ownerFolderState!=null)ownerFolderState.setText(ownerFolderDescription());
         if (connection == null) return;
         JSONObject state = app.getRuntime().state();
+        if ("설정".equals(tab) && usageBudgetState != null) usageBudgetState.setText(usageBudgetDescription(state.optJSONObject("usageBudget")));
         JSONObject web = state.optJSONObject("webState");
         if (web == null) web = state.optJSONObject("web");
         String code = state.optString("lastCode", state.optString("status", ""));
@@ -902,7 +1036,12 @@ public final class MainActivity extends Activity {
         else if (isActive()) connection.setText(("preparing".equals(state.optString("activePhase")) ? "관련 기억·요청 준비 중" : "Work 전송·응답 대기") + " · " + (state.optLong("activeWaitingMillis") / 1000) + "초 · 새 입력은 저장돼");
         else if ("prompt_too_large".equals(code)) connection.setText("문맥이 너무 길어 전송을 멈췄어 · 원문은 폰에 남아 있어");
         else if ("ATTACHMENT_NOT_READY".equals(code) || code.startsWith("attachment_")) connection.setText("첨부를 확인하지 못해 전송을 멈췄어");
-        else if (state.optBoolean("ready")) connection.setText("Work 연결 확인 · " + app.getStore().getSetting("requiredModel", "gpt-6.1-sol") + " · " + app.getStore().getSetting("requiredEffort", "medium") + " · " + app.getStore().getSetting("requiredSpeed", "fast"));
+        else if (state.optBoolean("ready")) {
+            JSONObject route = state.optJSONObject("requestModelPreferences");
+            if (route == null) route = web == null ? new JSONObject() : web;
+            connection.setText("Work 연결 확인 · 현재 요청 " + route.optString("model", "미확인")
+                    + " · " + route.optString("effort", "미확인") + " · " + route.optString("speed", "미확인"));
+        }
         else if (web != null && web.optBoolean("loading")) connection.setText("Work 페이지 로딩 중");
         else connection.setText(switch (code) {
             case "work_unverified" -> "Work 선택을 확인해 줘";
@@ -910,6 +1049,8 @@ public final class MainActivity extends Activity {
             case "model_unverified" -> "설정에 지정한 모델 선택을 확인해 줘";
             case "effort_unverified" -> "설정에 지정한 추론 강도 선택을 확인해 줘";
             case "speed_unverified" -> "설정에 지정한 속도 선택을 확인해 줘";
+            case "preference_selection_pending" -> "요청에 맞는 모델·속도를 선택하는 중";
+            case "preference_selection_uncertain" -> "모델 선택 결과를 확인해 줘";
             case "composer_unverified" -> "Work 입력창을 확인하지 못했어";
             case "startup_failed" -> "Work 시작 재시도 중 · " + Math.max(1, (web == null ? 0 : web.optLong("startupRetryAfterMs")) / 1000) + "초 후 다시 확인";
             case "work_recovery_review_required", "renderer_lost" -> "이전 Work 화면 확인 필요 · Work 탭에서 복구 상태를 확인해";

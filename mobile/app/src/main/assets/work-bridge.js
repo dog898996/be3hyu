@@ -32,6 +32,14 @@
   const SPEEDS = ['fast', 'standard'];
   let configuredPreferences = Object.assign({}, DEFAULTS);
   let preferenceConfigurationValid = true;
+  // UI selection is an explicit native operation, never a side effect of the
+  // read-only configure/inspect APIs. One observed option is clicked once; an
+  // unacknowledged click cannot be replayed by the 250 ms DOM polling loop.
+  const PREFERENCE_SELECTION_TIMEOUT_MS = 5_000;
+  const MAX_PREFERENCE_SELECTION_CLICKS = 6;
+  let preferenceSelection = null;
+  let preferenceSelectionFlight = null;
+  let preferenceSelectionUncertain = false;
   const ACCEPT_TIMEOUT_MS = 30_000;
   const SEND_ENABLE_TIMEOUT_MS = 5_000;
   const ATTACHMENT_READY_TIMEOUT_MS = 60_000;
@@ -147,19 +155,33 @@
       || !EFFORTS.includes(preferences.effort) || !SPEEDS.includes(preferences.speed)) return null;
     return preferences;
   }
-  function configurePreferences(payload) {
+  function applyPreferences(payload) {
     const validObject = payload && typeof payload === 'object' && !Array.isArray(payload)
       && Object.keys(payload).length === 3 && ['requiredModel', 'requiredEffort', 'requiredSpeed'].every(key => Object.prototype.hasOwnProperty.call(payload, key));
     const preferences = validObject && requiredPreferences(payload, {});
     preferenceConfigurationValid = !!preferences;
     if (preferences) configuredPreferences = preferences;
+    return preferences;
+  }
+  function configurePreferences(payload) {
+    applyPreferences(payload);
     // A malformed explicit setting does not restore old/default requirements.
-    // Active requests keep their immutable per-dispatch preferences.
+    // Active requests keep their immutable per-dispatch preferences. Explicit
+    // read-only configuration disarms automatic mutation, including after an
+    // active request completes; pending click evidence is nevertheless retained.
+    if (preferenceSelection) preferenceSelection.enabled = false;
     return inspectAndEmit();
   }
   function uniqueValue(values) {
     const unique = Array.from(new Set(values.filter(Boolean)));
     return unique.length === 1 ? unique[0] : null;
+  }
+  function parseEffort(label) {
+    const labels = { low: 'low', light: 'low', medium: 'medium', high: 'high', xhigh: 'xhigh', 'extra high': 'xhigh', max: 'max', ultra: 'ultra', 미디엄: 'medium', 중간: 'medium' };
+    return labels[label.toLowerCase()] || null;
+  }
+  function parseSpeed(label) {
+    return { fast: 'fast', standard: 'standard', flex: 'flex', 빠름: 'fast' }[label.toLowerCase()] || null;
   }
   function preferenceEvidence() {
     const chosen = controls().filter(selected);
@@ -167,31 +189,235 @@
       .filter(element => !element.closest(TRANSCRIPT + ', [role="menu"], [role="listbox"]')
         && (!['aria-pressed', 'aria-selected', 'aria-checked', 'aria-current', 'data-selected'].some(name => element.hasAttribute(name)) || selected(element))
         && !/^(?:off|unchecked|inactive)$/.test(element.getAttribute('data-state') || ''));
-    const model = uniqueValue(modelControls.concat(chosen).map(element => parseModel(labelOf(element))));
-    const effort = uniqueValue(chosen.concat(modelControls).map(element => {
+    const isDimensionEvidence = (element, dimension) => {
+      if (element.closest('[role="menu"], [role="listbox"]')) return preferenceMenus(dimension).some(menu => menu.contains(element));
+      if (dimension === 'model' && modelControls.includes(element) || preferenceTriggers(dimension).includes(element)) return true;
+      const explicitDescription = dimension === 'effort'
+        ? /^(?:Reasoning effort|Thinking effort|추론 강도|생각 강도)\s*[:：]/i
+        : dimension === 'speed' ? /^(?:Speed|Response speed|속도|응답 속도)\s*[:：]/i : /^(?:Model|AI model|모델)\s*[:：]/i;
+      if (explicitDescription.test(labelOf(element))) return true;
+      const group = element.closest('[role="group"], [role="radiogroup"]');
+      if (!group) return false;
+      const labels = [normalized(group.getAttribute('aria-label'))].concat(normalized(group.getAttribute('aria-labelledby')).split(' ').filter(Boolean)
+        .map(id => document.getElementById(id)).filter(label => label && visible(label) && !label.closest(TRANSCRIPT)).map(textOf));
+      const groupLabel = dimension === 'effort' ? /^(?:Reasoning effort|Thinking effort|추론 강도|생각 강도)$/i
+        : dimension === 'speed' ? /^(?:Speed|Response speed|속도|응답 속도)$/i : /^(?:Model|AI model|모델)$/i;
+      return labels.some(label => groupLabel.test(label));
+    };
+    const model = uniqueValue(modelControls.concat(chosen.filter(element => isDimensionEvidence(element, 'model'))).map(element => parseModel(labelOf(element))));
+    const currentControls = chosen.concat(modelControls, preferenceTriggers('effort'), preferenceTriggers('speed'));
+    const effort = uniqueValue(currentControls.filter(element => isDimensionEvidence(element, 'effort')).map(element => {
       const label = labelOf(element);
-      const effortLabels = { low: 'low', medium: 'medium', high: 'high', xhigh: 'xhigh', 'extra high': 'xhigh', max: 'max', ultra: 'ultra', 미디엄: 'medium', 중간: 'medium' };
-      if (selected(element) && effortLabels[label.toLowerCase()]) return effortLabels[label.toLowerCase()];
-      const description = /^(?:Reasoning effort|Thinking effort|추론 강도|생각 강도)\s*[:：]\s*(Low|Medium|High|XHigh|Extra high|Max|Ultra|미디엄|중간)$/i.exec(label);
-      if (description) return effortLabels[description[1].toLowerCase()] || null;
+      if (selected(element) && parseEffort(label)) return parseEffort(label);
+      const description = /^(?:Reasoning effort|Thinking effort|추론 강도|생각 강도)\s*[:：]\s*(Low|Light|Medium|High|XHigh|Extra high|Max|Ultra|미디엄|중간)$/i.exec(label);
+      if (description) return parseEffort(description[1]);
       return null;
     }));
-    const speed = uniqueValue(chosen.concat(modelControls).map(element => {
+    const speed = uniqueValue(currentControls.filter(element => isDimensionEvidence(element, 'speed')).map(element => {
       const label = labelOf(element);
-      const speedLabels = { fast: 'fast', standard: 'standard', flex: 'flex', 빠름: 'fast' };
-      if (selected(element) && speedLabels[label.toLowerCase()]) return speedLabels[label.toLowerCase()];
+      if (selected(element) && parseSpeed(label)) return parseSpeed(label);
       const description = /^(?:Speed|Response speed|속도|응답 속도)\s*[:：]\s*(Fast|Standard|Flex|빠름)$/i.exec(label);
-      if (description) return speedLabels[description[1].toLowerCase()] || null;
+      if (description) return parseSpeed(description[1]);
       return null;
     }));
     return { model, effort, speed };
+  }
+
+  function preferenceSelectionGate(state) {
+    if (disposed || document !== initialDocument || location.origin !== 'https://chatgpt.com' || location.pathname !== initialPath) return 'unsupported_origin';
+    if (!preferenceConfigurationValid) return 'unsupported_preferences';
+    if (active) return active.phase === 'uncertain' ? 'dispatch_uncertain' : 'busy';
+    if (state.authenticated !== true) return state.authenticated === false ? 'authentication_required' : 'authentication_unverified';
+    if (!state.workSelected) return 'work_unverified';
+    if (!state.temporary) return 'temporary_unverified';
+    if (state.busy || state.quota || state.needsInput) return state.quota ? 'quota_exhausted' : state.needsInput ? 'input_required' : 'busy';
+    const editor = composer(), scope = composerScope(editor);
+    if (!editor || !scope) return 'composer_unverified';
+    if (editorText(editor)) return 'composer_has_draft';
+    if (all('[data-testid="attachment"], [data-file-name], [role="group"][aria-label], [role="progressbar"], progress', scope).length
+      || Array.from(scope.querySelectorAll('input[type="file"]')).some(input => input.files && input.files.length)) return 'composer_has_attachments';
+    // Missing/contradictory selected UI evidence is never replaced by the desired
+    // preference, a model offer or arbitrary transcript text.
+    if (!state.model || !state.effort || !state.speed) return 'preference_selection_unverified';
+    return 'safe';
+  }
+  function optionValue(element, dimension) {
+    const label = labelOf(element);
+    return dimension === 'model' ? parseModel(label) : dimension === 'effort' ? parseEffort(label) : parseSpeed(label);
+  }
+  function preferenceOptions(dimension, value) {
+    const menus = preferenceMenus(dimension);
+    if (menus.length !== 1) return [];
+    return controls().filter(element => {
+      const role = element.getAttribute('role');
+      const explicitOption = ['menuitemradio', 'radio', 'option', 'menuitem'].includes(role)
+        || element.matches('button') && !!element.closest('[role="menu"], [role="listbox"]');
+      return explicitOption && menus[0].contains(element) && optionValue(element, dimension) === value;
+    });
+  }
+  function preferenceMenus(dimension) {
+    const triggers = preferenceTriggers(dimension);
+    if (triggers.length !== 1) return [];
+    const trigger = triggers[0];
+    const ownedIds = normalized([trigger.getAttribute('aria-controls'), trigger.getAttribute('aria-owns')].filter(Boolean).join(' ')).split(' ').filter(Boolean);
+    return all('[role="menu"], [role="listbox"]').filter(menu => !menu.closest(TRANSCRIPT)
+      && (menu.id && ownedIds.includes(menu.id)
+        || trigger.id && normalized(menu.getAttribute('aria-labelledby')).split(' ').includes(trigger.id)));
+  }
+  function preferenceTriggers(dimension) {
+    return controls().filter(element => {
+      if (element.closest('[role="menu"], [role="listbox"]') || !element.matches('button, [role="button"]')) return false;
+      if (dimension === 'model') return element.matches('button[data-testid="model-switcher-dropdown-button"], button[data-codex-intelligence-trigger="true"], [data-model-picker-view-toggle="true"]');
+      if (!/^(?:menu|listbox|true)$/.test(element.getAttribute('aria-haspopup') || '')) return false;
+      const label = labelOf(element);
+      return dimension === 'effort'
+        ? /^(?:Reasoning effort|Thinking effort|추론 강도|생각 강도)(?:\s*[:：]\s*(?:Low|Light|Medium|High|XHigh|Extra high|Max|Ultra|미디엄|중간))?$/i.test(label)
+        : /^(?:Speed|Response speed|속도|응답 속도)(?:\s*[:：]\s*(?:Fast|Standard|Flex|빠름))?$/i.test(label);
+    });
+  }
+  function clickPreference(element, dimension, value, opening) {
+    const selection = preferenceSelection;
+    if (!selection || !selection.enabled || selection.clicks >= MAX_PREFERENCE_SELECTION_CLICKS || !enabled(element)) {
+      if (selection) selection.status = 'preference_selection_limit';
+      return;
+    }
+    selection.clicks++;
+    preferenceSelectionFlight = { dimension, value, opening, deadline: performance.now() + PREFERENCE_SELECTION_TIMEOUT_MS };
+    selection.status = 'preference_selection_pending';
+    try { element.click(); }
+    catch (_) { preferenceSelectionUncertain = true; selection.status = 'preference_selection_uncertain'; }
+  }
+  function advancePreferenceSelection() {
+    const selection = preferenceSelection;
+    if (!selection || !selection.enabled || !preferenceConfigurationValid) return;
+    const state = readState(), gate = preferenceSelectionGate(state);
+    if (gate !== 'safe') {
+      selection.status = gate;
+      // A draft/active response appearing during a delayed selection forbids
+      // further automatic changes, even if a late UI acknowledgement arrives.
+      if (preferenceSelectionFlight) preferenceSelectionUncertain = true;
+      return;
+    }
+    if (preferenceSelectionUncertain) { selection.status = 'preference_selection_uncertain'; return; }
+    if (preferenceSelectionFlight) {
+      const flight = preferenceSelectionFlight;
+      if (performance.now() >= flight.deadline) {
+        preferenceSelectionUncertain = true; selection.status = 'preference_selection_uncertain'; return;
+      }
+      if (!flight.opening && state[flight.dimension] === flight.value) {
+        preferenceSelectionFlight = null;
+      } else if (flight.opening) {
+        const choices = preferenceOptions(flight.dimension, configuredPreferences[flight.dimension]);
+        if (choices.length === 1 && enabled(choices[0])) {
+          // If the owner has changed the next route while the menu was opening,
+          // use only the new route's actually observed option, never the old one.
+          const requested = configuredPreferences[flight.dimension];
+          const nextChoices = preferenceOptions(flight.dimension, requested);
+          if (nextChoices.length !== 1 || !enabled(nextChoices[0])) { selection.status = 'preference_option_unavailable'; return; }
+          clickPreference(nextChoices[0], flight.dimension, requested, false);
+        }
+        return;
+      } else return;
+    }
+    const dimension = ['model', 'effort', 'speed'].find(name => state[name] !== configuredPreferences[name]);
+    if (!dimension) { selection.status = 'verified'; return; }
+    if (selection.failed || selection.clicks >= MAX_PREFERENCE_SELECTION_CLICKS) { selection.status = 'preference_selection_limit'; return; }
+    const requested = configuredPreferences[dimension], choices = preferenceOptions(dimension, requested);
+    if (choices.length === 1 && enabled(choices[0])) { clickPreference(choices[0], dimension, requested, false); return; }
+    if (choices.length > 1) { selection.failed = true; selection.status = 'preference_option_ambiguous'; return; }
+    const triggers = preferenceTriggers(dimension);
+    if (triggers.length !== 1 || !enabled(triggers[0])) { selection.failed = true; selection.status = 'preference_option_unavailable'; return; }
+    clickPreference(triggers[0], dimension, requested, true);
+  }
+  function ensurePreferences(payload) {
+    const preferences = applyPreferences(payload);
+    if (!preferences) { if (preferenceSelection) preferenceSelection.enabled = false; return inspectAndEmit(); }
+    const key = JSON.stringify(preferences);
+    if (!preferenceSelection || preferenceSelection.key !== key) preferenceSelection = { key, clicks: 0, enabled: true, failed: false, status: 'pending' };
+    else preferenceSelection.enabled = true;
+    advancePreferenceSelection();
+    return inspectAndEmit();
+  }
+  function captureUsageObservation(payload) {
+    const unavailable = code => ({ ok: false, code, usageMeasured: false });
+    if (disposed || document !== initialDocument || location.origin !== 'https://chatgpt.com' || location.pathname !== initialPath || window.top !== window)
+      return unavailable('usage_document_unverified');
+    if (!payload || typeof payload.accountScope !== 'string' || !payload.accountScope.trim() || payload.accountScope.length > 256
+      || /[\r\n\x00]/.test(payload.accountScope) || typeof payload.captureNonce !== 'string' || !/^[a-f0-9]{32}$/.test(payload.captureNonce))
+      return unavailable('usage_capture_arguments_invalid');
+    if (readState().authenticated !== true) return unavailable('usage_authentication_unverified');
+    const headings = 'h1, h2, h3, h4, h5, h6, [role="heading"]';
+    const usageHeading = /^(?:Usage|Usage limits|사용량|사용량 한도)$/i;
+    const weeklyHeading = /^(?:Weekly (?:usage|limit|limits)|주간 (?:사용량|한도))$/i;
+    const providerHeading = /^(?:Work|ChatGPT Work|Codex|Work\s*(?:\/|&|and|·)\s*Codex)$/i;
+    const outsideTranscript = element => !element.closest(TRANSCRIPT + ', ' + ANSWER);
+    const usageHeadings = all(headings).filter(element => outsideTranscript(element) && usageHeading.test(textOf(element)));
+    const panels = Array.from(new Set(usageHeadings.map(heading => heading.closest('[role="dialog"], [role="region"], section, main')).filter(Boolean)))
+      .filter(panel => outsideTranscript(panel) && all(headings, panel).filter(element => usageHeading.test(textOf(element))).length === 1);
+    if (panels.length !== 1) return unavailable('usage_panel_unverified');
+    const panel = panels[0];
+    // The account's plan and whole Work/Codex pool must both be visible. A model
+    // card, five-hour pool or assistant's "Usage" text cannot substitute for it.
+    const planLabels = all('p, span, label, h1, h2, h3, [role="heading"]', panel)
+      .filter(element => outsideTranscript(element) && /^(?:Pro|Pro plan|ChatGPT Pro|프로 요금제)$/i.test(textOf(element)));
+    const providerLabels = all(headings, panel).filter(element => outsideTranscript(element) && providerHeading.test(textOf(element)));
+    if (!planLabels.length || providerLabels.length !== 1) return unavailable('usage_pool_scope_unverified');
+    const weeklyLabels = all(headings, panel).filter(element => outsideTranscript(element) && weeklyHeading.test(textOf(element)));
+    const pools = Array.from(new Set(weeklyLabels.map(heading => heading.closest('section, [role="region"], [role="group"]')).filter(Boolean)))
+      .filter(pool => panel.contains(pool) && all(headings, pool).filter(element => weeklyHeading.test(textOf(element))).length === 1);
+    if (pools.length !== 1) return unavailable('usage_weekly_pool_unverified');
+    const pool = pools[0], poolText = textOf(pool);
+    if (/(?:5\s*(?:hour|시간)|five[- ]hour|GPT[-\s]?\d|\b(?:Sol|Astra|Luna)\b)/i.test(poolText)) return unavailable('usage_weekly_pool_ambiguous');
+    const metric = text => {
+      let match = /^(?:Used|Usage|사용량|사용됨)\s*[:：]?\s*(\d{1,3}(?:\.\d{1,3})?)\s*%$/i.exec(text), remaining = false;
+      if (!match) match = /^(\d{1,3}(?:\.\d{1,3})?)\s*%\s*(?:used|사용됨|사용)$/i.exec(text);
+      if (!match) { match = /^(?:Remaining|남음|남은 사용량)\s*[:：]?\s*(\d{1,3}(?:\.\d{1,3})?)\s*%$/i.exec(text); remaining = true; }
+      if (!match) { match = /^(\d{1,3}(?:\.\d{1,3})?)\s*%\s*(?:remaining|남음)$/i.exec(text); remaining = true; }
+      if (!match) return null;
+      const displayed = Number(match[1]); if (displayed < 0 || displayed > 100) return null;
+      return { usedPercent: remaining ? Number((100 - displayed).toFixed(3)) : displayed,
+        precisionPercent: 10 ** -(match[1].split('.')[1] || '').length, text };
+    };
+    const metricNodes = all('p, span, label, div, [role="status"]', pool).filter(outsideTranscript)
+      .map(element => ({ element, value: metric(textOf(element)) })).filter(candidate => candidate.value);
+    const metrics = metricNodes.filter(candidate => !metricNodes.some(other => other !== candidate && candidate.element.contains(other.element)));
+    if (metrics.length !== 1) return unavailable('usage_percent_unverified');
+    const resetTimes = all('time[datetime]', pool).filter(outsideTranscript).filter(element => {
+      const row = element.closest('p, label, [role="status"]') || element.parentElement;
+      return row && row !== pool && /^(?:Resets?(?: (?:at|on))?|Reset time|재설정|초기화)\s*[:：]?\s*\S/i.test(textOf(row));
+    });
+    if (resetTimes.length !== 1) return unavailable('usage_reset_unverified');
+    const rawReset = resetTimes[0].getAttribute('datetime');
+    const dateMatch = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2})(?:\.\d{1,3})?)?(Z|[+-]\d{2}:\d{2})$/.exec(rawReset || '');
+    if (!dateMatch) return unavailable('usage_reset_timezone_unverified');
+    const calendar = new Date(Date.UTC(Number(dateMatch[1]), Number(dateMatch[2]) - 1, Number(dateMatch[3])));
+    if (calendar.getUTCFullYear() !== Number(dateMatch[1]) || calendar.getUTCMonth() + 1 !== Number(dateMatch[2])
+      || calendar.getUTCDate() !== Number(dateMatch[3]) || Number(dateMatch[4]) > 23 || Number(dateMatch[5]) > 59 || Number(dateMatch[6] || 0) > 59)
+      return unavailable('usage_reset_date_invalid');
+    const observedAt = Date.now(), resetAt = Date.parse(rawReset);
+    if (!Number.isFinite(resetAt) || resetAt <= observedAt || resetAt - observedAt > 8 * 24 * 60 * 60 * 1000)
+      return unavailable('usage_reset_stale_or_unverified');
+    const evidenceText = ['Usage', textOf(planLabels[0]), textOf(providerLabels[0]), textOf(weeklyLabels[0]), metrics[0].value.text,
+      'Reset: ' + textOf(resetTimes[0]) + ' [datetime=' + rawReset + ']'].join('\n');
+    if (evidenceText.length > 4_000) return unavailable('usage_evidence_unverified');
+    return { ok: true, code: 'usage_observed', usageMeasured: true, observation: {
+      schemaVersion: 1, captureNonce: payload.captureNonce, accountScope: payload.accountScope.trim(), poolId: 'work-codex:weekly:' + resetAt,
+      accountScopeSource: 'owner_label', accountIdentityVerified: false,
+      observedAt, resetAt, usedPercent: metrics[0].value.usedPercent, precisionPercent: metrics[0].value.precisionPercent,
+      evidenceText, sourceOrigin: location.origin, sourceKind: 'visible-usage-panel', period: 'weekly'
+    } };
   }
   function quotaBanner() {
     const candidates = all('[role="alert"], [data-testid="error-message"], [data-testid="toast"], [data-testid*="usage-limit"], [data-testid*="rate-limit"]');
     for (const element of candidates) {
       if (element.closest(ANSWER + ', [data-user-message-bubble]')) continue;
       const text = textOf(element);
-      if (/(?:usage limit|rate limit|limit reached|reached.{0,40}limit|too many requests|quota (?:exceeded|exhausted)|사용량.{0,20}한도|한도.{0,20}(?:소진|도달|초과)|요청.{0,20}너무.{0,10}많)/i.test(text)) return text.slice(0, 800);
+      const exhausted = /(?:limit (?:reached|exceeded|exhausted)|(?:reached|hit).{0,40}limit|(?:usage|rate) limit.{0,40}(?:reached|exceeded|exhausted|used up)|too many requests|quota (?:exceeded|exhausted)|no remaining (?:usage|requests|messages|credits)|한도.{0,20}(?:소진|도달|초과)|요청.{0,20}너무.{0,10}많)/i.test(text);
+      const zeroRemaining = /(?:usage|rate|quota|credits?|messages?|사용량|한도)/i.test(text)
+        && /(?:(?:^|[^\d.])0(?:\.0+)?\s*%\s*remaining|(?:remaining|남은 사용량)\s*[:：]?\s*0(?:\.0+)?\s*%|(?:^|[^\d.])0(?:\.0+)?\s*%\s*남음)/i.test(text);
+      // A usage-limit heading or positive remaining allowance is information,
+      // not evidence of exhaustion. The advisory target never creates quota.
+      if (exhausted || zeroRemaining) return text.slice(0, 800);
     }
     return null;
   }
@@ -231,6 +457,7 @@
     if (state.authenticated !== true) return 'authentication_unverified';
     if (!state.workSelected) return 'work_unverified';
     if (!state.temporary) return 'temporary_unverified';
+    if (preferenceSelectionFlight) return preferenceSelectionUncertain ? 'preference_selection_uncertain' : 'preference_selection_pending';
     if (state.model !== (preferences || configuredPreferences).model) return 'model_unverified';
     if (state.effort !== (preferences || configuredPreferences).effort) return 'effort_unverified';
     if (state.speed !== (preferences || configuredPreferences).speed) return 'speed_unverified';
@@ -243,7 +470,9 @@
   function inspect() {
     const state = readState();
     const code = readyCode(state);
-    return { ok: code === 'ready', code, state, requiredPreferences: Object.assign({}, configuredPreferences), activeRequestId: active ? active.requestId : null, phase: active ? active.phase : null };
+    return { ok: code === 'ready', code, state, requiredPreferences: Object.assign({}, configuredPreferences),
+      preferenceSelection: preferenceSelection ? { status: preferenceSelection.status, clicks: preferenceSelection.clicks, enabled: preferenceSelection.enabled } : null,
+      activeRequestId: active ? active.requestId : null, phase: active ? active.phase : null };
   }
 
   function turnSnapshot() {
@@ -425,6 +654,7 @@
         remember({ requestId: active.requestId, text: active.text, phase: 'uncertain', code: 'quota_exhausted', knownNotSent });
       }
     }
+    advancePreferenceSelection();
     inspectAndEmit();
     const needsInput = inputRequiredStatus();
     if (active && active.phase === 'accepted' && needsInput && needsInput !== lastInputRequiredKey) {
@@ -787,7 +1017,7 @@
     window.removeEventListener('pagehide', onPageHide);
   }
   function onPageHide() { dispose('navigation_uncertain'); }
-  const api = { inspect, selectWork, send, cancel, inspectAndEmit, prepareOwnerRetry, authorizeDispatch, configurePreferences };
+  const api = { inspect, selectWork, send, cancel, inspectAndEmit, prepareOwnerRetry, authorizeDispatch, configurePreferences, ensurePreferences, captureUsageObservation };
   Object.defineProperty(api, '__document', { value: document });
   Object.defineProperty(api, '__dispose', { value: dispose });
   window.HoyoungWorkBridge = api;

@@ -548,6 +548,51 @@ public final class DeviceRuntimeIntegrationTest {
         } finally { store.close(); fixture.removeOwnFixture(); }
     }
 
+    @Test public void jActualNativeOptimizationPreservesFastMemoryAndAdvisoryUsage() throws Exception {
+        FixtureContext fixture = new FixtureContext(context);
+        HoyoungStore store = new HoyoungStore(fixture);
+        com.hoyoung.assistant.runtime.UsageBudgetLedger usage = new com.hoyoung.assistant.runtime.UsageBudgetLedger(fixture);
+        try {
+            JSONObject settings = new JSONObject().put("requiredModel", "gpt-6.1-sol")
+                    .put("requiredEffort", "medium").put("requiredSpeed", "standard");
+            JSONObject owner = com.hoyoung.assistant.runtime.ModelRoutingPolicy.choose(settings, "user", "user", false, false, "");
+            assertEquals("fast", owner.getString("speed")); assertEquals("medium", owner.getString("effort"));
+            JSONObject idle = com.hoyoung.assistant.runtime.ModelRoutingPolicy.choose(settings, "autonomy", "autonomy", false, false, "");
+            assertEquals("standard", idle.getString("speed")); assertEquals("low", idle.getString("effort"));
+            assertTrue(idle.getBoolean("decisionOnly"));
+            JSONObject writer = com.hoyoung.assistant.runtime.ModelRoutingPolicy.choose(settings, "autonomy", "autonomy", true, false, "");
+            assertEquals("medium", writer.getString("effort")); assertFalse(writer.getBoolean("decisionOnly"));
+            JSONObject proposedEffect = new JSONObject().put("status", "idle").put("message", "")
+                    .put("actions", new JSONArray().put(new JSONObject().put("name", "files.write")));
+            assertEquals("medium", com.hoyoung.assistant.runtime.ModelRoutingPolicy.promotionEffort(proposedEffect));
+            long now = System.currentTimeMillis(), dayStart = java.time.Instant.ofEpochMilli(now)
+                    .atZone(java.time.ZoneId.of("Asia/Seoul")).toLocalDate().atStartOfDay(java.time.ZoneId.of("Asia/Seoul")).toInstant().toEpochMilli();
+            long firstAt = Math.max(dayStart, now - 60_000), lastAt = Math.max(firstAt + 1, now);
+            long resetAt = lastAt + 7 * 86_400_000L;
+            usage.configure(10, "pool_per_day");
+            for (int i = 0; i < 2; i++) usage.recordObservation(new JSONObject().put("accountScope", "synthetic-native-fixture")
+                    .put("poolId", "synthetic-weekly").put("origin", "provider_ui_observed")
+                    .put("observedAt", i == 0 ? firstAt : lastAt).put("resetAt", resetAt)
+                    .put("usedPercent", i == 0 ? 5 : 25).put("precisionPercent", 1)
+                    .put("evidenceRef", "synthetic-native-meter-not-live-provider"), lastAt);
+            assertTrue(usage.snapshot(lastAt).getDouble("measuredLowerPercent") > 10);
+            assertTrue("An optimization target never stops work", usage.backgroundDecision(lastAt).getBoolean("allowed"));
+            assertFalse(usage.snapshot(lastAt).getBoolean("tokensMeasured"));
+            String instruction = "DEVICE_DEDUP_5278 " + "완전한 형식 지침 ".repeat(400);
+            store.putSetting("customInstructions", instruction);
+            MemoryGateway gateway = new MemoryGateway(store);
+            MemoryGateway.Prepared full = gateway.prepare("native-full", "native-full", "user", 0, "현재 지침 확인", null, 80_000, lastAt);
+            MemoryGateway.Prepared compact = gateway.prepare("native-compact", "native-compact", "user", 0, "현재 지침 확인", null, 80_000, lastAt,
+                    new JSONObject().put("customInstructions", instruction));
+            assertTrue(compact.context.length() < full.context.length()); assertEquals(5, compact.receipts().length());
+            gateway.assertFresh(compact, lastAt);
+            store.putSetting("customInstructions", "정정한 새 지침");
+            try { gateway.assertFresh(compact, lastAt); fail("A corrected instruction must invalidate the compacted context"); }
+            catch (MemoryGateway.Blocked expected) { assertEquals("memory_control_changed", expected.reason); }
+            android.util.Log.i("HoyoungDeviceProof", "HOYOUNG_DEVICE_TOKEN_OPTIMIZATION native-API35-policy-and-SQLite; owner-Fast; memory-Medium-floor; Light-effects-promoted; usage-goal-advisory; exact-dedup-correction-gate; no-live-model-or-quota-claim");
+        } finally { usage.close(); store.close(); fixture.removeOwnFixture(); }
+    }
+
     private static java.util.List<String> awaitPageTexts(ActivityScenario<MainActivity> scenario, String marker, String requiredSuffix, int expectedCount) {
         java.util.List<String> texts = new java.util.ArrayList<>();
         long deadline = SystemClock.elapsedRealtime() + 10_000;

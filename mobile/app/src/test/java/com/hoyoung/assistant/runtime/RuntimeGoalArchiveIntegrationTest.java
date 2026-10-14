@@ -31,7 +31,7 @@ import static org.junit.Assert.*;
 public final class RuntimeGoalArchiveIntegrationTest {
     private Context context;private HoyoungStore store;private InternalFiles files;private AssistantRuntime runtime;private Transport transport;
     @Before public void before()throws Exception{
-        context=RuntimeEnvironment.getApplication();context.deleteDatabase(HoyoungStore.DATABASE_NAME);deleteTree(new java.io.File(context.getFilesDir(),"projects"));store=new HoyoungStore(context);files=new InternalFiles(context);store.putSetting("memoryReviewEnabled","false");
+        context=RuntimeEnvironment.getApplication();context.deleteDatabase(HoyoungStore.DATABASE_NAME);deleteTree(new java.io.File(context.getFilesDir(),"projects"));store=new HoyoungStore(context);store.putSetting("usageOptimizationEnabled","false"); /* Fixed Medium/Fast control; optimized routing has separate regression coverage. */files=new InternalFiles(context);store.putSetting("memoryReviewEnabled","false");
         runtime=new AssistantRuntime(context,store,files,new PhoneTools(context,store),Runnable::run);transport=new Transport();runtime.attachTransport(transport);ready();
     }
     @After public void after(){store.close();context.deleteDatabase(HoyoungStore.DATABASE_NAME);deleteTree(new java.io.File(context.getFilesDir(),"projects"));}

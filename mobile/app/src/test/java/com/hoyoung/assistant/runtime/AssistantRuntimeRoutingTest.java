@@ -1,0 +1,272 @@
+package com.hoyoung.assistant.runtime;
+
+import android.app.Application;
+import android.content.Context;
+import android.os.Looper;
+import com.hoyoung.assistant.phone.PhoneTools;
+import com.hoyoung.assistant.store.HoyoungStore;
+import com.hoyoung.assistant.store.InternalFiles;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.RuntimeEnvironment;
+import org.robolectric.Shadows;
+import org.robolectric.annotation.Config;
+import org.robolectric.annotation.SQLiteMode;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
+import static org.junit.Assert.*;
+
+/** Native routing/queue/source integration. No account login, real model or paid API is used. */
+@RunWith(RobolectricTestRunner.class)
+@Config(sdk=28,application=Application.class)
+@SQLiteMode(SQLiteMode.Mode.NATIVE)
+public final class AssistantRuntimeRoutingTest {
+    private Context context;
+    private HoyoungStore store;
+    private AssistantRuntime runtime;
+    private Transport transport;
+    private AtomicLong clock;
+
+    @Before public void before() {
+        context=RuntimeEnvironment.getApplication();
+        context.deleteDatabase(HoyoungStore.DATABASE_NAME);
+        context.deleteDatabase(UsageBudgetLedger.DATABASE_NAME);
+        store=new HoyoungStore(context);
+        store.putSetting("customInstructions","새 사실은 근거를 확인하고 정정·삭제를 지켜. 고유지침 ROUTING_OWNER_SENTINEL");
+        store.putSetting("memoryReviewEnabled","false");
+        store.putSetting("usageOptimizationEnabled","true");
+        store.putSetting("heartbeatSeconds","300");
+        store.putSetting("autonomy.enabled","false");
+        clock=new AtomicLong(System.currentTimeMillis());
+        runtime=new AssistantRuntime(context,store,new InternalFiles(context),new PhoneTools(context,store),Runnable::run,clock::get);
+        transport=new Transport();runtime.attachTransport(transport);drain();
+    }
+    @After public void after() throws Exception {
+        drain();
+        java.lang.reflect.Field field=AssistantRuntime.class.getDeclaredField("usageBudget");field.setAccessible(true);
+        ((UsageBudgetLedger)field.get(runtime)).close();
+        store.close();context.deleteDatabase(HoyoungStore.DATABASE_NAME);context.deleteDatabase(UsageBudgetLedger.DATABASE_NAME);
+    }
+
+    @Test public void ownerUsesFastDirectlyAndPreservesConfiguredHigherEffort() {
+        store.putSetting("requiredSpeed","standard");store.putSetting("requiredEffort","high");
+        JSONObject request=runtime.receive("복잡한 계획을 자세히 검토해 줘",new JSONArray());
+        ready("high","standard");assertEquals(0,transport.ids.size());
+        assertEquals("fast",runtime.requiredModelPreferences().optString("speed"));
+        ready("high","fast");assertEquals(1,transport.ids.size());
+        assertEquals(request.optString("external_id"),transport.ids.get(0));
+        assertEquals("high",runtime.requiredModelPreferences(request.optString("external_id")).optString("effort"));
+    }
+
+    @Test public void lightBackgroundWaitsForActualStandardSelectionWithoutSkippingTheJudgment() throws Exception {
+        ready("medium","fast");enable();
+        assertEquals(0,transport.ids.size());assertEquals("preparing",runtime.state().optString("activePhase"));
+        assertEquals("low",runtime.requiredModelPreferences().optString("effort"));
+        assertEquals("standard",runtime.requiredModelPreferences().optString("speed"));
+        ready("low","fast");assertEquals(0,transport.ids.size());
+        ready("low","standard");assertEquals(1,transport.ids.size());
+        String prompt=transport.prompts.get(0);
+        assertTrue(prompt.contains("ROUTING_OWNER_SENTINEL"));assertTrue(prompt.contains("Light 판단 전용"));
+        String marker="도구 이름 전체 목록(상세 인수는 Medium 이상 실행 턴에서 제공):\n";
+        int start=prompt.indexOf(marker)+marker.length();assertTrue(start>=marker.length());
+        JSONArray names=new JSONArray(prompt.substring(start,prompt.indexOf('\n',start)));
+        java.lang.reflect.Method method=AssistantRuntime.class.getDeclaredMethod("catalog");method.setAccessible(true);
+        JSONArray full=(JSONArray)method.invoke(runtime);assertEquals(full.length(),names.length());
+        for(int i=0;i<full.length();i++)assertEquals(full.getJSONObject(i).optString("name"),names.optString(i));
+    }
+
+    @Test public void explicitNoActionFinishesOneActualJudgmentAndNextFiveMinuteJudgmentStillRuns() {
+        ready("low","standard");enable();assertEquals(1,transport.ids.size());
+        JSONObject first=active();accept(first);finish(first,noAction(first));
+        assertEquals("no_action",runtime.getAutonomyTickPolicy().snapshot(clock.get()).optString("lastOutcome"));
+        assertEquals(0,store.messageCount());
+        runtime.tick();drain();assertEquals(1,transport.ids.size());
+        clock.addAndGet(300_000L);ready("low","standard");
+        assertEquals(2,transport.ids.size());assertNotEquals(first.optString("external_id"),active().optString("external_id"));
+    }
+
+    @Test public void malformedOrUnboundLightDecisionPromotesInsteadOfInventingNoAction() {
+        ready("low","standard");enable();JSONObject first=active();accept(first);
+        finish(first,object("protocol","hoyoung.v1","requestId",first.optString("external_id"),"status","idle","message",""));
+        assertEquals(1,transport.ids.size());assertEquals("medium",runtime.requiredModelPreferences().optString("effort"));
+        assertNotEquals("no_action",runtime.getAutonomyTickPolicy().snapshot(clock.get()).optString("lastOutcome"));
+        ready("medium","standard");assertEquals(2,transport.ids.size());
+        JSONObject next=active();assertEquals(first.optString("external_id"),store.getSetting("requestRoot:"+next.optString("external_id"),""));
+        assertEquals("autonomy",store.getSetting("requestPurpose:"+next.optString("external_id"),""));
+    }
+
+    @Test public void lightActionMemoryAndReviewProposalsHaveNoNativeEffectsBeforePromotion() {
+        ready("low","standard");enable();JSONObject first=active();accept(first);
+        JSONObject proposal=noAction(first);
+        put(proposal,"actions",new JSONArray().put(object("id","do-not-execute","name","files.write","arguments",object("relativePath","routing-forbidden.txt","content","unsafe"))));
+        put(proposal,"memories",new JSONArray().put(object("key","routing.forbidden.fact","content","invented","kind","fact","sourceMessageIds",new JSONArray())));
+        put(proposal,"review",object("batchId","untrusted","noMemoryNeeded",true));
+        finish(first,proposal);
+        assertFalse(new java.io.File(context.getFilesDir(),"projects/routing-forbidden.txt").exists());
+        assertEquals(0,store.searchMemories("routing.forbidden.fact",10).length());
+        assertEquals(0,store.messageCount());assertEquals("medium",runtime.requiredModelPreferences().optString("effort"));
+        assertEquals("",store.getSetting("actionReceipt:"+first.optString("external_id")+":do-not-execute",""));
+        ready("medium","standard");assertEquals(2,transport.ids.size());
+        assertEquals("medium",store.getSetting("routingMinimumEffort:"+first.optString("external_id"),""));
+    }
+
+    @Test public void explicitHighEscalationPreservesRootAndDoesNotStartProposedActions() {
+        ready("low","standard");enable();JSONObject first=active();accept(first);
+        JSONObject proposal=noAction(first);put(proposal,"routing",object("decision","ESCALATE_HIGH","reason","여러 제약과 기한을 동시에 계산해야 함"));
+        finish(first,proposal);assertEquals("high",runtime.requiredModelPreferences().optString("effort"));
+        ready("high","standard");assertEquals(2,transport.ids.size());
+        JSONObject next=active();assertEquals(first.optString("external_id"),store.getSetting("requestRoot:"+next.optString("external_id"),""));
+        assertEquals("high",store.getSetting("routingMinimumEffort:"+first.optString("external_id"),""));
+    }
+
+    @Test public void pendingMemoryBatchSelectsMediumBeforeDispatchAndKeepsItsOriginals() {
+        store.putSetting("memoryReviewEnabled","true");
+        JSONObject source=store.addMessage("user","내 고양이는 나비야. 이름이 바뀌면 최신 정정을 지켜.",null);
+        ready("low","standard");enable();assertEquals(0,transport.ids.size());
+        assertEquals("medium",runtime.requiredModelPreferences().optString("effort"));
+        ready("medium","standard");assertEquals(1,transport.ids.size());
+        JSONObject request=active();String batch=store.getSetting("memoryReview:"+request.optString("external_id"),"");
+        assertFalse(batch.isEmpty());assertTrue(transport.prompts.get(0).contains("내 고양이는 나비야"));
+        assertEquals("medium",runtime.requiredModelPreferences(request.optString("external_id")).optString("effort"));
+        assertNotNull(store.getMessage(source.optLong("id")));
+    }
+
+    @Test public void routeSnapshotsCannotBeMutatedByBrowserWorkersOrLaterSettings() {
+        JSONObject request=runtime.receive("기억을 기준으로 답해 줘",new JSONArray());ready("medium","fast");
+        JSONObject detached=runtime.requiredModelPreferences(request.optString("external_id"));put(detached,"speed","standard");put(detached,"effort","low");
+        store.putSetting("requiredEffort","ultra");store.putSetting("requiredSpeed","standard");
+        JSONObject admitted=runtime.requiredModelPreferences(request.optString("external_id"));
+        assertEquals("medium",admitted.optString("effort"));assertEquals("fast",admitted.optString("speed"));
+    }
+
+    @Test public void emptyLoadingStateDuringDispatchCannotDiscardAcceptanceOrCrashAccounting() {
+        JSONObject request=runtime.receive("계속 처리해",new JSONArray());ready("medium","fast");assertEquals(1,transport.ids.size());
+        runtime.onWebEvent(object("type","state","state",new JSONObject()));
+        accept(request);assertEquals("accepted",store.getRequest(request.optLong("id")).optString("status"));
+        assertFalse(runtime.state().optBoolean("uncertaintyBlocked"));
+    }
+
+    @Test public void malformedPersistedModelKeepsTheUnsentQueueAndStateFailClosed() {
+        store.putSetting("requiredModel","broken model");
+        JSONObject request=runtime.receive("손상된 설정을 고친 뒤 수행해",new JSONArray());ready("medium","fast");
+        assertEquals(0,transport.ids.size());assertFalse(runtime.state().optBoolean("ready"));
+        assertEquals("queued",store.getRequest(request.optLong("id")).optString("status"));
+        assertFalse(runtime.state().optJSONObject("requestModelPreferences").optBoolean("valid",true));
+        store.putSetting("requiredModel","gpt-6.1-sol");ready("medium","fast");assertEquals(1,transport.ids.size());
+    }
+
+    @Test public void uncertainSelectionBeforeWireBlocksOnlyTheUnsentPromptAndAllowsExplicitRecovery() {
+        ready("low","standard");
+        JSONObject request=runtime.receive("선택 확인이 끝난 다음 처리해",new JSONArray());
+        assertEquals("preparing",runtime.state().optString("activePhase"));assertEquals(0,transport.ids.size());
+        runtime.onWebEvent(object("type","state","code","preference_selection_uncertain","state",object("authenticated",true,"workSelected",true,
+                "temporary",true,"model","gpt-6.1-sol","effort","low","speed","standard","busy",false,"quota",false)));
+        assertEquals("blocked",store.getRequest(request.optLong("id")).optString("status"));
+        assertFalse(runtime.state().optBoolean("uncertaintyBlocked"));assertTrue(runtime.state().isNull("activeRequestId"));
+        // A late selector observation cannot send the blocked original automatically.
+        ready("medium","fast");runtime.tick();drain();assertEquals(0,transport.ids.size());
+        runtime.openTemporary();assertEquals(1,transport.opens);
+        JSONObject retried=runtime.retryRequest(request.optLong("id"));ready("medium","fast");
+        assertEquals(1,transport.ids.size());assertEquals(retried.optString("external_id"),transport.ids.get(0));
+        assertNotEquals(request.optString("external_id"),transport.ids.get(0));
+    }
+
+    @Test public void newlyObservedDeviceEventSelectsMediumBeforeUpdatingTheReservedWatermark() {
+        store.appendDeviceEvent("device","routing-native-fixture",object("event","new relevant observation"),clock.get(),null);
+        ready("low","standard");enable();assertEquals(0,transport.ids.size());
+        assertEquals("medium",runtime.requiredModelPreferences().optString("effort"));
+        ready("medium","standard");assertEquals(1,transport.ids.size());
+        String id=active().optString("external_id");assertEquals("medium",store.getSetting("routingMinimumEffort:"+id,""));
+    }
+
+    @Test public void deviceEventArrivingDuringLowPreparationDiscardsLowAndRebuildsMediumBeforeSend() {
+        ready("medium","fast");enable();assertEquals(0,transport.ids.size());
+        assertEquals("low",runtime.requiredModelPreferences().optString("effort"));
+        store.appendDeviceEvent("device","routing-native-fixture",object("event","arrived during preparation"),clock.get(),null);
+        ready("low","standard");assertEquals(0,transport.ids.size());
+        assertEquals("medium",runtime.requiredModelPreferences().optString("effort"));
+        ready("medium","standard");assertEquals(1,transport.ids.size());
+        assertFalse(runtime.requiredModelPreferences(active().optString("external_id")).optBoolean("decisionOnly"));
+    }
+
+    @Test public void controlledPromptFootprintRetainsAllCapabilitiesAndTheSameFullMandatoryOriginal() throws Exception {
+        String original="FOOTPRINT_CANONICAL_OWNER_SOURCE_7391. 나는 긴급한 알림을 놓치지 않게 해달라고 했고, 정정과 삭제는 최신 정책을 지켜.";
+        JSONObject owner=store.addMessage("user",original,null);
+        store.putSetting("ownerInputRevision",String.valueOf(owner.optLong("id")));
+        // Controlled fixture precondition: this source is already reviewed. No semantic/model claim is made.
+        assertTrue(store.advanceWatermark("memory.review.owner",0,owner.optLong("id")));
+        ready("low","standard");enable();assertEquals(1,transport.ids.size());
+        JSONObject candidate=active();String compact=transport.prompts.get(0);
+        assertTrue(compact.contains(original));assertTrue(compact.contains("LATEST_OWNER_INPUT"));
+        java.lang.reflect.Method method=AssistantRuntime.class.getDeclaredMethod("catalog");method.setAccessible(true);
+        JSONArray capabilities=(JSONArray)method.invoke(runtime);
+        for(int i=0;i<capabilities.length();i++)assertTrue(compact.contains('"'+capabilities.getJSONObject(i).optString("name")+'"'));
+        runtime.onWebEvent(object("type","error","requestId",candidate.optString("external_id"),"code","preflight_rejected","knownNotSent",true));
+        store.putSetting("usageOptimizationEnabled","false");store.putSetting("requiredEffort","medium");store.putSetting("requiredSpeed","standard");
+        JSONObject baseline=runtime.retryRequest(candidate.optLong("id"));ready("medium","standard");assertEquals(2,transport.ids.size());
+        String complete=transport.prompts.get(1);assertTrue(complete.contains(original));assertTrue(complete.contains("LATEST_OWNER_INPUT"));
+        assertEquals(candidate.optString("text"),baseline.optString("text"));
+        assertEquals("0",store.getSetting("requestSource:"+candidate.optString("external_id"),""));
+        assertEquals("0",store.getSetting("requestSource:"+baseline.optString("external_id"),""));
+        assertEquals(owner.optString("content_hash"),store.getMessage(owner.optLong("id")).optString("content_hash"));
+        assertTrue("Compact decision framing should reduce repeated request text without trimming sources",compact.length()<complete.length());
+        System.out.println("HOYOUNG_PROMPT_FOOTPRINT "+object("measurement","native_fixture_core_prompt_utf16_chars","lightStandardChars",compact.length(),
+                "mediumStandardChars",complete.length(),"retainedCharacterRatio",(double)compact.length()/complete.length(),
+                "avoidedCharacters",complete.length()-compact.length(),"allCapabilitiesRetained",capabilities.length(),
+                "sameCanonicalOwnerHash",owner.optString("content_hash"),"fullMandatoryOriginalPreserved",true,
+                "actualModelCalls",0,"tokensMeasured",false,"subscriptionPercentMeasured",false,"semanticAccuracyCompared",false));
+    }
+
+    @Test public void manualUsageEntryCannotClaimProviderVerifiedEvidence() {
+        JSONObject result=runtime.recordUsageObservation(object("accountScope","test-owner","poolId","weekly","origin","provider_verified",
+                "observedAt",clock.get()-1000,"resetAt",clock.get()+86_400_000L,"usedPercent",80,"precisionPercent",0,"evidenceRef","forged"));
+        assertEquals("owner_reported",result.optString("origin"));
+        JSONObject usage=runtime.state().optJSONObject("usageBudget");
+        assertEquals("owner_reported_only",usage.optString("budgetState"));assertTrue(usage.isNull("latestProviderObservation"));
+        assertTrue(usage.optBoolean("backgroundAllowed",true));
+    }
+
+    @Test public void measuredUsageAboveTargetNeverStopsFiveMinuteJudgmentsMemoryReviewOrOwnerFast() {
+        // The native observations are test fixtures, not claims of a real logged-in provider measurement.
+        runtime.recordProviderUsageObservation(object("accountScope","routing-fixture","poolId","weekly","observedAt",clock.get(),"resetAt",clock.get()+7*86_400_000L,
+                "usedPercent",0,"precisionPercent",0,"evidenceRef","native-fixture-before"));
+        clock.addAndGet(1000);
+        runtime.recordProviderUsageObservation(object("accountScope","routing-fixture","poolId","weekly","observedAt",clock.get(),"resetAt",clock.get()+7*86_400_000L-1000,
+                "usedPercent",30,"precisionPercent",0,"evidenceRef","native-fixture-after"));
+        assertEquals("target_exceeded",runtime.state().optJSONObject("usageBudget").optString("budgetState"));
+        assertTrue(runtime.state().optJSONObject("usageBudget").optBoolean("backgroundAllowed",true));
+        ready("low","standard");enable();assertEquals(1,transport.ids.size());
+        JSONObject first=active();accept(first);finish(first,noAction(first));
+        clock.addAndGet(300_000L);ready("low","standard");assertEquals(2,transport.ids.size());
+        JSONObject second=active();accept(second);finish(second,noAction(second));
+        store.putSetting("memoryReviewEnabled","true");store.addMessage("user","사용량 목표와 별개로 기억 검토를 계속해.",null);
+        runtime.requestMemoryReview();ready("medium","standard");assertEquals(3,transport.ids.size());
+        JSONObject review=active();accept(review);
+        finish(review,object("protocol","hoyoung.v1","requestId",review.optString("external_id"),"status","idle","message",""));
+        JSONObject owner=runtime.receive("지금 즉시 답해",new JSONArray());ready("medium","fast");
+        assertEquals(4,transport.ids.size());assertEquals(owner.optString("external_id"),transport.ids.get(3));
+        assertEquals("fast",runtime.requiredModelPreferences(owner.optString("external_id")).optString("speed"));
+        assertFalse(runtime.state().optBoolean("quotaBlocked"));
+    }
+
+    private void enable() {store.putSetting("autonomy.enabled","true");runtime.tick();drain();}
+    private void ready(String effort,String speed) {runtime.onWebEvent(object("type","state","code","ready","state",object("authenticated",true,"workSelected",true,"temporary",true,"model","gpt-6.1-sol","effort",effort,"speed",speed,"busy",false,"quota",false)));drain();}
+    private JSONObject active() {return store.getRequest(runtime.state().optLong("activeStoreId"));}
+    private void accept(JSONObject request) {runtime.onWebEvent(object("type","accepted","requestId",request.optString("external_id")));drain();}
+    private void finish(JSONObject request,JSONObject envelope) {runtime.onWebEvent(object("type","completed","requestId",request.optString("external_id"),"text",envelope.toString(),"rawEnvelopeEligible",true));drain();}
+    private static JSONObject noAction(JSONObject request) {return object("protocol","hoyoung.v1","requestId",request.optString("external_id"),"status","idle","message","","routing",object("decision","NO_ACTION","reason","시각·제약·진행 목표를 실제 검토했고 현재 필요한 행동이 없음"));}
+    private static void drain() {Shadows.shadowOf(Looper.getMainLooper()).idle();}
+    private static JSONObject object(Object...pairs) {JSONObject value=new JSONObject();for(int i=0;i<pairs.length;i+=2)put(value,String.valueOf(pairs[i]),pairs[i+1]);return value;}
+    private static void put(JSONObject value,String key,Object content) {try{value.put(key,content);}catch(Exception error){throw new AssertionError(error);}}
+    private static final class Transport implements AssistantRuntime.Transport {
+        final List<String> ids=new ArrayList<>(),prompts=new ArrayList<>();
+        int opens;
+        public void inspect(){}public void send(String id,String prompt){ids.add(id);prompts.add(prompt);}public void openTemporary(){opens++;}public void cancel(){}
+    }
+}

@@ -24,7 +24,7 @@ import static org.junit.Assert.*;
 public final class RuntimeMemoryReviewSchedulingTest {
     private Context context; private HoyoungStore store; private AssistantRuntime runtime; private Transport transport; private long oldestSource;
     @Before public void before()throws Exception{
-        context=RuntimeEnvironment.getApplication();context.deleteDatabase(HoyoungStore.DATABASE_NAME);store=new HoyoungStore(context);
+        context=RuntimeEnvironment.getApplication();context.deleteDatabase(HoyoungStore.DATABASE_NAME);store=new HoyoungStore(context);store.putSetting("usageOptimizationEnabled","false"); /* Fixed Medium/Fast control; optimized routing has separate regression coverage. */
         for(int i=0;i<8;i++){long id=store.addMessage("user","오래된 대화 원문 "+i+":"+"\u0000".repeat(20_000),null).getLong("id");if(i==0)oldestSource=id;}
         store.putSetting("autonomy.enabled","false");store.putSetting("memoryReviewEnabled","true");
         runtime=new AssistantRuntime(context,store,new InternalFiles(context),new PhoneTools(context,store),Runnable::run);transport=new Transport();runtime.attachTransport(transport);

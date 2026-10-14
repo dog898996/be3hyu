@@ -63,6 +63,9 @@ public final class AssistantRuntime {
     private final ActionReceiptJournal receipts;
     private final MemoryGateway memoryGateway;
     private final AutonomyTickPolicy autonomyTicks;
+    private final UsageBudgetLedger usageBudget;
+    private String configuredUsageBudget="";
+    private final java.util.concurrent.ConcurrentHashMap<String,JSONObject> preparedRoutes=new java.util.concurrent.ConcurrentHashMap<>();
     private final DispatchPayloadRegistry dispatchPayloads=new DispatchPayloadRegistry();
     private final java.util.concurrent.ConcurrentHashMap<String,MemoryGateway.Prepared> preparedMemory=new java.util.concurrent.ConcurrentHashMap<>();
     private static final class ReviewScope {
@@ -116,6 +119,8 @@ public final class AssistantRuntime {
         this.receipts = new ActionReceiptJournal(store);
         this.memoryGateway=new MemoryGateway(store,store.getPrivacyLedger(),phoneTools::canUseImplicitMemorySource);
         this.autonomyTicks=new AutonomyTickPolicy(store);
+        this.usageBudget=new UsageBudgetLedger(this.context);
+        configureUsageBudget();
         // Large legacy journals reconcile off the UI thread. No provider dispatch until ready.
         promptExecutor.execute(() -> {
             try { receipts.ensureIndex(); recomputeUncertainty(); reconcileAutonomyClaim(); receiptsReady = true; }
@@ -261,6 +266,19 @@ public final class AssistantRuntime {
             webState = copy(observed);
             readinessCode = event.optString("code", observed.optString("readinessCode", ""));
             webStateAt = nowMillis();
+            if(active!=null&&"dispatching".equals(active.optString("status"))&&!webState.optString("model").isEmpty()
+                    &&!webState.optString("effort").isEmpty()&&!webState.optString("speed").isEmpty())
+                recordUsageSafely(()->usageBudget.recordSelectionObserved(active.optString("external_id"),webState,webStateAt));
+            if("preference_selection_uncertain".equals(readinessCode)&&active!=null&&"preparing".equals(active.optString("status"))) {
+                String unsent=active.optString("external_id");
+                store.markRequest(active.optLong("id"),"blocked","모델 선택 확인이 끝나지 않아 요청은 전송되지 않았음");
+                finishAutomaticTick(unsent,false,"blocked_memory");
+                preparedMemory.remove(unsent);preparedReviews.remove(unsent);preparedRoutes.remove(unsent);dispatchPayloads.forget(unsent);active=null;
+                store.recordEvent("model_selection_unconfirmed",object("requestId",unsent,"knownNotSent",true,"cloudOutcomeUncertain",false,
+                        "requestOriginalRetained",true,"automaticResubmit",false));
+                localNotice("model_selection_unconfirmed","모델·추론·속도 선택을 확인하지 못해 전송 전에 멈췄어. 원문은 보관돼. 연결을 다시 확인한 뒤 이 요청을 직접 다시 시도해 줘.");
+                changed();return;
+            }
             if (webState.optBoolean("quota")) {
                 blockQuota("quota_exhausted", false);
                 return;
@@ -279,6 +297,7 @@ public final class AssistantRuntime {
         if (active == null || requestId.isEmpty() || !requestId.equals(active.optString("external_id"))) return;
         long id = active.optLong("id");
         if ("accepted".equals(type)) {
+            recordUsageSafely(()->usageBudget.recordAccepted(requestId,event.optJSONObject("state")==null?webState:event.optJSONObject("state"),nowMillis()));
             store.markRequest(id, "accepted", null);
             put(active, "status", "accepted");
             String inferenceTick=store.getSetting("autonomyTick:"+requestId,"");
@@ -314,6 +333,7 @@ public final class AssistantRuntime {
             completeActive(event.optString("text", ""), "whole-language-hoyoung-code-block".equals(event.optString("structuredEnvelopeSource")) ? event.optString("structuredEnvelope", "") : "", Boolean.TRUE.equals(event.opt("rawEnvelopeEligible")));
             return;
         } else if ("error".equals(type)) {
+            recordUsageSafely(()->usageBudget.recordOutcome(requestId,"error",nowMillis()));
             // Only explicit bridge preflight rejection establishes that nothing was sent.
             String code = event.optString("code", "unknown");
             if (!"accepted".equals(active.optString("status")) && (event.optBoolean("knownNotSent", false) || "not_sent".equals(code) || "preflight_rejected".equals(code)
@@ -331,6 +351,13 @@ public final class AssistantRuntime {
         if (restoringBackup || storageRecoveryBlocked) return;
         long now = nowMillis();
         if (transport != null && now - lastInspectionAt >= 15_000L) inspectTransport();
+        if(active!=null&&"preparing".equals(active.optString("status"))&&active.has("reservedPreparation")
+                &&(ready(now)||!active.optString("preparationPolicy").equals(preparationPolicy()))) {
+            JSONObject reserved=copy(active.optJSONObject("reservedPreparation"));
+            String prompt=active.optString("preparedPrompt");
+            active.remove("reservedPreparation");active.remove("preparedPrompt");
+            finishPreparation(reserved,prompt,null);return;
+        }
         JSONObject ownerQueued=store.nextQueuedRequest();
         if(incomingPreparations>0||active!=null||completing) {
             if(autonomyEnabled())autonomyTicks.poll(now,true,ownerQueued!=null,true,quotaBlocked(),receiptsReady,false);
@@ -342,7 +369,7 @@ public final class AssistantRuntime {
             if(autonomyEnabled())autonomyTicks.poll(now,true,ownerQueued!=null,false,true,receiptsReady,false);
             return;
         }
-        if(!receiptsReady||transport==null||uncertaintyBlocked()||!ready(now))return;
+        if(!receiptsReady||transport==null||uncertaintyBlocked()||!baseReady(now))return;
         JSONObject request=ownerQueued;
         if(request!=null&&autonomyEnabled())autonomyTicks.poll(now,true,true,false,false,true,false);
         boolean explicitReview="true".equals(store.getSetting("memory.review.requested","false"));
@@ -366,8 +393,12 @@ public final class AssistantRuntime {
                 putRequestMetadata(externalId,externalId,"0","0","[]","[]");
                 if(reviewOnly)store.putSetting("runtime.lastMemoryReviewAt",String.valueOf(now));
                 else {
+                    long deviceWatermark=store.lastDeviceEventId();
+                    if(!String.valueOf(deviceWatermark).equals(store.getSetting("autonomy.lastObservedDeviceId","0")))
+                        store.putSetting("routingMinimumEffort:"+externalId,"medium");
+                    store.putSetting("routingDeviceWatermark:"+externalId,String.valueOf(deviceWatermark));
                     store.putSetting("autonomyTick:"+externalId,due.tickId);
-                    store.putSetting("autonomy.lastObservedDeviceId",String.valueOf(store.lastDeviceEventId()));
+                    store.putSetting("autonomy.lastObservedDeviceId",String.valueOf(deviceWatermark));
                     store.putSetting("runtime.lastAutonomyAt",String.valueOf(now));
                 }
                 store.putSetting("runtime.lastAutomaticKind",kind);store.putSetting("memory.review.requested","false");
@@ -378,6 +409,22 @@ public final class AssistantRuntime {
         JSONObject reserved = copy(request);
         preparedMemory.remove(request.optString("external_id"));preparedReviews.remove(request.optString("external_id"));dispatchPayloads.forget(request.optString("external_id"));
         active = copy(request); put(active, "status", "preparing");
+        JSONObject route;
+        try {route=store.withTransaction(db->{
+                JSONObject captured=routeFor(reserved);
+                put(reserved,"preparationPolicy",preparationPolicy());
+                put(reserved,"deviceGrantPolicy",deviceGrantPolicy());
+                put(reserved,"ownerInputRevision",store.getSetting("ownerInputRevision","0"));
+                return captured;
+            });
+        } catch(IllegalArgumentException invalidPreferences) {
+            active=null;preparedRoutes.remove(request.optString("external_id"));
+            store.putSetting("runtime.lastCode","invalid_model_preferences");
+            store.putSetting("runtime.progress","모델·추론·속도 설정이 손상돼 전송 전에 대기했어. 요청 원문은 보관돼.");
+            changed();return;
+        }
+        preparedRoutes.put(request.optString("external_id"),copy(route));
+        put(reserved,"modelPreferences",copy(route));put(active,"modelPreferences",copy(route));
         put(reserved, "preparationStartedAt", nowMillis());
         put(active, "preparationStartedAt", reserved.optLong("preparationStartedAt"));
         store.putSetting("runtime.progress", "관련 기억과 원문을 확인하는 중");
@@ -385,9 +432,6 @@ public final class AssistantRuntime {
         promptExecutor.execute(() -> {
             String prompt = null; Exception failure = null;
             try {
-                put(reserved, "preparationPolicy", preparationPolicy());
-                put(reserved,"deviceGrantPolicy",deviceGrantPolicy());
-                put(reserved, "ownerInputRevision", store.getSetting("ownerInputRevision", "0"));
                 prompt = buildPrompt(reserved);
                 if (prompt.length() > MAX_PROMPT_CHARS) throw new IllegalArgumentException("prompt_too_large");
             } catch (Exception error) { failure = error; }
@@ -398,30 +442,52 @@ public final class AssistantRuntime {
     }
 
     private synchronized void finishPreparation(JSONObject reserved, String prompt, Exception failure) {
-        if (active == null || !active.optString("external_id").equals(reserved.optString("external_id"))) return;
+        if (active == null || !active.optString("external_id").equals(reserved.optString("external_id"))) {
+            String discarded=reserved.optString("external_id");
+            preparedMemory.remove(discarded);preparedReviews.remove(discarded);preparedRoutes.remove(discarded);dispatchPayloads.forget(discarded);
+            return;
+        }
         if (failure != null) {
             boolean oversized = "prompt_too_large".equals(failure.getMessage());
             store.markRequest(reserved.optLong("id"), "blocked", oversized ? "요청과 지침이 전송 가능한 길이를 넘음" : "지침 또는 기억 문맥 준비 실패");
             finishAutomaticTick(reserved.optString("external_id"),false,"blocked_memory");
             preparedMemory.remove(reserved.optString("external_id"));preparedReviews.remove(reserved.optString("external_id"));dispatchPayloads.forget(reserved.optString("external_id"));
+            preparedRoutes.remove(reserved.optString("external_id"));
             active = null;
             localNotice(oversized ? "prompt_too_large" : "prompt_unavailable", oversized ? "요청과 지침이 너무 길어서 전송 전에 멈췄어. 원문은 저장돼 있어." : "기억이나 지침을 준비하지 못해서 전송 전에 멈췄어. 원문은 저장돼 있어.");
             changed(); return;
         }
-        if (transport == null || quotaBlocked() || uncertaintyBlocked() || incomingPreparations > 0 || !ready(nowMillis())) {
+        if (transport == null || quotaBlocked() || uncertaintyBlocked() || incomingPreparations > 0 || !baseReady(nowMillis())) {
+            preparedRoutes.remove(reserved.optString("external_id"));
             active = null; store.putSetting("runtime.lastCode", "preparation_waiting_for_connection"); changed(); return;
         }
-        if (!reserved.optString("preparationPolicy").equals(preparationPolicy())) {
+        if (!reserved.optString("preparationPolicy").equals(preparationPolicy())
+                ||(reserved.optJSONObject("modelPreferences").optBoolean("decisionOnly")&&!routeFor(reserved).optBoolean("decisionOnly"))) {
+            preparedRoutes.remove(reserved.optString("external_id"));
             active = null; store.putSetting("runtime.lastCode", "preparation_policy_changed");
             store.recordEvent("prompt_discarded", object("reason", "settings_or_os_permission_changed", "requestId", reserved.optString("external_id")));
             changed(); tick(); return;
         }
+        if(!ready(nowMillis())) {
+            // Reservation stays unsent. Inspect switches only the idle composer to this frozen route.
+            put(active,"preparedPrompt",prompt);
+            put(active,"preparationPolicy",reserved.optString("preparationPolicy"));
+            put(active,"deviceGrantPolicy",reserved.optString("deviceGrantPolicy"));
+            put(active,"reservedPreparation",copy(reserved));
+            store.putSetting("runtime.lastCode","waiting_for_request_model_selection");
+            inspectTransport();changed();return;
+        }
         put(active, "preparationPolicy", reserved.optString("preparationPolicy"));
         put(active,"deviceGrantPolicy",reserved.optString("deviceGrantPolicy"));
         store.recordEvent("prompt_prepared", object("requestId", reserved.optString("external_id"), "purpose", store.getSetting("requestPurpose:" + reserved.optString("external_id"), reserved.optString("kind")),
-                "promptChars", prompt.length(), "localPreparationMillis", Math.max(0, nowMillis() - reserved.optLong("preparationStartedAt")), "providerResponseLatencyMeasured", false));
+                "promptChars", prompt.length(),"promptMeasureScope","core_prompt_before_attachment_representation","tokensMeasured",false,
+                "localPreparationMillis", Math.max(0, nowMillis() - reserved.optLong("preparationStartedAt")), "providerResponseLatencyMeasured", false));
         store.putSetting("dispatchOwnerRevision:" + reserved.optString("external_id"), reserved.optString("ownerInputRevision", "0"));
         store.markRequest(reserved.optLong("id"), "dispatching", null);
+        JSONObject selected=preparedRoutes.get(reserved.optString("external_id"));
+        store.putSetting("dispatchModelPreferences:"+reserved.optString("external_id"),selected.toString());
+        recordUsageSafely(()->usageBudget.recordStaged(reserved.optString("external_id"),reserved.optString("kind"),selected.optString("model"),selected.optString("effort"),selected.optString("speed"),prompt.length(),nowMillis()));
+        recordUsageSafely(()->usageBudget.recordSelectionObserved(reserved.optString("external_id"),webState,nowMillis()));
         put(active, "status", "dispatching"); dispatchStartedAt = nowMillis();
         store.putSetting("runtime.progress", "Work에 작업을 보내는 중");
         store.putSetting("runtime.lastCode", "dispatching");
@@ -450,6 +516,13 @@ public final class AssistantRuntime {
         JSONArray markerSources=nativeSourcesForDispatch(requestId,prepared);
         synchronized(this) {
             if(!preparedDispatchStillAllowed(requestId)||preparedMemory.get(requestId)!=prepared)throw new MemoryGateway.Blocked("dispatch_policy_changed");
+            JSONObject route=requiredModelPreferences(requestId);
+            if(finalPayload.opt("text") instanceof String) {
+                int wireChars=finalPayload.optString("text").length();
+                recordUsageSafely(()->usageBudget.recordStaged(requestId,active.optString("kind"),route.optString("model"),route.optString("effort"),route.optString("speed"),wireChars,nowMillis()));
+                store.recordEvent("wire_prompt_measurement",object("requestId",requestId,"promptUtf16Chars",wireChars,
+                        "promptMeasureScope","final_text_including_attachment_representation_table","mediaTokensMeasured",false,"tokensMeasured",false));
+            }
             String digest=dispatchPayloads.registerPrepared(payload,prepared.evidenceFingerprint,android.os.SystemClock.elapsedRealtime());
             store.withTransaction(db->{
                 if(store.getSetting("dispatchEvidenceSource:"+requestId,"").isEmpty()) {
@@ -789,6 +862,7 @@ public final class AssistantRuntime {
                 "progress", "복원 파일 정리가 남아 있어. 앱을 다시 열어 저장소 복구를 완료해 줘.", "activeRequestId", JSONObject.NULL);
         if (restoringBackup) return object("restoringBackup", true, "lastCode", "backup_restoring", "ready", false,
                 "progress", "백업을 검증·복원 중이야. 원문을 읽는 동안 자동 실행은 멈춰 있어.", "activeRequestId", JSONObject.NULL);
+        configureUsageBudget();
         JSONObject result = object("engine", "chatgpt-work-web", "transportAttached", transport != null,
                 "autonomyEnabled", autonomyEnabled(), "serviceRunning", serviceRunning, "autonomyTick",autonomyTicks.snapshot(nowMillis()),
                 "quotaBlocked", quotaBlocked(), "uncertaintyBlocked", uncertaintyBlocked(),
@@ -800,6 +874,7 @@ public final class AssistantRuntime {
                 "activeStoreId", active == null ? JSONObject.NULL : active.optLong("id"),
                 "steeringVerified", false, "cloudPermanent", false, "receiptIndexReady", receiptsReady, "resources", AutonomyService.resourceState(),
                 "model", store.getSetting("requiredModel", "gpt-6.1-sol"), "effort", store.getSetting("requiredEffort", "medium"), "speed", store.getSetting("requiredSpeed", "fast"),
+                "requestModelPreferences",preferencesForState(),"usageBudget",usageBudget.snapshot(nowMillis()),
                 "selectionFieldsAreRequiredChoices", true, "activePhase", active == null ? completing ? "saving_result" : "idle" : active.optString("status"),
                 "activeWaitingMillis", active == null ? 0 : Math.max(0, nowMillis() - ("preparing".equals(active.optString("status")) ? active.optLong("preparationStartedAt", nowMillis()) : dispatchStartedAt)));
         if (replyNotifications != null) put(result, "replyNotifications", replyNotifications.state());
@@ -816,12 +891,7 @@ public final class AssistantRuntime {
     }
 
     private boolean ready(long now) {
-        if (storageRecoveryBlocked || restoringBackup) return false;
-        if (transport == null || webStateAt == 0 || now - webStateAt > STATE_FRESH_MS) return false;
-        if (!readinessCode.isEmpty() && !"ready".equals(readinessCode)) return false;
-        if (!Boolean.TRUE.equals(webState.opt("authenticated")) || !Boolean.TRUE.equals(webState.opt("workSelected"))
-                || !Boolean.TRUE.equals(webState.opt("temporary")) || !Boolean.FALSE.equals(webState.opt("busy"))
-                || !Boolean.FALSE.equals(webState.opt("quota"))) return false;
+        if(!baseReady(now))return false;
         String model = normalize(webState.optString("model"));
         String effort = normalize(webState.optString("effort"));
         String speed = normalize(webState.optString("speed"));
@@ -833,11 +903,114 @@ public final class AssistantRuntime {
         } catch (IllegalArgumentException invalid) { return false; }
     }
 
+    private boolean baseReady(long now) {
+        if (storageRecoveryBlocked || restoringBackup) return false;
+        if (transport == null || webStateAt == 0 || now - webStateAt > STATE_FRESH_MS) return false;
+        if (!readinessCode.isEmpty() && !"ready".equals(readinessCode)) return false;
+        if (!Boolean.TRUE.equals(webState.opt("authenticated")) || !Boolean.TRUE.equals(webState.opt("workSelected"))
+                || !Boolean.TRUE.equals(webState.opt("temporary")) || !Boolean.FALSE.equals(webState.opt("busy"))
+                || !Boolean.FALSE.equals(webState.opt("quota"))) return false;
+        return true;
+    }
+
     /** Persisted explicit choices survive future model replacement without weakening the observed-selection gate. */
-    public JSONObject requiredModelPreferences() {
-        String model = store.getSetting("requiredModel", "gpt-6.1-sol"), effort = store.getSetting("requiredEffort", "medium"), speed = store.getSetting("requiredSpeed", "fast");
-        validateModelPreferences(model, effort, speed);
-        return object("model", model, "effort", effort, "speed", speed);
+    public synchronized JSONObject requiredModelPreferences() {
+        if(active!=null) {
+            JSONObject route=preparedRoutes.get(active.optString("external_id"));
+            if(route!=null)return copy(route);
+        }
+        if(!completingRequestId.isEmpty()) {
+            JSONObject route=preparedRoutes.get(completingRequestId);if(route!=null)return copy(route);
+        }
+        JSONObject next=store.nextQueuedRequest();
+        if(next!=null)return routeFor(next);
+        String kind=autonomyEnabled()?"autonomy":"user";
+        if("true".equals(store.getSetting("memory.review.requested","false")))kind="memory-review";
+        return routeFor(object("kind",kind,"external_id","","text",""));
+    }
+    private JSONObject preferencesForState() {
+        try{return requiredModelPreferences();}
+        catch(IllegalArgumentException invalid){return object("valid",false,"code","invalid_model_preferences");}
+    }
+
+    /** Detached copies prevent a browser worker or later settings update from mutating an admitted route. */
+    public JSONObject requiredModelPreferences(String requestId) {
+        if(requestId==null||requestId.isEmpty())throw new IllegalArgumentException("A request route identity is required");
+        JSONObject frozen=preparedRoutes.get(requestId);
+        if(frozen!=null)return copy(frozen);
+        String recorded=store.getSetting("dispatchModelPreferences:"+requestId,"");
+        if(recorded.isEmpty())throw new IllegalArgumentException("The request has no prepared route");
+        JSONObject parsed=parseObject(recorded);
+        validateModelPreferences(parsed.optString("model"),parsed.optString("effort"),parsed.optString("speed"));
+        return copy(parsed);
+    }
+
+    private JSONObject routeFor(JSONObject request) {
+        String id=request.optString("external_id"),purpose=store.getSetting("requestPurpose:"+id,request.optString("kind"));
+        boolean owner=ownerPurpose(request);
+        boolean review=!owner&&permissionAllowed("memory.save")&&"true".equals(store.getSetting("memoryReviewEnabled","true"))
+                &&(!store.getSetting("memoryReview:"+id,"").isEmpty()||memoryReview.hasPending());
+        String minimum=store.getSetting("routingMinimumEffort:"+id,"");
+        String root=store.getSetting("requestRoot:"+id,id);
+        minimum=ModelRoutingPolicy.atLeast(minimum,store.getSetting("routingMinimumEffort:"+root,""));
+        boolean newDevice="autonomy".equals(request.optString("kind"))&&!String.valueOf(store.lastDeviceEventId()).equals(
+                store.getSetting("routingDeviceWatermark:"+id,store.getSetting("autonomy.lastObservedDeviceId","0")));
+        boolean doubt=!owner&&(uncertaintyBlocked()||newDevice||hasDueGoalOrUnreadable(nowMillis()));
+        return ModelRoutingPolicy.choose(routingSettings(),request.optString("kind"),purpose,review,doubt,minimum);
+    }
+    private JSONObject routingSettings() {
+        JSONObject settings=new JSONObject();
+        for(String key:new String[]{"requiredModel","requiredEffort","requiredSpeed","backgroundSpeed","autonomousEffort","memoryMinimumEffort"}) {
+            String value=store.getSetting(key,null);if(value!=null)put(settings,key,value);
+        }
+        put(settings,"usageOptimizationEnabled","true".equals(store.getSetting("usageOptimizationEnabled","true")));
+        return settings;
+    }
+    private boolean hasDueGoalOrUnreadable(long now) {
+        synchronized(store) {
+            try(Cursor rows=store.getReadableDatabase().rawQuery("SELECT value FROM settings WHERE setting_key >= 'activeGoal:' AND setting_key < 'activeGoal;'",null)) {
+                while(rows.moveToNext()) {
+                    JSONObject goal=parseObject(rows.getString(0));
+                    if(goal.length()==0||matchesOne(goal.optString("stage"),"blocked","uncertain")
+                            ||goal.optLong("nextCheckAt",0)<=now)return true;
+                }
+            }
+        }
+        return false;
+    }
+    private boolean ownerPurpose(JSONObject request) {
+        String id=request.optString("external_id");
+        return "user".equals(request.optString("kind"))||"user".equals(store.getSetting("requestPurpose:"+id,request.optString("kind")));
+    }
+    private synchronized void configureUsageBudget() {
+        String percent=store.getSetting("budgetTargetPercent","10");
+        String basis=store.getSetting("budgetBasis","pool_per_day"),signature=percent+"\n"+basis;
+        if(signature.equals(configuredUsageBudget))return;
+        double target;try{target=Double.parseDouble(percent);}catch(NumberFormatException invalid){throw new IllegalArgumentException("Invalid usage budget target",invalid);}
+        usageBudget.configure(target,basis);configuredUsageBudget=signature;
+    }
+    private void recordUsageSafely(Runnable record) {
+        try{record.run();}
+        catch(RuntimeException unavailable) {
+            // Accounting is advisory; an unknown DOM state cannot discard a real acceptance receipt.
+            try{store.recordEvent("usage_accounting_unavailable",object("reason","local_accounting_failure","usageMeasured",false));}
+            catch(RuntimeException storageFailure){/* No usage or acceptance claim is invented. */}
+        }
+    }
+    /** Explicit native owner entry cannot impersonate an observed provider usage meter. */
+    public synchronized JSONObject recordUsageObservation(JSONObject supplied) {
+        if(supplied==null)throw new IllegalArgumentException("Usage observation required");
+        JSONObject reported=copy(supplied);long now=nowMillis();
+        put(reported,"origin","owner_reported");put(reported,"observedAt",now);
+        put(reported,"evidenceRef","manual_owner_entry");
+        configureUsageBudget();JSONObject result=usageBudget.recordObservation(reported,now);changed();return result;
+    }
+    /** Trusted native UI capture only. This method is absent from the model's tool catalog. */
+    public synchronized JSONObject recordProviderUsageObservation(JSONObject supplied) {
+        if(supplied==null)throw new IllegalArgumentException("Observed provider usage meter required");
+        JSONObject observed=copy(supplied);long now=nowMillis();
+        put(observed,"origin","provider_ui_observed");
+        configureUsageBudget();JSONObject result=usageBudget.recordObservation(observed,now);changed();return result;
     }
     public static void validateModelPreferences(String model, String effort, String speed) {
         if (model == null || model.length() > 80 || !model.matches("gpt-[a-z0-9]+(?:[.-][a-z0-9]+)*")
@@ -881,7 +1054,7 @@ public final class AssistantRuntime {
     /** Fingerprints settings and actual grants both before preparation and before dispatch. */
     private String preparationPolicy() {
         StringBuilder policy = new StringBuilder();
-        for (String key : new String[]{"customInstructions", "personalizedInstructions", "standingGoals", "toolPermissions", "memoryReviewEnabled", "phoneContextEnabled", "semanticSearchEnabled", "replyNotificationsEnabled", "backupMaxGiB", "goalLedgerRevision", "wakeMode", "ownerInputRevision", "requiredModel", "requiredEffort", "requiredSpeed"})
+        for (String key : new String[]{"customInstructions", "personalizedInstructions", "standingGoals", "toolPermissions", "memoryReviewEnabled", "phoneContextEnabled", "semanticSearchEnabled", "replyNotificationsEnabled", "backupMaxGiB", "goalLedgerRevision", "wakeMode", "ownerInputRevision", "requiredModel", "requiredEffort", "requiredSpeed", "usageOptimizationEnabled", "backgroundSpeed", "autonomousEffort", "memoryMinimumEffort", "budgetBasis", "budgetTargetPercent"})
             policy.append(key).append('\n').append(store.getSetting(key, "<unset>")).append('\n');
         JSONArray grants = new PermissionCatalog(context).snapshot();
         policy.append(grants);
@@ -917,12 +1090,19 @@ public final class AssistantRuntime {
                 JSONObject receipt=receipts.get("actionReceipt:"+ref.optString("root")+":"+ref.optString("action"));
                 if(receipt==null||!archivedReceiptAllowed(ref.optString("root"),receipt))throw new MemoryGateway.Blocked("cached_receipt_source_unavailable");}
         }
+        JSONObject route=request.optJSONObject("modelPreferences");
+        if(route==null)throw new IllegalStateException("Request route was not frozen");
+        boolean decisionOnly=route.optBoolean("decisionOnly");
         StringBuilder prompt = new StringBuilder();
         prompt.append("이 요청은 사용자의 개인 앱 호영에서 왔다. requestId=").append(externalId)
                 .append(" rootRequestId=").append(rootId).append(" ownerSourceMessageId=").append(store.getSetting("requestSource:" + externalId, "0")).append(" purpose=").append(purpose).append(".\n");
         prompt.append("기본 운영 지침:\n").append(readAsset("core-identity.txt"));
-        String custom = store.getSetting("customInstructions", store.getSetting("personalizedInstructions", "<unset>"));
-        prompt.append("\n사용자의 추가 지침:\n").append("<unset>".equals(custom) ? readInstructions() : custom);
+        String primaryCustom=store.getSetting("customInstructions",null);
+        String customKey=primaryCustom==null?"personalizedInstructions":"customInstructions";
+        String custom=primaryCustom==null?store.getSetting("personalizedInstructions","<unset>"):primaryCustom;
+        String renderedCustom="<unset>".equals(custom)?readInstructions():custom;
+        prompt.append("\nAUTHORITATIVE_PROMPT_SETTINGS ").append(customKey).append(" (전체 사용자 추가 지침):\n").append(renderedCustom);
+        JSONObject authoritativePromptSettings=object(customKey,renderedCustom);
         // The mandatory active layer carries the full standing goals once.
         // Duplicating them here crowds out the authoritative current owner input.
         prompt.append("\n실행 규칙: Work의 코딩·클라우드 도구는 그대로 사용한다. 폰/앱 도구만 아래 JSON 봉투로 요청한다. ")
@@ -932,6 +1112,12 @@ public final class AssistantRuntime {
                 .append("nativeOwnerControl이 있는 원문은 사용자가 앱 화면에서 한 제어 동작의 생성 영수증이다. 자연어 발언으로 꾸미거나 새 작업·개인 선호를 추론하지 않는다. 삭제·제외 정책은 네이티브 저장소에서 적용되며 startsNewWork:false는 새 작업 지시가 아니다. ")
                 .append("앱 새 입력은 즉시 보관되고 제출 직전·각 폰 도구 직전에 최신 입력을 검사한다. 제출 이후 새 입력이 오면 이전 응답의 아직 시작하지 않은 폰·앱 실행을 보류하고 새 요청을 먼저 처리한다. 이미 실행한 클라우드 도구를 되돌리거나 실제 웹 steer가 됐다고 주장하지 마. 할당량 부족 시 유료 API·자동 결제로 전환하지 않는다. ")
                 .append("action이 있으면 status=working이다. 도구 initiated/accepted/completionConfirmed:false는 실제 완료가 아니다. 결과와 후속 확인을 받은 뒤에만 completed를 표시한다. idle이면 message는 빈 문자열로 남긴다.\n");
+        if(decisionOnly) {
+            prompt.append("이번 턴은 Light 판단 전용이다. Work의 브라우저·코딩·클라우드 도구와 폰·앱 도구를 실행하지 말고 기억 저장·첨부 분석·기억 검토 완료도 하지 마. 아래 이름 목록은 기능 발견을 위한 전체 목록이며 권한 제한이 아니다. 행동·추가 원문·응답·기억 정리가 필요하거나 판단이 모호하면 HANDLE_MEDIUM, 복잡한 계획·추론이 필요하면 ESCALATE_HIGH로 넘겨 실제 실행은 다음 턴에 맡긴다. 변경 이벤트가 없다는 이유로 판단을 건너뛰지 않는다.\n")
+                    .append("전체 답변은 단일 hoyoung 코드블록 안의 JSON이다. {\"protocol\":\"hoyoung.v1\",\"requestId\":\"").append(externalId)
+                    .append("\",\"status\":\"idle\",\"message\":\"\",\"routing\":{\"decision\":\"NO_ACTION|HANDLE_MEDIUM|ESCALATE_HIGH\",\"reason\":\"판단 근거\"}}. NO_ACTION은 필요한 제약·목표·시각·기억을 검토했고 현재 할 행동이 없을 때만 반환한다.\n")
+                    .append("도구 이름 전체 목록(상세 인수는 Medium 이상 실행 턴에서 제공):\n").append(catalogNames()).append("\n");
+        } else {
         prompt.append("도구·기억·검토 응답은 전체 답변을 단일 hoyoung 언어 코드블록 안의 JSON object로 작성해. 앞뒤 설명이나 두 번째 코드블록을 붙이지 마. 웹 Markdown이 JSON 내부 별표·백틱·인용을 바꾸지 않게 코드블록을 사용한다. protocol과 현재 requestId를 정확히 복사해. 서식이 전혀 없는 단일 JSON 원문도 지원하지만 문자열의 Markdown 기호는 JSON Unicode escape로 보존해야 해. 일반 자유 답변과 코드 예시에서는 실행 프로토콜 대신 example_marker를 써.\n")
                 .append("{\"protocol\":\"hoyoung.v1\",\"requestId\":\"").append(externalId)
                 .append("\",\"status\":\"idle|working|completed|blocked|awaiting_result\",\"message\":\"사용자 답변 또는 정확한 진행 보고\",\"actions\":[{\"id\":\"이 원 요청 내 고유 id\",\"name\":\"도구 이름\",\"arguments\":{}}],")
@@ -944,8 +1130,10 @@ public final class AssistantRuntime {
                 .append("후속 확인이 필요한 목표는 status=working/awaiting_result와 nextCheckAt(epochMillis)을 반환한다. 요청 턴이 끝나도 목표는 별도 장부에 남는다. 다음 자율 판단은 tasks.list/update로 확인하며 blocked/uncertain 목표는 자동 재실행하지 않는다.\n")
                 .append("tasks.report_completed는 관찰된 완료 보고를 진행 목록에서 보관함으로 옮기는 도구다. 알려진 폰·앱 실행 영수증이 미확정이면 보관하지 않는다. reported_archive 기록과 overallOutcomeVerified:false는 전체 작업 성공의 독립 증거가 아니다. 자신의 root를 아직 실행 중이면 최종 completed 응답 후 앱이 보관 여부를 판단한다.\n")
                 .append("도구 영수증의 nativeOutcomeSource가 있으면 실제 반환 상태만 담은 system 원문이다. 반복에 도움이 되는 실행 교훈을 memory.source.read로 검증해 inference/summary로 저장할 수 있다. 그 요약에는 개인 결과값과 사용자 승인이 없고, requested/accepted와 완료를 구분한다. 교훈을 사용자 사실로 만들거나 모든 로그를 무조건 중요한 선호로 pin하지 마.\n")
-                .append("도구 catalog:\n").append(catalog()).append("\n")
-                .append("현재 시각 epochMillis=").append(nowMillis()).append(" 휴대폰 시간대=").append(java.util.TimeZone.getDefault().getID()).append("\n");
+                .append("복잡한 추론을 더 검토해야 하면 routing:{decision:ESCALATE_HIGH,reason:근거}를 반환하고 이번 턴에 새 실행을 시작하지 마. 이미 High 이상이면 더 높은 강도가 필요하다는 이유만으로 같은 승격을 반복하지 마.\n");
+            prompt.append("도구 catalog:\n").append(catalog()).append("\n");
+        }
+        prompt.append("현재 시각 epochMillis=").append(nowMillis()).append(" 휴대폰 시간대=").append(java.util.TimeZone.getDefault().getID()).append("\n");
         long originalId = parseLong(store.getSetting("requestSource:" + externalId, "0"));
         prompt.append("첨부 메타데이터:\n").append(store.getSetting("attachmentMetadata:" + externalId, "[]")).append("\n");
         if (prompt.length() > MAX_PROMPT_CHARS-8192) throw new IllegalArgumentException("prompt_too_large");
@@ -954,7 +1142,7 @@ public final class AssistantRuntime {
         String expectedText=store.getSetting("memoryReview:"+externalId,"");
         boolean initialAutomatic="autonomy".equals(request.optString("kind"))&&"autonomy".equals(purpose);
         boolean reviewEnabled=permissionAllowed("memory.save")&&"true".equals(store.getSetting("memoryReviewEnabled","true"));
-        boolean newReview=expectedText.isEmpty()&&reviewEnabled&&("memory-review".equals(purpose)||initialAutomatic)&&memoryReview.hasPending();
+        boolean newReview=!decisionOnly&&expectedText.isEmpty()&&reviewEnabled&&("memory-review".equals(purpose)||initialAutomatic)&&memoryReview.hasPending();
         int available=MAX_PROMPT_CHARS-prompt.length()-2048;
         int reviewBudget=initialAutomatic?PIGGYBACK_REVIEW_CHARS:12_000;
         if(newReview&&available>reviewBudget+REVIEW_FRAME_RESERVE+4096) {
@@ -971,13 +1159,25 @@ public final class AssistantRuntime {
         if(permissionAllowed("memory.search")&&memoryRetriever!=null)
             hybrid=memoryRetriever.search(object("query",boundedRecallQuery(request.optString("text")),"limit",20,"maxChars",Math.min(24_000,available)));
         MemoryGateway.Prepared memory;
-        try {memory=memoryGateway.prepare(externalId,rootId,purpose,originalId,request.optString("text"),hybrid,available-reserve,nowMillis());}
+        try {memory=memoryGateway.prepare(externalId,rootId,purpose,originalId,request.optString("text"),hybrid,available-reserve,nowMillis(),authoritativePromptSettings);}
         catch(MemoryGateway.Blocked tooSmall) {
             if(!initialAutomatic||!newReview||reserve==0||!matchesOne(tooSmall.reason,"mandatory_memory_context_overflow","memory_context_diagnostics_overflow"))throw tooSmall;
             // Optional extraction cannot displace native active constraints.
             expectedText="";reserve=0;
-            memory=memoryGateway.prepare(externalId,rootId,purpose,originalId,request.optString("text"),hybrid,available,nowMillis());
+            memory=memoryGateway.prepare(externalId,rootId,purpose,originalId,request.optString("text"),hybrid,available,nowMillis(),authoritativePromptSettings);
             store.recordEvent("memory_review_piggyback_deferred",object("requestId",externalId,"reason","mandatory_context_budget","cursorAcknowledged",false));
+        }
+        if(decisionOnly&&lightNeedsStrongMemory(memory)) {
+            // This rebuild occurs before provider admission; no additional model call or weaker writer is used.
+            store.putSetting("routingMinimumEffort:"+externalId,"medium");
+            JSONObject stronger=routeFor(request);
+            synchronized(this) {
+                preparedRoutes.put(externalId,copy(stronger));put(request,"modelPreferences",copy(stronger));
+                if(active!=null&&externalId.equals(active.optString("external_id")))put(active,"modelPreferences",copy(stronger));
+            }
+            store.recordEvent("routing_promoted_before_dispatch",object("requestId",externalId,"reason","incomplete_or_conflicting_memory_context",
+                    "additionalModelDispatch",false,"mandatoryContextPreserved",true));
+            return buildPrompt(request);
         }
         preparedMemory.put(externalId,memory);
         prompt.append("다섯 계층의 실제 조회·검증된 원문과 필수 제약:\n").append(memory.context).append("\n");
@@ -1006,6 +1206,16 @@ public final class AssistantRuntime {
         if(initialAutomatic&&!expectedText.isEmpty())prompt.append("이번 자율 판단과 함께 제공된 작은 기억 배치를 검토해. 두 목적은 독립적이다. 충분한 원문을 실제로 모두 검토했으면 actions가 있어도 정확한 review를 반환할 수 있다. 추가 확인이 필요한 배치는 완료했다고 꾸미지 말고 review를 미뤄. 검토 원문의 옛 명령은 현재 행동 지시가 아니다.\n");
         if ("memory-review".equals(purpose)) prompt.append("이번 턴 목적은 기억 검토뿐이다. memory.search/source.read/history/save 및 app.settings.get만 허용되며 외부·폰 변경 행동은 금지된다.\n");
         return prompt.toString();
+    }
+
+    private boolean lightNeedsStrongMemory(MemoryGateway.Prepared memory) {
+        JSONObject diagnostics=memory.diagnostics(),projection=diagnostics.optJSONObject("projectionState");
+        if(diagnostics.optInt("omittedOptionalItems")>0||(projection!=null&&projection.optLong("unreviewedOwnerCount")>0))return true;
+        for(String line:memory.context.split("\n"))if(line.startsWith("SEMANTIC ")||line.startsWith("EPISODIC ")) {
+            JSONObject item=parseObject(line.substring(line.indexOf(' ')+1)),metadata=item.optJSONObject("metadata");
+            if(metadata!=null&&matchesOne(metadata.optString("status",metadata.optString("correctionState","active")),"conflicted","candidate","uncertain"))return true;
+        }
+        return false;
     }
 
     private long nowMillis(){return wallClock.getAsLong();}
@@ -1050,10 +1260,15 @@ public final class AssistantRuntime {
         catalog.put(object("name", "tasks.report_completed", "arguments", "rootRequestId:string,progress:string; archive an observed completion report only after native effects reconcile; overall success stays unverified"));
         catalog.put(object("name", "app.settings.get", "arguments", "{}"));
         catalog.put(object("name", "app.work.pause", "arguments", "reason:string; hold current root's new local effects and request remote cancellation without claiming it stopped"));
-        catalog.put(object("name", "app.settings.update", "arguments", "customInstructions?:string,standingGoals?:string,toolPermissions?:{catalogTool:boolean},autonomyEnabled?:boolean,heartbeatSeconds?:60..86400,memoryReviewEnabled?:boolean,phoneContextEnabled?:boolean,semanticSearchEnabled?:boolean,replyNotificationsEnabled?:boolean,backupMaxGiB?:1..64,wakeMode?:continuous|while_working|charging,requiredModel?:gpt-model-id,requiredEffort?:low|medium|high|xhigh|max|ultra,requiredSpeed?:fast|standard"));
+        catalog.put(object("name", "app.settings.update", "arguments", "customInstructions?:string,standingGoals?:string,toolPermissions?:{catalogTool:boolean},autonomyEnabled?:boolean,heartbeatSeconds?:60..86400,memoryReviewEnabled?:boolean,phoneContextEnabled?:boolean,semanticSearchEnabled?:boolean,replyNotificationsEnabled?:boolean,backupMaxGiB?:1..64,wakeMode?:continuous|while_working|charging,requiredModel?:gpt-model-id,requiredEffort?:low|medium|high|xhigh|max|ultra,requiredSpeed?:fast|standard,usageOptimizationEnabled?:boolean,backgroundSpeed?:fast|standard,autonomousEffort?:low|medium|high|xhigh|max|ultra,memoryMinimumEffort?:medium|high|xhigh|max|ultra,budgetBasis?:pool_per_day|daily_share,budgetTargetPercent?:number(0..100]"));
         append(catalog, files.catalog());
         append(catalog, phoneTools.catalog());
         return catalog;
+    }
+    private JSONArray catalogNames() {
+        JSONArray result=new JSONArray(),full=catalog();
+        for(int i=0;i<full.length();i++)result.put(full.optJSONObject(i).optString("name"));
+        return result;
     }
 
     private void completeActive(String originalText, String structuredText, boolean rawEligible) {
@@ -1094,6 +1309,23 @@ public final class AssistantRuntime {
                 return;
             }
             JSONObject envelope = parseEnvelope(structuredText.isEmpty() ? rawEligible ? text : "" : structuredText, externalId);
+            JSONObject route=requiredModelPreferences(externalId);
+            if(route.optBoolean("decisionOnly")) {
+                String promotion=ModelRoutingPolicy.promotionEffort(envelope);
+                if(promotion.isEmpty()) {
+                    store.markRequest(completed.optLong("id"),"completed",text);
+                    recordUsageSafely(()->usageBudget.recordOutcome(externalId,"idle",nowMillis()));
+                    store.recordEvent("work_response_observed",object("requestId",externalId,"reportedStage","idle","rawPreserved",true,"decisionOnly",true,
+                            "memoryPromoted",false,"reviewAcknowledged",false,"nativeEffectsStarted",false));
+                    finishAutomaticTick(externalId,true,"");
+                    store.putSetting("runtime.progress","판단 완료: 지금 필요한 새 행동 없음");store.putSetting("runtime.lastCode","idle");
+                } else enqueueRoutingPromotion(completed,envelope,text,promotion);
+                return;
+            }
+            JSONObject routing=envelope==null?null:envelope.optJSONObject("routing");
+            if(routing!=null&&"ESCALATE_HIGH".equals(routing.optString("decision"))&&ModelRoutingPolicy.rank(route.optString("effort"))<ModelRoutingPolicy.rank("high")) {
+                enqueueRoutingPromotion(completed,envelope,text,"high");return;
+            }
             boolean reviewOnly = "memory-review".equals(purpose);
             boolean automatic = "autonomy".equals(purpose);
             JSONArray actions = envelope == null ? null : envelope.optJSONArray("actions");
@@ -1208,6 +1440,7 @@ public final class AssistantRuntime {
                 if (!goalResult.optBoolean("ok")) localNotice("goal_capacity_reached", goalResult.optString("message"));
             }
             store.markRequest(completed.optLong("id"), uncertaintyBlocked() ? "uncertain" : "completed", text);
+            String outcome=uncertaintyBlocked()?"uncertain":stage;recordUsageSafely(()->usageBudget.recordOutcome(externalId,outcome,nowMillis()));
             finishAutomaticTick(externalId,"idle".equals(stage),"");
             if (!uncertaintyBlocked()) {
                 String progress = continued ? "도구 결과를 확인하고 원 요청을 이어서 처리하는 중" : reviewOnly ? "기억 검토 턴을 저장했어" : "idle".equals(stage) ? "판단 완료: 지금 필요한 새 행동 없음" : "blocked".equals(stage) ? "작업이 멈춰 있음: 완료되지 않음" : "working".equals(stage) || "awaiting_result".equals(stage) ? "진행 상황 저장됨: 실제 완료 확인 대기" : "응답 처리 완료";
@@ -1215,15 +1448,54 @@ public final class AssistantRuntime {
                 store.putSetting("runtime.lastCode", continued ? "tool_continuation" : stage);
             }
         } catch (RuntimeException failure) {
+            recordUsageSafely(()->usageBudget.recordOutcome(externalId,"uncertain",nowMillis()));
             store.markRequest(completed.optLong("id"), "uncertain", text);
             store.putSetting("runtime.uncertaintyBlocked", "true");
             store.recordEvent("completion_processing_uncertain", object("requestId", externalId));
             store.putSetting("runtime.progress", "응답 처리 중 오류가 생겼어. 저장된 작업 결과를 확인해 줘.");
         } finally {
             preparedMemory.remove(externalId);preparedReviews.remove(externalId);dispatchPayloads.forget(externalId);
+            preparedRoutes.remove(externalId);
             Runnable finish = () -> { synchronized (AssistantRuntime.this) { completingRequestId = ""; completing = false; changed(); tick(); } };
             if (Looper.myLooper() == Looper.getMainLooper()) finish.run(); else main.post(finish);
         }
+    }
+
+    /** A proposed action from a cheap decision is data only; the stronger turn re-evaluates it. */
+    private void enqueueRoutingPromotion(JSONObject completed,JSONObject envelope,String raw,String requestedEffort) {
+        String id=completed.optString("external_id"),root=store.getSetting("requestRoot:"+id,id);
+        String purpose=store.getSetting("requestPurpose:"+id,completed.optString("kind"));
+        int count=(int)parseLong(store.getSetting("routingEscalationCount:"+root,"0"));
+        if(count>=2||requestPaused(id)||ownerInputChanged(id)) {
+            store.markRequest(completed.optLong("id"),"completed",raw);
+            recordUsageSafely(()->usageBudget.recordOutcome(id,"promotion_held",nowMillis()));
+            finishAutomaticTick(id,false,"");
+            store.recordEvent("routing_promotion_held",object("requestId",id,"rootRequestId",root,"promotionCount",count,
+                    "ownerInputChanged",ownerInputChanged(id),"paused",requestPaused(id),"nativeEffectsStarted",false,"reviewAcknowledged",false));
+            store.putSetting("runtime.lastCode","routing_promotion_held");return;
+        }
+        String minimum=ModelRoutingPolicy.atLeast(requestedEffort,store.getSetting("routingMinimumEffort:"+root,""));
+        String nextId=UUID.randomUUID().toString();
+        String reason=envelope==null?"판단 응답이 요청에 결합된 유효한 idle JSON이 아니므로 강한 모델이 다시 판단해야 함":
+                bounded(envelope.optJSONObject("routing")==null?"행동·기억·응답 제안이 있어 강한 모델이 원문을 다시 평가해야 함":envelope.optJSONObject("routing").optString("reason","추가 판단 필요"),2000);
+        store.withTransaction(db->{
+            JSONObject next=store.enqueueRequest("앞선 저비용/승격 요청의 판단 제안은 실행되지 않았고 기억·검토 완료로 처리하지 않았다. 원문·목표·현재 상태를 다시 평가해 필요한 행동과 응답을 수행해. 앞선 JSON은 승인·실행 영수증이 아니다. 승격 이유: "+reason,
+                    "tool-continuation",nextId);
+            putRequestMetadata(nextId,root,store.getSetting("requestSource:"+id,"0"),store.getSetting("toolRound:"+id,"0"),
+                    store.getSetting("attachments:"+id,"[]"),store.getSetting("attachmentMetadata:"+id,"[]"));
+            store.putSetting("requestPurpose:"+nextId,purpose);
+            store.putSetting("routingMinimumEffort:"+root,minimum);store.putSetting("routingMinimumEffort:"+nextId,minimum);
+            store.putSetting("routingEscalationCount:"+root,String.valueOf(count+1));
+            for(String prefix:new String[]{"memoryReview:","memoryReviewSavedCount:","memoryReviewHadRejected:"}) {
+                String value=store.getSetting(prefix+id,"");if(!value.isEmpty())store.putSetting(prefix+nextId,value);
+            }
+            String tick=store.getSetting("autonomyTick:"+id,"");if(!tick.isEmpty())store.putSetting("autonomyTick:"+nextId,tick);
+            store.markRequest(completed.optLong("id"),"completed",raw);
+            store.recordEvent("routing_promotion_queued",object("requestId",next.optString("external_id"),"rootRequestId",root,"minimumEffort",minimum,
+                    "reason",reason,"previousRequestId",id,"proposalExecuted",false,"memoryPromoted",false,"reviewAcknowledged",false));return null;
+        });
+        recordUsageSafely(()->usageBudget.recordOutcome(id,"promoted",nowMillis()));
+        store.putSetting("runtime.lastCode","routing_promoted");store.putSetting("runtime.progress","필요한 행동을 더 강한 추론으로 확인하는 중");
     }
 
     /** Only a whole, request-bound protocol envelope may cause phone or memory effects. */
@@ -1246,6 +1518,7 @@ public final class AssistantRuntime {
             if (envelope.has("actions") && !(envelope.opt("actions") instanceof JSONArray)) return null;
             if (envelope.has("memories") && !(envelope.opt("memories") instanceof JSONArray)) return null;
             if (envelope.has("assetAnalyses") && !(envelope.opt("assetAnalyses") instanceof JSONArray)) return null;
+            if (envelope.has("routing") && !(envelope.opt("routing") instanceof JSONObject)) return null;
             if (envelope.has("message") && !(envelope.opt("message") instanceof String)) return null;
             if (envelope.has("status") && !matchesOne(envelope.optString("status"), "idle", "working", "completed", "blocked", "awaiting_result")) return null;
             return envelope;
@@ -1617,14 +1890,32 @@ public final class AssistantRuntime {
                     "memoryReviewEnabled", "true".equals(store.getSetting("memoryReviewEnabled", "true")), "phoneContextEnabled", "true".equals(store.getSetting("phoneContextEnabled", "true")),
                     "semanticSearchEnabled", "true".equals(store.getSetting("semanticSearchEnabled", "true")), "replyNotificationsEnabled", "true".equals(store.getSetting("replyNotificationsEnabled", "true")),
                     "backupMaxGiB", parseLong(store.getSetting("backupMaxGiB", "64")), "wakeMode", store.getSetting("wakeMode", "continuous"),
-                    "requiredModel", store.getSetting("requiredModel", "gpt-6.1-sol"), "requiredEffort", store.getSetting("requiredEffort", "medium"), "requiredSpeed", store.getSetting("requiredSpeed", "fast"), "resources", AutonomyService.resourceState());
+                    "requiredModel", store.getSetting("requiredModel", "gpt-6.1-sol"), "requiredEffort", store.getSetting("requiredEffort", "medium"), "requiredSpeed", store.getSetting("requiredSpeed", "fast"), "usageOptimizationEnabled", "true".equals(store.getSetting("usageOptimizationEnabled", "true")),
+                    "backgroundSpeed",store.getSetting("backgroundSpeed","standard"),"autonomousEffort",store.getSetting("autonomousEffort","low"),
+                    "memoryMinimumEffort",store.getSetting("memoryMinimumEffort","medium"),"budgetBasis",store.getSetting("budgetBasis","pool_per_day"),
+                    "budgetTargetPercent",Double.parseDouble(store.getSetting("budgetTargetPercent","10")),"usageBudget",usageBudget.snapshot(nowMillis()),"resources", AutonomyService.resourceState());
         }
         if ("app.settings.update".equals(name)) {
-            rejectUnknown(args, "customInstructions", "standingGoals", "toolPermissions", "autonomyEnabled", "heartbeatSeconds", "memoryReviewEnabled", "phoneContextEnabled", "semanticSearchEnabled", "replyNotificationsEnabled", "backupMaxGiB", "wakeMode", "requiredModel", "requiredEffort", "requiredSpeed");
+            rejectUnknown(args, "customInstructions", "standingGoals", "toolPermissions", "autonomyEnabled", "heartbeatSeconds", "memoryReviewEnabled", "phoneContextEnabled", "semanticSearchEnabled", "replyNotificationsEnabled", "backupMaxGiB", "wakeMode", "requiredModel", "requiredEffort", "requiredSpeed", "usageOptimizationEnabled", "backgroundSpeed", "autonomousEffort", "memoryMinimumEffort", "budgetBasis", "budgetTargetPercent");
             String desiredModel = args.has("requiredModel") ? requiredString(args, "requiredModel", 80) : store.getSetting("requiredModel", "gpt-6.1-sol");
             String desiredEffort = args.has("requiredEffort") ? requiredString(args, "requiredEffort", 20) : store.getSetting("requiredEffort", "medium");
             String desiredSpeed = args.has("requiredSpeed") ? requiredString(args, "requiredSpeed", 20) : store.getSetting("requiredSpeed", "fast");
             validateModelPreferences(desiredModel, desiredEffort, desiredSpeed);
+            String desiredBackgroundSpeed=args.has("backgroundSpeed")?requiredString(args,"backgroundSpeed",20):null;
+            String desiredAutonomousEffort=args.has("autonomousEffort")?requiredString(args,"autonomousEffort",20):null;
+            String desiredMemoryEffort=args.has("memoryMinimumEffort")?requiredString(args,"memoryMinimumEffort",20):null;
+            String desiredBudgetBasis=args.has("budgetBasis")?requiredString(args,"budgetBasis",30):null;
+            if(desiredBackgroundSpeed!=null&&!matchesOne(desiredBackgroundSpeed,"standard","fast"))throw new IllegalArgumentException("Invalid backgroundSpeed");
+            if(desiredAutonomousEffort!=null)ModelRoutingPolicy.rank(desiredAutonomousEffort);
+            if(desiredMemoryEffort!=null&&ModelRoutingPolicy.rank(desiredMemoryEffort)<ModelRoutingPolicy.rank("medium"))throw new IllegalArgumentException("Memory review requires Medium or higher");
+            if(desiredBudgetBasis!=null&&!matchesOne(desiredBudgetBasis,"pool_per_day","daily_share"))throw new IllegalArgumentException("Invalid budget basis");
+            Double desiredBudgetTarget=null;
+            if(args.has("budgetTargetPercent")) {
+                if(!(args.opt("budgetTargetPercent") instanceof Number))throw new IllegalArgumentException("Budget target must be numeric");
+                desiredBudgetTarget=args.optDouble("budgetTargetPercent",Double.NaN);
+                if(!Double.isFinite(desiredBudgetTarget)||desiredBudgetTarget<=0||desiredBudgetTarget>100)throw new IllegalArgumentException("Invalid budget target");
+            }
+            final Double validatedBudgetTarget=desiredBudgetTarget;
             String instructions = args.has("customInstructions") ? stringIncludingEmpty(args, "customInstructions", 50_000) : null;
             String goals = args.has("standingGoals") ? stringIncludingEmpty(args, "standingGoals", 50_000) : null;
             String wakeMode = args.has("wakeMode") ? requiredString(args, "wakeMode", 40) : null;
@@ -1644,7 +1935,7 @@ public final class AssistantRuntime {
                 }
                 if (keys != null) for (int i = 0; i < keys.length(); i++) { String key = keys.optString(i); put(permissions, key, updates.optBoolean(key)); }
             }
-            for (String key : new String[]{"memoryReviewEnabled", "phoneContextEnabled", "semanticSearchEnabled", "replyNotificationsEnabled"})
+            for (String key : new String[]{"memoryReviewEnabled", "phoneContextEnabled", "semanticSearchEnabled", "replyNotificationsEnabled", "usageOptimizationEnabled"})
                 if (args.has(key) && !(args.opt(key) instanceof Boolean)) throw new IllegalArgumentException("Invalid " + key);
             // Validate the complete settings contract before any persisted mutation.
             store.withTransaction(db -> {
@@ -1656,6 +1947,11 @@ public final class AssistantRuntime {
             if (args.has("requiredModel")) store.putSetting("requiredModel", desiredModel);
             if (args.has("requiredEffort")) store.putSetting("requiredEffort", desiredEffort);
             if (args.has("requiredSpeed")) store.putSetting("requiredSpeed", desiredSpeed);
+            if(desiredBackgroundSpeed!=null)store.putSetting("backgroundSpeed",desiredBackgroundSpeed);
+            if(desiredAutonomousEffort!=null)store.putSetting("autonomousEffort",desiredAutonomousEffort);
+            if(desiredMemoryEffort!=null)store.putSetting("memoryMinimumEffort",desiredMemoryEffort);
+            if(desiredBudgetBasis!=null)store.putSetting("budgetBasis",desiredBudgetBasis);
+            if(validatedBudgetTarget!=null)store.putSetting("budgetTargetPercent",String.valueOf(validatedBudgetTarget));
             if (args.has("toolPermissions")) {
                 JSONObject current;
                 current = strictPermissions(store.getSetting("toolPermissions", "{}"));
@@ -1663,10 +1959,11 @@ public final class AssistantRuntime {
                 if (keys != null) for (int i = 0; i < keys.length(); i++) { String key = keys.optString(i); put(current, key, updates.optBoolean(key)); }
                 store.putSetting("toolPermissions", current.toString());
             }
-            for (String key : new String[]{"memoryReviewEnabled", "phoneContextEnabled", "semanticSearchEnabled", "replyNotificationsEnabled"})
+            for (String key : new String[]{"memoryReviewEnabled", "phoneContextEnabled", "semanticSearchEnabled", "replyNotificationsEnabled", "usageOptimizationEnabled"})
                 if (args.has(key)) store.putSetting(key, String.valueOf(args.optBoolean(key)));
             return null;
             });
+            configureUsageBudget();
             phoneTools.applyPermissionPolicyFromOwner(store.getSetting("toolPermissions", "{}"), "true".equals(store.getSetting("phoneContextEnabled", "true")));
             if (context instanceof HoyoungApplication) {
                 HoyoungApplication app = (HoyoungApplication) context;

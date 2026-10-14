@@ -36,7 +36,7 @@ public class AssistantRuntimeTest {
         context = RuntimeEnvironment.getApplication();
         context.deleteDatabase(HoyoungStore.DATABASE_NAME);
         deleteTree(new java.io.File(context.getFilesDir(), "projects"));
-        store = new HoyoungStore(context);
+        store = new HoyoungStore(context);store.putSetting("usageOptimizationEnabled","false"); /* Fixed Medium/Fast control; optimized routing has separate regression coverage. */
         files = new InternalFiles(context);
         store.putSetting("customInstructions", "테스트용 맞춤 지침. 모르는 것은 모른다고 표시한다.");
         runtime = new AssistantRuntime(context, store, files, new PhoneTools(context, store), Runnable::run);

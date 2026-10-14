@@ -73,9 +73,20 @@ public final class MemoryGateway {
 
     public Prepared prepare(String dispatchId,String rootId,String purpose,long inputId,String currentInputText,
                             JSONObject hybridCandidates,int maxChars,long now) {
+        return prepare(dispatchId,rootId,purpose,inputId,currentInputText,hybridCandidates,maxChars,now,null);
+    }
+
+    /**
+     * The optional proof names only effective setting text already rendered, in full, in the
+     * same final prompt. Matching is byte-for-byte against this native read snapshot; it does
+     * not authorize truncation, replace any source, or change the native read receipts.
+     */
+    public Prepared prepare(String dispatchId,String rootId,String purpose,long inputId,String currentInputText,
+                            JSONObject hybridCandidates,int maxChars,long now,JSONObject authoritativePromptSettings) {
         identifier(dispatchId); identifier(rootId); identifier(purpose);
         if(inputId<0||currentInputText==null||currentInputText.length()>250_000||maxChars<4096||maxChars>250_000||now<0)
             throw new IllegalArgumentException("Invalid memory preparation scope or budget");
+        JSONObject renderedSettings=authoritativePromptSettings==null?new JSONObject():json(authoritativePromptSettings.toString());
         PrivacyView visibility=privacyView();
         try(HoyoungStore.ReadSnapshot snapshot=store.openReadSnapshot()) {
             snapshot.requireOwner(); SQLiteDatabase db=snapshot.database;
@@ -115,12 +126,21 @@ public final class MemoryGateway {
             if(required.length()>maxChars)throw new Blocked("mandatory_memory_context_overflow");
 
             StringBuilder context=required; int omitted=0;List<OptionalLine> optional=new ArrayList<>();
+            JSONArray duplicateSettingProjections=new JSONArray();
             for(LayerRead layer:layers) {
                 if(!"active".equals(layer.layer)) for(int i=0;i<layer.payload.length();i++) {
                     JSONObject modelItem=json(layer.payload.optJSONObject(i).toString());
                     if("verbatim".equals(layer.layer)&&"message".equals(modelItem.optString("type"))&&modelItem.has("text"))modelItem=compactOriginal(modelItem);
                     if(!"verbatim".equals(layer.layer)&&modelItem.has("hydratedSourceExamples")){modelItem.remove("hydratedSourceExamples");put(modelItem,"sourcesHydratedAndValidatedByNative",true);put(modelItem,"rawSourceTextAccess","VERBATIM_or_native_source_read");}
                     String line=layer.layer.toUpperCase(java.util.Locale.ROOT)+" "+modelItem+"\n";
+                    if("procedural".equals(layer.layer)) {
+                        String providedIn=duplicateSettingLocation(modelItem,active.payload,controls,renderedSettings);
+                        if(!providedIn.isEmpty()) {
+                            duplicateSettingProjections.put(object("settingKey",modelItem.optString("setting_key"),
+                                    "exactTextProvidedIn",providedIn,"projectionCharsAvoided",line.length()));
+                            continue;
+                        }
+                    }
                     optional.add(new OptionalLine(line,i,"verbatim".equals(layer.layer)?0:"semantic".equals(layer.layer)?1:"episodic".equals(layer.layer)?2:3));
                 }
                 reads.put(receipt(layer,dispatchId,rootId,purpose,inputId,latestOwner,snapshotId,controls,visibility,now,selected.validUntil));
@@ -140,6 +160,8 @@ public final class MemoryGateway {
             String footer="MEMORY_LIMITS "+diagnostics+"\n";
             if(context.length()+footer.length()>maxChars)throw new Blocked("memory_context_diagnostics_overflow");
             context.append(footer);
+            // Savings receipts are native audit data, not another repeated model payload.
+            if(duplicateSettingProjections.length()>0)put(diagnostics,"duplicateSettingProjections",duplicateSettingProjections);
             if(!visibility.fingerprint.equals(privacyView().fingerprint))throw new Blocked("privacy_changed_during_prepare");
             return new Prepared(context.toString(),snapshotId,controlHash,dispatchId,rootId,purpose,inputId,latestOwner,now,selected.validUntil,selected.temporalValidUntil,
                     reads,selected.dependencies(),controls,visibility.fingerprint,diagnostics);
@@ -442,6 +464,23 @@ public final class MemoryGateway {
     private static String weightedRanking(String expression,Map<String,Long> terms,List<String> args){StringBuilder score=new StringBuilder("0");for(Map.Entry<String,Long> term:terms.entrySet()){score.append(" + CASE WHEN ").append(expression).append(" LIKE ? ESCAPE '\\' THEN ").append(term.getValue()).append(" ELSE 0 END");args.add("%"+term.getKey().replace("\\","\\\\").replace("%","\\%").replace("_","\\_")+"%");}return score.toString();}
     private static long sourceWindowOffset(SQLiteDatabase db,long id,Map<String,Long> weights){JSONObject row=one(db,"SELECT text FROM message_search WHERE docid=?",new String[]{String.valueOf(id)});if(row==null)return 0;String text=row.optString("text");if(text.length()<=1200)return 0;int best=-1;long weight=-1;for(Map.Entry<String,Long> term:weights.entrySet()){java.util.regex.Matcher hit=java.util.regex.Pattern.compile(java.util.regex.Pattern.quote(term.getKey()),java.util.regex.Pattern.CASE_INSENSITIVE|java.util.regex.Pattern.UNICODE_CASE).matcher(text);if(hit.find()&&term.getValue()>weight){best=hit.start();weight=term.getValue();}}long offset=Math.max(0,best-400);if(offset>0&&offset<text.length()&&Character.isLowSurrogate(text.charAt((int)offset))&&Character.isHighSurrogate(text.charAt((int)offset-1)))offset--;return offset;}
     private static JSONObject compactOriginal(JSONObject source){JSONObject model=object("type","message","id",source.optLong("messageId"),"role",source.optString("role"),"recordedAt",source.optLong("recordedAt"),"recordHash",source.optString("recordHash"),"offsetChars",source.optLong("offsetChars"),"text",source.optString("text"),"exactOriginalRange",true,"complete",source.optBoolean("complete"));if(!source.optBoolean("complete")){put(model,"nextOffsetChars",source.optLong("nextOffsetChars"));put(model,"totalChars",source.optLong("totalChars"));put(model,"complete",false);}return model;}
+
+    /** Omit only a repeated projection; the authoritative setting and its query stay intact. */
+    private static String duplicateSettingLocation(JSONObject row,JSONArray active,JSONObject controls,JSONObject rendered) {
+        String key=row.optString("setting_key");Object value=row.opt("value");
+        if(!(value instanceof String))return "";
+        if("standingGoals".equals(key)) {
+            for(int i=0;i<active.length();i++) {
+                JSONObject mandatory=active.optJSONObject(i);
+                if(mandatory!=null&&key.equals(mandatory.optString("setting_key"))&&value.equals(mandatory.opt("value")))
+                    return "MANDATORY_ACTIVE_CONSTRAINTS";
+            }
+        } else if(("customInstructions".equals(key)||"personalizedInstructions".equals(key))
+                &&value.equals(controls.opt(key))&&value.equals(rendered.opt(key))) {
+            return "AUTHORITATIVE_PROMPT_SETTINGS";
+        }
+        return "";
+    }
 
     private static final class LayerRead {
         final String layer;final JSONArray payload=new JSONArray(),queries=new JSONArray();String exclusion="none";JSONObject candidateScope=new JSONObject();

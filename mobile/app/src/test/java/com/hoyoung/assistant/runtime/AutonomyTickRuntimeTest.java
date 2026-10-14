@@ -34,7 +34,7 @@ public final class AutonomyTickRuntimeTest {
         try(java.io.InputStream a=context.getAssets().open("core-identity.txt")){assertTrue(a.read()!=-1);}
         try(java.io.InputStream a=context.getAssets().open("personalized-instructions.txt")){assertTrue(a.read()!=-1);}
         context.deleteDatabase(HoyoungStore.DATABASE_NAME);
-        store=new HoyoungStore(context);store.putSetting("autonomy.enabled","false");
+        store=new HoyoungStore(context);store.putSetting("usageOptimizationEnabled","false"); /* Fixed Medium/Fast control; optimized routing has separate regression coverage. */store.putSetting("autonomy.enabled","false");
         store.putSetting("memoryReviewEnabled","false");store.putSetting("heartbeatSeconds","300");
         construct();ready();drain();
     }

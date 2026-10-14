@@ -233,6 +233,82 @@ public final class WorkStartupRecoveryTest {
         assertFalse(runtime.state().optBoolean("ready")); assertEquals("page_loading", runtime.state().optString("readinessCode"));
     }
 
+    @Test public void onlyAnIdleOrPreWirePreparingLedgerMayEnsureUiPreferencesAndDispatchedInspectionIsReadOnly() throws Exception {
+        List<RecordingView> views = new ArrayList<>();
+        WorkWebController controller = controller(c -> { RecordingView result = new RecordingView(c); views.add(result); return result; });
+        controller.start(); idle(); markLoaded(controller);
+        controller.inspect(); idle();
+        assertTrue(views.get(0).scripts.get(0).contains("HoyoungWorkBridge.ensurePreferences("));
+        ready(); JSONObject request = runtime.receive("주인 Fast 응답 중에는 설정 전환 금지", new JSONArray());
+        assertEquals(request.getString("external_id"), runtime.state().getString("activeRequestId"));
+        controller.inspect(); idle();
+        assertTrue(views.get(0).scripts.get(1).contains("HoyoungWorkBridge.configurePreferences("));
+        runtime.onWebEvent(object("type", "accepted", "requestId", request.getString("external_id")));
+        controller.inspect(); idle();
+        assertTrue(views.get(0).scripts.get(2).contains("HoyoungWorkBridge.configurePreferences("));
+        assertTrue(WorkWebController.canAutomaticallySelectPreferences(object("receiptIndexReady", true,
+                "activePhase", "preparing", "activeRequestId", "frozen-pre-wire-request")));
+        assertFalse(WorkWebController.canAutomaticallySelectPreferences(object("receiptIndexReady", true,
+                "activePhase", "preparing", "activeRequestId", JSONObject.NULL)));
+        for (String phase : new String[]{"dispatching", "accepted", "uncertain", "saving_result"})
+            assertFalse(WorkWebController.canAutomaticallySelectPreferences(object("receiptIndexReady", true,
+                    "activePhase", phase, "activeRequestId", "request")));
+        assertFalse(WorkWebController.canAutomaticallySelectPreferences(object("receiptIndexReady", true,
+                "activePhase", "preparing", "activeRequestId", "request", "uncertaintyBlocked", true)));
+    }
+
+    @Test public void requestSpecificBridgePreferencesRetainTheDispatchSnapshotAfterNextSettingsChange() throws Exception {
+        WorkWebController controller = controller(c -> new RecordingView(c));
+        ready(); JSONObject request = runtime.receive("이 요청은 원래 Medium/Fast로 실행", new JSONArray());
+        java.lang.reflect.Method preferences = WorkWebController.class.getDeclaredMethod("bridgePreferences", String.class);
+        preferences.setAccessible(true);
+        JSONObject before = (JSONObject) preferences.invoke(controller, request.getString("external_id"));
+        store.putSetting("requiredModel", "gpt-6.2-sol"); store.putSetting("requiredEffort", "high"); store.putSetting("requiredSpeed", "standard");
+        JSONObject after = (JSONObject) preferences.invoke(controller, request.getString("external_id"));
+        assertEquals(before.toString(), after.toString());
+        assertEquals("gpt-6.1-sol", after.getString("requiredModel"));
+        assertEquals("medium", after.getString("requiredEffort")); assertEquals("fast", after.getString("requiredSpeed"));
+    }
+
+    @Test public void aUsageReceiptNeedsNativeScopeNonceFreshTimeAndHashesItsExactVisibleEvidence() throws Exception {
+        long at = System.currentTimeMillis(); String nonce = "a".repeat(32);
+        JSONObject receipt = usageReceipt("owner-account", nonce, at);
+        JSONObject verified = WorkWebController.verifiedUsageObservation(receipt, "owner-account", nonce, at, at + 5);
+        assertEquals("provider_ui_observed", verified.getString("origin")); assertFalse(verified.has("captureNonce"));
+        assertEquals("owner_label", verified.getString("accountScopeSource")); assertFalse(verified.getBoolean("accountIdentityVerified"));
+        assertEquals(17.5, verified.getDouble("usedPercent"), 0); assertEquals(.1, verified.getDouble("precisionPercent"), 0);
+        assertTrue(verified.getString("evidenceRef").startsWith("work-dom-sha256:")); assertEquals(64, verified.getString("evidenceSha256").length());
+        assertThrows(IllegalArgumentException.class, () -> WorkWebController.verifiedUsageObservation(receipt, "other-account", nonce, at, at + 5));
+        assertThrows(IllegalArgumentException.class, () -> WorkWebController.verifiedUsageObservation(receipt, "owner-account", "b".repeat(32), at, at + 5));
+        assertThrows(IllegalArgumentException.class, () -> WorkWebController.verifiedUsageObservation(receipt, "owner-account", nonce, at + 1, at + 5));
+        assertThrows(IllegalArgumentException.class, () -> WorkWebController.verifiedUsageObservation(receipt, "owner-account", nonce, at, at + 15_001));
+        JSONObject malformed = usageReceipt("owner-account", nonce, at); malformed.getJSONObject("observation").put("usedPercent", "17.5");
+        assertThrows(IllegalArgumentException.class, () -> WorkWebController.verifiedUsageObservation(malformed, "owner-account", nonce, at, at + 5));
+    }
+
+    @Test public void anOldDocumentUsageCallbackCannotCreateAnObservedProviderReading() throws Exception {
+        List<RecordingView> views = new ArrayList<>();
+        WorkWebController controller = controller(c -> { RecordingView result = new RecordingView(c); views.add(result); return result; });
+        controller.start(); idle(); markLoaded(controller);
+        field(WorkWebController.class, "currentOrigin").set(controller, WorkWebController.TEMPORARY_URL);
+        controller.captureUsageObservation("owner-account"); idle();
+        RecordingView current = views.get(0); String script = current.scripts.get(0);
+        int start = script.indexOf("captureUsageObservation(") + "captureUsageObservation(".length();
+        JSONObject arguments = new JSONObject(script.substring(start, script.indexOf(")) : null", start)));
+        ValueCallback<String> callback = current.callbacks.get(0);
+        controller.openTemporary(); idle();
+        callback.onReceiveValue(JSONObject.quote(usageReceipt("owner-account", arguments.getString("captureNonce"), System.currentTimeMillis()).toString()));
+        assertTrue(runtime.state().getJSONObject("usageBudget").isNull("latestProviderObservation"));
+    }
+
+    private static JSONObject usageReceipt(String scope, String nonce, long observedAt) throws Exception {
+        long resetAt = observedAt + 3L * 24 * 60 * 60 * 1000;
+        return object("ok", true, "code", "usage_observed", "observation", object("schemaVersion", 1,
+                "accountScope", scope, "captureNonce", nonce, "sourceOrigin", "https://chatgpt.com", "sourceKind", "visible-usage-panel", "period", "weekly",
+                "poolId", "work-codex:weekly:" + resetAt, "observedAt", observedAt, "resetAt", resetAt, "usedPercent", 17.5, "precisionPercent", .1,
+                "evidenceText", "Usage\nPro plan\nWork / Codex\nWeekly usage\n82.5% remaining\nReset: visible ISO date"));
+    }
+
     private WorkWebController controller(WorkWebController.ViewFactory factory) { WorkWebController result = new WorkWebController(context, runtime, files, factory); controllers.add(result); return result; }
     private void ready() throws Exception { runtime.onWebEvent(object("type", "state", "code", "ready", "state", readyState())); }
     private static JSONObject readyState() throws Exception { return object("authenticated", true, "workSelected", true, "temporary", true, "busy", false, "quota", false, "model", "gpt-6.1-sol", "effort", "medium", "speed", "fast"); }
@@ -252,11 +328,13 @@ public final class WorkStartupRecoveryTest {
         LinkageError javascriptLinkageFailure;
         int destroyCalls, urlLoads;
         final List<ValueCallback<String>> callbacks = new ArrayList<>();
+        final List<String> scripts = new ArrayList<>();
         RecordingView(Context context) { super(context); }
         @Override public WebSettings getSettings() { if (settingsFailure) throw new IllegalStateException("Injected settings failure"); return super.getSettings(); }
         @Override public void loadUrl(String url) { urlLoads++; /* Robolectric fixture does not navigate or call an account. */ }
         @Override public void destroy() { destroyCalls++; if (destroyFailure) throw new IllegalStateException("Injected teardown failure"); super.destroy(); }
         @Override public void evaluateJavascript(String script, ValueCallback<String> callback) {
+            scripts.add(script);
             if (javascriptFailure != null) throw javascriptFailure;
             if (javascriptLinkageFailure != null) throw javascriptLinkageFailure;
             callbacks.add(callback);
