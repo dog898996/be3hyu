@@ -4,7 +4,7 @@
 
 모바일의 사진·파일 전송, 실제 모델 선택, 입력·프로세스 복구, 휴대폰 관찰과 장기 개인화를 한 흐름으로 검증하는 기준은 [사용자 흐름 검증](docs/mobile-product-acceptance.md)에 기록한다. 저장·전송·모델 분석·실제 완료를 각각 확인하며 실계정·실폰에서 아직 확인하지 않은 결과를 완료로 표시하지 않는다.
 
-공개 APK와 소스는 [호영 0.3.0 배포](https://github.com/dog898996/be3hyu/releases/tag/v0.3.0)에서 내려받는다. 요청 권한 40개를 유지하며 정정·삭제의 출처 연결, 캐시·옛 백업의 재노출 방지와 [5년 모의 기억 답변 144개](docs/five-year-memory-final-answer-results.md)를 검증했다. [최종 Android 검사](docs/benchmarks/android-final-v030-local.json)는 759개 중 743개 통과·선택형 16개 제외·실패 0개이고, [실제 OS 복구 검사](docs/benchmarks/android-final-ci-ad85406.json)는 강제 중지 후 재열기·프로세스 종료·Java 오류·재부팅 복구를 통과했다. 실제 갤럭시 장기 실행과 실계정 Work 연결은 아직 확인하지 않았다. 전체 Android·Node 소스, 테스트, 배포 도구와 개발 기록을 함께 보관하며 계정 비밀번호와 서명 개인키는 공개 소스에 넣지 않는다.
+공개 APK와 소스는 [호영 0.3.0 배포](https://github.com/dog898996/be3hyu/releases/tag/v0.3.0)에서 내려받는다. [최종 배포 기록](docs/release-v030.md)에 공개 다운로드 해시 대조와 확인 범위를 남겼다. 요청 권한 40개를 유지하며 정정·삭제의 출처 연결, 캐시·옛 백업의 재노출 방지와 [5년 모의 기억 답변 144개](docs/five-year-memory-final-answer-results.md)를 검증했다. [최종 Android 검사](docs/benchmarks/android-final-v030-local.json)는 759개 중 743개 통과·선택형 16개 제외·실패 0개이고, [실제 OS 복구 검사](docs/benchmarks/android-final-ci-ad85406.json)는 강제 중지 후 재열기·프로세스 종료·Java 오류·재부팅 복구를 통과했다. 실제 갤럭시 장기 실행과 실계정 Work 연결은 아직 확인하지 않았다. 전체 Android·Node 소스, 테스트, 배포 도구와 개발 기록을 함께 보관하며 계정 비밀번호와 서명 개인키는 공개 소스에 넣지 않는다.
 
 스페이스의 [자율 비서 개발 대화 원문](https://chatgpt.com/space/page_3dbe1b11044481918d703e85554f9e94) 41개 메시지와 후속 요구사항을 이어받은 구현이다. 호영이는 사용자 한 명이 쓰는 전용 채팅앱이며 별도 앱 회원가입·로그인 계정을 만들지 않는다. Instagram DM 수신·다른 사람 구분·읽음은 현재 대화 수단의 개발 범위에서 제외했다. 기존 기록과 레거시 연결 정보는 유지한다. 비밀번호는 코드와 설정에 포함하지 않는다.
 

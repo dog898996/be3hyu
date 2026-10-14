@@ -1,0 +1,50 @@
+{
+  "checkedAtUTC": "2026-10-14T02:28:21.051444+00:00",
+  "artifactCommit": "5872dc8df5d4c75994baffcce44e309852bbb8b8",
+  "allPublicDownloadsMatch": true,
+  "files": [
+    {
+      "name": "hoyoung-0.3.0.apk",
+      "url": "https://raw.githubusercontent.com/dog898996/be3hyu/5872dc8df5d4c75994baffcce44e309852bbb8b8/release-assets/v0.3.0/hoyoung-0.3.0.apk",
+      "bytes": 78792673,
+      "sha256": "ecb6eb3224d770d86d94e7db7eaa487760fcfa40744a54c88fb8650742843d10",
+      "matchesVerifiedLocalArtifact": true
+    },
+    {
+      "name": "hoyoung-0.3.0-source.zip",
+      "url": "https://raw.githubusercontent.com/dog898996/be3hyu/5872dc8df5d4c75994baffcce44e309852bbb8b8/release-assets/v0.3.0/hoyoung-0.3.0-source.zip",
+      "bytes": 52974843,
+      "sha256": "b1c948cb8d2a4128252caa4e54f840db328f1d0191513b6ea6e7464f6cebb5a0",
+      "matchesVerifiedLocalArtifact": true
+    },
+    {
+      "name": "hoyoung-0.3.0-SHA256SUMS.txt",
+      "url": "https://raw.githubusercontent.com/dog898996/be3hyu/5872dc8df5d4c75994baffcce44e309852bbb8b8/release-assets/v0.3.0/hoyoung-0.3.0-SHA256SUMS.txt",
+      "bytes": 273,
+      "sha256": "c0d57c57224ac33c4a8d69487bde7fe0cc4996e1d62a9ecc07df3f9796f7c105",
+      "matchesVerifiedLocalArtifact": true
+    },
+    {
+      "name": "hoyoung-0.3.0-verification.json",
+      "url": "https://raw.githubusercontent.com/dog898996/be3hyu/5872dc8df5d4c75994baffcce44e309852bbb8b8/release-assets/v0.3.0/hoyoung-0.3.0-verification.json",
+      "bytes": 2157,
+      "sha256": "b3ef0c0254ef5d1078897710cc03c4f989a81910280a6c0936735af05e12afe3",
+      "matchesVerifiedLocalArtifact": true
+    }
+  ],
+  "paidServicesUsed": false,
+  "releaseURL": "https://github.com/dog898996/be3hyu/releases/tag/v0.3.0",
+  "release": {
+    "isDraft": false,
+    "isPrerelease": false,
+    "publishedAt": "2026-10-14T02:28:36Z",
+    "tagName": "v0.3.0",
+    "targetCommitish": "ccd222a5f567b902b2076087624e5eedc49ea5bb",
+    "url": "https://github.com/dog898996/be3hyu/releases/tag/v0.3.0"
+  },
+  "releaseSourceCommit": "ccd222a5f567b902b2076087624e5eedc49ea5bb",
+  "verifiedAPKCodeCommit": "ad854064da708d656924c5eff9bbb349b96ab574",
+  "finalPublicationGatePassed": true,
+  "sourceConfigFilesMatched": 205,
+  "artifactManifestStage": "The downloadable verification JSON preserves the preparation snapshot; this receipt records completed publication and public downloads."
+}
