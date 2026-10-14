@@ -1,0 +1,40 @@
+{
+  "completedAtUtc": "2026-10-14 01:48:56 UTC",
+  "attempted": 144,
+  "actualManuallyModelReasonedAnswers": 144,
+  "uniqueOrderedPacketIds": 144,
+  "missingInputs": 0,
+  "blockedAnswers": 0,
+  "readerScope": "Each current frozen packet plus its actual native source tool responses; no oracle/gold/grader/results/other-reader answers accessed.",
+  "inputSHA256": "1fc53e1215fbd331bfb669d5e156e11b3169b017574839bb697b65e460b6e129",
+  "outputSHA256": "6a7b7597c649f6d2aff9863540e2a234d0ada32e09dae01f875ad549572ee72d",
+  "originalPacketOnlyAnswerSHA256": "1b0f8d30b603f00663a2911353607d133aca3e87d2d527a547be853146a7fcde",
+  "requestedModel": "gpt-6.1-sol",
+  "requestedReasoningEffort": "medium",
+  "backendSpeedVerified": false,
+  "tools": {
+    "searchRequests": 39,
+    "readRequests": 26,
+    "enumerationRequests": 0,
+    "deliveredSourceRows": 428
+  },
+  "questionsWithActualTools": 43,
+  "maximumSearchRequestsPerQuestion": 2,
+  "maximumDeliveredRowsPerQuestion": 20,
+  "perQuestionCaps": {
+    "searchPlusEnumeration": 3,
+    "deliveredCanonicalRows": 20
+  },
+  "validationErrors": [],
+  "oracleAccesses": 0,
+  "knownFailedPreparationBeforeQuery": 1,
+  "knownFailedPreparationBudgetBypass": false,
+  "f2SourceEnumeratorSupported": false,
+  "limitations": [
+    "Search results do not guarantee full corpus or complete monthly coverage.",
+    "Image message/OCR text is not direct pixel inspection.",
+    "Summaries and source references are not independent original proof.",
+    "Reader coverage and quote/cap validation do not constitute an accuracy score."
+  ],
+  "scoreClaimed": false
+}

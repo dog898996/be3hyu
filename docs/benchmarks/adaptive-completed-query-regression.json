@@ -1,0 +1,62 @@
+{
+  "status": "passed",
+  "sdk": 28,
+  "sqliteMode": "NATIVE",
+  "androidCompileSdk": 35,
+  "javaSourceTarget": 17,
+  "priorProductionRetrieverSha256": "d41d1481564e70f303a9ad386bda08c5735e1d6af2e79269e106110b407cdbdd",
+  "productionChangeScope": "Only adaptive monotonic clock injection, SQL-start deadline checks/counting, and finishing already-returned bounded rows; source/privacy/OS gates unchanged",
+  "newRegressions": 4,
+  "red": {
+    "tests": 4,
+    "failures": 2,
+    "junitElapsedSeconds": 3.187,
+    "log": "red.log",
+    "sourceFile": "red-MemoryRetriever.java",
+    "sourceSha256": "ac7140cc097d33fd32c6e8841d6c8bb99d25ea1288ab57d8276e843da3efda52"
+  },
+  "greenMemory": {
+    "tests": 42,
+    "failures": 0,
+    "junitElapsedSeconds": 7.443,
+    "log": "green-memory.log",
+    "classes": [
+      "AdaptiveCompletedQueryTest",
+      "AdaptiveMemoryRecallTest",
+      "LongTermRetrievalBenchmarkTest"
+    ]
+  },
+  "greenNativeConsumers": {
+    "tests": 5,
+    "failures": 0,
+    "junitElapsedSeconds": 3.699,
+    "log": "green-consumers.log",
+    "consistentFrozenRuntimeClasspath": "/tmp/hoyoung-native-memory-post-consumer/classes"
+  },
+  "totalPassingTests": 47,
+  "discardedMixedRuntimeAttempt": {
+    "tests": 27,
+    "failures": 2,
+    "log": "green.log",
+    "reason": "Old frozen Runtime classes predate receipt/trailing-JSON fixes; rerun against matched post-consumer snapshot passed all 5 consumer cases"
+  },
+  "propertiesVerified": [
+    "Finished real SQLite first batch delivered despite expired clock",
+    "New SQL not started after 350ms deadline",
+    "Second hop not queried late",
+    "Maximum three followup queries and twenty hydrated sources unchanged",
+    "Excluded parent cue remains blocked",
+    "Exact source hash preserved",
+    "No complete-graph or instruction-change claim"
+  ],
+  "oracleOrGoldRead": false,
+  "fakeSqlResults": false,
+  "timingSleeps": false,
+  "sources": {
+    "mobile/app/src/main/java/com/hoyoung/assistant/memory/MemoryRetriever.java": "39fcae310b424fc7e750a9485f11a8d8a09e05a477c0df96cd9059776163e4eb",
+    "mobile/app/src/test/java/com/hoyoung/assistant/memory/AdaptiveCompletedQueryTest.java": "40790917381158f53100e93c5613d8eddf5895cca92203c327a38ee7ec20c51a",
+    "mobile/app/src/test/java/com/hoyoung/assistant/memory/AdaptiveMemoryRecallTest.java": "95fbf9a4e328d390b57127f217f8c2f04182157ccced67dd4450778e0206b05b",
+    "mobile/app/src/test/java/com/hoyoung/assistant/memory/LongTermRetrievalBenchmarkTest.java": "00a7359c2a686019731afa23a8e107048e125e1b50c1c73ff75733615271754c",
+    "mobile/app/src/test/java/com/hoyoung/assistant/runtime/NativeConsumerVisibilityTest.java": "5bb5cc4e188e889a8fbc6555a0de75892008e5bbd487b948b50e21a20a8e71d2"
+  }
+}

@@ -1,0 +1,105 @@
+{
+  "scope": "Latest frozen V7 synthetic memory semantic results, not deployed phone/Work certification. Writer142 identical primary + qualified native-data-equivalent followup carry and2fresh; counterfactual3 exact-packet carry. Matched baseline also100%, so semantic2x not established.",
+  "files": {
+    "baseline-tool-answers.jsonl": {
+      "sha256": "6a7b7597c649f6d2aff9863540e2a234d0ada32e09dae01f875ad549572ee72d",
+      "bytes": 143145
+    },
+    "baseline-tool-quote-audit.json": {
+      "sha256": "2b1d4a127c8ba2179ad076ea356911f8ea036a0e480f788e67e325ae30e6aca1",
+      "bytes": 45573
+    },
+    "baseline-tool-range-source-coverage.json": {
+      "sha256": "e7102a6176b143c31cf3bae38c92567ef01fb34917c6352eec5189b7b57c4491",
+      "bytes": 45330
+    },
+    "baseline-tool-reader-receipt.json": {
+      "sha256": "f63b6771c3fc18bc579e98957b00d14ef29ced7f2da98ae63434cab0279c2d49",
+      "bytes": 1597
+    },
+    "baseline-tool-semantic-report.json": {
+      "sha256": "9ed2680c608a0f1f9777098d482eb6ad865677df2c340c063ee6f7cb83bfa099",
+      "bytes": 23435
+    },
+    "baseline-tool-semantic-scores.json": {
+      "sha256": "a792e7e317d7336d92921a3a264913e6da3fd06e4c8d9befd10a303024051823",
+      "bytes": 71106
+    },
+    "counterfactual-v7-semantic-report.json": {
+      "sha256": "a72d97274405e4801bec5fe976c96fed2b2e178fe85c153a35d882a49ddbb14a",
+      "bytes": 3729
+    },
+    "counterfactual-v7-semantic-scores.json": {
+      "sha256": "b0c118d325084d5b67da9f10dff4423c57dde1009d436b2fbb22b7fe50a06960",
+      "bytes": 9465
+    },
+    "final-evaluation-completion-receipt.json": {
+      "sha256": "c19df45d12d7074ad64642f4d617bea0cd620812f9fd172c92cf340ce87c49fa",
+      "bytes": 3458
+    },
+    "final-v7-paired-semantic-report.json": {
+      "sha256": "5eaa8aaa7428040c70299cadd742256ab4a04744237b13876859b15e088bc258",
+      "bytes": 19431
+    },
+    "raw-v7-answers.jsonl": {
+      "sha256": "c5e1edff5182640cada14d24a4bcea987c55c0024d833bdd18ff837b5bcb8905",
+      "bytes": 172614
+    },
+    "raw-v7-baseline-tool-paired-semantic-report.json": {
+      "sha256": "a626586c72667906afddd5261eb4d234306073375cb5b2634a495f611533626d",
+      "bytes": 21627
+    },
+    "raw-v7-quote-audit.json": {
+      "sha256": "cc634bb386098ecb5a9c8d46c76eb9cec76ca027be695e4fcc6edef270645cda",
+      "bytes": 71565
+    },
+    "raw-v7-range-source-coverage.json": {
+      "sha256": "a3fadb40921e7cbc432c4b4a7b0f3e60fa2bc531de3520a2063065bf01932a66",
+      "bytes": 50186
+    },
+    "raw-v7-reader-validation.json": {
+      "sha256": "853e0cd0aa095ba5ed79d172331c19a13bf73d21978d3611d5a6cd1cc9fdedb5",
+      "bytes": 15745
+    },
+    "raw-v7-semantic-report.json": {
+      "sha256": "5cbafe4431facbd00b7647965cc78252b6db6d9ba1c9fa66283c7f4bd2c01a74",
+      "bytes": 7096
+    },
+    "raw-v7-semantic-scores.json": {
+      "sha256": "27989caea95bbd7937296d6c001eb4d63d40ec8b2a7339ada8c3c3734a47714d",
+      "bytes": 70177
+    },
+    "writer-v7-carry-provenance.json": {
+      "sha256": "289582834b4da18ab894a2e098e03d56e09f276bfa5a4360c76798d066d3d6fc",
+      "bytes": 16136
+    },
+    "writer-v7-consolidated-answers.jsonl": {
+      "sha256": "a0d73479291dbebe73b2993df49c443b5315952ae03a3231f5874391b8e34fd4",
+      "bytes": 231690
+    },
+    "writer-v7-quote-audit.json": {
+      "sha256": "7feb4d05259eaa8a5b1da45f3e5eddb5196e55712aeba92a565b9508f109f055",
+      "bytes": 116954
+    },
+    "writer-v7-range-source-coverage.json": {
+      "sha256": "ef1f20f79ed42eefadb5c66ee962c8d2c2a8d53f181242e0043dc2318acd785e",
+      "bytes": 176032
+    },
+    "writer-v7-semantic-report.json": {
+      "sha256": "2e914d7229f3df0801355e892dcda17a17fe689fbfbe39931c384e95bdaa8c11",
+      "bytes": 12469
+    },
+    "writer-v7-semantic-scores.json": {
+      "sha256": "8c9b0cbc690feda608a8dd93831d64fa6b505cf67175121627fbabc21798360b",
+      "bytes": 88133
+    },
+    "writer-v7-two-new-answers.jsonl": {
+      "sha256": "5c07ad4fb250ea0dc13794a9b1b586ee0ba1daab836de8f478a5848dfcbe26a9",
+      "bytes": 4549
+    },
+    "writer-v7-two-reader-receipt.json": {
+      "sha256": "25d810072cc1ee85be0a73e74fcc8682916472a154c1d06223d5ff75c964ca09",
+      "bytes": 1439
+    }
+  }
+}

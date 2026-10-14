@@ -1,0 +1,51 @@
+{
+  "scope": "Final SDK35 javac Runtime+Coordinator+new test overrides, SDK28 Robolectric44 explicit NATIVE SQLite/136 retained default; fake provider/transport, actual native storage/source ranges/grants/queue/packet marker/ACK",
+  "passed": 180,
+  "failed": 0,
+  "explicitNativeSQLiteTests": 44,
+  "retainedDefaultSQLiteTests": 136,
+  "suites": {
+    "RuntimeReviewPiggybackTest": 16,
+    "AssistantRuntimeTest": 51,
+    "AssistantRuntimePreparingSteeringTest": 2,
+    "RuntimeReadFailureTest": 5,
+    "RuntimeMemoryReviewSchedulingTest": 3,
+    "RuntimeReceiptPrivacyTest": 5,
+    "RuntimeGoalArchiveIntegrationTest": 7,
+    "MemoryReviewCoordinatorTest": 44,
+    "MemoryReviewPrivacyTest": 14,
+    "NativeConsumerVisibilityTest": 5,
+    "GoalLedgerTest": 24,
+    "GoalLedgerPrivacyTest": 4
+  },
+  "sourceSnapshot": "/tmp/hoyoung-review-piggyback-final/source",
+  "sourceHashesAtCompile": {
+    "mobile/app/src/main/java/com/hoyoung/assistant/runtime/AssistantRuntime.java": "a02510af81065328ae290b9f42f9fa67f7732ecafdedaa12542e503594746a93",
+    "mobile/app/src/main/java/com/hoyoung/assistant/runtime/MemoryReviewCoordinator.java": "4656f09a478aba67caff18c0396600106c30b67b2371ff7db6f042421fa6639f",
+    "mobile/app/src/test/java/com/hoyoung/assistant/runtime/RuntimeReviewPiggybackTest.java": "9fd3eb0dbcf3ed7e738998d8e0a896f9814e720fc0e692c356047b268450533e"
+  },
+  "log": "/tmp/hoyoung-review-piggyback-final/native-affected-final180.log",
+  "logSha256": "fbf88047be795ac7a86b04993c9dfe76e6bd89360a05d836bc7b63baf140c435",
+  "validatedBoundaries": [
+    "Initial autonomy bounded6k serialized review pre-reservation; owner+owner continuation backlog unchanged",
+    "Strict immutable batch/range/neighbor/asset canonical manifest in actual dispatch/marker/response/receipt/goal lineage; prepare/register/authorize/output/action revalidation",
+    "Valid independent review ACK with unrelated mutation does not transfer stale cursor batch; pending memory.save/asset analysis defers; invalid/missing/rejected ACK no cursor advance",
+    "Package-private virtual wall clock: two actual native payload calls at20-minute overdue admissions preserve5-minute cadence; no added review-only dispatch",
+    "Accepted work with20\u00d7one-minute virtual busy pulses coalesces inference ticks; output TTL distinction and same-response ACK without extra review call",
+    "Actual source exclusion/old restore/new owner input/malformed cached batch fences;95k mandatory input and escaped partial review stay within wire budget",
+    "Cross-root goal progress from source absent Gateway but present review leaked RED; complete native dispatch sources bind goal privacy GREEN",
+    "Actual implicit phone read disabled/collection disabled/contacts grant revoked filter phone-derived neighbors before hydration and preserve ordinary owner review/autonomy",
+    "Transient device scope denial never advances durable policyExcluded owner cursor; actual restored grant permits later exact ACK"
+  ],
+  "limits": [
+    "Virtual scheduling/freshness time is not actual phone20-minute endurance",
+    "No actual Work provider call, Galaxy/FGS endurance, or semantic extraction/recall accuracy measured",
+    "Piggyback supplies bounded opportunities; missing/cooperatively deferred ACK may remain pending, no fabricated completion",
+    "Central whole follow-up source snapshot/check required separately; immutable304/post-consumer68 proofs remain distinct"
+  ],
+  "redRegressionLogs": [
+    "/tmp/hoyoung-review-piggyback-check/native-crossroot-red.log",
+    "/tmp/hoyoung-review-piggyback-check/native-implicit-scope-red.log"
+  ],
+  "previous176Receipt": "/tmp/hoyoung-review-piggyback-check/receipt-final176.json"
+}

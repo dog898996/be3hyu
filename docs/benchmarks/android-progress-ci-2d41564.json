@@ -1,0 +1,139 @@
+{
+  "scope": "Observed native API35 disposable offline KVM emulator on commit2d41564; CI remains failed. These are actual positive phase observations, not an overall successful job or physical S24/live account proof.",
+  "runId": 38496565008,
+  "jobId": 115633559817,
+  "url": "https://github.com/dog898996/be3hyu/actions/runs/38496565008",
+  "commit": "2d41564a950141b5a972b860365e6775d0e1c126",
+  "workflowConclusion": "failure",
+  "unitTotals": {
+    "errors": 0,
+    "failures": 0,
+    "passed": 722,
+    "skipped": 17,
+    "testClasses": 78,
+    "tests": 739
+  },
+  "primaryNativeInstrumentation": {
+    "passed": 15,
+    "failed": 0,
+    "includes": [
+      "native private PNG viewer",
+      "95-message 40-row paged chat",
+      "real SystemUI notification tap",
+      "native registered application raw-journal backup",
+      "screen-off FGS65s",
+      "five-layer API35 readonly SQLite +one-use payload +privacy invalidation"
+    ]
+  },
+  "explicitOwnerStopReopen": {
+    "passed": true,
+    "automaticRecoveryClaimed": false
+  },
+  "ownUIDSIGKILL": {
+    "passed": true,
+    "oldPID": 2987,
+    "newPID": 3116,
+    "systemFGSObservedBeforeTestActivity": true,
+    "durableDraftIdentityAnd512DModelVerified": true
+  },
+  "realReboot": {
+    "passed": true,
+    "bootReceiverFGSObservedBeforeTestActivity": true,
+    "durableDraftIdentityAnd512DModelVerified": true,
+    "postRebootPID": 1743
+  },
+  "forcedJavaCrash": {
+    "passed": false,
+    "exceptionObserved": "android.app.RemoteServiceException$CrashedByAdbException: shell-induced crash",
+    "oldPID": 3116,
+    "observedPIDAfter120s": 3116,
+    "foregroundServiceRecordStillTrue": true,
+    "visibleCrashDialogConfirmed": false,
+    "actualScreenshot": "/tmp/hoyoung-ci-2d41564-ui-diagnostics/restart-crash.png",
+    "screenshotSHA256": "ec86b6c59c5bb1c079d20646061904746bd70196c804ccb416a826696e5e9ad4",
+    "classification": "unresolved: test-harness contamination or OS/app handling; no justified OS-blocked or app-recovered conclusion",
+    "mandatoryNextProbe": "new genuine OS-restarted own PID via SIGKILL without instrumentation or Activity launch before am-crash; capture actual active-instrumentation/error-state/build/exit/window diagnostics",
+    "manualBootstrapCountedAsAutoRecovery": false
+  },
+  "neuralAndANN": {
+    "HOYOUNG_REAL_ANDROID_NN": {
+      "modelId": "sentence-transformers/distiluse-base-multilingual-cased-v2@bfe45d0732ca50787611c0fe107ba278c7f3f889|bert-wordpiece-cased-v1|mean-dense-tanh512|query-overlap110-v1",
+      "dimensions": 512,
+      "readyMillis": 801,
+      "fourEmbeddingsMillis": 96,
+      "koreanParaphraseCosine": 0.6993165044409766,
+      "koreanEnglishCosine": 0.814342814824652,
+      "unrelatedCosine": 0.09307882640893467,
+      "applicationOwnedEncoder": true,
+      "actualHostReferenceCompared": true,
+      "physicalPhoneBenchmark": false,
+      "textSentToService": false
+    },
+    "HOYOUNG_REAL_ANDROID_ANN": {
+      "actualAndroidJniExecuted": true,
+      "vectors": 256,
+      "dimensions": 512,
+      "querySelfTop1": true,
+      "excludedLabelAbsent": true,
+      "shaCacheRoundTrip": true,
+      "corruptCacheRejected": true,
+      "nonfiniteVectorRejected": true,
+      "elapsedMillis": 24,
+      "fullNeuralQualityMeasured": false,
+      "realUserPhoneMeasured": false
+    }
+  },
+  "log": "/tmp/hoyoung-ci-38496565008-full.log",
+  "logSHA256": "b85652a2547125031a4434492e62f418aeb37d0b4e7aa6c8e32f896c11613ad6",
+  "officialFrameworkSourceReferences": [
+    {
+      "path": "/tmp/hoyoung-aosp15-crash-source/AppErrorDialog.java",
+      "officialURL": "https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-15.0.0_r1/services/core/java/com/android/server/am/AppErrorDialog.java?format=TEXT",
+      "sourceTag": "android-15.0.0_r1",
+      "sha256": "f4709024bb47b592123a06646851648f4089c365b497f67129dfba7f4c2e67af",
+      "bytes": 7763,
+      "note": "Read-only source fetched over verified HTTPS; hash recorded locally, not claimed as a separately published distribution checksum."
+    },
+    {
+      "path": "/tmp/hoyoung-aosp15-crash-source/ActivityManagerShellCommand.java",
+      "officialURL": "https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-15.0.0_r1/services/core/java/com/android/server/am/ActivityManagerShellCommand.java?format=TEXT",
+      "sourceTag": "android-15.0.0_r1",
+      "sha256": "3bd23c5a24b80a1084024192381bbe54c1ad00e0b04ba4b76d93ba00281e82b6",
+      "bytes": 200371,
+      "note": "Read-only source fetched over verified HTTPS; hash recorded locally, not claimed as a separately published distribution checksum."
+    },
+    {
+      "path": "/tmp/hoyoung-aosp15-crash-source/RuntimeInit.java",
+      "officialURL": "https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-15.0.0_r1/core/java/com/android/internal/os/RuntimeInit.java?format=TEXT",
+      "sourceTag": "android-15.0.0_r1",
+      "sha256": "c3379d7911685dc50d3082f09ca32a3b4aaec4b9431ae4b1c0c5c18ca468ee97",
+      "bytes": 22755,
+      "note": "Read-only source fetched over verified HTTPS; hash recorded locally, not claimed as a separately published distribution checksum."
+    },
+    {
+      "path": "/tmp/hoyoung-aosp15-crash-source/ActivityThread.java",
+      "officialURL": "https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-15.0.0_r1/core/java/android/app/ActivityThread.java?format=TEXT",
+      "sourceTag": "android-15.0.0_r1",
+      "sha256": "3a6995ab5f30c7507fbdc25e45c852224f400838538b64422a585c4661286ca2",
+      "bytes": 394503,
+      "note": "Read-only source fetched over verified HTTPS; hash recorded locally, not claimed as a separately published distribution checksum."
+    },
+    {
+      "path": "/tmp/hoyoung-AppErrors-api35.java",
+      "sha256": "7730daf45226e014eb1ce939c0292787f820427a8ffa205782639be5d78f2732",
+      "officialURL": "https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-15.0.0_r1/services/core/java/com/android/server/am/AppErrors.java?format=TEXT",
+      "sourceTag": "android-15.0.0_r1"
+    },
+    {
+      "path": "/tmp/hoyoung-ams-api35-source.java",
+      "sha256": "e713ead4798bf56ec8b590202e3473384eb8d1f4986a2b05c5124c3acb824285",
+      "officialURL": "https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-15.0.0_r1/services/core/java/com/android/server/am/ActivityManagerService.java?format=TEXT",
+      "sourceTag": "android-15.0.0_r1"
+    }
+  ],
+  "sourceAuditLimits": "Official Android15r1 source explains possible dialog/force/restart paths; actual emulator build identity and selected branch are not yet established. Framework code alone cannot classify this observation.",
+  "releaseAuthorized": false,
+  "physicalPhoneMeasured": false,
+  "realChatGPTAccountMeasured": false,
+  "continuous24HourMeasured": false
+}

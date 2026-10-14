@@ -1,0 +1,3642 @@
+[
+  {
+    "packetId": "f504885e1f62d52b5806",
+    "caseId": "raw_only-01",
+    "sourceId": "message:1106",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 0,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "a83a589197c107d6974a",
+    "caseId": "alias_cues-01",
+    "sourceId": "message:1706",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 1,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "a83a589197c107d6974a",
+    "caseId": "alias_cues-01",
+    "sourceId": "message:1107",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 1,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "135fd1a5dc1f5552bd07",
+    "caseId": "temporal_change-01",
+    "sourceId": "message:1108",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 2,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "135fd1a5dc1f5552bd07",
+    "caseId": "temporal_change-01",
+    "sourceId": "message:32083",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 2,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "5e8d673d48f2b426d528",
+    "caseId": "claim_status-01",
+    "sourceId": "message:1707",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 3,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "7feadae2186c9043801f",
+    "caseId": "episodes-01",
+    "sourceId": "device_event:1",
+    "exactOracleSubstring": false,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 4,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "7feadae2186c9043801f",
+    "caseId": "episodes-01",
+    "sourceId": "message:32084",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 4,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "c6f1d6f4aea7bcf97d71",
+    "caseId": "decision_reasons-01",
+    "sourceId": "message:1111",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 5,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "c6f1d6f4aea7bcf97d71",
+    "caseId": "decision_reasons-01",
+    "sourceId": "message:1708",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 5,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "ccf2947c0a9f985ae49a",
+    "caseId": "procedure_scope-01",
+    "sourceId": "message:1112",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 6,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "6c35ab337c108f49a302",
+    "caseId": "active_constraints-01",
+    "sourceId": "message:1113",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 7,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "6c35ab337c108f49a302",
+    "caseId": "active_constraints-01",
+    "sourceId": "message:32086",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 7,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "bb8cdf070a18c60a9a5e",
+    "caseId": "missing_facts-01",
+    "sourceId": "message:1114",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 8,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "4e066eca74fd2bec6c3c",
+    "caseId": "image_wire_scope-01",
+    "sourceId": "message:1115",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 9,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "a53b518b385050d1ddda",
+    "caseId": "forget_revoke-01",
+    "sourceId": "message:32087",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 10,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "41f8f3847663a9c02ca1",
+    "caseId": "range_coverage-01",
+    "sourceId": "message:1",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 11,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "41f8f3847663a9c02ca1",
+    "caseId": "range_coverage-01",
+    "sourceId": "message:86",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 11,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "41f8f3847663a9c02ca1",
+    "caseId": "range_coverage-01",
+    "sourceId": "message:171",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 11,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "41f8f3847663a9c02ca1",
+    "caseId": "range_coverage-01",
+    "sourceId": "message:256",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 11,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "41f8f3847663a9c02ca1",
+    "caseId": "range_coverage-01",
+    "sourceId": "message:341",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 11,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "41f8f3847663a9c02ca1",
+    "caseId": "range_coverage-01",
+    "sourceId": "message:426",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 11,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "41f8f3847663a9c02ca1",
+    "caseId": "range_coverage-01",
+    "sourceId": "message:511",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 11,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "41f8f3847663a9c02ca1",
+    "caseId": "range_coverage-01",
+    "sourceId": "message:596",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 11,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "41f8f3847663a9c02ca1",
+    "caseId": "range_coverage-01",
+    "sourceId": "message:681",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 11,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "41f8f3847663a9c02ca1",
+    "caseId": "range_coverage-01",
+    "sourceId": "message:766",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 11,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "41f8f3847663a9c02ca1",
+    "caseId": "range_coverage-01",
+    "sourceId": "message:851",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 11,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "41f8f3847663a9c02ca1",
+    "caseId": "range_coverage-01",
+    "sourceId": "message:936",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 11,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "41f8f3847663a9c02ca1",
+    "caseId": "range_coverage-01",
+    "sourceId": "message:1021",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 11,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "41f8f3847663a9c02ca1",
+    "caseId": "range_coverage-01",
+    "sourceId": "message:1117",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 11,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "a6a6d309ea350c50139e",
+    "caseId": "raw_only-02",
+    "sourceId": "message:3738",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 12,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "06de574bccb45eeaf0f9",
+    "caseId": "alias_cues-02",
+    "sourceId": "message:4337",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 13,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "06de574bccb45eeaf0f9",
+    "caseId": "alias_cues-02",
+    "sourceId": "message:3739",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 13,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "ab57cf2a3a0dca62e097",
+    "caseId": "temporal_change-02",
+    "sourceId": "message:3740",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 14,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "ab57cf2a3a0dca62e097",
+    "caseId": "temporal_change-02",
+    "sourceId": "message:34692",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 14,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "f7bb4dc52953481e372b",
+    "caseId": "claim_status-02",
+    "sourceId": "message:3741",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 15,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "293b7d5f96771b675d85",
+    "caseId": "episodes-02",
+    "sourceId": "device_event:3",
+    "exactOracleSubstring": false,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 16,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "293b7d5f96771b675d85",
+    "caseId": "episodes-02",
+    "sourceId": "message:34693",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 16,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "c5457776750a10316bcc",
+    "caseId": "decision_reasons-02",
+    "sourceId": "message:3743",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 17,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "c5457776750a10316bcc",
+    "caseId": "decision_reasons-02",
+    "sourceId": "message:4338",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 17,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "0ba32b38a695ff60f4cc",
+    "caseId": "procedure_scope-02",
+    "sourceId": "message:3744",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 18,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "26f4542dd5052ee11fab",
+    "caseId": "active_constraints-02",
+    "sourceId": "message:3745",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 19,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "26f4542dd5052ee11fab",
+    "caseId": "active_constraints-02",
+    "sourceId": "message:34695",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 19,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "34bebce28f8373ec808b",
+    "caseId": "missing_facts-02",
+    "sourceId": "message:3746",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 20,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "4bd98a5f6cb3e9d240ea",
+    "caseId": "image_wire_scope-02",
+    "sourceId": "message:3747",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 21,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "5c56f4881ca4b51fc4c6",
+    "caseId": "forget_revoke-02",
+    "sourceId": "message:34696",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 22,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "675e990de6fc9ae7be7f",
+    "caseId": "range_coverage-02",
+    "sourceId": "message:2633",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 23,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "675e990de6fc9ae7be7f",
+    "caseId": "range_coverage-02",
+    "sourceId": "message:2718",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 23,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "675e990de6fc9ae7be7f",
+    "caseId": "range_coverage-02",
+    "sourceId": "message:2803",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 23,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "675e990de6fc9ae7be7f",
+    "caseId": "range_coverage-02",
+    "sourceId": "message:2888",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 23,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "675e990de6fc9ae7be7f",
+    "caseId": "range_coverage-02",
+    "sourceId": "message:2973",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 23,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "675e990de6fc9ae7be7f",
+    "caseId": "range_coverage-02",
+    "sourceId": "message:3058",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 23,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "675e990de6fc9ae7be7f",
+    "caseId": "range_coverage-02",
+    "sourceId": "message:3143",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 23,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "675e990de6fc9ae7be7f",
+    "caseId": "range_coverage-02",
+    "sourceId": "message:3228",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 23,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "675e990de6fc9ae7be7f",
+    "caseId": "range_coverage-02",
+    "sourceId": "message:3313",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 23,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "675e990de6fc9ae7be7f",
+    "caseId": "range_coverage-02",
+    "sourceId": "message:3398",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 23,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "675e990de6fc9ae7be7f",
+    "caseId": "range_coverage-02",
+    "sourceId": "message:3483",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 23,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "675e990de6fc9ae7be7f",
+    "caseId": "range_coverage-02",
+    "sourceId": "message:3568",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 23,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "675e990de6fc9ae7be7f",
+    "caseId": "range_coverage-02",
+    "sourceId": "message:3653",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 23,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "675e990de6fc9ae7be7f",
+    "caseId": "range_coverage-02",
+    "sourceId": "message:3748",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 23,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "b731b069ac16299b7230",
+    "caseId": "raw_only-03",
+    "sourceId": "message:6116",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 24,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "57a7d13c9cad7b4afd63",
+    "caseId": "alias_cues-03",
+    "sourceId": "message:6716",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 25,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "57a7d13c9cad7b4afd63",
+    "caseId": "alias_cues-03",
+    "sourceId": "message:6117",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 25,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "1305aa284f4dc207e732",
+    "caseId": "temporal_change-03",
+    "sourceId": "message:6118",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 26,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "1305aa284f4dc207e732",
+    "caseId": "temporal_change-03",
+    "sourceId": "message:37049",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 26,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "b42dc9886cd3db8836aa",
+    "caseId": "claim_status-03",
+    "sourceId": "message:6717",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 27,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "7e48577cce495ce021c3",
+    "caseId": "episodes-03",
+    "sourceId": "device_event:4",
+    "exactOracleSubstring": false,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 28,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "7e48577cce495ce021c3",
+    "caseId": "episodes-03",
+    "sourceId": "message:37050",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 28,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "07df4c96e7f0b16e83ae",
+    "caseId": "decision_reasons-03",
+    "sourceId": "message:6121",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 29,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "07df4c96e7f0b16e83ae",
+    "caseId": "decision_reasons-03",
+    "sourceId": "message:6718",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 29,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "3a1631405e7c5a26ea97",
+    "caseId": "procedure_scope-03",
+    "sourceId": "message:6122",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 30,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "193d277ed329b9faf46a",
+    "caseId": "active_constraints-03",
+    "sourceId": "message:6123",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 31,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "193d277ed329b9faf46a",
+    "caseId": "active_constraints-03",
+    "sourceId": "message:37052",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 31,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "cd813c4781bed7db2f16",
+    "caseId": "missing_facts-03",
+    "sourceId": "message:6124",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 32,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "b1ab231d574ad653162c",
+    "caseId": "image_wire_scope-03",
+    "sourceId": "message:6125",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 33,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "b1ab231d574ad653162c",
+    "caseId": "image_wire_scope-03",
+    "sourceId": "message:6719",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 33,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "acb7aed394026703c458",
+    "caseId": "forget_revoke-03",
+    "sourceId": "message:37053",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 34,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "2b0b33da150c8e8c2827",
+    "caseId": "range_coverage-03",
+    "sourceId": "message:5011",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 35,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "2b0b33da150c8e8c2827",
+    "caseId": "range_coverage-03",
+    "sourceId": "message:5096",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 35,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "2b0b33da150c8e8c2827",
+    "caseId": "range_coverage-03",
+    "sourceId": "message:5181",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 35,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "2b0b33da150c8e8c2827",
+    "caseId": "range_coverage-03",
+    "sourceId": "message:5266",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 35,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "2b0b33da150c8e8c2827",
+    "caseId": "range_coverage-03",
+    "sourceId": "message:5351",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 35,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "2b0b33da150c8e8c2827",
+    "caseId": "range_coverage-03",
+    "sourceId": "message:5436",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 35,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "2b0b33da150c8e8c2827",
+    "caseId": "range_coverage-03",
+    "sourceId": "message:5521",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 35,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "2b0b33da150c8e8c2827",
+    "caseId": "range_coverage-03",
+    "sourceId": "message:5606",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 35,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "2b0b33da150c8e8c2827",
+    "caseId": "range_coverage-03",
+    "sourceId": "message:5691",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 35,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "2b0b33da150c8e8c2827",
+    "caseId": "range_coverage-03",
+    "sourceId": "message:5776",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 35,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "2b0b33da150c8e8c2827",
+    "caseId": "range_coverage-03",
+    "sourceId": "message:5861",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 35,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "2b0b33da150c8e8c2827",
+    "caseId": "range_coverage-03",
+    "sourceId": "message:5946",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 35,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "2b0b33da150c8e8c2827",
+    "caseId": "range_coverage-03",
+    "sourceId": "message:6031",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 35,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "2b0b33da150c8e8c2827",
+    "caseId": "range_coverage-03",
+    "sourceId": "message:6127",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 35,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "47103d53f6128e60b944",
+    "caseId": "raw_only-04",
+    "sourceId": "message:8749",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 36,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "4ad9c7eab5371cc2b676",
+    "caseId": "alias_cues-04",
+    "sourceId": "message:9348",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 37,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "4ad9c7eab5371cc2b676",
+    "caseId": "alias_cues-04",
+    "sourceId": "message:8750",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 37,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "56f7ca13b91bc5a7abc9",
+    "caseId": "temporal_change-04",
+    "sourceId": "message:8751",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 38,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "56f7ca13b91bc5a7abc9",
+    "caseId": "temporal_change-04",
+    "sourceId": "message:39658",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 38,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "985a7644dddf051a059a",
+    "caseId": "claim_status-04",
+    "sourceId": "message:9349",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 39,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "3c95645a78f854f1bdbd",
+    "caseId": "episodes-04",
+    "sourceId": "device_event:6",
+    "exactOracleSubstring": false,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 40,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "3c95645a78f854f1bdbd",
+    "caseId": "episodes-04",
+    "sourceId": "message:39659",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 40,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "c46d5e9474eb353cd6ab",
+    "caseId": "decision_reasons-04",
+    "sourceId": "message:8754",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 41,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "c46d5e9474eb353cd6ab",
+    "caseId": "decision_reasons-04",
+    "sourceId": "message:9350",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 41,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "b3556b583f09fcf01795",
+    "caseId": "procedure_scope-04",
+    "sourceId": "message:8755",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 42,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "c709db8b6f1def58a787",
+    "caseId": "active_constraints-04",
+    "sourceId": "message:8756",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 43,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "c709db8b6f1def58a787",
+    "caseId": "active_constraints-04",
+    "sourceId": "message:39661",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 43,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "902e1ee92cd7498d3865",
+    "caseId": "missing_facts-04",
+    "sourceId": "message:8757",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 44,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "index": 45,
+    "packetId": "5110f4db874283771ac8",
+    "caseId": "image_wire_scope-04",
+    "sourceId": "message:8758",
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "derived": false,
+    "provenance": "fresh_V7_primary_or_actual_native_read"
+  },
+  {
+    "packetId": "b579c9921a0d8726e081",
+    "caseId": "forget_revoke-04",
+    "sourceId": "message:39662",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 46,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "b35fbb229e9407a91add",
+    "caseId": "range_coverage-04",
+    "sourceId": "message:7644",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 47,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "b35fbb229e9407a91add",
+    "caseId": "range_coverage-04",
+    "sourceId": "message:7729",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 47,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "b35fbb229e9407a91add",
+    "caseId": "range_coverage-04",
+    "sourceId": "message:7814",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 47,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "b35fbb229e9407a91add",
+    "caseId": "range_coverage-04",
+    "sourceId": "message:7899",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 47,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "b35fbb229e9407a91add",
+    "caseId": "range_coverage-04",
+    "sourceId": "message:7984",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 47,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "b35fbb229e9407a91add",
+    "caseId": "range_coverage-04",
+    "sourceId": "message:8069",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 47,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "b35fbb229e9407a91add",
+    "caseId": "range_coverage-04",
+    "sourceId": "message:8154",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 47,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "b35fbb229e9407a91add",
+    "caseId": "range_coverage-04",
+    "sourceId": "message:8239",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 47,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "b35fbb229e9407a91add",
+    "caseId": "range_coverage-04",
+    "sourceId": "message:8324",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 47,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "b35fbb229e9407a91add",
+    "caseId": "range_coverage-04",
+    "sourceId": "message:8409",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 47,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "b35fbb229e9407a91add",
+    "caseId": "range_coverage-04",
+    "sourceId": "message:8494",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 47,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "b35fbb229e9407a91add",
+    "caseId": "range_coverage-04",
+    "sourceId": "message:8579",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 47,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "b35fbb229e9407a91add",
+    "caseId": "range_coverage-04",
+    "sourceId": "message:8664",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 47,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "b35fbb229e9407a91add",
+    "caseId": "range_coverage-04",
+    "sourceId": "message:8759",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 47,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "f8b87a5037bfae9b5886",
+    "caseId": "raw_only-05",
+    "sourceId": "message:11296",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 48,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "92b8e54840a93eee28c8",
+    "caseId": "alias_cues-05",
+    "sourceId": "message:11896",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 49,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "92b8e54840a93eee28c8",
+    "caseId": "alias_cues-05",
+    "sourceId": "message:11297",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 49,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "df6b20d0b46e0d9da8bf",
+    "caseId": "temporal_change-05",
+    "sourceId": "message:11298",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 50,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "df6b20d0b46e0d9da8bf",
+    "caseId": "temporal_change-05",
+    "sourceId": "message:42183",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 50,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "c5105f6c773dd0c09a76",
+    "caseId": "claim_status-05",
+    "sourceId": "message:11299",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 51,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "a27831f58d85aec2851b",
+    "caseId": "episodes-05",
+    "sourceId": "device_event:7",
+    "exactOracleSubstring": false,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 52,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "a27831f58d85aec2851b",
+    "caseId": "episodes-05",
+    "sourceId": "message:42184",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 52,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "28ec06e272e6d40a2d33",
+    "caseId": "decision_reasons-05",
+    "sourceId": "message:11301",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 53,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "28ec06e272e6d40a2d33",
+    "caseId": "decision_reasons-05",
+    "sourceId": "message:11897",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 53,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "5ee0401b93a4765414d3",
+    "caseId": "procedure_scope-05",
+    "sourceId": "message:11302",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 54,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "0860b055a15fcd9f3f91",
+    "caseId": "active_constraints-05",
+    "sourceId": "message:11303",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 55,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "0860b055a15fcd9f3f91",
+    "caseId": "active_constraints-05",
+    "sourceId": "message:42186",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 55,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "206fff84cf6d7d55b946",
+    "caseId": "missing_facts-05",
+    "sourceId": "message:11304",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 56,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "c4fc209c7a1aff5b9d57",
+    "caseId": "image_wire_scope-05",
+    "sourceId": "message:11305",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 57,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "fd6a5ffd94c609df8f08",
+    "caseId": "forget_revoke-05",
+    "sourceId": "message:42187",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 58,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "bf096cd908b35e2abe22",
+    "caseId": "range_coverage-05",
+    "sourceId": "message:10191",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 59,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "bf096cd908b35e2abe22",
+    "caseId": "range_coverage-05",
+    "sourceId": "message:10276",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 59,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "bf096cd908b35e2abe22",
+    "caseId": "range_coverage-05",
+    "sourceId": "message:10361",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 59,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "bf096cd908b35e2abe22",
+    "caseId": "range_coverage-05",
+    "sourceId": "message:10446",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 59,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "bf096cd908b35e2abe22",
+    "caseId": "range_coverage-05",
+    "sourceId": "message:10531",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 59,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "bf096cd908b35e2abe22",
+    "caseId": "range_coverage-05",
+    "sourceId": "message:10616",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 59,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "bf096cd908b35e2abe22",
+    "caseId": "range_coverage-05",
+    "sourceId": "message:10701",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 59,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "bf096cd908b35e2abe22",
+    "caseId": "range_coverage-05",
+    "sourceId": "message:10786",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 59,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "bf096cd908b35e2abe22",
+    "caseId": "range_coverage-05",
+    "sourceId": "message:10871",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 59,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "bf096cd908b35e2abe22",
+    "caseId": "range_coverage-05",
+    "sourceId": "message:10956",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 59,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "bf096cd908b35e2abe22",
+    "caseId": "range_coverage-05",
+    "sourceId": "message:11041",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 59,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "bf096cd908b35e2abe22",
+    "caseId": "range_coverage-05",
+    "sourceId": "message:11126",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 59,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "bf096cd908b35e2abe22",
+    "caseId": "range_coverage-05",
+    "sourceId": "message:11211",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 59,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "bf096cd908b35e2abe22",
+    "caseId": "range_coverage-05",
+    "sourceId": "message:11307",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 59,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "4783a435bd64701cdfae",
+    "caseId": "raw_only-06",
+    "sourceId": "message:13927",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 60,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "eb6ca4a9c2f551c40064",
+    "caseId": "alias_cues-06",
+    "sourceId": "message:14526",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 61,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "eb6ca4a9c2f551c40064",
+    "caseId": "alias_cues-06",
+    "sourceId": "message:13928",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 61,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "644c1734e5c2b9fdf175",
+    "caseId": "temporal_change-06",
+    "sourceId": "message:13929",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 62,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "644c1734e5c2b9fdf175",
+    "caseId": "temporal_change-06",
+    "sourceId": "message:44792",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 62,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "0f33714b77f913b0fbc5",
+    "caseId": "claim_status-06",
+    "sourceId": "message:14527",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 63,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "65918a21a85ddc69597b",
+    "caseId": "episodes-06",
+    "sourceId": "device_event:9",
+    "exactOracleSubstring": false,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 64,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "65918a21a85ddc69597b",
+    "caseId": "episodes-06",
+    "sourceId": "message:44793",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 64,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "9f28b45516d1963a4c7e",
+    "caseId": "decision_reasons-06",
+    "sourceId": "message:13932",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 65,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "9f28b45516d1963a4c7e",
+    "caseId": "decision_reasons-06",
+    "sourceId": "message:14528",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 65,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "f16ee754c80f06d6f83a",
+    "caseId": "procedure_scope-06",
+    "sourceId": "message:13933",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 66,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "4254040e29a8079aa561",
+    "caseId": "active_constraints-06",
+    "sourceId": "message:13934",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 67,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "4254040e29a8079aa561",
+    "caseId": "active_constraints-06",
+    "sourceId": "message:44795",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 67,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "9a39f67201365f17fe48",
+    "caseId": "missing_facts-06",
+    "sourceId": "message:13935",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 68,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "4690730de11bd50c2273",
+    "caseId": "image_wire_scope-06",
+    "sourceId": "message:13936",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 69,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "4690730de11bd50c2273",
+    "caseId": "image_wire_scope-06",
+    "sourceId": "message:14529",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 69,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "9b142d6cbbce9a7af552",
+    "caseId": "forget_revoke-06",
+    "sourceId": "message:44796",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 70,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "c54f72d71917abe7719e",
+    "caseId": "range_coverage-06",
+    "sourceId": "message:12822",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 71,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "c54f72d71917abe7719e",
+    "caseId": "range_coverage-06",
+    "sourceId": "message:12907",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 71,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "c54f72d71917abe7719e",
+    "caseId": "range_coverage-06",
+    "sourceId": "message:12992",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 71,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "c54f72d71917abe7719e",
+    "caseId": "range_coverage-06",
+    "sourceId": "message:13077",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 71,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "c54f72d71917abe7719e",
+    "caseId": "range_coverage-06",
+    "sourceId": "message:13162",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 71,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "c54f72d71917abe7719e",
+    "caseId": "range_coverage-06",
+    "sourceId": "message:13247",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 71,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "c54f72d71917abe7719e",
+    "caseId": "range_coverage-06",
+    "sourceId": "message:13332",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 71,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "c54f72d71917abe7719e",
+    "caseId": "range_coverage-06",
+    "sourceId": "message:13417",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 71,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "c54f72d71917abe7719e",
+    "caseId": "range_coverage-06",
+    "sourceId": "message:13502",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 71,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "c54f72d71917abe7719e",
+    "caseId": "range_coverage-06",
+    "sourceId": "message:13587",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 71,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "c54f72d71917abe7719e",
+    "caseId": "range_coverage-06",
+    "sourceId": "message:13672",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 71,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "c54f72d71917abe7719e",
+    "caseId": "range_coverage-06",
+    "sourceId": "message:13757",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 71,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "c54f72d71917abe7719e",
+    "caseId": "range_coverage-06",
+    "sourceId": "message:13842",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 71,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "c54f72d71917abe7719e",
+    "caseId": "range_coverage-06",
+    "sourceId": "message:13937",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 71,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "5590c3078e782c67a3ae",
+    "caseId": "raw_only-07",
+    "sourceId": "message:16475",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 72,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "9a0dcc1b37a84a1ce50a",
+    "caseId": "alias_cues-07",
+    "sourceId": "message:17075",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 73,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "9a0dcc1b37a84a1ce50a",
+    "caseId": "alias_cues-07",
+    "sourceId": "message:16476",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 73,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "58764e69284c4162cb8d",
+    "caseId": "temporal_change-07",
+    "sourceId": "message:16477",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 74,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "58764e69284c4162cb8d",
+    "caseId": "temporal_change-07",
+    "sourceId": "message:47317",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 74,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "8d528ded41bd14ef7245",
+    "caseId": "claim_status-07",
+    "sourceId": "message:17076",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 75,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "eb0091f2ba5483197f03",
+    "caseId": "episodes-07",
+    "sourceId": "device_event:10",
+    "exactOracleSubstring": false,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 76,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "eb0091f2ba5483197f03",
+    "caseId": "episodes-07",
+    "sourceId": "message:47318",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 76,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "ff56fa1951c40b52e033",
+    "caseId": "decision_reasons-07",
+    "sourceId": "message:16480",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 77,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "ff56fa1951c40b52e033",
+    "caseId": "decision_reasons-07",
+    "sourceId": "message:17077",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 77,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "9668d89b42f0fb783a87",
+    "caseId": "procedure_scope-07",
+    "sourceId": "message:16481",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 78,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "63ab342b64d6c07cf7c5",
+    "caseId": "active_constraints-07",
+    "sourceId": "message:16482",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 79,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "63ab342b64d6c07cf7c5",
+    "caseId": "active_constraints-07",
+    "sourceId": "message:47320",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 79,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "0426c0d6154f1856a2de",
+    "caseId": "missing_facts-07",
+    "sourceId": "message:16483",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 80,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "32db18c9e0429665625d",
+    "caseId": "image_wire_scope-07",
+    "sourceId": "message:16484",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 81,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "310d4cce3556bfb84cef",
+    "caseId": "forget_revoke-07",
+    "sourceId": "message:47321",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 82,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "b2e43483789770d9b758",
+    "caseId": "range_coverage-07",
+    "sourceId": "message:15370",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 83,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "b2e43483789770d9b758",
+    "caseId": "range_coverage-07",
+    "sourceId": "message:15455",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 83,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "b2e43483789770d9b758",
+    "caseId": "range_coverage-07",
+    "sourceId": "message:15540",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 83,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "b2e43483789770d9b758",
+    "caseId": "range_coverage-07",
+    "sourceId": "message:15625",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 83,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "b2e43483789770d9b758",
+    "caseId": "range_coverage-07",
+    "sourceId": "message:15710",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 83,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "b2e43483789770d9b758",
+    "caseId": "range_coverage-07",
+    "sourceId": "message:15795",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 83,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "b2e43483789770d9b758",
+    "caseId": "range_coverage-07",
+    "sourceId": "message:15880",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 83,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "b2e43483789770d9b758",
+    "caseId": "range_coverage-07",
+    "sourceId": "message:15965",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 83,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "b2e43483789770d9b758",
+    "caseId": "range_coverage-07",
+    "sourceId": "message:16050",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 83,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "b2e43483789770d9b758",
+    "caseId": "range_coverage-07",
+    "sourceId": "message:16135",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 83,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "b2e43483789770d9b758",
+    "caseId": "range_coverage-07",
+    "sourceId": "message:16220",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 83,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "b2e43483789770d9b758",
+    "caseId": "range_coverage-07",
+    "sourceId": "message:16305",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 83,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "b2e43483789770d9b758",
+    "caseId": "range_coverage-07",
+    "sourceId": "message:16390",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 83,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "b2e43483789770d9b758",
+    "caseId": "range_coverage-07",
+    "sourceId": "message:16486",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 83,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "7cb26ad1637c877112d7",
+    "caseId": "raw_only-08",
+    "sourceId": "message:19107",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 84,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "603082397a8883fee0e6",
+    "caseId": "alias_cues-08",
+    "sourceId": "message:19706",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 85,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "603082397a8883fee0e6",
+    "caseId": "alias_cues-08",
+    "sourceId": "message:19108",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 85,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "3d8d8c2c4831ceec4c64",
+    "caseId": "temporal_change-08",
+    "sourceId": "message:19109",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 86,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "3d8d8c2c4831ceec4c64",
+    "caseId": "temporal_change-08",
+    "sourceId": "message:49926",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 86,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "9c995f22884764a07735",
+    "caseId": "claim_status-08",
+    "sourceId": "message:19110",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 87,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "2bc929f04004b6bb3e5f",
+    "caseId": "episodes-08",
+    "sourceId": "device_event:12",
+    "exactOracleSubstring": false,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 88,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "2bc929f04004b6bb3e5f",
+    "caseId": "episodes-08",
+    "sourceId": "message:49927",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 88,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "a969a040aed42025eb03",
+    "caseId": "decision_reasons-08",
+    "sourceId": "message:19112",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 89,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "a969a040aed42025eb03",
+    "caseId": "decision_reasons-08",
+    "sourceId": "message:19707",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 89,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "d4116da5a9583617994a",
+    "caseId": "procedure_scope-08",
+    "sourceId": "message:19113",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 90,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "4a3989a6040d1a85b864",
+    "caseId": "active_constraints-08",
+    "sourceId": "message:19114",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 91,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "4a3989a6040d1a85b864",
+    "caseId": "active_constraints-08",
+    "sourceId": "message:49929",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 91,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "aa44520eedcdb8a9f5f0",
+    "caseId": "missing_facts-08",
+    "sourceId": "message:19115",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 92,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "ef7dc86770c05011f4e7",
+    "caseId": "image_wire_scope-08",
+    "sourceId": "message:19116",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 93,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "3371e1db947cf223523d",
+    "caseId": "forget_revoke-08",
+    "sourceId": "message:49930",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 94,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "3baf5880d586d50d157e",
+    "caseId": "range_coverage-08",
+    "sourceId": "message:18002",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 95,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "3baf5880d586d50d157e",
+    "caseId": "range_coverage-08",
+    "sourceId": "message:18087",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 95,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "3baf5880d586d50d157e",
+    "caseId": "range_coverage-08",
+    "sourceId": "message:18172",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 95,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "3baf5880d586d50d157e",
+    "caseId": "range_coverage-08",
+    "sourceId": "message:18257",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 95,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "3baf5880d586d50d157e",
+    "caseId": "range_coverage-08",
+    "sourceId": "message:18342",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 95,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "3baf5880d586d50d157e",
+    "caseId": "range_coverage-08",
+    "sourceId": "message:18427",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 95,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "3baf5880d586d50d157e",
+    "caseId": "range_coverage-08",
+    "sourceId": "message:18512",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 95,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "3baf5880d586d50d157e",
+    "caseId": "range_coverage-08",
+    "sourceId": "message:18597",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 95,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "3baf5880d586d50d157e",
+    "caseId": "range_coverage-08",
+    "sourceId": "message:18682",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 95,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "3baf5880d586d50d157e",
+    "caseId": "range_coverage-08",
+    "sourceId": "message:18767",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 95,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "3baf5880d586d50d157e",
+    "caseId": "range_coverage-08",
+    "sourceId": "message:18852",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 95,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "3baf5880d586d50d157e",
+    "caseId": "range_coverage-08",
+    "sourceId": "message:18937",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 95,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "3baf5880d586d50d157e",
+    "caseId": "range_coverage-08",
+    "sourceId": "message:19022",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 95,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "3baf5880d586d50d157e",
+    "caseId": "range_coverage-08",
+    "sourceId": "message:19117",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 95,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "1820b8a6d7e5f573f5b9",
+    "caseId": "raw_only-09",
+    "sourceId": "message:21737",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 96,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "b8b3314cff908998dad1",
+    "caseId": "alias_cues-09",
+    "sourceId": "message:22337",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 97,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "b8b3314cff908998dad1",
+    "caseId": "alias_cues-09",
+    "sourceId": "message:21738",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 97,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "9ddb51449c910e59e80e",
+    "caseId": "temporal_change-09",
+    "sourceId": "message:21739",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 98,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "9ddb51449c910e59e80e",
+    "caseId": "temporal_change-09",
+    "sourceId": "message:52535",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 98,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "a8e2710869bc77ee8104",
+    "caseId": "claim_status-09",
+    "sourceId": "message:22338",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 99,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "34cbdf73282c0cd9569a",
+    "caseId": "episodes-09",
+    "sourceId": "device_event:13",
+    "exactOracleSubstring": false,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 100,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "34cbdf73282c0cd9569a",
+    "caseId": "episodes-09",
+    "sourceId": "message:52536",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 100,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "83b1a953080ff7e2ce73",
+    "caseId": "decision_reasons-09",
+    "sourceId": "message:21742",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 101,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "83b1a953080ff7e2ce73",
+    "caseId": "decision_reasons-09",
+    "sourceId": "message:22339",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 101,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "2b752af378233d829382",
+    "caseId": "procedure_scope-09",
+    "sourceId": "message:21743",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 102,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "a0f3c960a4e8ad029c5e",
+    "caseId": "active_constraints-09",
+    "sourceId": "message:21744",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 103,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "a0f3c960a4e8ad029c5e",
+    "caseId": "active_constraints-09",
+    "sourceId": "message:52538",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 103,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "c260e58a02c748fb3d05",
+    "caseId": "missing_facts-09",
+    "sourceId": "message:21745",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 104,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "f71e80eda56a62254651",
+    "caseId": "image_wire_scope-09",
+    "sourceId": "message:21746",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 105,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "f71e80eda56a62254651",
+    "caseId": "image_wire_scope-09",
+    "sourceId": "message:22340",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 105,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "414d7b1d2901ba8fa1e4",
+    "caseId": "forget_revoke-09",
+    "sourceId": "message:52539",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 106,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "39ed7465f4802729ae1e",
+    "caseId": "range_coverage-09",
+    "sourceId": "message:20632",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 107,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "39ed7465f4802729ae1e",
+    "caseId": "range_coverage-09",
+    "sourceId": "message:20717",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 107,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "39ed7465f4802729ae1e",
+    "caseId": "range_coverage-09",
+    "sourceId": "message:20802",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 107,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "39ed7465f4802729ae1e",
+    "caseId": "range_coverage-09",
+    "sourceId": "message:20887",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 107,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "39ed7465f4802729ae1e",
+    "caseId": "range_coverage-09",
+    "sourceId": "message:20972",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 107,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "39ed7465f4802729ae1e",
+    "caseId": "range_coverage-09",
+    "sourceId": "message:21057",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 107,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "39ed7465f4802729ae1e",
+    "caseId": "range_coverage-09",
+    "sourceId": "message:21142",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 107,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "39ed7465f4802729ae1e",
+    "caseId": "range_coverage-09",
+    "sourceId": "message:21227",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 107,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "39ed7465f4802729ae1e",
+    "caseId": "range_coverage-09",
+    "sourceId": "message:21312",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 107,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "39ed7465f4802729ae1e",
+    "caseId": "range_coverage-09",
+    "sourceId": "message:21397",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 107,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "39ed7465f4802729ae1e",
+    "caseId": "range_coverage-09",
+    "sourceId": "message:21482",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 107,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "39ed7465f4802729ae1e",
+    "caseId": "range_coverage-09",
+    "sourceId": "message:21567",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 107,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "39ed7465f4802729ae1e",
+    "caseId": "range_coverage-09",
+    "sourceId": "message:21652",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 107,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "39ed7465f4802729ae1e",
+    "caseId": "range_coverage-09",
+    "sourceId": "message:21748",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 107,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "91c432757ce25ead7b0a",
+    "caseId": "raw_only-10",
+    "sourceId": "message:24286",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 108,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "c79122c55f6853215aac",
+    "caseId": "alias_cues-10",
+    "sourceId": "message:24885",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 109,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "c79122c55f6853215aac",
+    "caseId": "alias_cues-10",
+    "sourceId": "message:24287",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 109,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "55f7b6db941a40699d65",
+    "caseId": "temporal_change-10",
+    "sourceId": "message:24288",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 110,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "55f7b6db941a40699d65",
+    "caseId": "temporal_change-10",
+    "sourceId": "message:55060",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 110,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "67af9a6c02df982d40aa",
+    "caseId": "claim_status-10",
+    "sourceId": "message:24886",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 111,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "2653bccc4a05480e076c",
+    "caseId": "episodes-10",
+    "sourceId": "device_event:15",
+    "exactOracleSubstring": false,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 112,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "2653bccc4a05480e076c",
+    "caseId": "episodes-10",
+    "sourceId": "message:55061",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 112,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "9a7194b21c7b1043d85e",
+    "caseId": "decision_reasons-10",
+    "sourceId": "message:24291",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 113,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "9a7194b21c7b1043d85e",
+    "caseId": "decision_reasons-10",
+    "sourceId": "message:24887",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 113,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "ba061464011573bf1b86",
+    "caseId": "procedure_scope-10",
+    "sourceId": "message:24292",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 114,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "c59aa60f4d281e349315",
+    "caseId": "active_constraints-10",
+    "sourceId": "message:24293",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 115,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "c59aa60f4d281e349315",
+    "caseId": "active_constraints-10",
+    "sourceId": "message:55063",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 115,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "34eb1d0511586a11e3d8",
+    "caseId": "missing_facts-10",
+    "sourceId": "message:24294",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 116,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "31ba69ad1d02e8c0b18e",
+    "caseId": "image_wire_scope-10",
+    "sourceId": "message:24295",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 117,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "d439bc9a66f03d05ecf4",
+    "caseId": "forget_revoke-10",
+    "sourceId": "message:55064",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 118,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "bc8b60913ac917a67dbf",
+    "caseId": "range_coverage-10",
+    "sourceId": "message:23181",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 119,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "bc8b60913ac917a67dbf",
+    "caseId": "range_coverage-10",
+    "sourceId": "message:23266",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 119,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "bc8b60913ac917a67dbf",
+    "caseId": "range_coverage-10",
+    "sourceId": "message:23351",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 119,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "bc8b60913ac917a67dbf",
+    "caseId": "range_coverage-10",
+    "sourceId": "message:23436",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 119,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "bc8b60913ac917a67dbf",
+    "caseId": "range_coverage-10",
+    "sourceId": "message:23521",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 119,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "bc8b60913ac917a67dbf",
+    "caseId": "range_coverage-10",
+    "sourceId": "message:23606",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 119,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "bc8b60913ac917a67dbf",
+    "caseId": "range_coverage-10",
+    "sourceId": "message:23691",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 119,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "bc8b60913ac917a67dbf",
+    "caseId": "range_coverage-10",
+    "sourceId": "message:23776",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 119,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "bc8b60913ac917a67dbf",
+    "caseId": "range_coverage-10",
+    "sourceId": "message:23861",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 119,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "bc8b60913ac917a67dbf",
+    "caseId": "range_coverage-10",
+    "sourceId": "message:23946",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 119,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "bc8b60913ac917a67dbf",
+    "caseId": "range_coverage-10",
+    "sourceId": "message:24031",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 119,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "bc8b60913ac917a67dbf",
+    "caseId": "range_coverage-10",
+    "sourceId": "message:24116",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 119,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "bc8b60913ac917a67dbf",
+    "caseId": "range_coverage-10",
+    "sourceId": "message:24201",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 119,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "bc8b60913ac917a67dbf",
+    "caseId": "range_coverage-10",
+    "sourceId": "message:24296",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 119,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "ab52237575bf0108b36b",
+    "caseId": "raw_only-11",
+    "sourceId": "message:26917",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 120,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "f47ffeea2b0cc21c5820",
+    "caseId": "alias_cues-11",
+    "sourceId": "message:27517",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 121,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "f47ffeea2b0cc21c5820",
+    "caseId": "alias_cues-11",
+    "sourceId": "message:26918",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 121,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "6bb8dc101c3eec3579f2",
+    "caseId": "temporal_change-11",
+    "sourceId": "message:26919",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 122,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "6bb8dc101c3eec3579f2",
+    "caseId": "temporal_change-11",
+    "sourceId": "message:57669",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 122,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "73bfbdf25d140d8e8cd4",
+    "caseId": "claim_status-11",
+    "sourceId": "message:26920",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 123,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "7f9680c465afd0568b5b",
+    "caseId": "episodes-11",
+    "sourceId": "device_event:16",
+    "exactOracleSubstring": false,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 124,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "7f9680c465afd0568b5b",
+    "caseId": "episodes-11",
+    "sourceId": "message:57670",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 124,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "6116bae16bf4f342f61a",
+    "caseId": "decision_reasons-11",
+    "sourceId": "message:26922",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 125,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "6116bae16bf4f342f61a",
+    "caseId": "decision_reasons-11",
+    "sourceId": "message:27518",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 125,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "7516b259fc36f72f1d8b",
+    "caseId": "procedure_scope-11",
+    "sourceId": "message:26923",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 126,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "f9f67a7113d3f49a88ff",
+    "caseId": "active_constraints-11",
+    "sourceId": "message:26924",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 127,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "f9f67a7113d3f49a88ff",
+    "caseId": "active_constraints-11",
+    "sourceId": "message:57672",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 127,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "4e0ab30b9ed5a8448336",
+    "caseId": "missing_facts-11",
+    "sourceId": "message:26925",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 128,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "913d923a0833973e6c2e",
+    "caseId": "image_wire_scope-11",
+    "sourceId": "message:26926",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 129,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "3382a900eccabcfe4dd0",
+    "caseId": "forget_revoke-11",
+    "sourceId": "message:57673",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 130,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "8cd8932ab607b8b36aa3",
+    "caseId": "range_coverage-11",
+    "sourceId": "message:25812",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 131,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "8cd8932ab607b8b36aa3",
+    "caseId": "range_coverage-11",
+    "sourceId": "message:25897",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 131,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "8cd8932ab607b8b36aa3",
+    "caseId": "range_coverage-11",
+    "sourceId": "message:25982",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 131,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "8cd8932ab607b8b36aa3",
+    "caseId": "range_coverage-11",
+    "sourceId": "message:26067",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 131,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "8cd8932ab607b8b36aa3",
+    "caseId": "range_coverage-11",
+    "sourceId": "message:26152",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 131,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "8cd8932ab607b8b36aa3",
+    "caseId": "range_coverage-11",
+    "sourceId": "message:26237",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 131,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "8cd8932ab607b8b36aa3",
+    "caseId": "range_coverage-11",
+    "sourceId": "message:26322",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 131,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "8cd8932ab607b8b36aa3",
+    "caseId": "range_coverage-11",
+    "sourceId": "message:26407",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 131,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "8cd8932ab607b8b36aa3",
+    "caseId": "range_coverage-11",
+    "sourceId": "message:26492",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 131,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "8cd8932ab607b8b36aa3",
+    "caseId": "range_coverage-11",
+    "sourceId": "message:26577",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 131,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "8cd8932ab607b8b36aa3",
+    "caseId": "range_coverage-11",
+    "sourceId": "message:26662",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 131,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "8cd8932ab607b8b36aa3",
+    "caseId": "range_coverage-11",
+    "sourceId": "message:26747",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 131,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "8cd8932ab607b8b36aa3",
+    "caseId": "range_coverage-11",
+    "sourceId": "message:26832",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 131,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "8cd8932ab607b8b36aa3",
+    "caseId": "range_coverage-11",
+    "sourceId": "message:26928",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 131,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "17c71e5bb842063e8e97",
+    "caseId": "raw_only-12",
+    "sourceId": "message:29464",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 132,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "b87cbb672c43324577b9",
+    "caseId": "alias_cues-12",
+    "sourceId": "message:30063",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 133,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "b87cbb672c43324577b9",
+    "caseId": "alias_cues-12",
+    "sourceId": "message:29465",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 133,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "3380bf6716574cd152e6",
+    "caseId": "temporal_change-12",
+    "sourceId": "message:29466",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 134,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "3380bf6716574cd152e6",
+    "caseId": "temporal_change-12",
+    "sourceId": "message:60194",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 134,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "eda7e221e9616bb82eb3",
+    "caseId": "claim_status-12",
+    "sourceId": "message:30064",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 135,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "2eb53cf0ccd825aea6c1",
+    "caseId": "episodes-12",
+    "sourceId": "device_event:18",
+    "exactOracleSubstring": false,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 136,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "2eb53cf0ccd825aea6c1",
+    "caseId": "episodes-12",
+    "sourceId": "message:60195",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 136,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "index": 137,
+    "packetId": "bdd7d90484275f4ba634",
+    "caseId": "decision_reasons-12",
+    "sourceId": "message:29469",
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "derived": false,
+    "provenance": "fresh_V7_primary_or_actual_native_read"
+  },
+  {
+    "index": 137,
+    "packetId": "bdd7d90484275f4ba634",
+    "caseId": "decision_reasons-12",
+    "sourceId": "message:30065",
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "derived": false,
+    "provenance": "fresh_V7_primary_or_actual_native_read"
+  },
+  {
+    "packetId": "d6521c5733046d5c25a4",
+    "caseId": "procedure_scope-12",
+    "sourceId": "message:29470",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 138,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "98270fca47f96775005d",
+    "caseId": "active_constraints-12",
+    "sourceId": "message:29471",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 139,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "98270fca47f96775005d",
+    "caseId": "active_constraints-12",
+    "sourceId": "message:60197",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 139,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "e69b25eba7707602cd3f",
+    "caseId": "missing_facts-12",
+    "sourceId": "message:29472",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 140,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "27ab15c10b639631f66a",
+    "caseId": "image_wire_scope-12",
+    "sourceId": "message:29473",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 141,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "27ab15c10b639631f66a",
+    "caseId": "image_wire_scope-12",
+    "sourceId": "message:30066",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 141,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "c726f5d2c962eda36301",
+    "caseId": "forget_revoke-12",
+    "sourceId": "message:60198",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 142,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "a1dc766a0fc5960c55ff",
+    "caseId": "range_coverage-12",
+    "sourceId": "message:28359",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 143,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "a1dc766a0fc5960c55ff",
+    "caseId": "range_coverage-12",
+    "sourceId": "message:28444",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 143,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "a1dc766a0fc5960c55ff",
+    "caseId": "range_coverage-12",
+    "sourceId": "message:28529",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 143,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "a1dc766a0fc5960c55ff",
+    "caseId": "range_coverage-12",
+    "sourceId": "message:28614",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 143,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "a1dc766a0fc5960c55ff",
+    "caseId": "range_coverage-12",
+    "sourceId": "message:28699",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 143,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "a1dc766a0fc5960c55ff",
+    "caseId": "range_coverage-12",
+    "sourceId": "message:28784",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 143,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "a1dc766a0fc5960c55ff",
+    "caseId": "range_coverage-12",
+    "sourceId": "message:28869",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 143,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "a1dc766a0fc5960c55ff",
+    "caseId": "range_coverage-12",
+    "sourceId": "message:28954",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 143,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "a1dc766a0fc5960c55ff",
+    "caseId": "range_coverage-12",
+    "sourceId": "message:29039",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 143,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "a1dc766a0fc5960c55ff",
+    "caseId": "range_coverage-12",
+    "sourceId": "message:29124",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 143,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "a1dc766a0fc5960c55ff",
+    "caseId": "range_coverage-12",
+    "sourceId": "message:29209",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 143,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "a1dc766a0fc5960c55ff",
+    "caseId": "range_coverage-12",
+    "sourceId": "message:29294",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 143,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "a1dc766a0fc5960c55ff",
+    "caseId": "range_coverage-12",
+    "sourceId": "message:29379",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 143,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  },
+  {
+    "packetId": "a1dc766a0fc5960c55ff",
+    "caseId": "range_coverage-12",
+    "sourceId": "message:29474",
+    "exactOracleSubstring": true,
+    "deliveredSource": true,
+    "exactDeliveredSubstring": true,
+    "index": 143,
+    "provenance": "actual_V5_answer_carry_exact_primary_and_V7_replay_source_semantics"
+  }
+]

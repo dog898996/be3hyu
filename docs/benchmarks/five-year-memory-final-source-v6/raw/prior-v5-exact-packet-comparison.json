@@ -1,0 +1,23 @@
+{
+  "format": "exact-packet-equivalence-v1",
+  "priorRun": "/tmp/hoyoung-five-year-final-gateway-raw-v5",
+  "newRun": "/tmp/hoyoung-five-year-final-gateway-raw-v6",
+  "priorProductionManifestSha256": "393b0ddaf90b0b1a2e6149cc8ba10bf128c33ad4ef957dac65032fe89c63a969",
+  "newProductionManifestSha256": "b989667a84fc30951db58801ac5bf5acce2fe9b19f9e38e366bcd8bff73f07eb",
+  "packetsCompared": 144,
+  "exactUnchangedContexts": 143,
+  "changedContexts": [
+    {
+      "id": "a83a589197c107d6974a",
+      "oldContextSha256": "000c0ec922c257e0bbef29fb8b2da1bec797ece6d4bf61aaf8474b3dbac5eed8",
+      "newContextSha256": "93d308559e23029f313f94fe3b4addc4f07e2f429c2626e94bc78104b61a8f86",
+      "oldContextChars": 8985,
+      "newContextChars": 4811
+    }
+  ],
+  "normalizationsApplied": [],
+  "semanticAnswersMustBeReevaluatedForChangedContexts": true,
+  "finalAcceptancePassed": false,
+  "allNonEvidencePacketFieldsExactlyEqual": true,
+  "allCanonicalSourceMappingsAndHashesExactlyEqual": true
+}

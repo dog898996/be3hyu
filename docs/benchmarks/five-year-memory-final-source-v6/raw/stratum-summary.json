@@ -1,0 +1,98 @@
+{
+  "raw_only": {
+    "cases": 12,
+    "allRequiredSourcesDelivered": 12,
+    "requiredSourceCount": 12,
+    "requiredSourcesDelivered": 12,
+    "protectedValueLeaks": 0,
+    "blocked": 0
+  },
+  "alias_cues": {
+    "cases": 12,
+    "allRequiredSourcesDelivered": 11,
+    "requiredSourceCount": 24,
+    "requiredSourcesDelivered": 23,
+    "protectedValueLeaks": 0,
+    "blocked": 0
+  },
+  "temporal_change": {
+    "cases": 12,
+    "allRequiredSourcesDelivered": 12,
+    "requiredSourceCount": 24,
+    "requiredSourcesDelivered": 24,
+    "protectedValueLeaks": 0,
+    "blocked": 0
+  },
+  "claim_status": {
+    "cases": 12,
+    "allRequiredSourcesDelivered": 12,
+    "requiredSourceCount": 20,
+    "requiredSourcesDelivered": 20,
+    "protectedValueLeaks": 0,
+    "blocked": 0
+  },
+  "episodes": {
+    "cases": 12,
+    "allRequiredSourcesDelivered": 12,
+    "requiredSourceCount": 36,
+    "requiredSourcesDelivered": 36,
+    "protectedValueLeaks": 0,
+    "blocked": 0
+  },
+  "decision_reasons": {
+    "cases": 12,
+    "allRequiredSourcesDelivered": 12,
+    "requiredSourceCount": 24,
+    "requiredSourcesDelivered": 24,
+    "protectedValueLeaks": 0,
+    "blocked": 0
+  },
+  "procedure_scope": {
+    "cases": 12,
+    "allRequiredSourcesDelivered": 12,
+    "requiredSourceCount": 24,
+    "requiredSourcesDelivered": 24,
+    "protectedValueLeaks": 0,
+    "blocked": 0
+  },
+  "active_constraints": {
+    "cases": 12,
+    "allRequiredSourcesDelivered": 12,
+    "requiredSourceCount": 24,
+    "requiredSourcesDelivered": 24,
+    "protectedValueLeaks": 0,
+    "blocked": 0
+  },
+  "missing_facts": {
+    "cases": 12,
+    "allRequiredSourcesDelivered": 12,
+    "requiredSourceCount": 12,
+    "requiredSourcesDelivered": 12,
+    "protectedValueLeaks": 0,
+    "blocked": 0
+  },
+  "image_wire_scope": {
+    "cases": 12,
+    "allRequiredSourcesDelivered": 12,
+    "requiredSourceCount": 16,
+    "requiredSourcesDelivered": 16,
+    "protectedValueLeaks": 0,
+    "blocked": 0
+  },
+  "forget_revoke": {
+    "cases": 12,
+    "allRequiredSourcesDelivered": 12,
+    "requiredSourceCount": 12,
+    "requiredSourcesDelivered": 12,
+    "protectedValueLeaks": 0,
+    "blocked": 0
+  },
+  "range_coverage": {
+    "cases": 12,
+    "allRequiredSourcesDelivered": 12,
+    "requiredSourceCount": 168,
+    "requiredSourcesDelivered": 168,
+    "protectedValueLeaks": 0,
+    "blocked": 0
+  }
+}

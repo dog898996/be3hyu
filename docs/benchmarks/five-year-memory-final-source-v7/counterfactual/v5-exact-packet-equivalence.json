@@ -1,0 +1,11 @@
+{
+  "format": "counterfactual-exact-packet-equivalence-v1",
+  "beforeProductionManifestSha256": "393b0ddaf90b0b1a2e6149cc8ba10bf128c33ad4ef957dac65032fe89c63a969",
+  "afterProductionManifestSha256": "2ae51d49a1b2aecd966d6514630b53240bb4100a586dcc24c7d38aa0fc30d1dd",
+  "counterfactualRequestSha256": "4f9d256ac895e0cb5ff7368aa391ca416eb6b07dbd5808465153545649090f18",
+  "packetsCompared": 3,
+  "entirePacketsExactlyEqual": 3,
+  "changedPacketIds": [],
+  "normalizationsApplied": [],
+  "semanticScoreAssigned": false
+}

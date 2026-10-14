@@ -1,0 +1,4361 @@
+[
+  {
+    "tag": "a314c",
+    "readerId": "277ce9271b1f5981b250",
+    "originalPrimaryId": "f504885e1f62d52b5806",
+    "scorerOnlyRelation": "unchanged_control",
+    "sourceChange": {},
+    "queryArgs": {
+      "query": "첫해 사진전 보관접수에서 받은 접수번호가 뭐였지?",
+      "asOf": 1798761600000,
+      "toExclusive": 1798761600000,
+      "limit": 12,
+      "maxChars": 12000
+    },
+    "originalEvidence": [
+      {
+        "type": "message",
+        "id": 1106,
+        "hash": "58c4d3271832d153c81d02ab29d476ece2363a7cc069efd06e4b4187eb22d2e0",
+        "role": "user",
+        "recordedAt": 1610582400000,
+        "exactOriginalRange": false,
+        "originalChars": 50,
+        "originalStored": true,
+        "excerpt": "사진전 보관접수 물품을 맡긴 접수번호는 Q17-R0419야. 다른 번호는 내 것이 아니야.",
+        "retrievalScore": 0.036597028494379825,
+        "lexicalScore": 1.135,
+        "relevantToQuery": true,
+        "lexicalRank": 1,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 29464,
+        "hash": "6cdc4234aab2b9b5f100277fd57fdc8eae89de4ef667b15204fdb3ab65b14418",
+        "role": "user",
+        "recordedAt": 1639440000000,
+        "exactOriginalRange": false,
+        "originalChars": 50,
+        "originalStored": true,
+        "excerpt": "독서회 보관접수 물품을 맡긴 접수번호는 Q28-R0826야. 다른 번호는 내 것이 아니야.",
+        "retrievalScore": 0.0363066665724001,
+        "lexicalScore": 0.77,
+        "relevantToQuery": true,
+        "lexicalRank": 2,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 26917,
+        "hash": "9544bffaf4284be1a9afe4915886fe52f508a29f837b8e457d83082e885f6394",
+        "role": "user",
+        "recordedAt": 1636848000000,
+        "exactOriginalRange": false,
+        "originalChars": 50,
+        "originalStored": true,
+        "excerpt": "도예실 보관접수 물품을 맡긴 접수번호는 Q27-R0789야. 다른 번호는 내 것이 아니야.",
+        "retrievalScore": 0.03605065018735146,
+        "lexicalScore": 0.77,
+        "relevantToQuery": true,
+        "lexicalRank": 3,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 24286,
+        "hash": "edc28216663b02522c6e6ef059181622d8fddff1595d659add1b5ecf6e4473fd",
+        "role": "user",
+        "recordedAt": 1634169600000,
+        "exactOriginalRange": false,
+        "originalChars": 50,
+        "originalStored": true,
+        "excerpt": "박물관 보관접수 물품을 맡긴 접수번호는 Q26-R0752야. 다른 번호는 내 것이 아니야.",
+        "retrievalScore": 0.035802634314335585,
+        "lexicalScore": 0.77,
+        "relevantToQuery": true,
+        "lexicalRank": 4,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 21737,
+        "hash": "206fb55290a53e5f7ab606623ff515db118f51710e8750649a8238064988d277",
+        "role": "user",
+        "recordedAt": 1631577600000,
+        "exactOriginalRange": false,
+        "originalChars": 50,
+        "originalStored": true,
+        "excerpt": "수영장 보관접수 물품을 맡긴 접수번호는 Q25-R0715야. 다른 번호는 내 것이 아니야.",
+        "retrievalScore": 0.03556224969895097,
+        "lexicalScore": 0.77,
+        "relevantToQuery": true,
+        "lexicalRank": 5,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 19107,
+        "hash": "a8ba1b6853c32abb64d64cfc92c8a791a92d862b80ffc2440580edf2aee4c47a",
+        "role": "user",
+        "recordedAt": 1628899200000,
+        "exactOriginalRange": false,
+        "originalChars": 50,
+        "originalStored": true,
+        "excerpt": "번역팀 보관접수 물품을 맡긴 접수번호는 Q24-R0678야. 다른 번호는 내 것이 아니야.",
+        "retrievalScore": 0.03532914946585074,
+        "lexicalScore": 0.77,
+        "relevantToQuery": true,
+        "lexicalRank": 6,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 16475,
+        "hash": "d13a6e97eef9d8b6035611eba3ac4696c111dc7f61ae2ef40103eb8c72b2e499",
+        "role": "user",
+        "recordedAt": 1626220800000,
+        "exactOriginalRange": false,
+        "originalChars": 50,
+        "originalStored": true,
+        "excerpt": "등산회 보관접수 물품을 맡긴 접수번호는 Q23-R0641야. 다른 번호는 내 것이 아니야.",
+        "retrievalScore": 0.03510300744866394,
+        "lexicalScore": 0.77,
+        "relevantToQuery": true,
+        "lexicalRank": 7,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 13927,
+        "hash": "e065736a6d1ab8f9217b4a822cceaedf47f71d84eb626b410350accfd12c5740",
+        "role": "user",
+        "recordedAt": 1623628800000,
+        "exactOriginalRange": false,
+        "originalChars": 49,
+        "originalStored": true,
+        "excerpt": "텃밭 보관접수 물품을 맡긴 접수번호는 Q22-R0604야. 다른 번호는 내 것이 아니야.",
+        "retrievalScore": 0.03488351666727676,
+        "lexicalScore": 0.77,
+        "relevantToQuery": true,
+        "lexicalRank": 8,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 11296,
+        "hash": "e536ef8eeab3c3c2e33c9ab14e9cebdce5aa9441bef9f8d1f0e188602baebad9",
+        "role": "user",
+        "recordedAt": 1620950400000,
+        "exactOriginalRange": false,
+        "originalChars": 50,
+        "originalStored": true,
+        "excerpt": "음악회 보관접수 물품을 맡긴 접수번호는 Q21-R0567야. 다른 번호는 내 것이 아니야.",
+        "retrievalScore": 0.034670387937523986,
+        "lexicalScore": 0.77,
+        "relevantToQuery": true,
+        "lexicalRank": 9,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 8749,
+        "hash": "a97ebabf7895a8b68ce3b90c39f240d67c3e1f07abc0916f4046eef0d58852ca",
+        "role": "user",
+        "recordedAt": 1618358400000,
+        "exactOriginalRange": false,
+        "originalChars": 50,
+        "originalStored": true,
+        "excerpt": "목공방 보관접수 물품을 맡긴 접수번호는 Q20-R0530야. 다른 번호는 내 것이 아니야.",
+        "retrievalScore": 0.03446334860004987,
+        "lexicalScore": 0.77,
+        "relevantToQuery": true,
+        "lexicalRank": 10,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 6116,
+        "hash": "92e960cd82729c15077f3a1ef5a6b482131c8135ddf3ee52e650bbf14b26bc43",
+        "role": "user",
+        "recordedAt": 1615680000000,
+        "exactOriginalRange": false,
+        "originalChars": 50,
+        "originalStored": true,
+        "excerpt": "천문대 보관접수 물품을 맡긴 접수번호는 Q19-R0493야. 다른 번호는 내 것이 아니야.",
+        "retrievalScore": 0.0342621413565891,
+        "lexicalScore": 0.77,
+        "relevantToQuery": true,
+        "lexicalRank": 11,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 3738,
+        "hash": "8cda74a66977932f08d12eb9af82df1774fde4acf44171079bb75b6d3d620da4",
+        "role": "user",
+        "recordedAt": 1613260800000,
+        "exactOriginalRange": false,
+        "originalChars": 50,
+        "originalStored": true,
+        "excerpt": "도서관 보관접수 물품을 맡긴 접수번호는 Q18-R0456야. 다른 번호는 내 것이 아니야.",
+        "retrievalScore": 0.034066523203224466,
+        "lexicalScore": 0.77,
+        "relevantToQuery": true,
+        "lexicalRank": 12,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "device_event",
+        "id": 1,
+        "hash": "50e1699a73707d4cdbb9a0fb9f759f9aa2eebcb97bce4db7a5bcb954fa634670",
+        "role": "device_observation",
+        "recordedAt": 1611187200000,
+        "exactOriginalRange": false,
+        "originalChars": 96,
+        "originalStored": true,
+        "excerpt": "{\"text\":\"사진전 예약활동 예약 확인 결과가 도착했어. 좌석 두 개가 확보되었다는 확인서야.\",\"evidenceState\":\"confirmation_received\"}",
+        "retrievalScore": 0.03372458169407973,
+        "lexicalScore": 0.395,
+        "relevantToQuery": true,
+        "lexicalRank": 13,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 32087,
+        "hash": "8f6356b4348b0969775279b2cb35e8a436ec555454ce7c2932148299b95dc522",
+        "role": "user",
+        "recordedAt": 1642118400000,
+        "exactOriginalRange": false,
+        "originalChars": 46,
+        "originalStored": true,
+        "excerpt": "사진전 개인기록 개인 보관 코드를 원문과 파생 기억에서 삭제하고 다시 사용하지 마.",
+        "retrievalScore": 0.03353946507060694,
+        "lexicalScore": 0.385,
+        "relevantToQuery": true,
+        "lexicalRank": 14,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 32086,
+        "hash": "2adc7f3c1869bd1830ce6d687a0bf5d9a095c00b6dff171a50557d71461e331b",
+        "role": "user",
+        "recordedAt": 1642118400000,
+        "exactOriginalRange": false,
+        "originalChars": 46,
+        "originalStored": true,
+        "excerpt": "사진전 물품구매 물품 구매 작업을 취소했어. 이전 예산 기록은 구매 권한이 아니야.",
+        "retrievalScore": 0.033359284890426756,
+        "lexicalScore": 0.385,
+        "relevantToQuery": true,
+        "lexicalRank": 15,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 32085,
+        "hash": "93afee6e5aabbf901b085aec0e086b2e4d9f9cb271791aed103c25da69c22e33",
+        "role": "user",
+        "recordedAt": 1642118400000,
+        "exactOriginalRange": false,
+        "originalChars": 44,
+        "originalStored": true,
+        "excerpt": "사진전 담당자연락 업무 보고서도 정중하게 써. 일상 대화의 말투는 그대로 두자.",
+        "retrievalScore": 0.03318384629393553,
+        "lexicalScore": 0.385,
+        "relevantToQuery": true,
+        "lexicalRank": 16,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 32084,
+        "hash": "5bdbb9ce8af4ae1d6f65fed50e2a224cbd4cd75e684a0a6dcf9bf1bdcf17dde2",
+        "role": "user",
+        "recordedAt": 1642118400000,
+        "exactOriginalRange": false,
+        "originalChars": 41,
+        "originalStored": true,
+        "excerpt": "사진전 예약활동 관련 지금 예약 확인은 새로 요청했어. 아직 응답은 없어.",
+        "retrievalScore": 0.03301296454410641,
+        "lexicalScore": 0.385,
+        "relevantToQuery": true,
+        "lexicalRank": 17,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 32083,
+        "hash": "b946ce3c0e32335f91561030ed8bf384ca0b5f0da51ca9535cc5b02f996ce94d",
+        "role": "user",
+        "recordedAt": 1642118400000,
+        "exactOriginalRange": false,
+        "originalChars": 41,
+        "originalStored": true,
+        "excerpt": "오늘 사진전 자료보관 자료를 해솔실로 옮겼어. 청록함은 이전 보관 장소야.",
+        "retrievalScore": 0.032846464377606244,
+        "lexicalScore": 0.385,
+        "relevantToQuery": true,
+        "lexicalRank": 18,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 1708,
+        "hash": "a67a9170d1599168328257deb5cc197b1e41169ec2f342537362c98fd6105321",
+        "role": "user",
+        "recordedAt": 1611187200000,
+        "exactOriginalRange": false,
+        "originalChars": 49,
+        "originalStored": true,
+        "excerpt": "사진전 장소선정 장소를 고른 이유는 이동 시간이 짧아서야. 시설이 최고라는 뜻은 아니야.",
+        "retrievalScore": 0.03268417940519469,
+        "lexicalScore": 0.385,
+        "relevantToQuery": true,
+        "lexicalRank": 19,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 1707,
+        "hash": "077b4adbc19d420b2c5e552fe3f086dc99d41ef02820bc4bff5a2bd452754f08",
+        "role": "user",
+        "recordedAt": 1611187200000,
+        "exactOriginalRange": false,
+        "originalChars": 65,
+        "originalStored": true,
+        "excerpt": "사진전 등록행사 등록일을 9일이라고 한 건 틀렸어. 실제 등록일은 2021년 1월 11일이야. 처음부터 11일이었어.",
+        "retrievalScore": 0.032525951557093424,
+        "lexicalScore": 0.385,
+        "relevantToQuery": true,
+        "lexicalRank": 20,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 1706,
+        "hash": "1a1eb494db5bb2775da9bc67807aae1c88c8b9fda34e4354336fb24243380f30",
+        "role": "user",
+        "recordedAt": 1611187200000,
+        "exactOriginalRange": false,
+        "originalChars": 42,
+        "originalStored": true,
+        "excerpt": "사진전 준비모임 준비 모임을 해솔실라고도 부를게. 다른 모임 이름은 아니야.",
+        "retrievalScore": 0.032371630569439105,
+        "lexicalScore": 0.385,
+        "relevantToQuery": true,
+        "lexicalRank": 21,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 1117,
+        "hash": "9d22ae65682e6d379971eff4f84638c87658583f76b21694438c58ea941a35e1",
+        "role": "user",
+        "recordedAt": 1610582400000,
+        "exactOriginalRange": false,
+        "originalChars": 23,
+        "originalStored": true,
+        "excerpt": "사진전 자료정리 단계14 자료를 정리했어.",
+        "retrievalScore": 0.032221073508312936,
+        "lexicalScore": 0.385,
+        "relevantToQuery": true,
+        "lexicalRank": 22,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 1115,
+        "hash": "a8b23990329b8e375b381b0990ea0d421b321917111133a2e57a63d96c26ac44",
+        "role": "user",
+        "recordedAt": 1610582400000,
+        "exactOriginalRange": false,
+        "originalChars": 21,
+        "originalStored": true,
+        "excerpt": "사진전 안내판 안내판 사진을 첨부했어.",
+        "retrievalScore": 0.03207414432817776,
+        "lexicalScore": 0.385,
+        "relevantToQuery": true,
+        "lexicalRank": 23,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 1114,
+        "hash": "649179602c33b45417ee21e5ccd566ea8f1af43fe69f8a5febc86b75ea5eab03",
+        "role": "user",
+        "recordedAt": 1610582400000,
+        "exactOriginalRange": false,
+        "originalChars": 48,
+        "originalStored": true,
+        "excerpt": "사진전 신입모임에서 오늘 자료 정리를 했어. 개인 식별정보는 이번에 이야기하지 않았어.",
+        "retrievalScore": 0.03193071346185533,
+        "lexicalScore": 0.385,
+        "relevantToQuery": true,
+        "lexicalRank": 24,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      }
+    ],
+    "gatewayDependencies": [
+      {
+        "type": "message",
+        "id": 1106,
+        "hash": "58c4d3271832d153c81d02ab29d476ece2363a7cc069efd06e4b4187eb22d2e0",
+        "offsetChars": 0,
+        "lengthChars": 50,
+        "rangeHash": "b0e9144d363c459da654bb2e93495dfbdc52fa7db7d9e2f265c5be76aa0d9a94"
+      },
+      {
+        "type": "message",
+        "id": 29464,
+        "hash": "6cdc4234aab2b9b5f100277fd57fdc8eae89de4ef667b15204fdb3ab65b14418",
+        "offsetChars": 0,
+        "lengthChars": 50,
+        "rangeHash": "67d1d82f8868bfa9f18377f315bca27652a4663d152d632c1a3439f45ed71f8e"
+      },
+      {
+        "type": "message",
+        "id": 26917,
+        "hash": "9544bffaf4284be1a9afe4915886fe52f508a29f837b8e457d83082e885f6394",
+        "offsetChars": 0,
+        "lengthChars": 50,
+        "rangeHash": "14d430c700969e6eb79b9b04830a6243e5d8715a6e0dad8cb192e149eac436d9"
+      },
+      {
+        "type": "message",
+        "id": 24286,
+        "hash": "edc28216663b02522c6e6ef059181622d8fddff1595d659add1b5ecf6e4473fd",
+        "offsetChars": 0,
+        "lengthChars": 50,
+        "rangeHash": "b221f703af776403ab310e3cb9a716fa0c07883052d3322888d1144afc7e736e"
+      },
+      {
+        "type": "message",
+        "id": 21737,
+        "hash": "206fb55290a53e5f7ab606623ff515db118f51710e8750649a8238064988d277",
+        "offsetChars": 0,
+        "lengthChars": 50,
+        "rangeHash": "286d0a0ede9c8a64a3f55dd770c7d7ce3fbe8b9f7ac75d6467babebe6f16857d"
+      },
+      {
+        "type": "message",
+        "id": 19107,
+        "hash": "a8ba1b6853c32abb64d64cfc92c8a791a92d862b80ffc2440580edf2aee4c47a",
+        "offsetChars": 0,
+        "lengthChars": 50,
+        "rangeHash": "839919eb1ff139272e769e32b9654466289a2b15fa0c3f5e1ee2bbecfc2c7082"
+      },
+      {
+        "type": "message",
+        "id": 16475,
+        "hash": "d13a6e97eef9d8b6035611eba3ac4696c111dc7f61ae2ef40103eb8c72b2e499",
+        "offsetChars": 0,
+        "lengthChars": 50,
+        "rangeHash": "3e9ed2d62789fde3e4bc3593e5c9f47114c647e7074c13c5ca190ff6ea33ac6e"
+      },
+      {
+        "type": "message",
+        "id": 13927,
+        "hash": "e065736a6d1ab8f9217b4a822cceaedf47f71d84eb626b410350accfd12c5740",
+        "offsetChars": 0,
+        "lengthChars": 49,
+        "rangeHash": "f79715d226db02409ad3f8e90c63f05dcfef8d263f612bed1660001b73c3ee0d"
+      },
+      {
+        "type": "message",
+        "id": 11296,
+        "hash": "e536ef8eeab3c3c2e33c9ab14e9cebdce5aa9441bef9f8d1f0e188602baebad9",
+        "offsetChars": 0,
+        "lengthChars": 50,
+        "rangeHash": "0316f16d6570264023ad16fc009826e5059f64408b216bee644b5b8e299e1f84"
+      },
+      {
+        "type": "message",
+        "id": 8749,
+        "hash": "a97ebabf7895a8b68ce3b90c39f240d67c3e1f07abc0916f4046eef0d58852ca",
+        "offsetChars": 0,
+        "lengthChars": 50,
+        "rangeHash": "0ca2fd38c09d24b744a216e5744c93d7bad054f315fe3df54c5df90c7baa7367"
+      },
+      {
+        "type": "message",
+        "id": 6116,
+        "hash": "92e960cd82729c15077f3a1ef5a6b482131c8135ddf3ee52e650bbf14b26bc43",
+        "offsetChars": 0,
+        "lengthChars": 50,
+        "rangeHash": "35d8eff81cfcb160f0cd265accfa7ac2bedf2414193bf13a6e499c6f4610bff6"
+      },
+      {
+        "type": "message",
+        "id": 3738,
+        "hash": "8cda74a66977932f08d12eb9af82df1774fde4acf44171079bb75b6d3d620da4",
+        "offsetChars": 0,
+        "lengthChars": 50,
+        "rangeHash": "888210a9901ffde2de7cdfd992d322098175473d6afa9369e34656dc625c8e89"
+      },
+      {
+        "type": "message",
+        "id": 773,
+        "hash": "cb12e33998a0880c275433a9b0ff1d79cf5c462234fe40361f133d45e7949ddb",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "5f06da13632765fbf95a83eeeef499194fce65205a8baba24fa536dee1e4f025"
+      },
+      {
+        "type": "message",
+        "id": 759,
+        "hash": "5b590e71c5a227c655ef43c4f199557caeb0f910a88b3950029baf27c90e98b8",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "db08e2910d6411b56a5007a3f9255ae3dc930bd2a873db8660bfd77fe526fdf5"
+      },
+      {
+        "type": "message",
+        "id": 747,
+        "hash": "a02a3e512d364c6b8d494ca48ef27f1781031e8a341457394f6fa8aa96538d66",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "eaa0ca4fe518826247f6a78bac89666254db54fce544302603fc375e4a0f46be"
+      },
+      {
+        "type": "message",
+        "id": 735,
+        "hash": "1644892aff073fdb07d3681d5ce6392190ac87c35667ebb46cb1669f872fba50",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "1d0b3b1d34d6ecb1e7663cc8d423ac0c30d49e62c87737e5d42f7f1488c7a9ef"
+      },
+      {
+        "type": "message",
+        "id": 723,
+        "hash": "bb42aa8a5d73932324061268103fe94b8dace2392f6fb196328bbf1fb999f46c",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "b953165b0ff68afac15ea2918549b91f1aefd17dc0f2fdedce5fe1e67565eebe"
+      },
+      {
+        "type": "message",
+        "id": 711,
+        "hash": "210455ea7747f002c54a9e15fad248eb553e0ac14b936631cee650c652e83fd3",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "0c0342684ee645ce87ea0189735f42b73f07a25748e04f7b3ac4432c8843b8b5"
+      },
+      {
+        "type": "message",
+        "id": 699,
+        "hash": "142a32ca462316463d805233e12b75c6306506585305cf925eb781c07d5fa0a9",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "07c10710655910b40d7d727ca4725223f4a53c6294e16c1fcc91d78aa846a4c4"
+      },
+      {
+        "type": "message",
+        "id": 687,
+        "hash": "99d5590d46a94be52f2b0576ab056e15f99c7253e8d8418e4aeb4466a70e9c98",
+        "offsetChars": 0,
+        "lengthChars": 107,
+        "rangeHash": "147aa86dfe4868161c634aa55cf9ec3c30f30702bee44a866223bba2e50a9a4f"
+      },
+      {
+        "type": "message",
+        "id": 673,
+        "hash": "02847f4beaa96458cd27fcfc4645891f5f86ba8cf1479109b0796532c903c8d1",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "7183c5d2c0a1c87362f4301d117062079bdc17d2ae4d9ec854d976d27fd38988"
+      },
+      {
+        "type": "message",
+        "id": 661,
+        "hash": "22801e804e706fc197b337818dd5f8296e5342cf0808f9f24defc7e6e3854be7",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "c59638b63820148fc4bac9798226004682fe7115d30d7aae44410de8a19f9a5a"
+      },
+      {
+        "type": "message",
+        "id": 649,
+        "hash": "d2bcf53c2344294ff3f0ca46cea2d663a7e5432f33f74b869386dea75f16ca25",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "f5a94fc6067b9f3e06313234567fe722365f0cea9a7d1476241e62f64d20f85d"
+      },
+      {
+        "type": "message",
+        "id": 637,
+        "hash": "c340f7882fe86e498be6f58fc95d8c3106f2e4cbbbbc1c1ce9e95c0f9f6ef14d",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "509c9029fcc0b692fb25be270f1e5bb75c122b9da2a758f80ab535cb7ab2cf58"
+      },
+      {
+        "type": "message",
+        "id": 625,
+        "hash": "13cde51c08151ec80274e4c63c3aa3f3f69ccdc7169a714fb4bdfd21b38a02e9",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "cecac6214a2c8d489d308bc8d85dda0d023de3a243a0755be4358dfa280bd11b"
+      },
+      {
+        "type": "message",
+        "id": 613,
+        "hash": "b08ed757d94b976174795ecb03e146a91c0a98fa175fa957dd6efbbb6333e8ee",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "6799f5a10cbc9e000367b7f2a9c48a2ad09e38aa70899e1be07340ea85dc2ee5"
+      },
+      {
+        "type": "message",
+        "id": 601,
+        "hash": "f323dc37ba896c2285601db45972eeb8e9882bdddac7eedb9f6d7f7020c65a14",
+        "offsetChars": 0,
+        "lengthChars": 105,
+        "rangeHash": "b2d0ae2511a351dc64d145704ad8747e75d5f2b228f21ba2dbba011514731ff5"
+      },
+      {
+        "type": "message",
+        "id": 587,
+        "hash": "e2d117b3ebf02365cb94174671112b1711a51857a6d2efdc2e10b71a4e98c294",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "fe03ef019819dc304b5b982ef7a4d6e7da468d4974a13dac7c7d391701d6225d"
+      },
+      {
+        "type": "message",
+        "id": 575,
+        "hash": "328f5e977a63cbfd57fe37192a41d3e6056497a173cf792300a222b856de8af1",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "2f5bf4dc62754b7773232c82f294df89f29afdf602aee7e2d0576663cb6a9d47"
+      },
+      {
+        "type": "message",
+        "id": 563,
+        "hash": "efd03ef123da8f20b2fb2e69dadf8ef832215a325266672a171808eba27e7843",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "27cbf5adb06e86e9ec5e49eb98ddcebf0e6780864d5e6705c1e2323abcc147d8"
+      },
+      {
+        "type": "message",
+        "id": 551,
+        "hash": "0a577059cbfed281284129f5e6a90c1e989268ded749db9a92ceaf6a973ce8ad",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "9ea5adb58a6567e76af4d87e079f76b68abf9d0196f1b6950dede2c5b016aae1"
+      },
+      {
+        "type": "message",
+        "id": 539,
+        "hash": "bc41fb34b164c4f8672b677decd18dd8a9fa7c1cb9d75dbc095db9df65b1e6ce",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "88dcabfb3a2af2354520a98b754b3b4aa84a3acd1a38498dd1b8caa00162dc0f"
+      },
+      {
+        "type": "message",
+        "id": 527,
+        "hash": "bd79d792f2f151e0135a41ec2bec80b4e7948ec4fc3475d430b7c018e537fc62",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "362c0b45d9e02d328ea68ff105d12156c9f3cb44692accdffeffd87bbfbfbeb3"
+      },
+      {
+        "type": "message",
+        "id": 515,
+        "hash": "94eba4a0e7828df8c11f37c77410979a31d641f1773d97ca4d57f1973dbe9a69",
+        "offsetChars": 0,
+        "lengthChars": 107,
+        "rangeHash": "46fcba7c0a374a72d45bdf0d20ea1e154fcdb1b52e33b9de405d72fc0be81588"
+      },
+      {
+        "type": "message",
+        "id": 501,
+        "hash": "b981971d186dac649b13bc3c7108a9f2d321887d32589d8aff754decd33d15cd",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "57a810696cf0860e06ad2e49a4eb92d8c71e0ca635ef1066c62967b3b7db36dc"
+      },
+      {
+        "type": "message",
+        "id": 489,
+        "hash": "e7113212c521d64de16af5fef47e854e809ff38bfa752d4148d78d3fc7496968",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "740cbae2f8570ceefdbc9a870ab77a2088209dd0289efd09c21642be19954187"
+      },
+      {
+        "type": "message",
+        "id": 477,
+        "hash": "ebafd13f833857334e15c590ae402c4ba1d0b02fee849585ffc566300089ee26",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "d6eca200f16cfabadba39ec0c8f3ed116875a402c6ddeadd9d7ceb8d1dbf1ca3"
+      },
+      {
+        "type": "message",
+        "id": 465,
+        "hash": "86a2b31e85f2ebd0f9a60f477f65c9ce80fa80e46ae19abce66866a08106a276",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "af852cd3e8fb7b1541b0d6fe1259a512506da3d799da1f15f4c95b611408c9dc"
+      },
+      {
+        "type": "message",
+        "id": 453,
+        "hash": "0dda477bbef58b7b9ff8d94c91c08c9037f7b116a9fed800066c4b961f70c257",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "40224ba9c23da0e64dcefa58adbe2b239b42bf7d35716a9cee90973ac3cdd99d"
+      },
+      {
+        "type": "message",
+        "id": 441,
+        "hash": "53747a0fb191d739c358d3d3c9364d1c147be93b2dca8d1ad3f2871840d46b89",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "2c590c6ca2fa236083ac226e16ca6fc8d7dad97524b5b4d347d7e8d003e91d2c"
+      },
+      {
+        "type": "message",
+        "id": 429,
+        "hash": "63024ab6ecce6f09ed818e975879b16026047bc11b0afd69f1dc92904d66f08f",
+        "offsetChars": 0,
+        "lengthChars": 105,
+        "rangeHash": "d5515318c8d199367b69c010eadb5c08ded36f81d79e75cd088dc780b395a217"
+      },
+      {
+        "type": "message",
+        "id": 415,
+        "hash": "c30fb1e99ae978b391ccadff0694be64443e604312e79d34469cd5adbc4319fe",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "1d6bfcd2a573c0e70b27f7158ca051b5a6c9e38abf879d98a04d15cbad7e4f10"
+      },
+      {
+        "type": "message",
+        "id": 403,
+        "hash": "2e41eb66976e65182a5921e983f3272929ee94001eccf746b3c04d7b73035d1d",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "2db46c3ce641db6434f5b31812d2b3e521c81571f282591fd3170b0cfd6f26a9"
+      },
+      {
+        "type": "message",
+        "id": 391,
+        "hash": "82619d376deea9197921fd93c383080e0f053132d1e68fde5dd11d66e1386fda",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "a1197934295f38e614efe911f737ad5c92905a3e348791d2bff81fa497b6393e"
+      },
+      {
+        "type": "message",
+        "id": 379,
+        "hash": "2b2b68e3c493b639a6c129f79d260bc45d424ccd106d81196aff4a0b7a1de7e2",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "24f1fcd75288586c3f642d9802378759f66dec6d89ae00d20b381286a841a364"
+      },
+      {
+        "type": "message",
+        "id": 367,
+        "hash": "e0cf99dd6a9c7a95611df605dbd8cbc25d715fcfb73d2540ae857bccedafa9c0",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "a30c4deef3a54eea68db080d0382cba9b592f0627feb541da5ce57613772f352"
+      },
+      {
+        "type": "message",
+        "id": 355,
+        "hash": "ca0460ef651285a72d7f857c0739e76a32edd8d33ab2e40922b98bfdb7f77dcf",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "41a8dea5198f1d8dbb3c8d14e3589a8efab990727d2b00c26405653e4a856635"
+      },
+      {
+        "type": "message",
+        "id": 343,
+        "hash": "ded21d3a74fd9ef56a9fa428d9c2f03c3b0d8de0f053d7697346ee00caec2650",
+        "offsetChars": 0,
+        "lengthChars": 107,
+        "rangeHash": "2a798ce1e928e614fed3f4a23a962d44b5f6fdc56c49c2d2142086aad7246013"
+      },
+      {
+        "type": "message",
+        "id": 329,
+        "hash": "4b7df96027a78a1549e72974ccf7121afa87a1838f54e254c893082852309d5d",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "9c05acf846c9f8db1c3282a3ef12902ef812870984e4e9a912e916edfc54f288"
+      },
+      {
+        "type": "message",
+        "id": 317,
+        "hash": "0c8bfb549077239e9063785ecec498cdf021adbc149fb8029c907d40605483f4",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "fd052d191432ed94e230cc2fcd52167d27d96b846a95b691ad2b3c858fbe7c88"
+      },
+      {
+        "type": "message",
+        "id": 305,
+        "hash": "3fa5253599a4886c1fac21961325f631288b7f470d84d4e2ed3a9f52dd253672",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "31587416ddbdfa68a7fb92be7577978e92d446e7c8f302b0710a5d68a5d2892c"
+      },
+      {
+        "type": "message",
+        "id": 293,
+        "hash": "352541f63a008d79e03108e669db9048c043ef2fa0caae973388f53c88f94fc6",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "0989fd48a6593eaf58509aa4a5638c95123f9fe404b32a265d760ea41523920d"
+      },
+      {
+        "type": "message",
+        "id": 281,
+        "hash": "66a1045d8ed3e1cd27b394dcca81d38c38c45d36fd48191640b50111d1c608df",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "f742e7099ab31203212ad5bde199b7a0e1c973a8715cc7af8ab357107d7078fe"
+      },
+      {
+        "type": "message",
+        "id": 269,
+        "hash": "c383338b9d8c88000839db01e887fb8fda80a00d26919e8212997c6b59f30ff8",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "c907280cdd52794b8f22778477908c5cd1ebe44fd18b002d411ce4b32b9dba68"
+      },
+      {
+        "type": "message",
+        "id": 257,
+        "hash": "063fa876cad8a801d1f8f34a70c537bde952b85e71297fb6b400965712696d19",
+        "offsetChars": 0,
+        "lengthChars": 105,
+        "rangeHash": "1842b8aa15509f96dba89e0dbded151773ba02db83cc2d716b5b59041b48481f"
+      },
+      {
+        "type": "message",
+        "id": 255,
+        "hash": "2894e2330758b1537c24da6fa3e39e0dee6e8b3d266ed9d7f4144ce12a216068",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "338e5d4d9c836731aed83c478413c5cf61376b45ff4500ef08345102de07fa92"
+      },
+      {
+        "type": "message",
+        "id": 243,
+        "hash": "3fc8f826f6092984b8eee929640cbed9fcdac2f47000b94884f8ab46afc0766d",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "708cf3d28c4cba9a78c8d0ebbec1f8a329357518db27a9d10481eba71978bff9"
+      },
+      {
+        "type": "message",
+        "id": 231,
+        "hash": "dfd22c05fc0693c58f0db26b5bb95231d6ee917920d08248d0991b2c9fd7fab0",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "1aaf65c343b9e2ca9324acbca7969543b257af7352b1604d6ef8194074349995"
+      },
+      {
+        "type": "message",
+        "id": 219,
+        "hash": "6fb5b1517da9dc821ee8423ff9b8db4ce14cdc84478f269f877bb6f85d1352e9",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "73b87ef408c0506f9949cfef742b1c298b82bc292b0f1045e696301bfbc694e8"
+      },
+      {
+        "type": "message",
+        "id": 207,
+        "hash": "bb70df5f9c304a1722989ab9d6d3f1cf9e90f04a1a376614d3e6d0a20d4a9b9a",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "970da9555a3ed4121714a99f4846497f064893d6ab5b727e8ba3d1ed30a37368"
+      },
+      {
+        "type": "message",
+        "id": 195,
+        "hash": "dda83fef14ca2ff2c5d4cf806cf165e5f85ecec59455c904f1ff02ebdea53d6b",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "4f169391d4c0a1cbf167534d816820811c74c5a853a7005f56ce0dece6a9dd65"
+      },
+      {
+        "type": "message",
+        "id": 183,
+        "hash": "a0f7fcd8093a8cb57fa737d09d3ac6cc6b15efdc07917cc73baf6f22e03f7f28",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "0538a4014ed6cf838cdc65c4b6a859039723b4db39cfe192c1f503e8ae8442d7"
+      },
+      {
+        "type": "message",
+        "id": 169,
+        "hash": "b2938acc05289dc1f970c18cf861b1c75bed98654e7d2b521acedc06b5b0b0a4",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "5c40c56445f0b1c2fb0e6acca3313c03c63441d043c5efe0754d8d8b67b36916"
+      },
+      {
+        "type": "message",
+        "id": 157,
+        "hash": "7be50bc7605e0added13e0fc8638ea185545f3924894c06b2342f573d3559150",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "80481c05c7a683707bed43b0919ee16518d9bc38b0f42434b202c1bbe87ac9d1"
+      },
+      {
+        "type": "message",
+        "id": 184434,
+        "hash": "b8e0272b7e0d143e990e4389db72bf68b43899caf80aef074237926034dc69d1",
+        "offsetChars": 0,
+        "lengthChars": 111,
+        "rangeHash": "ac80182b8620e3fc3ff4323351d64ffe94cdb3041eec12f548e64c354d88ad7f"
+      },
+      {
+        "type": "message",
+        "id": 184433,
+        "hash": "eb27e4e30fcffef7d69a0b5f7095c2fdf3b7947d39849861997b269a9395fcbb",
+        "offsetChars": 0,
+        "lengthChars": 109,
+        "rangeHash": "75888c735b81a0f716b92190b0cfb65c742a6dcbdfe56074d2da74b2428d7ad8"
+      },
+      {
+        "type": "message",
+        "id": 184432,
+        "hash": "72b612a98387f30f2c0b7ea99fbdfa33981f8360c2019eabe89f836f0692dcb3",
+        "offsetChars": 0,
+        "lengthChars": 112,
+        "rangeHash": "3e3defa7b69c74d0bd7843205dd5ab754cb0a69bafaf6737096a9b03ff5326c3"
+      },
+      {
+        "type": "message",
+        "id": 184431,
+        "hash": "cd752396ac7730098e0ec88f7b8d912f3222922452efff374f40445b63388101",
+        "offsetChars": 0,
+        "lengthChars": 113,
+        "rangeHash": "01b78b3ccc3d2a41701f01bd6c0da52e71dabf01c0ed45c590ab3d6ca043f46b"
+      },
+      {
+        "type": "message",
+        "id": 184430,
+        "hash": "ad1d4f52c7b38dcc349e26489faf490531645c7cbf0f2883be3bb183654b1a39",
+        "offsetChars": 0,
+        "lengthChars": 111,
+        "rangeHash": "ee5b2bfd542eaa348b0be4fe356ae545ca68e4b14c3460594d2362f3f0aa288d"
+      },
+      {
+        "type": "message",
+        "id": 184429,
+        "hash": "d50aacb9422da3b26691d08b35cde1fd59306bcab256cde9b897d16b1332b637",
+        "offsetChars": 0,
+        "lengthChars": 110,
+        "rangeHash": "ea716ef77e07074c7e0695945c31ca2e02f82b546cc3ffc70ec2cead8a1c494b"
+      },
+      {
+        "type": "message",
+        "id": 184428,
+        "hash": "3059ed9220f253e0685dd8ae6c638c1573821cadf2217d56651d252aeb8c295e",
+        "offsetChars": 0,
+        "lengthChars": 110,
+        "rangeHash": "f6bf80e5bdba353a2b1ddd4d70185b44dcc69e160ea286f4e67d7bb4c935e48c"
+      },
+      {
+        "type": "message",
+        "id": 184427,
+        "hash": "2a1454d2b9bb90d32e33da7460526ee52133cc7bbf60a46d312b57bbf41a65bf",
+        "offsetChars": 0,
+        "lengthChars": 110,
+        "rangeHash": "0629ac1c34758b6e429f4bf93b11e1f1e37b69bceb17dcb24aeb3bc33d3e1878"
+      }
+    ],
+    "gatewayReceipts": [
+      {
+        "layer": "verbatim",
+        "status": "success",
+        "queryId": "15d53950e69acbc969122e4a03f39cc125cfbe4fd853e367e360ec37987b0e90",
+        "queryFingerprint": "15d53950e69acbc969122e4a03f39cc125cfbe4fd853e367e360ec37987b0e90",
+        "queries": [
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "1a1862ba9b9cd5bc80d3ab2713c29568cd7080da055a93a018874a614b5d2746",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "1a1862ba9b9cd5bc80d3ab2713c29568cd7080da055a93a018874a614b5d2746",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "30904e078c1a2c3241d93d5fbb6ca7e9a60bb8c910a6172cbe7ae0f3aa7b6658",
+            "returnedRows": 32
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "30904e078c1a2c3241d93d5fbb6ca7e9a60bb8c910a6172cbe7ae0f3aa7b6658",
+            "returnedRows": 1
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "0ec10fa00410d327ffe1fbba9c7b8ee57d813934b4907a3a263fb8e30adfb89d",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "0ec10fa00410d327ffe1fbba9c7b8ee57d813934b4907a3a263fb8e30adfb89d",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "e4ebd5a9e6c149c4f3aedb8ce7c1674e03c05121d1e95fda28a425f11c6d4832",
+            "returnedRows": 12
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "e4ebd5a9e6c149c4f3aedb8ce7c1674e03c05121d1e95fda28a425f11c6d4832",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "875e791535ea7286f4fc23bb69c2ad9a8ed1b23fb755732cd46b92b2ee68db65",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "875e791535ea7286f4fc23bb69c2ad9a8ed1b23fb755732cd46b92b2ee68db65",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "49e3160bf8c31196a6ddaf913f80487a9bba311d60e3526f3131b700c37ae820",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "49e3160bf8c31196a6ddaf913f80487a9bba311d60e3526f3131b700c37ae820",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "7e0fc0cf2f638a87c1fa936b4590c940a0e22b191d6a9dfcc7eb99edc9f47f0b",
+            "returnedRows": 65
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "7e0fc0cf2f638a87c1fa936b4590c940a0e22b191d6a9dfcc7eb99edc9f47f0b",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "8548eade6c276b1f518a5bf7ae867a89ecee72279da59f82a46fef29e3baa53b",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "8548eade6c276b1f518a5bf7ae867a89ecee72279da59f82a46fef29e3baa53b",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "8f099eb4eec043751ee522f2b569685b4ba2ed5a2b172ff5424f004baffc3aac",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "8f099eb4eec043751ee522f2b569685b4ba2ed5a2b172ff5424f004baffc3aac",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "54f95690ee9129fe55c441b6f69f8c61f1b9643b50dc6d79e898a7fb919f12ce",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "54f95690ee9129fe55c441b6f69f8c61f1b9643b50dc6d79e898a7fb919f12ce",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "f985b18ac30703f094964eb138067a383467b10c4e97e3cafdd5c8f92d9e9429",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "f985b18ac30703f094964eb138067a383467b10c4e97e3cafdd5c8f92d9e9429",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "7273ca011ee70a2e42ce83b641af559240bebc55de6c13366885d27c60c66f2c",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "7273ca011ee70a2e42ce83b641af559240bebc55de6c13366885d27c60c66f2c",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "b91d14e3e1a05d1fcf29f0d247af77599e3267dbd01f53493a5c65cef048db64",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "b91d14e3e1a05d1fcf29f0d247af77599e3267dbd01f53493a5c65cef048db64",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "32e35560b27d8aa6f6115ac134f2616015e46f8d561612f3c29f266f09c8238c",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "32e35560b27d8aa6f6115ac134f2616015e46f8d561612f3c29f266f09c8238c",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "3f4c720831b70ad90fcdf1e821d76bbaf40788d5b33b4fad80965321d183784e",
+            "returnedRows": 12
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "3f4c720831b70ad90fcdf1e821d76bbaf40788d5b33b4fad80965321d183784e",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "980386407fc7fe4022a926b9874460d02743ffa0b3b753c2bb65ea5f94d346a1",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "980386407fc7fe4022a926b9874460d02743ffa0b3b753c2bb65ea5f94d346a1",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "cb92482acfdaa95bf5ecbd922c152bd6ab675d899fc324ee0492721d49d11416",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "cb92482acfdaa95bf5ecbd922c152bd6ab675d899fc324ee0492721d49d11416",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "82b96dece0253396967b3080e79afb1ed3ce902de914dc36c0b5d556fae308a6",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "82b96dece0253396967b3080e79afb1ed3ce902de914dc36c0b5d556fae308a6",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "0f12e634dbd340758ac641277c73efdc5526894f455784c94a696d71128ceb10",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "0f12e634dbd340758ac641277c73efdc5526894f455784c94a696d71128ceb10",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "93a1f6d62dcefeb6c1b19c68ce0141144437e25769f3d3d09754f93cd90d3883",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "93a1f6d62dcefeb6c1b19c68ce0141144437e25769f3d3d09754f93cd90d3883",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "7e45c3efca0e3d1c2d846533b3373ece215f9418c2660df1293f900b16e0bad4",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "7e45c3efca0e3d1c2d846533b3373ece215f9418c2660df1293f900b16e0bad4",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "ae3e0db90e942054bc1fea83b7fd99c119201b5448e034101567a1c82a83cca1",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "ae3e0db90e942054bc1fea83b7fd99c119201b5448e034101567a1c82a83cca1",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "c9860a3864220839731b424b20c90105e1bf53a7280bffd63e8ce425cf2f88cf",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "c9860a3864220839731b424b20c90105e1bf53a7280bffd63e8ce425cf2f88cf",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "f24fadf93cbae226d71694af718237a1545ac9eeb002bbfee65c5aacd63c77bd",
+            "returnedRows": 65
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "f24fadf93cbae226d71694af718237a1545ac9eeb002bbfee65c5aacd63c77bd",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "d9f9da60c520066ed8e79c70222ef09d00d593d90096a8a76a3ef69add49fd5d",
+            "boundArgumentsFingerprint": "661d4232a4fdbe20560f980d19fbd3182deb43ab647e182f0e6d3fea9552b5ab",
+            "returnedRows": 107
+          },
+          {
+            "sqlFingerprint": "6d90731c2d1e4a06df69c0ca4b9067a58a31f25a145226fcaa4942a07df10917",
+            "boundArgumentsFingerprint": "eca8635ac27b408486e0f806cdc4ba7279d2ad76e4e6ecc4374ae3fa4d93e252",
+            "returnedRows": 1
+          },
+          {
+            "sqlFingerprint": "99a2acf1deeace4bbce323db2d4fbe8a638dc0013baf9a005955a28da1a58f15",
+            "boundArgumentsFingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "returnedRows": 8
+          }
+        ],
+        "ownerScope": "owner-local",
+        "conversationScope": "single-native-conversation",
+        "dispatchId": "bench-f504885e1f62d52b5806",
+        "runId": "benchmark-owner",
+        "purpose": "normal",
+        "inputId": 0,
+        "inputCutoffId": 0,
+        "snapshotId": "c965a15e-f61a-42fb-a771-5868b3014abb",
+        "controlFingerprint": "6496ec19cedd11039b0e329afa033288482c132a8fedc2804ae7ec130858cf31",
+        "privacyFingerprint": "95ddf3f6d269990b3577b97b056b8d4ba1228620fdea19675fc8b9dbe6a95bcb",
+        "backend": "canonical_sql_plus_validated_hybrid_ids",
+        "candidateScope": {
+          "backend": "snapshot_fts_ids_plus_canonical_hydration",
+          "perTermPerTypeLimit": 64,
+          "candidateIds": 108,
+          "candidateLimitReached": true,
+          "ranking": "capped_term_rarity_plus_canonical_literal_matches_then_hybrid_rank",
+          "deviceBootstrapComplete": true,
+          "completeHistoryEnumerated": false
+        },
+        "resultCount": 72,
+        "exclusion": "none",
+        "coverage": "canonical_query_scope_at_snapshot",
+        "readAt": 1798761600000,
+        "validUntil": 1798762200000,
+        "modelInternalUseVerified": false
+      },
+      {
+        "layer": "semantic",
+        "status": "empty",
+        "queryId": "1bf52a0a05234ccd10ebcc5ceaae9ce8a599dfb21f4295c90b0d99de97b3c198",
+        "queryFingerprint": "1bf52a0a05234ccd10ebcc5ceaae9ce8a599dfb21f4295c90b0d99de97b3c198",
+        "queries": [
+          {
+            "sqlFingerprint": "f19c01f172e1691c497dfa84a3f04da1a5e747feb2c20af8aea662fb169115a3",
+            "boundArgumentsFingerprint": "5884b12d3964579b3f522bb0db5810a6a3c8393104a19545544cf32532c42cc5",
+            "returnedRows": 0
+          }
+        ],
+        "ownerScope": "owner-local",
+        "conversationScope": "single-native-conversation",
+        "dispatchId": "bench-f504885e1f62d52b5806",
+        "runId": "benchmark-owner",
+        "purpose": "normal",
+        "inputId": 0,
+        "inputCutoffId": 0,
+        "snapshotId": "c965a15e-f61a-42fb-a771-5868b3014abb",
+        "controlFingerprint": "6496ec19cedd11039b0e329afa033288482c132a8fedc2804ae7ec130858cf31",
+        "privacyFingerprint": "95ddf3f6d269990b3577b97b056b8d4ba1228620fdea19675fc8b9dbe6a95bcb",
+        "backend": "canonical_sql_plus_validated_hybrid_ids",
+        "candidateScope": {},
+        "resultCount": 0,
+        "exclusion": "none",
+        "coverage": "canonical_query_scope_at_snapshot",
+        "readAt": 1798761600000,
+        "validUntil": 1798762200000,
+        "modelInternalUseVerified": false
+      },
+      {
+        "layer": "episodic",
+        "status": "empty",
+        "queryId": "435b7f1ea2c35b511675156bc079581238b526282de2fe580dc547b5f2455900",
+        "queryFingerprint": "435b7f1ea2c35b511675156bc079581238b526282de2fe580dc547b5f2455900",
+        "queries": [
+          {
+            "sqlFingerprint": "3a5e8efcfde50e7a337b0e438ca568834cbdf7307891dcbdd70a92959ba7a2bc",
+            "boundArgumentsFingerprint": "5884b12d3964579b3f522bb0db5810a6a3c8393104a19545544cf32532c42cc5",
+            "returnedRows": 0
+          }
+        ],
+        "ownerScope": "owner-local",
+        "conversationScope": "single-native-conversation",
+        "dispatchId": "bench-f504885e1f62d52b5806",
+        "runId": "benchmark-owner",
+        "purpose": "normal",
+        "inputId": 0,
+        "inputCutoffId": 0,
+        "snapshotId": "c965a15e-f61a-42fb-a771-5868b3014abb",
+        "controlFingerprint": "6496ec19cedd11039b0e329afa033288482c132a8fedc2804ae7ec130858cf31",
+        "privacyFingerprint": "95ddf3f6d269990b3577b97b056b8d4ba1228620fdea19675fc8b9dbe6a95bcb",
+        "backend": "canonical_sql_plus_validated_hybrid_ids",
+        "candidateScope": {},
+        "resultCount": 0,
+        "exclusion": "none",
+        "coverage": "canonical_query_scope_at_snapshot",
+        "readAt": 1798761600000,
+        "validUntil": 1798762200000,
+        "modelInternalUseVerified": false
+      },
+      {
+        "layer": "procedural",
+        "status": "empty",
+        "queryId": "0419f012709045f7921e80df0c6c5fd3c3635aad65ac276ed47afc63605705bd",
+        "queryFingerprint": "0419f012709045f7921e80df0c6c5fd3c3635aad65ac276ed47afc63605705bd",
+        "queries": [
+          {
+            "sqlFingerprint": "4db8572f77fd6b3533f73149cb4254bc84f1e8b730f7c5cd8b12b82049841bb9",
+            "boundArgumentsFingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "1fb80fbcaa516eaeaacf8015acdc92902ba7cd84f23e649231a6b220d0651857",
+            "boundArgumentsFingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "returnedRows": 0
+          }
+        ],
+        "ownerScope": "owner-local",
+        "conversationScope": "single-native-conversation",
+        "dispatchId": "bench-f504885e1f62d52b5806",
+        "runId": "benchmark-owner",
+        "purpose": "normal",
+        "inputId": 0,
+        "inputCutoffId": 0,
+        "snapshotId": "c965a15e-f61a-42fb-a771-5868b3014abb",
+        "controlFingerprint": "6496ec19cedd11039b0e329afa033288482c132a8fedc2804ae7ec130858cf31",
+        "privacyFingerprint": "95ddf3f6d269990b3577b97b056b8d4ba1228620fdea19675fc8b9dbe6a95bcb",
+        "backend": "canonical_sql_plus_validated_hybrid_ids",
+        "candidateScope": {},
+        "resultCount": 0,
+        "exclusion": "none",
+        "coverage": "canonical_query_scope_at_snapshot",
+        "readAt": 1798761600000,
+        "validUntil": 1798762200000,
+        "modelInternalUseVerified": false
+      },
+      {
+        "layer": "active",
+        "status": "empty",
+        "queryId": "4780fbbd5a2ca26b5131ea152aa2f5ac3609d00ed018b910859bc30a83ab832e",
+        "queryFingerprint": "4780fbbd5a2ca26b5131ea152aa2f5ac3609d00ed018b910859bc30a83ab832e",
+        "queries": [
+          {
+            "sqlFingerprint": "67df856a9cf33d78b4f530c0d6b8be92d8561cb26adfa2b8edf558b05a6cc4fa",
+            "boundArgumentsFingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7d59cfcdcad2a4cb5a091cae9db32c9957ca45735450016e5b7688ea7238ba56",
+            "boundArgumentsFingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "returnedRows": 0
+          }
+        ],
+        "ownerScope": "owner-local",
+        "conversationScope": "single-native-conversation",
+        "dispatchId": "bench-f504885e1f62d52b5806",
+        "runId": "benchmark-owner",
+        "purpose": "normal",
+        "inputId": 0,
+        "inputCutoffId": 0,
+        "snapshotId": "c965a15e-f61a-42fb-a771-5868b3014abb",
+        "controlFingerprint": "6496ec19cedd11039b0e329afa033288482c132a8fedc2804ae7ec130858cf31",
+        "privacyFingerprint": "95ddf3f6d269990b3577b97b056b8d4ba1228620fdea19675fc8b9dbe6a95bcb",
+        "backend": "canonical_sql_plus_validated_hybrid_ids",
+        "candidateScope": {},
+        "resultCount": 0,
+        "exclusion": "none_mandatory_native_controls",
+        "coverage": "canonical_query_scope_at_snapshot",
+        "readAt": 1798761600000,
+        "validUntil": 1798762200000,
+        "modelInternalUseVerified": false
+      }
+    ],
+    "gatewayDiagnostics": {
+      "fiveLayerQueries": 5,
+      "snapshotBackend": "readonly_connection_savepoint",
+      "omittedOptionalItems": 39,
+      "projectionState": {
+        "state": "pending",
+        "structuredExtraction": "source_ranges_acknowledged_not_semantic_completeness",
+        "ownerReviewedThroughId": 0,
+        "latestOwnerId": 60198,
+        "unreviewedOwnerCount": 380,
+        "semanticIndexRequiredForAdmission": false,
+        "rawFallback": "canonical_sql"
+      },
+      "coverageMeaning": "canonical_query_scope_at_snapshot_not_all_history_read_by_model",
+      "overlongRetrievalTermsExcluded": 0,
+      "authoritativeInputPreserved": true,
+      "sourceGraphRead": {
+        "sourceQueries": 72,
+        "settingQueries": 72,
+        "cachedVerdictHits": 72,
+        "derivedSourceQueries": 0,
+        "examinedNodes": 72,
+        "cachedSources": 72,
+        "cachedVerdicts": 72,
+        "privacyVersion": 12,
+        "immutableReadSnapshot": true,
+        "persistentCache": false
+      },
+      "hybridCandidatesAreUntrustedUntilHydrated": true,
+      "modelInternalUseVerified": false
+    },
+    "freshOutputCheckPassed": true,
+    "contextSha256": "3dd9d9af2566e64c24e1c73962f50392d522b72a221880656b20bbb18ed965b2",
+    "contextChars": 11724,
+    "messageCount": 184428,
+    "deviceEventCount": 18,
+    "ftsCount": 184428,
+    "memoryNotes": 0,
+    "canonicalCopySha256": "9da5e3bf5570d583433e282069147485b1610deaaf411d182d3ac1490a5e986d",
+    "emittedEvidenceContainsChangedText": false,
+    "originalPrimaryPacketContextSha256": "3dd9d9af2566e64c24e1c73962f50392d522b72a221880656b20bbb18ed965b2",
+    "modelAnswerQuality": "not_measured"
+  },
+  {
+    "tag": "d782f",
+    "readerId": "575b6c348beb730f9fc6",
+    "originalPrimaryId": "f504885e1f62d52b5806",
+    "scorerOnlyRelation": "relevant_source_changed",
+    "sourceChange": {
+      "type": "message",
+      "id": 1106,
+      "role": "user",
+      "recordedAt": 1610582400000,
+      "oldRecordHash": "58c4d3271832d153c81d02ab29d476ece2363a7cc069efd06e4b4187eb22d2e0",
+      "newRecordHash": "72ac42cbabf6531bb32251347658a4640ba67f38ec6c58f3a026b65268e0ba9f",
+      "oldText": "사진전 보관접수 물품을 맡긴 접수번호는 Q17-R0419야. 다른 번호는 내 것이 아니야.",
+      "newText": "사진전 보관접수 물품을 맡긴 접수번호는 Q17-R0419_CF_NEW야. 다른 번호는 내 것이 아니야.",
+      "oldSpan": "Q17-R0419",
+      "replacementSpan": "Q17-R0419_CF_NEW",
+      "actualProductionHashAndFtsVerified": true
+    },
+    "queryArgs": {
+      "query": "첫해 사진전 보관접수에서 받은 접수번호가 뭐였지?",
+      "asOf": 1798761600000,
+      "toExclusive": 1798761600000,
+      "limit": 12,
+      "maxChars": 12000
+    },
+    "originalEvidence": [
+      {
+        "type": "message",
+        "id": 1106,
+        "hash": "72ac42cbabf6531bb32251347658a4640ba67f38ec6c58f3a026b65268e0ba9f",
+        "role": "user",
+        "recordedAt": 1610582400000,
+        "exactOriginalRange": false,
+        "originalChars": 57,
+        "originalStored": true,
+        "excerpt": "사진전 보관접수 물품을 맡긴 접수번호는 Q17-R0419_CF_NEW야. 다른 번호는 내 것이 아니야.",
+        "retrievalScore": 0.036597028494379825,
+        "lexicalScore": 1.135,
+        "relevantToQuery": true,
+        "lexicalRank": 1,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 29464,
+        "hash": "6cdc4234aab2b9b5f100277fd57fdc8eae89de4ef667b15204fdb3ab65b14418",
+        "role": "user",
+        "recordedAt": 1639440000000,
+        "exactOriginalRange": false,
+        "originalChars": 50,
+        "originalStored": true,
+        "excerpt": "독서회 보관접수 물품을 맡긴 접수번호는 Q28-R0826야. 다른 번호는 내 것이 아니야.",
+        "retrievalScore": 0.0363066665724001,
+        "lexicalScore": 0.77,
+        "relevantToQuery": true,
+        "lexicalRank": 2,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 26917,
+        "hash": "9544bffaf4284be1a9afe4915886fe52f508a29f837b8e457d83082e885f6394",
+        "role": "user",
+        "recordedAt": 1636848000000,
+        "exactOriginalRange": false,
+        "originalChars": 50,
+        "originalStored": true,
+        "excerpt": "도예실 보관접수 물품을 맡긴 접수번호는 Q27-R0789야. 다른 번호는 내 것이 아니야.",
+        "retrievalScore": 0.03605065018735146,
+        "lexicalScore": 0.77,
+        "relevantToQuery": true,
+        "lexicalRank": 3,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 24286,
+        "hash": "edc28216663b02522c6e6ef059181622d8fddff1595d659add1b5ecf6e4473fd",
+        "role": "user",
+        "recordedAt": 1634169600000,
+        "exactOriginalRange": false,
+        "originalChars": 50,
+        "originalStored": true,
+        "excerpt": "박물관 보관접수 물품을 맡긴 접수번호는 Q26-R0752야. 다른 번호는 내 것이 아니야.",
+        "retrievalScore": 0.035802634314335585,
+        "lexicalScore": 0.77,
+        "relevantToQuery": true,
+        "lexicalRank": 4,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 21737,
+        "hash": "206fb55290a53e5f7ab606623ff515db118f51710e8750649a8238064988d277",
+        "role": "user",
+        "recordedAt": 1631577600000,
+        "exactOriginalRange": false,
+        "originalChars": 50,
+        "originalStored": true,
+        "excerpt": "수영장 보관접수 물품을 맡긴 접수번호는 Q25-R0715야. 다른 번호는 내 것이 아니야.",
+        "retrievalScore": 0.03556224969895097,
+        "lexicalScore": 0.77,
+        "relevantToQuery": true,
+        "lexicalRank": 5,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 19107,
+        "hash": "a8ba1b6853c32abb64d64cfc92c8a791a92d862b80ffc2440580edf2aee4c47a",
+        "role": "user",
+        "recordedAt": 1628899200000,
+        "exactOriginalRange": false,
+        "originalChars": 50,
+        "originalStored": true,
+        "excerpt": "번역팀 보관접수 물품을 맡긴 접수번호는 Q24-R0678야. 다른 번호는 내 것이 아니야.",
+        "retrievalScore": 0.03532914946585074,
+        "lexicalScore": 0.77,
+        "relevantToQuery": true,
+        "lexicalRank": 6,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 16475,
+        "hash": "d13a6e97eef9d8b6035611eba3ac4696c111dc7f61ae2ef40103eb8c72b2e499",
+        "role": "user",
+        "recordedAt": 1626220800000,
+        "exactOriginalRange": false,
+        "originalChars": 50,
+        "originalStored": true,
+        "excerpt": "등산회 보관접수 물품을 맡긴 접수번호는 Q23-R0641야. 다른 번호는 내 것이 아니야.",
+        "retrievalScore": 0.03510300744866394,
+        "lexicalScore": 0.77,
+        "relevantToQuery": true,
+        "lexicalRank": 7,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 13927,
+        "hash": "e065736a6d1ab8f9217b4a822cceaedf47f71d84eb626b410350accfd12c5740",
+        "role": "user",
+        "recordedAt": 1623628800000,
+        "exactOriginalRange": false,
+        "originalChars": 49,
+        "originalStored": true,
+        "excerpt": "텃밭 보관접수 물품을 맡긴 접수번호는 Q22-R0604야. 다른 번호는 내 것이 아니야.",
+        "retrievalScore": 0.03488351666727676,
+        "lexicalScore": 0.77,
+        "relevantToQuery": true,
+        "lexicalRank": 8,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 11296,
+        "hash": "e536ef8eeab3c3c2e33c9ab14e9cebdce5aa9441bef9f8d1f0e188602baebad9",
+        "role": "user",
+        "recordedAt": 1620950400000,
+        "exactOriginalRange": false,
+        "originalChars": 50,
+        "originalStored": true,
+        "excerpt": "음악회 보관접수 물품을 맡긴 접수번호는 Q21-R0567야. 다른 번호는 내 것이 아니야.",
+        "retrievalScore": 0.034670387937523986,
+        "lexicalScore": 0.77,
+        "relevantToQuery": true,
+        "lexicalRank": 9,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 8749,
+        "hash": "a97ebabf7895a8b68ce3b90c39f240d67c3e1f07abc0916f4046eef0d58852ca",
+        "role": "user",
+        "recordedAt": 1618358400000,
+        "exactOriginalRange": false,
+        "originalChars": 50,
+        "originalStored": true,
+        "excerpt": "목공방 보관접수 물품을 맡긴 접수번호는 Q20-R0530야. 다른 번호는 내 것이 아니야.",
+        "retrievalScore": 0.03446334860004987,
+        "lexicalScore": 0.77,
+        "relevantToQuery": true,
+        "lexicalRank": 10,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 6116,
+        "hash": "92e960cd82729c15077f3a1ef5a6b482131c8135ddf3ee52e650bbf14b26bc43",
+        "role": "user",
+        "recordedAt": 1615680000000,
+        "exactOriginalRange": false,
+        "originalChars": 50,
+        "originalStored": true,
+        "excerpt": "천문대 보관접수 물품을 맡긴 접수번호는 Q19-R0493야. 다른 번호는 내 것이 아니야.",
+        "retrievalScore": 0.0342621413565891,
+        "lexicalScore": 0.77,
+        "relevantToQuery": true,
+        "lexicalRank": 11,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 3738,
+        "hash": "8cda74a66977932f08d12eb9af82df1774fde4acf44171079bb75b6d3d620da4",
+        "role": "user",
+        "recordedAt": 1613260800000,
+        "exactOriginalRange": false,
+        "originalChars": 50,
+        "originalStored": true,
+        "excerpt": "도서관 보관접수 물품을 맡긴 접수번호는 Q18-R0456야. 다른 번호는 내 것이 아니야.",
+        "retrievalScore": 0.034066523203224466,
+        "lexicalScore": 0.77,
+        "relevantToQuery": true,
+        "lexicalRank": 12,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "device_event",
+        "id": 1,
+        "hash": "50e1699a73707d4cdbb9a0fb9f759f9aa2eebcb97bce4db7a5bcb954fa634670",
+        "role": "device_observation",
+        "recordedAt": 1611187200000,
+        "exactOriginalRange": false,
+        "originalChars": 96,
+        "originalStored": true,
+        "excerpt": "{\"text\":\"사진전 예약활동 예약 확인 결과가 도착했어. 좌석 두 개가 확보되었다는 확인서야.\",\"evidenceState\":\"confirmation_received\"}",
+        "retrievalScore": 0.03372458169407973,
+        "lexicalScore": 0.395,
+        "relevantToQuery": true,
+        "lexicalRank": 13,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 32087,
+        "hash": "8f6356b4348b0969775279b2cb35e8a436ec555454ce7c2932148299b95dc522",
+        "role": "user",
+        "recordedAt": 1642118400000,
+        "exactOriginalRange": false,
+        "originalChars": 46,
+        "originalStored": true,
+        "excerpt": "사진전 개인기록 개인 보관 코드를 원문과 파생 기억에서 삭제하고 다시 사용하지 마.",
+        "retrievalScore": 0.03353946507060694,
+        "lexicalScore": 0.385,
+        "relevantToQuery": true,
+        "lexicalRank": 14,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 32086,
+        "hash": "2adc7f3c1869bd1830ce6d687a0bf5d9a095c00b6dff171a50557d71461e331b",
+        "role": "user",
+        "recordedAt": 1642118400000,
+        "exactOriginalRange": false,
+        "originalChars": 46,
+        "originalStored": true,
+        "excerpt": "사진전 물품구매 물품 구매 작업을 취소했어. 이전 예산 기록은 구매 권한이 아니야.",
+        "retrievalScore": 0.033359284890426756,
+        "lexicalScore": 0.385,
+        "relevantToQuery": true,
+        "lexicalRank": 15,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 32085,
+        "hash": "93afee6e5aabbf901b085aec0e086b2e4d9f9cb271791aed103c25da69c22e33",
+        "role": "user",
+        "recordedAt": 1642118400000,
+        "exactOriginalRange": false,
+        "originalChars": 44,
+        "originalStored": true,
+        "excerpt": "사진전 담당자연락 업무 보고서도 정중하게 써. 일상 대화의 말투는 그대로 두자.",
+        "retrievalScore": 0.03318384629393553,
+        "lexicalScore": 0.385,
+        "relevantToQuery": true,
+        "lexicalRank": 16,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 32084,
+        "hash": "5bdbb9ce8af4ae1d6f65fed50e2a224cbd4cd75e684a0a6dcf9bf1bdcf17dde2",
+        "role": "user",
+        "recordedAt": 1642118400000,
+        "exactOriginalRange": false,
+        "originalChars": 41,
+        "originalStored": true,
+        "excerpt": "사진전 예약활동 관련 지금 예약 확인은 새로 요청했어. 아직 응답은 없어.",
+        "retrievalScore": 0.03301296454410641,
+        "lexicalScore": 0.385,
+        "relevantToQuery": true,
+        "lexicalRank": 17,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 32083,
+        "hash": "b946ce3c0e32335f91561030ed8bf384ca0b5f0da51ca9535cc5b02f996ce94d",
+        "role": "user",
+        "recordedAt": 1642118400000,
+        "exactOriginalRange": false,
+        "originalChars": 41,
+        "originalStored": true,
+        "excerpt": "오늘 사진전 자료보관 자료를 해솔실로 옮겼어. 청록함은 이전 보관 장소야.",
+        "retrievalScore": 0.032846464377606244,
+        "lexicalScore": 0.385,
+        "relevantToQuery": true,
+        "lexicalRank": 18,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 1708,
+        "hash": "a67a9170d1599168328257deb5cc197b1e41169ec2f342537362c98fd6105321",
+        "role": "user",
+        "recordedAt": 1611187200000,
+        "exactOriginalRange": false,
+        "originalChars": 49,
+        "originalStored": true,
+        "excerpt": "사진전 장소선정 장소를 고른 이유는 이동 시간이 짧아서야. 시설이 최고라는 뜻은 아니야.",
+        "retrievalScore": 0.03268417940519469,
+        "lexicalScore": 0.385,
+        "relevantToQuery": true,
+        "lexicalRank": 19,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 1707,
+        "hash": "077b4adbc19d420b2c5e552fe3f086dc99d41ef02820bc4bff5a2bd452754f08",
+        "role": "user",
+        "recordedAt": 1611187200000,
+        "exactOriginalRange": false,
+        "originalChars": 65,
+        "originalStored": true,
+        "excerpt": "사진전 등록행사 등록일을 9일이라고 한 건 틀렸어. 실제 등록일은 2021년 1월 11일이야. 처음부터 11일이었어.",
+        "retrievalScore": 0.032525951557093424,
+        "lexicalScore": 0.385,
+        "relevantToQuery": true,
+        "lexicalRank": 20,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 1706,
+        "hash": "1a1eb494db5bb2775da9bc67807aae1c88c8b9fda34e4354336fb24243380f30",
+        "role": "user",
+        "recordedAt": 1611187200000,
+        "exactOriginalRange": false,
+        "originalChars": 42,
+        "originalStored": true,
+        "excerpt": "사진전 준비모임 준비 모임을 해솔실라고도 부를게. 다른 모임 이름은 아니야.",
+        "retrievalScore": 0.032371630569439105,
+        "lexicalScore": 0.385,
+        "relevantToQuery": true,
+        "lexicalRank": 21,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 1117,
+        "hash": "9d22ae65682e6d379971eff4f84638c87658583f76b21694438c58ea941a35e1",
+        "role": "user",
+        "recordedAt": 1610582400000,
+        "exactOriginalRange": false,
+        "originalChars": 23,
+        "originalStored": true,
+        "excerpt": "사진전 자료정리 단계14 자료를 정리했어.",
+        "retrievalScore": 0.032221073508312936,
+        "lexicalScore": 0.385,
+        "relevantToQuery": true,
+        "lexicalRank": 22,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 1115,
+        "hash": "a8b23990329b8e375b381b0990ea0d421b321917111133a2e57a63d96c26ac44",
+        "role": "user",
+        "recordedAt": 1610582400000,
+        "exactOriginalRange": false,
+        "originalChars": 21,
+        "originalStored": true,
+        "excerpt": "사진전 안내판 안내판 사진을 첨부했어.",
+        "retrievalScore": 0.03207414432817776,
+        "lexicalScore": 0.385,
+        "relevantToQuery": true,
+        "lexicalRank": 23,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 1114,
+        "hash": "649179602c33b45417ee21e5ccd566ea8f1af43fe69f8a5febc86b75ea5eab03",
+        "role": "user",
+        "recordedAt": 1610582400000,
+        "exactOriginalRange": false,
+        "originalChars": 48,
+        "originalStored": true,
+        "excerpt": "사진전 신입모임에서 오늘 자료 정리를 했어. 개인 식별정보는 이번에 이야기하지 않았어.",
+        "retrievalScore": 0.03193071346185533,
+        "lexicalScore": 0.385,
+        "relevantToQuery": true,
+        "lexicalRank": 24,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      }
+    ],
+    "gatewayDependencies": [
+      {
+        "type": "message",
+        "id": 1106,
+        "hash": "72ac42cbabf6531bb32251347658a4640ba67f38ec6c58f3a026b65268e0ba9f",
+        "offsetChars": 0,
+        "lengthChars": 57,
+        "rangeHash": "3b213d9aa08685f5c7bb03c182d93149cf44d9a88ac4d938ce994e33a2bf9da7"
+      },
+      {
+        "type": "message",
+        "id": 29464,
+        "hash": "6cdc4234aab2b9b5f100277fd57fdc8eae89de4ef667b15204fdb3ab65b14418",
+        "offsetChars": 0,
+        "lengthChars": 50,
+        "rangeHash": "67d1d82f8868bfa9f18377f315bca27652a4663d152d632c1a3439f45ed71f8e"
+      },
+      {
+        "type": "message",
+        "id": 26917,
+        "hash": "9544bffaf4284be1a9afe4915886fe52f508a29f837b8e457d83082e885f6394",
+        "offsetChars": 0,
+        "lengthChars": 50,
+        "rangeHash": "14d430c700969e6eb79b9b04830a6243e5d8715a6e0dad8cb192e149eac436d9"
+      },
+      {
+        "type": "message",
+        "id": 24286,
+        "hash": "edc28216663b02522c6e6ef059181622d8fddff1595d659add1b5ecf6e4473fd",
+        "offsetChars": 0,
+        "lengthChars": 50,
+        "rangeHash": "b221f703af776403ab310e3cb9a716fa0c07883052d3322888d1144afc7e736e"
+      },
+      {
+        "type": "message",
+        "id": 21737,
+        "hash": "206fb55290a53e5f7ab606623ff515db118f51710e8750649a8238064988d277",
+        "offsetChars": 0,
+        "lengthChars": 50,
+        "rangeHash": "286d0a0ede9c8a64a3f55dd770c7d7ce3fbe8b9f7ac75d6467babebe6f16857d"
+      },
+      {
+        "type": "message",
+        "id": 19107,
+        "hash": "a8ba1b6853c32abb64d64cfc92c8a791a92d862b80ffc2440580edf2aee4c47a",
+        "offsetChars": 0,
+        "lengthChars": 50,
+        "rangeHash": "839919eb1ff139272e769e32b9654466289a2b15fa0c3f5e1ee2bbecfc2c7082"
+      },
+      {
+        "type": "message",
+        "id": 16475,
+        "hash": "d13a6e97eef9d8b6035611eba3ac4696c111dc7f61ae2ef40103eb8c72b2e499",
+        "offsetChars": 0,
+        "lengthChars": 50,
+        "rangeHash": "3e9ed2d62789fde3e4bc3593e5c9f47114c647e7074c13c5ca190ff6ea33ac6e"
+      },
+      {
+        "type": "message",
+        "id": 13927,
+        "hash": "e065736a6d1ab8f9217b4a822cceaedf47f71d84eb626b410350accfd12c5740",
+        "offsetChars": 0,
+        "lengthChars": 49,
+        "rangeHash": "f79715d226db02409ad3f8e90c63f05dcfef8d263f612bed1660001b73c3ee0d"
+      },
+      {
+        "type": "message",
+        "id": 11296,
+        "hash": "e536ef8eeab3c3c2e33c9ab14e9cebdce5aa9441bef9f8d1f0e188602baebad9",
+        "offsetChars": 0,
+        "lengthChars": 50,
+        "rangeHash": "0316f16d6570264023ad16fc009826e5059f64408b216bee644b5b8e299e1f84"
+      },
+      {
+        "type": "message",
+        "id": 8749,
+        "hash": "a97ebabf7895a8b68ce3b90c39f240d67c3e1f07abc0916f4046eef0d58852ca",
+        "offsetChars": 0,
+        "lengthChars": 50,
+        "rangeHash": "0ca2fd38c09d24b744a216e5744c93d7bad054f315fe3df54c5df90c7baa7367"
+      },
+      {
+        "type": "message",
+        "id": 6116,
+        "hash": "92e960cd82729c15077f3a1ef5a6b482131c8135ddf3ee52e650bbf14b26bc43",
+        "offsetChars": 0,
+        "lengthChars": 50,
+        "rangeHash": "35d8eff81cfcb160f0cd265accfa7ac2bedf2414193bf13a6e499c6f4610bff6"
+      },
+      {
+        "type": "message",
+        "id": 3738,
+        "hash": "8cda74a66977932f08d12eb9af82df1774fde4acf44171079bb75b6d3d620da4",
+        "offsetChars": 0,
+        "lengthChars": 50,
+        "rangeHash": "888210a9901ffde2de7cdfd992d322098175473d6afa9369e34656dc625c8e89"
+      },
+      {
+        "type": "message",
+        "id": 773,
+        "hash": "cb12e33998a0880c275433a9b0ff1d79cf5c462234fe40361f133d45e7949ddb",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "5f06da13632765fbf95a83eeeef499194fce65205a8baba24fa536dee1e4f025"
+      },
+      {
+        "type": "message",
+        "id": 759,
+        "hash": "5b590e71c5a227c655ef43c4f199557caeb0f910a88b3950029baf27c90e98b8",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "db08e2910d6411b56a5007a3f9255ae3dc930bd2a873db8660bfd77fe526fdf5"
+      },
+      {
+        "type": "message",
+        "id": 747,
+        "hash": "a02a3e512d364c6b8d494ca48ef27f1781031e8a341457394f6fa8aa96538d66",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "eaa0ca4fe518826247f6a78bac89666254db54fce544302603fc375e4a0f46be"
+      },
+      {
+        "type": "message",
+        "id": 735,
+        "hash": "1644892aff073fdb07d3681d5ce6392190ac87c35667ebb46cb1669f872fba50",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "1d0b3b1d34d6ecb1e7663cc8d423ac0c30d49e62c87737e5d42f7f1488c7a9ef"
+      },
+      {
+        "type": "message",
+        "id": 723,
+        "hash": "bb42aa8a5d73932324061268103fe94b8dace2392f6fb196328bbf1fb999f46c",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "b953165b0ff68afac15ea2918549b91f1aefd17dc0f2fdedce5fe1e67565eebe"
+      },
+      {
+        "type": "message",
+        "id": 711,
+        "hash": "210455ea7747f002c54a9e15fad248eb553e0ac14b936631cee650c652e83fd3",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "0c0342684ee645ce87ea0189735f42b73f07a25748e04f7b3ac4432c8843b8b5"
+      },
+      {
+        "type": "message",
+        "id": 699,
+        "hash": "142a32ca462316463d805233e12b75c6306506585305cf925eb781c07d5fa0a9",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "07c10710655910b40d7d727ca4725223f4a53c6294e16c1fcc91d78aa846a4c4"
+      },
+      {
+        "type": "message",
+        "id": 687,
+        "hash": "99d5590d46a94be52f2b0576ab056e15f99c7253e8d8418e4aeb4466a70e9c98",
+        "offsetChars": 0,
+        "lengthChars": 107,
+        "rangeHash": "147aa86dfe4868161c634aa55cf9ec3c30f30702bee44a866223bba2e50a9a4f"
+      },
+      {
+        "type": "message",
+        "id": 673,
+        "hash": "02847f4beaa96458cd27fcfc4645891f5f86ba8cf1479109b0796532c903c8d1",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "7183c5d2c0a1c87362f4301d117062079bdc17d2ae4d9ec854d976d27fd38988"
+      },
+      {
+        "type": "message",
+        "id": 661,
+        "hash": "22801e804e706fc197b337818dd5f8296e5342cf0808f9f24defc7e6e3854be7",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "c59638b63820148fc4bac9798226004682fe7115d30d7aae44410de8a19f9a5a"
+      },
+      {
+        "type": "message",
+        "id": 649,
+        "hash": "d2bcf53c2344294ff3f0ca46cea2d663a7e5432f33f74b869386dea75f16ca25",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "f5a94fc6067b9f3e06313234567fe722365f0cea9a7d1476241e62f64d20f85d"
+      },
+      {
+        "type": "message",
+        "id": 637,
+        "hash": "c340f7882fe86e498be6f58fc95d8c3106f2e4cbbbbc1c1ce9e95c0f9f6ef14d",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "509c9029fcc0b692fb25be270f1e5bb75c122b9da2a758f80ab535cb7ab2cf58"
+      },
+      {
+        "type": "message",
+        "id": 625,
+        "hash": "13cde51c08151ec80274e4c63c3aa3f3f69ccdc7169a714fb4bdfd21b38a02e9",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "cecac6214a2c8d489d308bc8d85dda0d023de3a243a0755be4358dfa280bd11b"
+      },
+      {
+        "type": "message",
+        "id": 613,
+        "hash": "b08ed757d94b976174795ecb03e146a91c0a98fa175fa957dd6efbbb6333e8ee",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "6799f5a10cbc9e000367b7f2a9c48a2ad09e38aa70899e1be07340ea85dc2ee5"
+      },
+      {
+        "type": "message",
+        "id": 601,
+        "hash": "f323dc37ba896c2285601db45972eeb8e9882bdddac7eedb9f6d7f7020c65a14",
+        "offsetChars": 0,
+        "lengthChars": 105,
+        "rangeHash": "b2d0ae2511a351dc64d145704ad8747e75d5f2b228f21ba2dbba011514731ff5"
+      },
+      {
+        "type": "message",
+        "id": 587,
+        "hash": "e2d117b3ebf02365cb94174671112b1711a51857a6d2efdc2e10b71a4e98c294",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "fe03ef019819dc304b5b982ef7a4d6e7da468d4974a13dac7c7d391701d6225d"
+      },
+      {
+        "type": "message",
+        "id": 575,
+        "hash": "328f5e977a63cbfd57fe37192a41d3e6056497a173cf792300a222b856de8af1",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "2f5bf4dc62754b7773232c82f294df89f29afdf602aee7e2d0576663cb6a9d47"
+      },
+      {
+        "type": "message",
+        "id": 563,
+        "hash": "efd03ef123da8f20b2fb2e69dadf8ef832215a325266672a171808eba27e7843",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "27cbf5adb06e86e9ec5e49eb98ddcebf0e6780864d5e6705c1e2323abcc147d8"
+      },
+      {
+        "type": "message",
+        "id": 551,
+        "hash": "0a577059cbfed281284129f5e6a90c1e989268ded749db9a92ceaf6a973ce8ad",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "9ea5adb58a6567e76af4d87e079f76b68abf9d0196f1b6950dede2c5b016aae1"
+      },
+      {
+        "type": "message",
+        "id": 539,
+        "hash": "bc41fb34b164c4f8672b677decd18dd8a9fa7c1cb9d75dbc095db9df65b1e6ce",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "88dcabfb3a2af2354520a98b754b3b4aa84a3acd1a38498dd1b8caa00162dc0f"
+      },
+      {
+        "type": "message",
+        "id": 527,
+        "hash": "bd79d792f2f151e0135a41ec2bec80b4e7948ec4fc3475d430b7c018e537fc62",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "362c0b45d9e02d328ea68ff105d12156c9f3cb44692accdffeffd87bbfbfbeb3"
+      },
+      {
+        "type": "message",
+        "id": 515,
+        "hash": "94eba4a0e7828df8c11f37c77410979a31d641f1773d97ca4d57f1973dbe9a69",
+        "offsetChars": 0,
+        "lengthChars": 107,
+        "rangeHash": "46fcba7c0a374a72d45bdf0d20ea1e154fcdb1b52e33b9de405d72fc0be81588"
+      },
+      {
+        "type": "message",
+        "id": 501,
+        "hash": "b981971d186dac649b13bc3c7108a9f2d321887d32589d8aff754decd33d15cd",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "57a810696cf0860e06ad2e49a4eb92d8c71e0ca635ef1066c62967b3b7db36dc"
+      },
+      {
+        "type": "message",
+        "id": 489,
+        "hash": "e7113212c521d64de16af5fef47e854e809ff38bfa752d4148d78d3fc7496968",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "740cbae2f8570ceefdbc9a870ab77a2088209dd0289efd09c21642be19954187"
+      },
+      {
+        "type": "message",
+        "id": 477,
+        "hash": "ebafd13f833857334e15c590ae402c4ba1d0b02fee849585ffc566300089ee26",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "d6eca200f16cfabadba39ec0c8f3ed116875a402c6ddeadd9d7ceb8d1dbf1ca3"
+      },
+      {
+        "type": "message",
+        "id": 465,
+        "hash": "86a2b31e85f2ebd0f9a60f477f65c9ce80fa80e46ae19abce66866a08106a276",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "af852cd3e8fb7b1541b0d6fe1259a512506da3d799da1f15f4c95b611408c9dc"
+      },
+      {
+        "type": "message",
+        "id": 453,
+        "hash": "0dda477bbef58b7b9ff8d94c91c08c9037f7b116a9fed800066c4b961f70c257",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "40224ba9c23da0e64dcefa58adbe2b239b42bf7d35716a9cee90973ac3cdd99d"
+      },
+      {
+        "type": "message",
+        "id": 441,
+        "hash": "53747a0fb191d739c358d3d3c9364d1c147be93b2dca8d1ad3f2871840d46b89",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "2c590c6ca2fa236083ac226e16ca6fc8d7dad97524b5b4d347d7e8d003e91d2c"
+      },
+      {
+        "type": "message",
+        "id": 429,
+        "hash": "63024ab6ecce6f09ed818e975879b16026047bc11b0afd69f1dc92904d66f08f",
+        "offsetChars": 0,
+        "lengthChars": 105,
+        "rangeHash": "d5515318c8d199367b69c010eadb5c08ded36f81d79e75cd088dc780b395a217"
+      },
+      {
+        "type": "message",
+        "id": 415,
+        "hash": "c30fb1e99ae978b391ccadff0694be64443e604312e79d34469cd5adbc4319fe",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "1d6bfcd2a573c0e70b27f7158ca051b5a6c9e38abf879d98a04d15cbad7e4f10"
+      },
+      {
+        "type": "message",
+        "id": 403,
+        "hash": "2e41eb66976e65182a5921e983f3272929ee94001eccf746b3c04d7b73035d1d",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "2db46c3ce641db6434f5b31812d2b3e521c81571f282591fd3170b0cfd6f26a9"
+      },
+      {
+        "type": "message",
+        "id": 391,
+        "hash": "82619d376deea9197921fd93c383080e0f053132d1e68fde5dd11d66e1386fda",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "a1197934295f38e614efe911f737ad5c92905a3e348791d2bff81fa497b6393e"
+      },
+      {
+        "type": "message",
+        "id": 379,
+        "hash": "2b2b68e3c493b639a6c129f79d260bc45d424ccd106d81196aff4a0b7a1de7e2",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "24f1fcd75288586c3f642d9802378759f66dec6d89ae00d20b381286a841a364"
+      },
+      {
+        "type": "message",
+        "id": 367,
+        "hash": "e0cf99dd6a9c7a95611df605dbd8cbc25d715fcfb73d2540ae857bccedafa9c0",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "a30c4deef3a54eea68db080d0382cba9b592f0627feb541da5ce57613772f352"
+      },
+      {
+        "type": "message",
+        "id": 355,
+        "hash": "ca0460ef651285a72d7f857c0739e76a32edd8d33ab2e40922b98bfdb7f77dcf",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "41a8dea5198f1d8dbb3c8d14e3589a8efab990727d2b00c26405653e4a856635"
+      },
+      {
+        "type": "message",
+        "id": 343,
+        "hash": "ded21d3a74fd9ef56a9fa428d9c2f03c3b0d8de0f053d7697346ee00caec2650",
+        "offsetChars": 0,
+        "lengthChars": 107,
+        "rangeHash": "2a798ce1e928e614fed3f4a23a962d44b5f6fdc56c49c2d2142086aad7246013"
+      },
+      {
+        "type": "message",
+        "id": 329,
+        "hash": "4b7df96027a78a1549e72974ccf7121afa87a1838f54e254c893082852309d5d",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "9c05acf846c9f8db1c3282a3ef12902ef812870984e4e9a912e916edfc54f288"
+      },
+      {
+        "type": "message",
+        "id": 317,
+        "hash": "0c8bfb549077239e9063785ecec498cdf021adbc149fb8029c907d40605483f4",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "fd052d191432ed94e230cc2fcd52167d27d96b846a95b691ad2b3c858fbe7c88"
+      },
+      {
+        "type": "message",
+        "id": 305,
+        "hash": "3fa5253599a4886c1fac21961325f631288b7f470d84d4e2ed3a9f52dd253672",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "31587416ddbdfa68a7fb92be7577978e92d446e7c8f302b0710a5d68a5d2892c"
+      },
+      {
+        "type": "message",
+        "id": 293,
+        "hash": "352541f63a008d79e03108e669db9048c043ef2fa0caae973388f53c88f94fc6",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "0989fd48a6593eaf58509aa4a5638c95123f9fe404b32a265d760ea41523920d"
+      },
+      {
+        "type": "message",
+        "id": 281,
+        "hash": "66a1045d8ed3e1cd27b394dcca81d38c38c45d36fd48191640b50111d1c608df",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "f742e7099ab31203212ad5bde199b7a0e1c973a8715cc7af8ab357107d7078fe"
+      },
+      {
+        "type": "message",
+        "id": 269,
+        "hash": "c383338b9d8c88000839db01e887fb8fda80a00d26919e8212997c6b59f30ff8",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "c907280cdd52794b8f22778477908c5cd1ebe44fd18b002d411ce4b32b9dba68"
+      },
+      {
+        "type": "message",
+        "id": 257,
+        "hash": "063fa876cad8a801d1f8f34a70c537bde952b85e71297fb6b400965712696d19",
+        "offsetChars": 0,
+        "lengthChars": 105,
+        "rangeHash": "1842b8aa15509f96dba89e0dbded151773ba02db83cc2d716b5b59041b48481f"
+      },
+      {
+        "type": "message",
+        "id": 255,
+        "hash": "2894e2330758b1537c24da6fa3e39e0dee6e8b3d266ed9d7f4144ce12a216068",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "338e5d4d9c836731aed83c478413c5cf61376b45ff4500ef08345102de07fa92"
+      },
+      {
+        "type": "message",
+        "id": 243,
+        "hash": "3fc8f826f6092984b8eee929640cbed9fcdac2f47000b94884f8ab46afc0766d",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "708cf3d28c4cba9a78c8d0ebbec1f8a329357518db27a9d10481eba71978bff9"
+      },
+      {
+        "type": "message",
+        "id": 231,
+        "hash": "dfd22c05fc0693c58f0db26b5bb95231d6ee917920d08248d0991b2c9fd7fab0",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "1aaf65c343b9e2ca9324acbca7969543b257af7352b1604d6ef8194074349995"
+      },
+      {
+        "type": "message",
+        "id": 219,
+        "hash": "6fb5b1517da9dc821ee8423ff9b8db4ce14cdc84478f269f877bb6f85d1352e9",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "73b87ef408c0506f9949cfef742b1c298b82bc292b0f1045e696301bfbc694e8"
+      },
+      {
+        "type": "message",
+        "id": 207,
+        "hash": "bb70df5f9c304a1722989ab9d6d3f1cf9e90f04a1a376614d3e6d0a20d4a9b9a",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "970da9555a3ed4121714a99f4846497f064893d6ab5b727e8ba3d1ed30a37368"
+      },
+      {
+        "type": "message",
+        "id": 195,
+        "hash": "dda83fef14ca2ff2c5d4cf806cf165e5f85ecec59455c904f1ff02ebdea53d6b",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "4f169391d4c0a1cbf167534d816820811c74c5a853a7005f56ce0dece6a9dd65"
+      },
+      {
+        "type": "message",
+        "id": 183,
+        "hash": "a0f7fcd8093a8cb57fa737d09d3ac6cc6b15efdc07917cc73baf6f22e03f7f28",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "0538a4014ed6cf838cdc65c4b6a859039723b4db39cfe192c1f503e8ae8442d7"
+      },
+      {
+        "type": "message",
+        "id": 169,
+        "hash": "b2938acc05289dc1f970c18cf861b1c75bed98654e7d2b521acedc06b5b0b0a4",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "5c40c56445f0b1c2fb0e6acca3313c03c63441d043c5efe0754d8d8b67b36916"
+      },
+      {
+        "type": "message",
+        "id": 157,
+        "hash": "7be50bc7605e0added13e0fc8638ea185545f3924894c06b2342f573d3559150",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "80481c05c7a683707bed43b0919ee16518d9bc38b0f42434b202c1bbe87ac9d1"
+      },
+      {
+        "type": "message",
+        "id": 184434,
+        "hash": "b8e0272b7e0d143e990e4389db72bf68b43899caf80aef074237926034dc69d1",
+        "offsetChars": 0,
+        "lengthChars": 111,
+        "rangeHash": "ac80182b8620e3fc3ff4323351d64ffe94cdb3041eec12f548e64c354d88ad7f"
+      },
+      {
+        "type": "message",
+        "id": 184433,
+        "hash": "eb27e4e30fcffef7d69a0b5f7095c2fdf3b7947d39849861997b269a9395fcbb",
+        "offsetChars": 0,
+        "lengthChars": 109,
+        "rangeHash": "75888c735b81a0f716b92190b0cfb65c742a6dcbdfe56074d2da74b2428d7ad8"
+      },
+      {
+        "type": "message",
+        "id": 184432,
+        "hash": "72b612a98387f30f2c0b7ea99fbdfa33981f8360c2019eabe89f836f0692dcb3",
+        "offsetChars": 0,
+        "lengthChars": 112,
+        "rangeHash": "3e3defa7b69c74d0bd7843205dd5ab754cb0a69bafaf6737096a9b03ff5326c3"
+      },
+      {
+        "type": "message",
+        "id": 184431,
+        "hash": "cd752396ac7730098e0ec88f7b8d912f3222922452efff374f40445b63388101",
+        "offsetChars": 0,
+        "lengthChars": 113,
+        "rangeHash": "01b78b3ccc3d2a41701f01bd6c0da52e71dabf01c0ed45c590ab3d6ca043f46b"
+      },
+      {
+        "type": "message",
+        "id": 184430,
+        "hash": "ad1d4f52c7b38dcc349e26489faf490531645c7cbf0f2883be3bb183654b1a39",
+        "offsetChars": 0,
+        "lengthChars": 111,
+        "rangeHash": "ee5b2bfd542eaa348b0be4fe356ae545ca68e4b14c3460594d2362f3f0aa288d"
+      },
+      {
+        "type": "message",
+        "id": 184429,
+        "hash": "d50aacb9422da3b26691d08b35cde1fd59306bcab256cde9b897d16b1332b637",
+        "offsetChars": 0,
+        "lengthChars": 110,
+        "rangeHash": "ea716ef77e07074c7e0695945c31ca2e02f82b546cc3ffc70ec2cead8a1c494b"
+      },
+      {
+        "type": "message",
+        "id": 184428,
+        "hash": "3059ed9220f253e0685dd8ae6c638c1573821cadf2217d56651d252aeb8c295e",
+        "offsetChars": 0,
+        "lengthChars": 110,
+        "rangeHash": "f6bf80e5bdba353a2b1ddd4d70185b44dcc69e160ea286f4e67d7bb4c935e48c"
+      },
+      {
+        "type": "message",
+        "id": 184427,
+        "hash": "2a1454d2b9bb90d32e33da7460526ee52133cc7bbf60a46d312b57bbf41a65bf",
+        "offsetChars": 0,
+        "lengthChars": 110,
+        "rangeHash": "0629ac1c34758b6e429f4bf93b11e1f1e37b69bceb17dcb24aeb3bc33d3e1878"
+      }
+    ],
+    "gatewayReceipts": [
+      {
+        "layer": "verbatim",
+        "status": "success",
+        "queryId": "15d53950e69acbc969122e4a03f39cc125cfbe4fd853e367e360ec37987b0e90",
+        "queryFingerprint": "15d53950e69acbc969122e4a03f39cc125cfbe4fd853e367e360ec37987b0e90",
+        "queries": [
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "1a1862ba9b9cd5bc80d3ab2713c29568cd7080da055a93a018874a614b5d2746",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "1a1862ba9b9cd5bc80d3ab2713c29568cd7080da055a93a018874a614b5d2746",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "30904e078c1a2c3241d93d5fbb6ca7e9a60bb8c910a6172cbe7ae0f3aa7b6658",
+            "returnedRows": 32
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "30904e078c1a2c3241d93d5fbb6ca7e9a60bb8c910a6172cbe7ae0f3aa7b6658",
+            "returnedRows": 1
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "0ec10fa00410d327ffe1fbba9c7b8ee57d813934b4907a3a263fb8e30adfb89d",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "0ec10fa00410d327ffe1fbba9c7b8ee57d813934b4907a3a263fb8e30adfb89d",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "e4ebd5a9e6c149c4f3aedb8ce7c1674e03c05121d1e95fda28a425f11c6d4832",
+            "returnedRows": 12
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "e4ebd5a9e6c149c4f3aedb8ce7c1674e03c05121d1e95fda28a425f11c6d4832",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "875e791535ea7286f4fc23bb69c2ad9a8ed1b23fb755732cd46b92b2ee68db65",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "875e791535ea7286f4fc23bb69c2ad9a8ed1b23fb755732cd46b92b2ee68db65",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "49e3160bf8c31196a6ddaf913f80487a9bba311d60e3526f3131b700c37ae820",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "49e3160bf8c31196a6ddaf913f80487a9bba311d60e3526f3131b700c37ae820",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "7e0fc0cf2f638a87c1fa936b4590c940a0e22b191d6a9dfcc7eb99edc9f47f0b",
+            "returnedRows": 65
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "7e0fc0cf2f638a87c1fa936b4590c940a0e22b191d6a9dfcc7eb99edc9f47f0b",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "8548eade6c276b1f518a5bf7ae867a89ecee72279da59f82a46fef29e3baa53b",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "8548eade6c276b1f518a5bf7ae867a89ecee72279da59f82a46fef29e3baa53b",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "8f099eb4eec043751ee522f2b569685b4ba2ed5a2b172ff5424f004baffc3aac",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "8f099eb4eec043751ee522f2b569685b4ba2ed5a2b172ff5424f004baffc3aac",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "54f95690ee9129fe55c441b6f69f8c61f1b9643b50dc6d79e898a7fb919f12ce",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "54f95690ee9129fe55c441b6f69f8c61f1b9643b50dc6d79e898a7fb919f12ce",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "f985b18ac30703f094964eb138067a383467b10c4e97e3cafdd5c8f92d9e9429",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "f985b18ac30703f094964eb138067a383467b10c4e97e3cafdd5c8f92d9e9429",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "7273ca011ee70a2e42ce83b641af559240bebc55de6c13366885d27c60c66f2c",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "7273ca011ee70a2e42ce83b641af559240bebc55de6c13366885d27c60c66f2c",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "b91d14e3e1a05d1fcf29f0d247af77599e3267dbd01f53493a5c65cef048db64",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "b91d14e3e1a05d1fcf29f0d247af77599e3267dbd01f53493a5c65cef048db64",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "32e35560b27d8aa6f6115ac134f2616015e46f8d561612f3c29f266f09c8238c",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "32e35560b27d8aa6f6115ac134f2616015e46f8d561612f3c29f266f09c8238c",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "3f4c720831b70ad90fcdf1e821d76bbaf40788d5b33b4fad80965321d183784e",
+            "returnedRows": 12
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "3f4c720831b70ad90fcdf1e821d76bbaf40788d5b33b4fad80965321d183784e",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "980386407fc7fe4022a926b9874460d02743ffa0b3b753c2bb65ea5f94d346a1",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "980386407fc7fe4022a926b9874460d02743ffa0b3b753c2bb65ea5f94d346a1",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "cb92482acfdaa95bf5ecbd922c152bd6ab675d899fc324ee0492721d49d11416",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "cb92482acfdaa95bf5ecbd922c152bd6ab675d899fc324ee0492721d49d11416",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "82b96dece0253396967b3080e79afb1ed3ce902de914dc36c0b5d556fae308a6",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "82b96dece0253396967b3080e79afb1ed3ce902de914dc36c0b5d556fae308a6",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "0f12e634dbd340758ac641277c73efdc5526894f455784c94a696d71128ceb10",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "0f12e634dbd340758ac641277c73efdc5526894f455784c94a696d71128ceb10",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "93a1f6d62dcefeb6c1b19c68ce0141144437e25769f3d3d09754f93cd90d3883",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "93a1f6d62dcefeb6c1b19c68ce0141144437e25769f3d3d09754f93cd90d3883",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "7e45c3efca0e3d1c2d846533b3373ece215f9418c2660df1293f900b16e0bad4",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "7e45c3efca0e3d1c2d846533b3373ece215f9418c2660df1293f900b16e0bad4",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "ae3e0db90e942054bc1fea83b7fd99c119201b5448e034101567a1c82a83cca1",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "ae3e0db90e942054bc1fea83b7fd99c119201b5448e034101567a1c82a83cca1",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "c9860a3864220839731b424b20c90105e1bf53a7280bffd63e8ce425cf2f88cf",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "c9860a3864220839731b424b20c90105e1bf53a7280bffd63e8ce425cf2f88cf",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "f24fadf93cbae226d71694af718237a1545ac9eeb002bbfee65c5aacd63c77bd",
+            "returnedRows": 65
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "f24fadf93cbae226d71694af718237a1545ac9eeb002bbfee65c5aacd63c77bd",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "d9f9da60c520066ed8e79c70222ef09d00d593d90096a8a76a3ef69add49fd5d",
+            "boundArgumentsFingerprint": "661d4232a4fdbe20560f980d19fbd3182deb43ab647e182f0e6d3fea9552b5ab",
+            "returnedRows": 107
+          },
+          {
+            "sqlFingerprint": "6d90731c2d1e4a06df69c0ca4b9067a58a31f25a145226fcaa4942a07df10917",
+            "boundArgumentsFingerprint": "eca8635ac27b408486e0f806cdc4ba7279d2ad76e4e6ecc4374ae3fa4d93e252",
+            "returnedRows": 1
+          },
+          {
+            "sqlFingerprint": "99a2acf1deeace4bbce323db2d4fbe8a638dc0013baf9a005955a28da1a58f15",
+            "boundArgumentsFingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "returnedRows": 8
+          }
+        ],
+        "ownerScope": "owner-local",
+        "conversationScope": "single-native-conversation",
+        "dispatchId": "bench-f504885e1f62d52b5806",
+        "runId": "benchmark-owner",
+        "purpose": "normal",
+        "inputId": 0,
+        "inputCutoffId": 0,
+        "snapshotId": "95e3fd04-dae9-4df7-8b3e-94fd316835df",
+        "controlFingerprint": "6496ec19cedd11039b0e329afa033288482c132a8fedc2804ae7ec130858cf31",
+        "privacyFingerprint": "95ddf3f6d269990b3577b97b056b8d4ba1228620fdea19675fc8b9dbe6a95bcb",
+        "backend": "canonical_sql_plus_validated_hybrid_ids",
+        "candidateScope": {
+          "backend": "snapshot_fts_ids_plus_canonical_hydration",
+          "perTermPerTypeLimit": 64,
+          "candidateIds": 108,
+          "candidateLimitReached": true,
+          "ranking": "capped_term_rarity_plus_canonical_literal_matches_then_hybrid_rank",
+          "deviceBootstrapComplete": true,
+          "completeHistoryEnumerated": false
+        },
+        "resultCount": 72,
+        "exclusion": "none",
+        "coverage": "canonical_query_scope_at_snapshot",
+        "readAt": 1798761600000,
+        "validUntil": 1798762200000,
+        "modelInternalUseVerified": false
+      },
+      {
+        "layer": "semantic",
+        "status": "empty",
+        "queryId": "1bf52a0a05234ccd10ebcc5ceaae9ce8a599dfb21f4295c90b0d99de97b3c198",
+        "queryFingerprint": "1bf52a0a05234ccd10ebcc5ceaae9ce8a599dfb21f4295c90b0d99de97b3c198",
+        "queries": [
+          {
+            "sqlFingerprint": "f19c01f172e1691c497dfa84a3f04da1a5e747feb2c20af8aea662fb169115a3",
+            "boundArgumentsFingerprint": "5884b12d3964579b3f522bb0db5810a6a3c8393104a19545544cf32532c42cc5",
+            "returnedRows": 0
+          }
+        ],
+        "ownerScope": "owner-local",
+        "conversationScope": "single-native-conversation",
+        "dispatchId": "bench-f504885e1f62d52b5806",
+        "runId": "benchmark-owner",
+        "purpose": "normal",
+        "inputId": 0,
+        "inputCutoffId": 0,
+        "snapshotId": "95e3fd04-dae9-4df7-8b3e-94fd316835df",
+        "controlFingerprint": "6496ec19cedd11039b0e329afa033288482c132a8fedc2804ae7ec130858cf31",
+        "privacyFingerprint": "95ddf3f6d269990b3577b97b056b8d4ba1228620fdea19675fc8b9dbe6a95bcb",
+        "backend": "canonical_sql_plus_validated_hybrid_ids",
+        "candidateScope": {},
+        "resultCount": 0,
+        "exclusion": "none",
+        "coverage": "canonical_query_scope_at_snapshot",
+        "readAt": 1798761600000,
+        "validUntil": 1798762200000,
+        "modelInternalUseVerified": false
+      },
+      {
+        "layer": "episodic",
+        "status": "empty",
+        "queryId": "435b7f1ea2c35b511675156bc079581238b526282de2fe580dc547b5f2455900",
+        "queryFingerprint": "435b7f1ea2c35b511675156bc079581238b526282de2fe580dc547b5f2455900",
+        "queries": [
+          {
+            "sqlFingerprint": "3a5e8efcfde50e7a337b0e438ca568834cbdf7307891dcbdd70a92959ba7a2bc",
+            "boundArgumentsFingerprint": "5884b12d3964579b3f522bb0db5810a6a3c8393104a19545544cf32532c42cc5",
+            "returnedRows": 0
+          }
+        ],
+        "ownerScope": "owner-local",
+        "conversationScope": "single-native-conversation",
+        "dispatchId": "bench-f504885e1f62d52b5806",
+        "runId": "benchmark-owner",
+        "purpose": "normal",
+        "inputId": 0,
+        "inputCutoffId": 0,
+        "snapshotId": "95e3fd04-dae9-4df7-8b3e-94fd316835df",
+        "controlFingerprint": "6496ec19cedd11039b0e329afa033288482c132a8fedc2804ae7ec130858cf31",
+        "privacyFingerprint": "95ddf3f6d269990b3577b97b056b8d4ba1228620fdea19675fc8b9dbe6a95bcb",
+        "backend": "canonical_sql_plus_validated_hybrid_ids",
+        "candidateScope": {},
+        "resultCount": 0,
+        "exclusion": "none",
+        "coverage": "canonical_query_scope_at_snapshot",
+        "readAt": 1798761600000,
+        "validUntil": 1798762200000,
+        "modelInternalUseVerified": false
+      },
+      {
+        "layer": "procedural",
+        "status": "empty",
+        "queryId": "0419f012709045f7921e80df0c6c5fd3c3635aad65ac276ed47afc63605705bd",
+        "queryFingerprint": "0419f012709045f7921e80df0c6c5fd3c3635aad65ac276ed47afc63605705bd",
+        "queries": [
+          {
+            "sqlFingerprint": "4db8572f77fd6b3533f73149cb4254bc84f1e8b730f7c5cd8b12b82049841bb9",
+            "boundArgumentsFingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "1fb80fbcaa516eaeaacf8015acdc92902ba7cd84f23e649231a6b220d0651857",
+            "boundArgumentsFingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "returnedRows": 0
+          }
+        ],
+        "ownerScope": "owner-local",
+        "conversationScope": "single-native-conversation",
+        "dispatchId": "bench-f504885e1f62d52b5806",
+        "runId": "benchmark-owner",
+        "purpose": "normal",
+        "inputId": 0,
+        "inputCutoffId": 0,
+        "snapshotId": "95e3fd04-dae9-4df7-8b3e-94fd316835df",
+        "controlFingerprint": "6496ec19cedd11039b0e329afa033288482c132a8fedc2804ae7ec130858cf31",
+        "privacyFingerprint": "95ddf3f6d269990b3577b97b056b8d4ba1228620fdea19675fc8b9dbe6a95bcb",
+        "backend": "canonical_sql_plus_validated_hybrid_ids",
+        "candidateScope": {},
+        "resultCount": 0,
+        "exclusion": "none",
+        "coverage": "canonical_query_scope_at_snapshot",
+        "readAt": 1798761600000,
+        "validUntil": 1798762200000,
+        "modelInternalUseVerified": false
+      },
+      {
+        "layer": "active",
+        "status": "empty",
+        "queryId": "4780fbbd5a2ca26b5131ea152aa2f5ac3609d00ed018b910859bc30a83ab832e",
+        "queryFingerprint": "4780fbbd5a2ca26b5131ea152aa2f5ac3609d00ed018b910859bc30a83ab832e",
+        "queries": [
+          {
+            "sqlFingerprint": "67df856a9cf33d78b4f530c0d6b8be92d8561cb26adfa2b8edf558b05a6cc4fa",
+            "boundArgumentsFingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7d59cfcdcad2a4cb5a091cae9db32c9957ca45735450016e5b7688ea7238ba56",
+            "boundArgumentsFingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "returnedRows": 0
+          }
+        ],
+        "ownerScope": "owner-local",
+        "conversationScope": "single-native-conversation",
+        "dispatchId": "bench-f504885e1f62d52b5806",
+        "runId": "benchmark-owner",
+        "purpose": "normal",
+        "inputId": 0,
+        "inputCutoffId": 0,
+        "snapshotId": "95e3fd04-dae9-4df7-8b3e-94fd316835df",
+        "controlFingerprint": "6496ec19cedd11039b0e329afa033288482c132a8fedc2804ae7ec130858cf31",
+        "privacyFingerprint": "95ddf3f6d269990b3577b97b056b8d4ba1228620fdea19675fc8b9dbe6a95bcb",
+        "backend": "canonical_sql_plus_validated_hybrid_ids",
+        "candidateScope": {},
+        "resultCount": 0,
+        "exclusion": "none_mandatory_native_controls",
+        "coverage": "canonical_query_scope_at_snapshot",
+        "readAt": 1798761600000,
+        "validUntil": 1798762200000,
+        "modelInternalUseVerified": false
+      }
+    ],
+    "gatewayDiagnostics": {
+      "fiveLayerQueries": 5,
+      "snapshotBackend": "readonly_connection_savepoint",
+      "omittedOptionalItems": 39,
+      "projectionState": {
+        "state": "pending",
+        "structuredExtraction": "source_ranges_acknowledged_not_semantic_completeness",
+        "ownerReviewedThroughId": 0,
+        "latestOwnerId": 60198,
+        "unreviewedOwnerCount": 380,
+        "semanticIndexRequiredForAdmission": false,
+        "rawFallback": "canonical_sql"
+      },
+      "coverageMeaning": "canonical_query_scope_at_snapshot_not_all_history_read_by_model",
+      "overlongRetrievalTermsExcluded": 0,
+      "authoritativeInputPreserved": true,
+      "sourceGraphRead": {
+        "sourceQueries": 72,
+        "settingQueries": 72,
+        "cachedVerdictHits": 72,
+        "derivedSourceQueries": 0,
+        "examinedNodes": 72,
+        "cachedSources": 72,
+        "cachedVerdicts": 72,
+        "privacyVersion": 12,
+        "immutableReadSnapshot": true,
+        "persistentCache": false
+      },
+      "hybridCandidatesAreUntrustedUntilHydrated": true,
+      "modelInternalUseVerified": false
+    },
+    "freshOutputCheckPassed": true,
+    "contextSha256": "35ef12a662cbaf0a0c008bee373f67faecc815ce20a51d68809cbb3a8b5f46fc",
+    "contextChars": 11731,
+    "messageCount": 184428,
+    "deviceEventCount": 18,
+    "ftsCount": 184428,
+    "memoryNotes": 0,
+    "canonicalCopySha256": "a92d3075f3fafca467ff4fe0e45bc9afa585d58df20afce4c58da5c410edceb2",
+    "emittedEvidenceContainsChangedText": true,
+    "originalPrimaryPacketContextSha256": "3dd9d9af2566e64c24e1c73962f50392d522b72a221880656b20bbb18ed965b2",
+    "modelAnswerQuality": "not_measured"
+  },
+  {
+    "tag": "b509e",
+    "readerId": "e1cff302f9e52447db1c",
+    "originalPrimaryId": "f504885e1f62d52b5806",
+    "scorerOnlyRelation": "unrelated_source_changed",
+    "sourceChange": {
+      "type": "message",
+      "id": 29464,
+      "role": "user",
+      "recordedAt": 1639440000000,
+      "oldRecordHash": "6cdc4234aab2b9b5f100277fd57fdc8eae89de4ef667b15204fdb3ab65b14418",
+      "newRecordHash": "917e32c7430ddc79f99209f6ebfa5dc79cc7f5ab722da8af74782308ef3f5c32",
+      "oldText": "독서회 보관접수 물품을 맡긴 접수번호는 Q28-R0826야. 다른 번호는 내 것이 아니야.",
+      "newText": "독서회 보관접수 물품을 맡긴 접수번호는 Q28-R0826_CF_OTHER야. 다른 번호는 내 것이 아니야.",
+      "oldSpan": "Q28-R0826",
+      "replacementSpan": "Q28-R0826_CF_OTHER",
+      "actualProductionHashAndFtsVerified": true
+    },
+    "queryArgs": {
+      "query": "첫해 사진전 보관접수에서 받은 접수번호가 뭐였지?",
+      "asOf": 1798761600000,
+      "toExclusive": 1798761600000,
+      "limit": 12,
+      "maxChars": 12000
+    },
+    "originalEvidence": [
+      {
+        "type": "message",
+        "id": 1106,
+        "hash": "58c4d3271832d153c81d02ab29d476ece2363a7cc069efd06e4b4187eb22d2e0",
+        "role": "user",
+        "recordedAt": 1610582400000,
+        "exactOriginalRange": false,
+        "originalChars": 50,
+        "originalStored": true,
+        "excerpt": "사진전 보관접수 물품을 맡긴 접수번호는 Q17-R0419야. 다른 번호는 내 것이 아니야.",
+        "retrievalScore": 0.036597028494379825,
+        "lexicalScore": 1.135,
+        "relevantToQuery": true,
+        "lexicalRank": 1,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 29464,
+        "hash": "917e32c7430ddc79f99209f6ebfa5dc79cc7f5ab722da8af74782308ef3f5c32",
+        "role": "user",
+        "recordedAt": 1639440000000,
+        "exactOriginalRange": false,
+        "originalChars": 59,
+        "originalStored": true,
+        "excerpt": "독서회 보관접수 물품을 맡긴 접수번호는 Q28-R0826_CF_OTHER야. 다른 번호는 내 것이 아니야.",
+        "retrievalScore": 0.0363066665724001,
+        "lexicalScore": 0.77,
+        "relevantToQuery": true,
+        "lexicalRank": 2,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 26917,
+        "hash": "9544bffaf4284be1a9afe4915886fe52f508a29f837b8e457d83082e885f6394",
+        "role": "user",
+        "recordedAt": 1636848000000,
+        "exactOriginalRange": false,
+        "originalChars": 50,
+        "originalStored": true,
+        "excerpt": "도예실 보관접수 물품을 맡긴 접수번호는 Q27-R0789야. 다른 번호는 내 것이 아니야.",
+        "retrievalScore": 0.03605065018735146,
+        "lexicalScore": 0.77,
+        "relevantToQuery": true,
+        "lexicalRank": 3,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 24286,
+        "hash": "edc28216663b02522c6e6ef059181622d8fddff1595d659add1b5ecf6e4473fd",
+        "role": "user",
+        "recordedAt": 1634169600000,
+        "exactOriginalRange": false,
+        "originalChars": 50,
+        "originalStored": true,
+        "excerpt": "박물관 보관접수 물품을 맡긴 접수번호는 Q26-R0752야. 다른 번호는 내 것이 아니야.",
+        "retrievalScore": 0.035802634314335585,
+        "lexicalScore": 0.77,
+        "relevantToQuery": true,
+        "lexicalRank": 4,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 21737,
+        "hash": "206fb55290a53e5f7ab606623ff515db118f51710e8750649a8238064988d277",
+        "role": "user",
+        "recordedAt": 1631577600000,
+        "exactOriginalRange": false,
+        "originalChars": 50,
+        "originalStored": true,
+        "excerpt": "수영장 보관접수 물품을 맡긴 접수번호는 Q25-R0715야. 다른 번호는 내 것이 아니야.",
+        "retrievalScore": 0.03556224969895097,
+        "lexicalScore": 0.77,
+        "relevantToQuery": true,
+        "lexicalRank": 5,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 19107,
+        "hash": "a8ba1b6853c32abb64d64cfc92c8a791a92d862b80ffc2440580edf2aee4c47a",
+        "role": "user",
+        "recordedAt": 1628899200000,
+        "exactOriginalRange": false,
+        "originalChars": 50,
+        "originalStored": true,
+        "excerpt": "번역팀 보관접수 물품을 맡긴 접수번호는 Q24-R0678야. 다른 번호는 내 것이 아니야.",
+        "retrievalScore": 0.03532914946585074,
+        "lexicalScore": 0.77,
+        "relevantToQuery": true,
+        "lexicalRank": 6,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 16475,
+        "hash": "d13a6e97eef9d8b6035611eba3ac4696c111dc7f61ae2ef40103eb8c72b2e499",
+        "role": "user",
+        "recordedAt": 1626220800000,
+        "exactOriginalRange": false,
+        "originalChars": 50,
+        "originalStored": true,
+        "excerpt": "등산회 보관접수 물품을 맡긴 접수번호는 Q23-R0641야. 다른 번호는 내 것이 아니야.",
+        "retrievalScore": 0.03510300744866394,
+        "lexicalScore": 0.77,
+        "relevantToQuery": true,
+        "lexicalRank": 7,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 13927,
+        "hash": "e065736a6d1ab8f9217b4a822cceaedf47f71d84eb626b410350accfd12c5740",
+        "role": "user",
+        "recordedAt": 1623628800000,
+        "exactOriginalRange": false,
+        "originalChars": 49,
+        "originalStored": true,
+        "excerpt": "텃밭 보관접수 물품을 맡긴 접수번호는 Q22-R0604야. 다른 번호는 내 것이 아니야.",
+        "retrievalScore": 0.03488351666727676,
+        "lexicalScore": 0.77,
+        "relevantToQuery": true,
+        "lexicalRank": 8,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 11296,
+        "hash": "e536ef8eeab3c3c2e33c9ab14e9cebdce5aa9441bef9f8d1f0e188602baebad9",
+        "role": "user",
+        "recordedAt": 1620950400000,
+        "exactOriginalRange": false,
+        "originalChars": 50,
+        "originalStored": true,
+        "excerpt": "음악회 보관접수 물품을 맡긴 접수번호는 Q21-R0567야. 다른 번호는 내 것이 아니야.",
+        "retrievalScore": 0.034670387937523986,
+        "lexicalScore": 0.77,
+        "relevantToQuery": true,
+        "lexicalRank": 9,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 8749,
+        "hash": "a97ebabf7895a8b68ce3b90c39f240d67c3e1f07abc0916f4046eef0d58852ca",
+        "role": "user",
+        "recordedAt": 1618358400000,
+        "exactOriginalRange": false,
+        "originalChars": 50,
+        "originalStored": true,
+        "excerpt": "목공방 보관접수 물품을 맡긴 접수번호는 Q20-R0530야. 다른 번호는 내 것이 아니야.",
+        "retrievalScore": 0.03446334860004987,
+        "lexicalScore": 0.77,
+        "relevantToQuery": true,
+        "lexicalRank": 10,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 6116,
+        "hash": "92e960cd82729c15077f3a1ef5a6b482131c8135ddf3ee52e650bbf14b26bc43",
+        "role": "user",
+        "recordedAt": 1615680000000,
+        "exactOriginalRange": false,
+        "originalChars": 50,
+        "originalStored": true,
+        "excerpt": "천문대 보관접수 물품을 맡긴 접수번호는 Q19-R0493야. 다른 번호는 내 것이 아니야.",
+        "retrievalScore": 0.0342621413565891,
+        "lexicalScore": 0.77,
+        "relevantToQuery": true,
+        "lexicalRank": 11,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 3738,
+        "hash": "8cda74a66977932f08d12eb9af82df1774fde4acf44171079bb75b6d3d620da4",
+        "role": "user",
+        "recordedAt": 1613260800000,
+        "exactOriginalRange": false,
+        "originalChars": 50,
+        "originalStored": true,
+        "excerpt": "도서관 보관접수 물품을 맡긴 접수번호는 Q18-R0456야. 다른 번호는 내 것이 아니야.",
+        "retrievalScore": 0.034066523203224466,
+        "lexicalScore": 0.77,
+        "relevantToQuery": true,
+        "lexicalRank": 12,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "device_event",
+        "id": 1,
+        "hash": "50e1699a73707d4cdbb9a0fb9f759f9aa2eebcb97bce4db7a5bcb954fa634670",
+        "role": "device_observation",
+        "recordedAt": 1611187200000,
+        "exactOriginalRange": false,
+        "originalChars": 96,
+        "originalStored": true,
+        "excerpt": "{\"text\":\"사진전 예약활동 예약 확인 결과가 도착했어. 좌석 두 개가 확보되었다는 확인서야.\",\"evidenceState\":\"confirmation_received\"}",
+        "retrievalScore": 0.03372458169407973,
+        "lexicalScore": 0.395,
+        "relevantToQuery": true,
+        "lexicalRank": 13,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 32087,
+        "hash": "8f6356b4348b0969775279b2cb35e8a436ec555454ce7c2932148299b95dc522",
+        "role": "user",
+        "recordedAt": 1642118400000,
+        "exactOriginalRange": false,
+        "originalChars": 46,
+        "originalStored": true,
+        "excerpt": "사진전 개인기록 개인 보관 코드를 원문과 파생 기억에서 삭제하고 다시 사용하지 마.",
+        "retrievalScore": 0.03353946507060694,
+        "lexicalScore": 0.385,
+        "relevantToQuery": true,
+        "lexicalRank": 14,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 32086,
+        "hash": "2adc7f3c1869bd1830ce6d687a0bf5d9a095c00b6dff171a50557d71461e331b",
+        "role": "user",
+        "recordedAt": 1642118400000,
+        "exactOriginalRange": false,
+        "originalChars": 46,
+        "originalStored": true,
+        "excerpt": "사진전 물품구매 물품 구매 작업을 취소했어. 이전 예산 기록은 구매 권한이 아니야.",
+        "retrievalScore": 0.033359284890426756,
+        "lexicalScore": 0.385,
+        "relevantToQuery": true,
+        "lexicalRank": 15,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 32085,
+        "hash": "93afee6e5aabbf901b085aec0e086b2e4d9f9cb271791aed103c25da69c22e33",
+        "role": "user",
+        "recordedAt": 1642118400000,
+        "exactOriginalRange": false,
+        "originalChars": 44,
+        "originalStored": true,
+        "excerpt": "사진전 담당자연락 업무 보고서도 정중하게 써. 일상 대화의 말투는 그대로 두자.",
+        "retrievalScore": 0.03318384629393553,
+        "lexicalScore": 0.385,
+        "relevantToQuery": true,
+        "lexicalRank": 16,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 32084,
+        "hash": "5bdbb9ce8af4ae1d6f65fed50e2a224cbd4cd75e684a0a6dcf9bf1bdcf17dde2",
+        "role": "user",
+        "recordedAt": 1642118400000,
+        "exactOriginalRange": false,
+        "originalChars": 41,
+        "originalStored": true,
+        "excerpt": "사진전 예약활동 관련 지금 예약 확인은 새로 요청했어. 아직 응답은 없어.",
+        "retrievalScore": 0.03301296454410641,
+        "lexicalScore": 0.385,
+        "relevantToQuery": true,
+        "lexicalRank": 17,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 32083,
+        "hash": "b946ce3c0e32335f91561030ed8bf384ca0b5f0da51ca9535cc5b02f996ce94d",
+        "role": "user",
+        "recordedAt": 1642118400000,
+        "exactOriginalRange": false,
+        "originalChars": 41,
+        "originalStored": true,
+        "excerpt": "오늘 사진전 자료보관 자료를 해솔실로 옮겼어. 청록함은 이전 보관 장소야.",
+        "retrievalScore": 0.032846464377606244,
+        "lexicalScore": 0.385,
+        "relevantToQuery": true,
+        "lexicalRank": 18,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 1708,
+        "hash": "a67a9170d1599168328257deb5cc197b1e41169ec2f342537362c98fd6105321",
+        "role": "user",
+        "recordedAt": 1611187200000,
+        "exactOriginalRange": false,
+        "originalChars": 49,
+        "originalStored": true,
+        "excerpt": "사진전 장소선정 장소를 고른 이유는 이동 시간이 짧아서야. 시설이 최고라는 뜻은 아니야.",
+        "retrievalScore": 0.03268417940519469,
+        "lexicalScore": 0.385,
+        "relevantToQuery": true,
+        "lexicalRank": 19,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 1707,
+        "hash": "077b4adbc19d420b2c5e552fe3f086dc99d41ef02820bc4bff5a2bd452754f08",
+        "role": "user",
+        "recordedAt": 1611187200000,
+        "exactOriginalRange": false,
+        "originalChars": 65,
+        "originalStored": true,
+        "excerpt": "사진전 등록행사 등록일을 9일이라고 한 건 틀렸어. 실제 등록일은 2021년 1월 11일이야. 처음부터 11일이었어.",
+        "retrievalScore": 0.032525951557093424,
+        "lexicalScore": 0.385,
+        "relevantToQuery": true,
+        "lexicalRank": 20,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 1706,
+        "hash": "1a1eb494db5bb2775da9bc67807aae1c88c8b9fda34e4354336fb24243380f30",
+        "role": "user",
+        "recordedAt": 1611187200000,
+        "exactOriginalRange": false,
+        "originalChars": 42,
+        "originalStored": true,
+        "excerpt": "사진전 준비모임 준비 모임을 해솔실라고도 부를게. 다른 모임 이름은 아니야.",
+        "retrievalScore": 0.032371630569439105,
+        "lexicalScore": 0.385,
+        "relevantToQuery": true,
+        "lexicalRank": 21,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 1117,
+        "hash": "9d22ae65682e6d379971eff4f84638c87658583f76b21694438c58ea941a35e1",
+        "role": "user",
+        "recordedAt": 1610582400000,
+        "exactOriginalRange": false,
+        "originalChars": 23,
+        "originalStored": true,
+        "excerpt": "사진전 자료정리 단계14 자료를 정리했어.",
+        "retrievalScore": 0.032221073508312936,
+        "lexicalScore": 0.385,
+        "relevantToQuery": true,
+        "lexicalRank": 22,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 1115,
+        "hash": "a8b23990329b8e375b381b0990ea0d421b321917111133a2e57a63d96c26ac44",
+        "role": "user",
+        "recordedAt": 1610582400000,
+        "exactOriginalRange": false,
+        "originalChars": 21,
+        "originalStored": true,
+        "excerpt": "사진전 안내판 안내판 사진을 첨부했어.",
+        "retrievalScore": 0.03207414432817776,
+        "lexicalScore": 0.385,
+        "relevantToQuery": true,
+        "lexicalRank": 23,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      },
+      {
+        "type": "message",
+        "id": 1114,
+        "hash": "649179602c33b45417ee21e5ccd566ea8f1af43fe69f8a5febc86b75ea5eab03",
+        "role": "user",
+        "recordedAt": 1610582400000,
+        "exactOriginalRange": false,
+        "originalChars": 48,
+        "originalStored": true,
+        "excerpt": "사진전 신입모임에서 오늘 자료 정리를 했어. 개인 식별정보는 이번에 이야기하지 않았어.",
+        "retrievalScore": 0.03193071346185533,
+        "lexicalScore": 0.385,
+        "relevantToQuery": true,
+        "lexicalRank": 24,
+        "rankingMethod": "RRF(k=60);scores_are_not_truth_confidence"
+      }
+    ],
+    "gatewayDependencies": [
+      {
+        "type": "message",
+        "id": 1106,
+        "hash": "58c4d3271832d153c81d02ab29d476ece2363a7cc069efd06e4b4187eb22d2e0",
+        "offsetChars": 0,
+        "lengthChars": 50,
+        "rangeHash": "b0e9144d363c459da654bb2e93495dfbdc52fa7db7d9e2f265c5be76aa0d9a94"
+      },
+      {
+        "type": "message",
+        "id": 29464,
+        "hash": "917e32c7430ddc79f99209f6ebfa5dc79cc7f5ab722da8af74782308ef3f5c32",
+        "offsetChars": 0,
+        "lengthChars": 59,
+        "rangeHash": "258c50ae1feda9e3ba225970c71b2ae749cf40bd2b9de72e65d33a7cfbcd2ca0"
+      },
+      {
+        "type": "message",
+        "id": 26917,
+        "hash": "9544bffaf4284be1a9afe4915886fe52f508a29f837b8e457d83082e885f6394",
+        "offsetChars": 0,
+        "lengthChars": 50,
+        "rangeHash": "14d430c700969e6eb79b9b04830a6243e5d8715a6e0dad8cb192e149eac436d9"
+      },
+      {
+        "type": "message",
+        "id": 24286,
+        "hash": "edc28216663b02522c6e6ef059181622d8fddff1595d659add1b5ecf6e4473fd",
+        "offsetChars": 0,
+        "lengthChars": 50,
+        "rangeHash": "b221f703af776403ab310e3cb9a716fa0c07883052d3322888d1144afc7e736e"
+      },
+      {
+        "type": "message",
+        "id": 21737,
+        "hash": "206fb55290a53e5f7ab606623ff515db118f51710e8750649a8238064988d277",
+        "offsetChars": 0,
+        "lengthChars": 50,
+        "rangeHash": "286d0a0ede9c8a64a3f55dd770c7d7ce3fbe8b9f7ac75d6467babebe6f16857d"
+      },
+      {
+        "type": "message",
+        "id": 19107,
+        "hash": "a8ba1b6853c32abb64d64cfc92c8a791a92d862b80ffc2440580edf2aee4c47a",
+        "offsetChars": 0,
+        "lengthChars": 50,
+        "rangeHash": "839919eb1ff139272e769e32b9654466289a2b15fa0c3f5e1ee2bbecfc2c7082"
+      },
+      {
+        "type": "message",
+        "id": 16475,
+        "hash": "d13a6e97eef9d8b6035611eba3ac4696c111dc7f61ae2ef40103eb8c72b2e499",
+        "offsetChars": 0,
+        "lengthChars": 50,
+        "rangeHash": "3e9ed2d62789fde3e4bc3593e5c9f47114c647e7074c13c5ca190ff6ea33ac6e"
+      },
+      {
+        "type": "message",
+        "id": 13927,
+        "hash": "e065736a6d1ab8f9217b4a822cceaedf47f71d84eb626b410350accfd12c5740",
+        "offsetChars": 0,
+        "lengthChars": 49,
+        "rangeHash": "f79715d226db02409ad3f8e90c63f05dcfef8d263f612bed1660001b73c3ee0d"
+      },
+      {
+        "type": "message",
+        "id": 11296,
+        "hash": "e536ef8eeab3c3c2e33c9ab14e9cebdce5aa9441bef9f8d1f0e188602baebad9",
+        "offsetChars": 0,
+        "lengthChars": 50,
+        "rangeHash": "0316f16d6570264023ad16fc009826e5059f64408b216bee644b5b8e299e1f84"
+      },
+      {
+        "type": "message",
+        "id": 8749,
+        "hash": "a97ebabf7895a8b68ce3b90c39f240d67c3e1f07abc0916f4046eef0d58852ca",
+        "offsetChars": 0,
+        "lengthChars": 50,
+        "rangeHash": "0ca2fd38c09d24b744a216e5744c93d7bad054f315fe3df54c5df90c7baa7367"
+      },
+      {
+        "type": "message",
+        "id": 6116,
+        "hash": "92e960cd82729c15077f3a1ef5a6b482131c8135ddf3ee52e650bbf14b26bc43",
+        "offsetChars": 0,
+        "lengthChars": 50,
+        "rangeHash": "35d8eff81cfcb160f0cd265accfa7ac2bedf2414193bf13a6e499c6f4610bff6"
+      },
+      {
+        "type": "message",
+        "id": 3738,
+        "hash": "8cda74a66977932f08d12eb9af82df1774fde4acf44171079bb75b6d3d620da4",
+        "offsetChars": 0,
+        "lengthChars": 50,
+        "rangeHash": "888210a9901ffde2de7cdfd992d322098175473d6afa9369e34656dc625c8e89"
+      },
+      {
+        "type": "message",
+        "id": 773,
+        "hash": "cb12e33998a0880c275433a9b0ff1d79cf5c462234fe40361f133d45e7949ddb",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "5f06da13632765fbf95a83eeeef499194fce65205a8baba24fa536dee1e4f025"
+      },
+      {
+        "type": "message",
+        "id": 759,
+        "hash": "5b590e71c5a227c655ef43c4f199557caeb0f910a88b3950029baf27c90e98b8",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "db08e2910d6411b56a5007a3f9255ae3dc930bd2a873db8660bfd77fe526fdf5"
+      },
+      {
+        "type": "message",
+        "id": 747,
+        "hash": "a02a3e512d364c6b8d494ca48ef27f1781031e8a341457394f6fa8aa96538d66",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "eaa0ca4fe518826247f6a78bac89666254db54fce544302603fc375e4a0f46be"
+      },
+      {
+        "type": "message",
+        "id": 735,
+        "hash": "1644892aff073fdb07d3681d5ce6392190ac87c35667ebb46cb1669f872fba50",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "1d0b3b1d34d6ecb1e7663cc8d423ac0c30d49e62c87737e5d42f7f1488c7a9ef"
+      },
+      {
+        "type": "message",
+        "id": 723,
+        "hash": "bb42aa8a5d73932324061268103fe94b8dace2392f6fb196328bbf1fb999f46c",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "b953165b0ff68afac15ea2918549b91f1aefd17dc0f2fdedce5fe1e67565eebe"
+      },
+      {
+        "type": "message",
+        "id": 711,
+        "hash": "210455ea7747f002c54a9e15fad248eb553e0ac14b936631cee650c652e83fd3",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "0c0342684ee645ce87ea0189735f42b73f07a25748e04f7b3ac4432c8843b8b5"
+      },
+      {
+        "type": "message",
+        "id": 699,
+        "hash": "142a32ca462316463d805233e12b75c6306506585305cf925eb781c07d5fa0a9",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "07c10710655910b40d7d727ca4725223f4a53c6294e16c1fcc91d78aa846a4c4"
+      },
+      {
+        "type": "message",
+        "id": 687,
+        "hash": "99d5590d46a94be52f2b0576ab056e15f99c7253e8d8418e4aeb4466a70e9c98",
+        "offsetChars": 0,
+        "lengthChars": 107,
+        "rangeHash": "147aa86dfe4868161c634aa55cf9ec3c30f30702bee44a866223bba2e50a9a4f"
+      },
+      {
+        "type": "message",
+        "id": 673,
+        "hash": "02847f4beaa96458cd27fcfc4645891f5f86ba8cf1479109b0796532c903c8d1",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "7183c5d2c0a1c87362f4301d117062079bdc17d2ae4d9ec854d976d27fd38988"
+      },
+      {
+        "type": "message",
+        "id": 661,
+        "hash": "22801e804e706fc197b337818dd5f8296e5342cf0808f9f24defc7e6e3854be7",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "c59638b63820148fc4bac9798226004682fe7115d30d7aae44410de8a19f9a5a"
+      },
+      {
+        "type": "message",
+        "id": 649,
+        "hash": "d2bcf53c2344294ff3f0ca46cea2d663a7e5432f33f74b869386dea75f16ca25",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "f5a94fc6067b9f3e06313234567fe722365f0cea9a7d1476241e62f64d20f85d"
+      },
+      {
+        "type": "message",
+        "id": 637,
+        "hash": "c340f7882fe86e498be6f58fc95d8c3106f2e4cbbbbc1c1ce9e95c0f9f6ef14d",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "509c9029fcc0b692fb25be270f1e5bb75c122b9da2a758f80ab535cb7ab2cf58"
+      },
+      {
+        "type": "message",
+        "id": 625,
+        "hash": "13cde51c08151ec80274e4c63c3aa3f3f69ccdc7169a714fb4bdfd21b38a02e9",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "cecac6214a2c8d489d308bc8d85dda0d023de3a243a0755be4358dfa280bd11b"
+      },
+      {
+        "type": "message",
+        "id": 613,
+        "hash": "b08ed757d94b976174795ecb03e146a91c0a98fa175fa957dd6efbbb6333e8ee",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "6799f5a10cbc9e000367b7f2a9c48a2ad09e38aa70899e1be07340ea85dc2ee5"
+      },
+      {
+        "type": "message",
+        "id": 601,
+        "hash": "f323dc37ba896c2285601db45972eeb8e9882bdddac7eedb9f6d7f7020c65a14",
+        "offsetChars": 0,
+        "lengthChars": 105,
+        "rangeHash": "b2d0ae2511a351dc64d145704ad8747e75d5f2b228f21ba2dbba011514731ff5"
+      },
+      {
+        "type": "message",
+        "id": 587,
+        "hash": "e2d117b3ebf02365cb94174671112b1711a51857a6d2efdc2e10b71a4e98c294",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "fe03ef019819dc304b5b982ef7a4d6e7da468d4974a13dac7c7d391701d6225d"
+      },
+      {
+        "type": "message",
+        "id": 575,
+        "hash": "328f5e977a63cbfd57fe37192a41d3e6056497a173cf792300a222b856de8af1",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "2f5bf4dc62754b7773232c82f294df89f29afdf602aee7e2d0576663cb6a9d47"
+      },
+      {
+        "type": "message",
+        "id": 563,
+        "hash": "efd03ef123da8f20b2fb2e69dadf8ef832215a325266672a171808eba27e7843",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "27cbf5adb06e86e9ec5e49eb98ddcebf0e6780864d5e6705c1e2323abcc147d8"
+      },
+      {
+        "type": "message",
+        "id": 551,
+        "hash": "0a577059cbfed281284129f5e6a90c1e989268ded749db9a92ceaf6a973ce8ad",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "9ea5adb58a6567e76af4d87e079f76b68abf9d0196f1b6950dede2c5b016aae1"
+      },
+      {
+        "type": "message",
+        "id": 539,
+        "hash": "bc41fb34b164c4f8672b677decd18dd8a9fa7c1cb9d75dbc095db9df65b1e6ce",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "88dcabfb3a2af2354520a98b754b3b4aa84a3acd1a38498dd1b8caa00162dc0f"
+      },
+      {
+        "type": "message",
+        "id": 527,
+        "hash": "bd79d792f2f151e0135a41ec2bec80b4e7948ec4fc3475d430b7c018e537fc62",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "362c0b45d9e02d328ea68ff105d12156c9f3cb44692accdffeffd87bbfbfbeb3"
+      },
+      {
+        "type": "message",
+        "id": 515,
+        "hash": "94eba4a0e7828df8c11f37c77410979a31d641f1773d97ca4d57f1973dbe9a69",
+        "offsetChars": 0,
+        "lengthChars": 107,
+        "rangeHash": "46fcba7c0a374a72d45bdf0d20ea1e154fcdb1b52e33b9de405d72fc0be81588"
+      },
+      {
+        "type": "message",
+        "id": 501,
+        "hash": "b981971d186dac649b13bc3c7108a9f2d321887d32589d8aff754decd33d15cd",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "57a810696cf0860e06ad2e49a4eb92d8c71e0ca635ef1066c62967b3b7db36dc"
+      },
+      {
+        "type": "message",
+        "id": 489,
+        "hash": "e7113212c521d64de16af5fef47e854e809ff38bfa752d4148d78d3fc7496968",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "740cbae2f8570ceefdbc9a870ab77a2088209dd0289efd09c21642be19954187"
+      },
+      {
+        "type": "message",
+        "id": 477,
+        "hash": "ebafd13f833857334e15c590ae402c4ba1d0b02fee849585ffc566300089ee26",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "d6eca200f16cfabadba39ec0c8f3ed116875a402c6ddeadd9d7ceb8d1dbf1ca3"
+      },
+      {
+        "type": "message",
+        "id": 465,
+        "hash": "86a2b31e85f2ebd0f9a60f477f65c9ce80fa80e46ae19abce66866a08106a276",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "af852cd3e8fb7b1541b0d6fe1259a512506da3d799da1f15f4c95b611408c9dc"
+      },
+      {
+        "type": "message",
+        "id": 453,
+        "hash": "0dda477bbef58b7b9ff8d94c91c08c9037f7b116a9fed800066c4b961f70c257",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "40224ba9c23da0e64dcefa58adbe2b239b42bf7d35716a9cee90973ac3cdd99d"
+      },
+      {
+        "type": "message",
+        "id": 441,
+        "hash": "53747a0fb191d739c358d3d3c9364d1c147be93b2dca8d1ad3f2871840d46b89",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "2c590c6ca2fa236083ac226e16ca6fc8d7dad97524b5b4d347d7e8d003e91d2c"
+      },
+      {
+        "type": "message",
+        "id": 429,
+        "hash": "63024ab6ecce6f09ed818e975879b16026047bc11b0afd69f1dc92904d66f08f",
+        "offsetChars": 0,
+        "lengthChars": 105,
+        "rangeHash": "d5515318c8d199367b69c010eadb5c08ded36f81d79e75cd088dc780b395a217"
+      },
+      {
+        "type": "message",
+        "id": 415,
+        "hash": "c30fb1e99ae978b391ccadff0694be64443e604312e79d34469cd5adbc4319fe",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "1d6bfcd2a573c0e70b27f7158ca051b5a6c9e38abf879d98a04d15cbad7e4f10"
+      },
+      {
+        "type": "message",
+        "id": 403,
+        "hash": "2e41eb66976e65182a5921e983f3272929ee94001eccf746b3c04d7b73035d1d",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "2db46c3ce641db6434f5b31812d2b3e521c81571f282591fd3170b0cfd6f26a9"
+      },
+      {
+        "type": "message",
+        "id": 391,
+        "hash": "82619d376deea9197921fd93c383080e0f053132d1e68fde5dd11d66e1386fda",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "a1197934295f38e614efe911f737ad5c92905a3e348791d2bff81fa497b6393e"
+      },
+      {
+        "type": "message",
+        "id": 379,
+        "hash": "2b2b68e3c493b639a6c129f79d260bc45d424ccd106d81196aff4a0b7a1de7e2",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "24f1fcd75288586c3f642d9802378759f66dec6d89ae00d20b381286a841a364"
+      },
+      {
+        "type": "message",
+        "id": 367,
+        "hash": "e0cf99dd6a9c7a95611df605dbd8cbc25d715fcfb73d2540ae857bccedafa9c0",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "a30c4deef3a54eea68db080d0382cba9b592f0627feb541da5ce57613772f352"
+      },
+      {
+        "type": "message",
+        "id": 355,
+        "hash": "ca0460ef651285a72d7f857c0739e76a32edd8d33ab2e40922b98bfdb7f77dcf",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "41a8dea5198f1d8dbb3c8d14e3589a8efab990727d2b00c26405653e4a856635"
+      },
+      {
+        "type": "message",
+        "id": 343,
+        "hash": "ded21d3a74fd9ef56a9fa428d9c2f03c3b0d8de0f053d7697346ee00caec2650",
+        "offsetChars": 0,
+        "lengthChars": 107,
+        "rangeHash": "2a798ce1e928e614fed3f4a23a962d44b5f6fdc56c49c2d2142086aad7246013"
+      },
+      {
+        "type": "message",
+        "id": 329,
+        "hash": "4b7df96027a78a1549e72974ccf7121afa87a1838f54e254c893082852309d5d",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "9c05acf846c9f8db1c3282a3ef12902ef812870984e4e9a912e916edfc54f288"
+      },
+      {
+        "type": "message",
+        "id": 317,
+        "hash": "0c8bfb549077239e9063785ecec498cdf021adbc149fb8029c907d40605483f4",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "fd052d191432ed94e230cc2fcd52167d27d96b846a95b691ad2b3c858fbe7c88"
+      },
+      {
+        "type": "message",
+        "id": 305,
+        "hash": "3fa5253599a4886c1fac21961325f631288b7f470d84d4e2ed3a9f52dd253672",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "31587416ddbdfa68a7fb92be7577978e92d446e7c8f302b0710a5d68a5d2892c"
+      },
+      {
+        "type": "message",
+        "id": 293,
+        "hash": "352541f63a008d79e03108e669db9048c043ef2fa0caae973388f53c88f94fc6",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "0989fd48a6593eaf58509aa4a5638c95123f9fe404b32a265d760ea41523920d"
+      },
+      {
+        "type": "message",
+        "id": 281,
+        "hash": "66a1045d8ed3e1cd27b394dcca81d38c38c45d36fd48191640b50111d1c608df",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "f742e7099ab31203212ad5bde199b7a0e1c973a8715cc7af8ab357107d7078fe"
+      },
+      {
+        "type": "message",
+        "id": 269,
+        "hash": "c383338b9d8c88000839db01e887fb8fda80a00d26919e8212997c6b59f30ff8",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "c907280cdd52794b8f22778477908c5cd1ebe44fd18b002d411ce4b32b9dba68"
+      },
+      {
+        "type": "message",
+        "id": 257,
+        "hash": "063fa876cad8a801d1f8f34a70c537bde952b85e71297fb6b400965712696d19",
+        "offsetChars": 0,
+        "lengthChars": 105,
+        "rangeHash": "1842b8aa15509f96dba89e0dbded151773ba02db83cc2d716b5b59041b48481f"
+      },
+      {
+        "type": "message",
+        "id": 255,
+        "hash": "2894e2330758b1537c24da6fa3e39e0dee6e8b3d266ed9d7f4144ce12a216068",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "338e5d4d9c836731aed83c478413c5cf61376b45ff4500ef08345102de07fa92"
+      },
+      {
+        "type": "message",
+        "id": 243,
+        "hash": "3fc8f826f6092984b8eee929640cbed9fcdac2f47000b94884f8ab46afc0766d",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "708cf3d28c4cba9a78c8d0ebbec1f8a329357518db27a9d10481eba71978bff9"
+      },
+      {
+        "type": "message",
+        "id": 231,
+        "hash": "dfd22c05fc0693c58f0db26b5bb95231d6ee917920d08248d0991b2c9fd7fab0",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "1aaf65c343b9e2ca9324acbca7969543b257af7352b1604d6ef8194074349995"
+      },
+      {
+        "type": "message",
+        "id": 219,
+        "hash": "6fb5b1517da9dc821ee8423ff9b8db4ce14cdc84478f269f877bb6f85d1352e9",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "73b87ef408c0506f9949cfef742b1c298b82bc292b0f1045e696301bfbc694e8"
+      },
+      {
+        "type": "message",
+        "id": 207,
+        "hash": "bb70df5f9c304a1722989ab9d6d3f1cf9e90f04a1a376614d3e6d0a20d4a9b9a",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "970da9555a3ed4121714a99f4846497f064893d6ab5b727e8ba3d1ed30a37368"
+      },
+      {
+        "type": "message",
+        "id": 195,
+        "hash": "dda83fef14ca2ff2c5d4cf806cf165e5f85ecec59455c904f1ff02ebdea53d6b",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "4f169391d4c0a1cbf167534d816820811c74c5a853a7005f56ce0dece6a9dd65"
+      },
+      {
+        "type": "message",
+        "id": 183,
+        "hash": "a0f7fcd8093a8cb57fa737d09d3ac6cc6b15efdc07917cc73baf6f22e03f7f28",
+        "offsetChars": 0,
+        "lengthChars": 108,
+        "rangeHash": "0538a4014ed6cf838cdc65c4b6a859039723b4db39cfe192c1f503e8ae8442d7"
+      },
+      {
+        "type": "message",
+        "id": 169,
+        "hash": "b2938acc05289dc1f970c18cf861b1c75bed98654e7d2b521acedc06b5b0b0a4",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "5c40c56445f0b1c2fb0e6acca3313c03c63441d043c5efe0754d8d8b67b36916"
+      },
+      {
+        "type": "message",
+        "id": 157,
+        "hash": "7be50bc7605e0added13e0fc8638ea185545f3924894c06b2342f573d3559150",
+        "offsetChars": 0,
+        "lengthChars": 106,
+        "rangeHash": "80481c05c7a683707bed43b0919ee16518d9bc38b0f42434b202c1bbe87ac9d1"
+      },
+      {
+        "type": "message",
+        "id": 184434,
+        "hash": "b8e0272b7e0d143e990e4389db72bf68b43899caf80aef074237926034dc69d1",
+        "offsetChars": 0,
+        "lengthChars": 111,
+        "rangeHash": "ac80182b8620e3fc3ff4323351d64ffe94cdb3041eec12f548e64c354d88ad7f"
+      },
+      {
+        "type": "message",
+        "id": 184433,
+        "hash": "eb27e4e30fcffef7d69a0b5f7095c2fdf3b7947d39849861997b269a9395fcbb",
+        "offsetChars": 0,
+        "lengthChars": 109,
+        "rangeHash": "75888c735b81a0f716b92190b0cfb65c742a6dcbdfe56074d2da74b2428d7ad8"
+      },
+      {
+        "type": "message",
+        "id": 184432,
+        "hash": "72b612a98387f30f2c0b7ea99fbdfa33981f8360c2019eabe89f836f0692dcb3",
+        "offsetChars": 0,
+        "lengthChars": 112,
+        "rangeHash": "3e3defa7b69c74d0bd7843205dd5ab754cb0a69bafaf6737096a9b03ff5326c3"
+      },
+      {
+        "type": "message",
+        "id": 184431,
+        "hash": "cd752396ac7730098e0ec88f7b8d912f3222922452efff374f40445b63388101",
+        "offsetChars": 0,
+        "lengthChars": 113,
+        "rangeHash": "01b78b3ccc3d2a41701f01bd6c0da52e71dabf01c0ed45c590ab3d6ca043f46b"
+      },
+      {
+        "type": "message",
+        "id": 184430,
+        "hash": "ad1d4f52c7b38dcc349e26489faf490531645c7cbf0f2883be3bb183654b1a39",
+        "offsetChars": 0,
+        "lengthChars": 111,
+        "rangeHash": "ee5b2bfd542eaa348b0be4fe356ae545ca68e4b14c3460594d2362f3f0aa288d"
+      },
+      {
+        "type": "message",
+        "id": 184429,
+        "hash": "d50aacb9422da3b26691d08b35cde1fd59306bcab256cde9b897d16b1332b637",
+        "offsetChars": 0,
+        "lengthChars": 110,
+        "rangeHash": "ea716ef77e07074c7e0695945c31ca2e02f82b546cc3ffc70ec2cead8a1c494b"
+      },
+      {
+        "type": "message",
+        "id": 184428,
+        "hash": "3059ed9220f253e0685dd8ae6c638c1573821cadf2217d56651d252aeb8c295e",
+        "offsetChars": 0,
+        "lengthChars": 110,
+        "rangeHash": "f6bf80e5bdba353a2b1ddd4d70185b44dcc69e160ea286f4e67d7bb4c935e48c"
+      },
+      {
+        "type": "message",
+        "id": 184427,
+        "hash": "2a1454d2b9bb90d32e33da7460526ee52133cc7bbf60a46d312b57bbf41a65bf",
+        "offsetChars": 0,
+        "lengthChars": 110,
+        "rangeHash": "0629ac1c34758b6e429f4bf93b11e1f1e37b69bceb17dcb24aeb3bc33d3e1878"
+      }
+    ],
+    "gatewayReceipts": [
+      {
+        "layer": "verbatim",
+        "status": "success",
+        "queryId": "15d53950e69acbc969122e4a03f39cc125cfbe4fd853e367e360ec37987b0e90",
+        "queryFingerprint": "15d53950e69acbc969122e4a03f39cc125cfbe4fd853e367e360ec37987b0e90",
+        "queries": [
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "1a1862ba9b9cd5bc80d3ab2713c29568cd7080da055a93a018874a614b5d2746",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "1a1862ba9b9cd5bc80d3ab2713c29568cd7080da055a93a018874a614b5d2746",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "30904e078c1a2c3241d93d5fbb6ca7e9a60bb8c910a6172cbe7ae0f3aa7b6658",
+            "returnedRows": 32
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "30904e078c1a2c3241d93d5fbb6ca7e9a60bb8c910a6172cbe7ae0f3aa7b6658",
+            "returnedRows": 1
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "0ec10fa00410d327ffe1fbba9c7b8ee57d813934b4907a3a263fb8e30adfb89d",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "0ec10fa00410d327ffe1fbba9c7b8ee57d813934b4907a3a263fb8e30adfb89d",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "e4ebd5a9e6c149c4f3aedb8ce7c1674e03c05121d1e95fda28a425f11c6d4832",
+            "returnedRows": 12
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "e4ebd5a9e6c149c4f3aedb8ce7c1674e03c05121d1e95fda28a425f11c6d4832",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "875e791535ea7286f4fc23bb69c2ad9a8ed1b23fb755732cd46b92b2ee68db65",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "875e791535ea7286f4fc23bb69c2ad9a8ed1b23fb755732cd46b92b2ee68db65",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "49e3160bf8c31196a6ddaf913f80487a9bba311d60e3526f3131b700c37ae820",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "49e3160bf8c31196a6ddaf913f80487a9bba311d60e3526f3131b700c37ae820",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "7e0fc0cf2f638a87c1fa936b4590c940a0e22b191d6a9dfcc7eb99edc9f47f0b",
+            "returnedRows": 65
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "7e0fc0cf2f638a87c1fa936b4590c940a0e22b191d6a9dfcc7eb99edc9f47f0b",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "8548eade6c276b1f518a5bf7ae867a89ecee72279da59f82a46fef29e3baa53b",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "8548eade6c276b1f518a5bf7ae867a89ecee72279da59f82a46fef29e3baa53b",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "8f099eb4eec043751ee522f2b569685b4ba2ed5a2b172ff5424f004baffc3aac",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "8f099eb4eec043751ee522f2b569685b4ba2ed5a2b172ff5424f004baffc3aac",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "54f95690ee9129fe55c441b6f69f8c61f1b9643b50dc6d79e898a7fb919f12ce",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "54f95690ee9129fe55c441b6f69f8c61f1b9643b50dc6d79e898a7fb919f12ce",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "f985b18ac30703f094964eb138067a383467b10c4e97e3cafdd5c8f92d9e9429",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "f985b18ac30703f094964eb138067a383467b10c4e97e3cafdd5c8f92d9e9429",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "7273ca011ee70a2e42ce83b641af559240bebc55de6c13366885d27c60c66f2c",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "7273ca011ee70a2e42ce83b641af559240bebc55de6c13366885d27c60c66f2c",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "b91d14e3e1a05d1fcf29f0d247af77599e3267dbd01f53493a5c65cef048db64",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "b91d14e3e1a05d1fcf29f0d247af77599e3267dbd01f53493a5c65cef048db64",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "32e35560b27d8aa6f6115ac134f2616015e46f8d561612f3c29f266f09c8238c",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "32e35560b27d8aa6f6115ac134f2616015e46f8d561612f3c29f266f09c8238c",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "3f4c720831b70ad90fcdf1e821d76bbaf40788d5b33b4fad80965321d183784e",
+            "returnedRows": 12
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "3f4c720831b70ad90fcdf1e821d76bbaf40788d5b33b4fad80965321d183784e",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "980386407fc7fe4022a926b9874460d02743ffa0b3b753c2bb65ea5f94d346a1",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "980386407fc7fe4022a926b9874460d02743ffa0b3b753c2bb65ea5f94d346a1",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "cb92482acfdaa95bf5ecbd922c152bd6ab675d899fc324ee0492721d49d11416",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "cb92482acfdaa95bf5ecbd922c152bd6ab675d899fc324ee0492721d49d11416",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "82b96dece0253396967b3080e79afb1ed3ce902de914dc36c0b5d556fae308a6",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "82b96dece0253396967b3080e79afb1ed3ce902de914dc36c0b5d556fae308a6",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "0f12e634dbd340758ac641277c73efdc5526894f455784c94a696d71128ceb10",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "0f12e634dbd340758ac641277c73efdc5526894f455784c94a696d71128ceb10",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "93a1f6d62dcefeb6c1b19c68ce0141144437e25769f3d3d09754f93cd90d3883",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "93a1f6d62dcefeb6c1b19c68ce0141144437e25769f3d3d09754f93cd90d3883",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "7e45c3efca0e3d1c2d846533b3373ece215f9418c2660df1293f900b16e0bad4",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "7e45c3efca0e3d1c2d846533b3373ece215f9418c2660df1293f900b16e0bad4",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "ae3e0db90e942054bc1fea83b7fd99c119201b5448e034101567a1c82a83cca1",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "ae3e0db90e942054bc1fea83b7fd99c119201b5448e034101567a1c82a83cca1",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "c9860a3864220839731b424b20c90105e1bf53a7280bffd63e8ce425cf2f88cf",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "c9860a3864220839731b424b20c90105e1bf53a7280bffd63e8ce425cf2f88cf",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7f1c00f08466a8ca0e54e2424487aef2f7379c3952cd407280a317d4fc1bb292",
+            "boundArgumentsFingerprint": "f24fadf93cbae226d71694af718237a1545ac9eeb002bbfee65c5aacd63c77bd",
+            "returnedRows": 65
+          },
+          {
+            "sqlFingerprint": "7b1162fdb08d0402a7be14d91d66ccfdcdf6689f582f1ced2a8853e4d4fc02c3",
+            "boundArgumentsFingerprint": "f24fadf93cbae226d71694af718237a1545ac9eeb002bbfee65c5aacd63c77bd",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "d9f9da60c520066ed8e79c70222ef09d00d593d90096a8a76a3ef69add49fd5d",
+            "boundArgumentsFingerprint": "661d4232a4fdbe20560f980d19fbd3182deb43ab647e182f0e6d3fea9552b5ab",
+            "returnedRows": 107
+          },
+          {
+            "sqlFingerprint": "6d90731c2d1e4a06df69c0ca4b9067a58a31f25a145226fcaa4942a07df10917",
+            "boundArgumentsFingerprint": "eca8635ac27b408486e0f806cdc4ba7279d2ad76e4e6ecc4374ae3fa4d93e252",
+            "returnedRows": 1
+          },
+          {
+            "sqlFingerprint": "99a2acf1deeace4bbce323db2d4fbe8a638dc0013baf9a005955a28da1a58f15",
+            "boundArgumentsFingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "returnedRows": 8
+          }
+        ],
+        "ownerScope": "owner-local",
+        "conversationScope": "single-native-conversation",
+        "dispatchId": "bench-f504885e1f62d52b5806",
+        "runId": "benchmark-owner",
+        "purpose": "normal",
+        "inputId": 0,
+        "inputCutoffId": 0,
+        "snapshotId": "034f607f-a63b-4294-b7b1-658845c17750",
+        "controlFingerprint": "6496ec19cedd11039b0e329afa033288482c132a8fedc2804ae7ec130858cf31",
+        "privacyFingerprint": "95ddf3f6d269990b3577b97b056b8d4ba1228620fdea19675fc8b9dbe6a95bcb",
+        "backend": "canonical_sql_plus_validated_hybrid_ids",
+        "candidateScope": {
+          "backend": "snapshot_fts_ids_plus_canonical_hydration",
+          "perTermPerTypeLimit": 64,
+          "candidateIds": 108,
+          "candidateLimitReached": true,
+          "ranking": "capped_term_rarity_plus_canonical_literal_matches_then_hybrid_rank",
+          "deviceBootstrapComplete": true,
+          "completeHistoryEnumerated": false
+        },
+        "resultCount": 72,
+        "exclusion": "none",
+        "coverage": "canonical_query_scope_at_snapshot",
+        "readAt": 1798761600000,
+        "validUntil": 1798762200000,
+        "modelInternalUseVerified": false
+      },
+      {
+        "layer": "semantic",
+        "status": "empty",
+        "queryId": "1bf52a0a05234ccd10ebcc5ceaae9ce8a599dfb21f4295c90b0d99de97b3c198",
+        "queryFingerprint": "1bf52a0a05234ccd10ebcc5ceaae9ce8a599dfb21f4295c90b0d99de97b3c198",
+        "queries": [
+          {
+            "sqlFingerprint": "f19c01f172e1691c497dfa84a3f04da1a5e747feb2c20af8aea662fb169115a3",
+            "boundArgumentsFingerprint": "5884b12d3964579b3f522bb0db5810a6a3c8393104a19545544cf32532c42cc5",
+            "returnedRows": 0
+          }
+        ],
+        "ownerScope": "owner-local",
+        "conversationScope": "single-native-conversation",
+        "dispatchId": "bench-f504885e1f62d52b5806",
+        "runId": "benchmark-owner",
+        "purpose": "normal",
+        "inputId": 0,
+        "inputCutoffId": 0,
+        "snapshotId": "034f607f-a63b-4294-b7b1-658845c17750",
+        "controlFingerprint": "6496ec19cedd11039b0e329afa033288482c132a8fedc2804ae7ec130858cf31",
+        "privacyFingerprint": "95ddf3f6d269990b3577b97b056b8d4ba1228620fdea19675fc8b9dbe6a95bcb",
+        "backend": "canonical_sql_plus_validated_hybrid_ids",
+        "candidateScope": {},
+        "resultCount": 0,
+        "exclusion": "none",
+        "coverage": "canonical_query_scope_at_snapshot",
+        "readAt": 1798761600000,
+        "validUntil": 1798762200000,
+        "modelInternalUseVerified": false
+      },
+      {
+        "layer": "episodic",
+        "status": "empty",
+        "queryId": "435b7f1ea2c35b511675156bc079581238b526282de2fe580dc547b5f2455900",
+        "queryFingerprint": "435b7f1ea2c35b511675156bc079581238b526282de2fe580dc547b5f2455900",
+        "queries": [
+          {
+            "sqlFingerprint": "3a5e8efcfde50e7a337b0e438ca568834cbdf7307891dcbdd70a92959ba7a2bc",
+            "boundArgumentsFingerprint": "5884b12d3964579b3f522bb0db5810a6a3c8393104a19545544cf32532c42cc5",
+            "returnedRows": 0
+          }
+        ],
+        "ownerScope": "owner-local",
+        "conversationScope": "single-native-conversation",
+        "dispatchId": "bench-f504885e1f62d52b5806",
+        "runId": "benchmark-owner",
+        "purpose": "normal",
+        "inputId": 0,
+        "inputCutoffId": 0,
+        "snapshotId": "034f607f-a63b-4294-b7b1-658845c17750",
+        "controlFingerprint": "6496ec19cedd11039b0e329afa033288482c132a8fedc2804ae7ec130858cf31",
+        "privacyFingerprint": "95ddf3f6d269990b3577b97b056b8d4ba1228620fdea19675fc8b9dbe6a95bcb",
+        "backend": "canonical_sql_plus_validated_hybrid_ids",
+        "candidateScope": {},
+        "resultCount": 0,
+        "exclusion": "none",
+        "coverage": "canonical_query_scope_at_snapshot",
+        "readAt": 1798761600000,
+        "validUntil": 1798762200000,
+        "modelInternalUseVerified": false
+      },
+      {
+        "layer": "procedural",
+        "status": "empty",
+        "queryId": "0419f012709045f7921e80df0c6c5fd3c3635aad65ac276ed47afc63605705bd",
+        "queryFingerprint": "0419f012709045f7921e80df0c6c5fd3c3635aad65ac276ed47afc63605705bd",
+        "queries": [
+          {
+            "sqlFingerprint": "4db8572f77fd6b3533f73149cb4254bc84f1e8b730f7c5cd8b12b82049841bb9",
+            "boundArgumentsFingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "1fb80fbcaa516eaeaacf8015acdc92902ba7cd84f23e649231a6b220d0651857",
+            "boundArgumentsFingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "returnedRows": 0
+          }
+        ],
+        "ownerScope": "owner-local",
+        "conversationScope": "single-native-conversation",
+        "dispatchId": "bench-f504885e1f62d52b5806",
+        "runId": "benchmark-owner",
+        "purpose": "normal",
+        "inputId": 0,
+        "inputCutoffId": 0,
+        "snapshotId": "034f607f-a63b-4294-b7b1-658845c17750",
+        "controlFingerprint": "6496ec19cedd11039b0e329afa033288482c132a8fedc2804ae7ec130858cf31",
+        "privacyFingerprint": "95ddf3f6d269990b3577b97b056b8d4ba1228620fdea19675fc8b9dbe6a95bcb",
+        "backend": "canonical_sql_plus_validated_hybrid_ids",
+        "candidateScope": {},
+        "resultCount": 0,
+        "exclusion": "none",
+        "coverage": "canonical_query_scope_at_snapshot",
+        "readAt": 1798761600000,
+        "validUntil": 1798762200000,
+        "modelInternalUseVerified": false
+      },
+      {
+        "layer": "active",
+        "status": "empty",
+        "queryId": "4780fbbd5a2ca26b5131ea152aa2f5ac3609d00ed018b910859bc30a83ab832e",
+        "queryFingerprint": "4780fbbd5a2ca26b5131ea152aa2f5ac3609d00ed018b910859bc30a83ab832e",
+        "queries": [
+          {
+            "sqlFingerprint": "67df856a9cf33d78b4f530c0d6b8be92d8561cb26adfa2b8edf558b05a6cc4fa",
+            "boundArgumentsFingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "returnedRows": 0
+          },
+          {
+            "sqlFingerprint": "7d59cfcdcad2a4cb5a091cae9db32c9957ca45735450016e5b7688ea7238ba56",
+            "boundArgumentsFingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "returnedRows": 0
+          }
+        ],
+        "ownerScope": "owner-local",
+        "conversationScope": "single-native-conversation",
+        "dispatchId": "bench-f504885e1f62d52b5806",
+        "runId": "benchmark-owner",
+        "purpose": "normal",
+        "inputId": 0,
+        "inputCutoffId": 0,
+        "snapshotId": "034f607f-a63b-4294-b7b1-658845c17750",
+        "controlFingerprint": "6496ec19cedd11039b0e329afa033288482c132a8fedc2804ae7ec130858cf31",
+        "privacyFingerprint": "95ddf3f6d269990b3577b97b056b8d4ba1228620fdea19675fc8b9dbe6a95bcb",
+        "backend": "canonical_sql_plus_validated_hybrid_ids",
+        "candidateScope": {},
+        "resultCount": 0,
+        "exclusion": "none_mandatory_native_controls",
+        "coverage": "canonical_query_scope_at_snapshot",
+        "readAt": 1798761600000,
+        "validUntil": 1798762200000,
+        "modelInternalUseVerified": false
+      }
+    ],
+    "gatewayDiagnostics": {
+      "fiveLayerQueries": 5,
+      "snapshotBackend": "readonly_connection_savepoint",
+      "omittedOptionalItems": 39,
+      "projectionState": {
+        "state": "pending",
+        "structuredExtraction": "source_ranges_acknowledged_not_semantic_completeness",
+        "ownerReviewedThroughId": 0,
+        "latestOwnerId": 60198,
+        "unreviewedOwnerCount": 380,
+        "semanticIndexRequiredForAdmission": false,
+        "rawFallback": "canonical_sql"
+      },
+      "coverageMeaning": "canonical_query_scope_at_snapshot_not_all_history_read_by_model",
+      "overlongRetrievalTermsExcluded": 0,
+      "authoritativeInputPreserved": true,
+      "sourceGraphRead": {
+        "sourceQueries": 72,
+        "settingQueries": 72,
+        "cachedVerdictHits": 72,
+        "derivedSourceQueries": 0,
+        "examinedNodes": 72,
+        "cachedSources": 72,
+        "cachedVerdicts": 72,
+        "privacyVersion": 12,
+        "immutableReadSnapshot": true,
+        "persistentCache": false
+      },
+      "hybridCandidatesAreUntrustedUntilHydrated": true,
+      "modelInternalUseVerified": false
+    },
+    "freshOutputCheckPassed": true,
+    "contextSha256": "599f32e3e14e0e4d4365a27b52b08b364eb41b0ede824fb4524b78e30c46477d",
+    "contextChars": 11733,
+    "messageCount": 184428,
+    "deviceEventCount": 18,
+    "ftsCount": 184428,
+    "memoryNotes": 0,
+    "canonicalCopySha256": "f35e836f308516176663ca1e3c299a63cf3ed8c4cce99682b464ed9b2225c9c3",
+    "emittedEvidenceContainsChangedText": true,
+    "originalPrimaryPacketContextSha256": "3dd9d9af2566e64c24e1c73962f50392d522b72a221880656b20bbb18ed965b2",
+    "modelAnswerQuality": "not_measured"
+  }
+]

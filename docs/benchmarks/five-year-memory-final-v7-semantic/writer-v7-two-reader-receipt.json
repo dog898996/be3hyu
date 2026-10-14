@@ -1,0 +1,30 @@
+{
+  "validationType": "current_packet_and_own_V7_native_quote_identity_schema_budget_only",
+  "semanticAcceptanceClaimed": false,
+  "evaluationScope": "two_changed_actual_V7_packets_only",
+  "requestedReaderModel": "gpt-6.1-sol",
+  "requestedReasoningEffort": "medium",
+  "actualProviderCallClaimed": false,
+  "rows": 2,
+  "uniqueIds": 2,
+  "questionIndices": [
+    45,
+    137
+  ],
+  "claimsValidated": 3,
+  "answered": 1,
+  "abstained": 1,
+  "nativeToolOperations": {
+    "read": 1
+  },
+  "sourceRowsRead": 1,
+  "inputSha256": "400c9087be4c2a65a777f44894c98324ec72640fa7067681a691c0a510721160",
+  "answersSha256": "5c07ad4fb250ea0dc13794a9b1b586ee0ba1daab836de8f478a5848dfcbe26a9",
+  "sourceToolArtifactHashes": {
+    "/tmp/hoyoung-five-year-final-gateway-writer-v7/comparison-v5/changed-reader-inputs.jsonl": "400c9087be4c2a65a777f44894c98324ec72640fa7067681a691c0a510721160",
+    "/tmp/hoyoung-five-year-writer-v7-recheck/requests.jsonl": "c71a4a31ccc48a1e9b252571b77de88364b3221a99bbbdf45cef2599009060db",
+    "/tmp/hoyoung-five-year-writer-v7-recheck/responses.jsonl": "8c87cdb54835e3a8b792c11aae065d4b15c88346393f62832d1365974ee537f1",
+    "/tmp/hoyoung-five-year-writer-v7-recheck/responses.jsonl.receipt.json": "f982979bc6c8c58be36ec7da1f0a2fc0477f81774959fc2fa7c079f3d158f644",
+    "/tmp/hoyoung-five-year-writer-v7-recheck/responses.jsonl.execution.log": "15866bf799d8ccf802e52efbcb62a41b6b54be76baac9d97fadb7190ce89d7f1"
+  }
+}

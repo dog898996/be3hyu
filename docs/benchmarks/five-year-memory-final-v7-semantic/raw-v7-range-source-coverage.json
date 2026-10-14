@@ -1,0 +1,1478 @@
+[
+  {
+    "caseId": "range_coverage-01",
+    "packetId": "41f8f3847663a9c02ca1",
+    "score": "pass",
+    "requiredOriginalTargetFacts": 14,
+    "deliveredRequiredOriginalTargetFacts": 14,
+    "allRequiredDatesExact": true,
+    "nativeCompleteScopedEnumerationProven": true,
+    "actualToolProof": [
+      {
+        "op": "enumerate",
+        "ok": true,
+        "sourceSearchesUsed": 1,
+        "sourceRowsRead": 14,
+        "scope": {
+          "type": "message",
+          "fromInclusive": 1609459200000,
+          "toExclusive": 1612137600000,
+          "containsLiteral": "사진전 자료정리",
+          "cutoffId": 184434
+        },
+        "canonicalMatchingRows": 14,
+        "scannedRowsThisPage": 14,
+        "excludedRowsThisPage": 0,
+        "nextAfterId": 1117,
+        "hasMore": false,
+        "completeToCutoff": true,
+        "completionMeaning": "Only when all pages from afterId=0 carry the same scopeFingerprint/cutoff and are read; each source's complete flag is separate",
+        "fullSourceTextsRead": true,
+        "literalMatchingScope": "persisted_SQL_excerpt",
+        "longOriginalsInDateScope": 0,
+        "literalFullTextCoverageUnverified": false,
+        "semanticRelevanceCompletenessGuaranteed": false
+      }
+    ],
+    "deliveredOriginalSources": [
+      {
+        "sourceId": "message:1117",
+        "text": "사진전 자료정리 단계14 자료를 정리했어.",
+        "date": 1610582400000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:1021",
+        "text": "사진전 자료정리 단계13 자료를 정리했어.",
+        "date": 1610496000000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:936",
+        "text": "사진전 자료정리 단계12 자료를 정리했어.",
+        "date": 1610409600000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:851",
+        "text": "사진전 자료정리 단계11 자료를 정리했어.",
+        "date": 1610323200000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:766",
+        "text": "사진전 자료정리 단계10 자료를 정리했어.",
+        "date": 1610236800000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:681",
+        "text": "사진전 자료정리 단계09 자료를 정리했어.",
+        "date": 1610150400000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:596",
+        "text": "사진전 자료정리 단계08 자료를 정리했어.",
+        "date": 1610064000000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:511",
+        "text": "사진전 자료정리 단계07 자료를 정리했어.",
+        "date": 1609977600000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:426",
+        "text": "사진전 자료정리 단계06 자료를 정리했어.",
+        "date": 1609891200000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:341",
+        "text": "사진전 자료정리 단계05 자료를 정리했어.",
+        "date": 1609804800000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:256",
+        "text": "사진전 자료정리 단계04 자료를 정리했어.",
+        "date": 1609718400000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:171",
+        "text": "사진전 자료정리 단계03 자료를 정리했어.",
+        "date": 1609632000000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:86",
+        "text": "사진전 자료정리 단계02 자료를 정리했어.",
+        "date": 1609545600000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:1",
+        "text": "사진전 자료정리 단계01 자료를 정리했어.",
+        "date": 1609459200000,
+        "derived": false
+      }
+    ],
+    "interpretation": "All frozen required target facts are original-supported and listed; completeness of arbitrary differently phrased related facts is not established. F2 candid bounded-search caveat is not a semantic omission, while native scoped enumeration remains a separate operational proof."
+  },
+  {
+    "caseId": "range_coverage-02",
+    "packetId": "675e990de6fc9ae7be7f",
+    "score": "pass",
+    "requiredOriginalTargetFacts": 14,
+    "deliveredRequiredOriginalTargetFacts": 14,
+    "allRequiredDatesExact": true,
+    "nativeCompleteScopedEnumerationProven": true,
+    "actualToolProof": [
+      {
+        "op": "enumerate",
+        "ok": true,
+        "sourceSearchesUsed": 1,
+        "sourceRowsRead": 14,
+        "scope": {
+          "type": "message",
+          "fromInclusive": 1612137600000,
+          "toExclusive": 1614556800000,
+          "containsLiteral": "도서관 자료정리",
+          "cutoffId": 184434
+        },
+        "canonicalMatchingRows": 14,
+        "scannedRowsThisPage": 14,
+        "excludedRowsThisPage": 0,
+        "nextAfterId": 3748,
+        "hasMore": false,
+        "completeToCutoff": true,
+        "completionMeaning": "Only when all pages from afterId=0 carry the same scopeFingerprint/cutoff and are read; each source's complete flag is separate",
+        "fullSourceTextsRead": true,
+        "literalMatchingScope": "persisted_SQL_excerpt",
+        "longOriginalsInDateScope": 0,
+        "literalFullTextCoverageUnverified": false,
+        "semanticRelevanceCompletenessGuaranteed": false
+      }
+    ],
+    "deliveredOriginalSources": [
+      {
+        "sourceId": "message:3748",
+        "text": "도서관 자료정리 단계14 자료를 정리했어.",
+        "date": 1613260800000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:3653",
+        "text": "도서관 자료정리 단계13 자료를 정리했어.",
+        "date": 1613174400000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:3568",
+        "text": "도서관 자료정리 단계12 자료를 정리했어.",
+        "date": 1613088000000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:3483",
+        "text": "도서관 자료정리 단계11 자료를 정리했어.",
+        "date": 1613001600000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:3398",
+        "text": "도서관 자료정리 단계10 자료를 정리했어.",
+        "date": 1612915200000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:3313",
+        "text": "도서관 자료정리 단계09 자료를 정리했어.",
+        "date": 1612828800000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:3228",
+        "text": "도서관 자료정리 단계08 자료를 정리했어.",
+        "date": 1612742400000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:3143",
+        "text": "도서관 자료정리 단계07 자료를 정리했어.",
+        "date": 1612656000000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:3058",
+        "text": "도서관 자료정리 단계06 자료를 정리했어.",
+        "date": 1612569600000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:2973",
+        "text": "도서관 자료정리 단계05 자료를 정리했어.",
+        "date": 1612483200000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:2888",
+        "text": "도서관 자료정리 단계04 자료를 정리했어.",
+        "date": 1612396800000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:2803",
+        "text": "도서관 자료정리 단계03 자료를 정리했어.",
+        "date": 1612310400000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:2718",
+        "text": "도서관 자료정리 단계02 자료를 정리했어.",
+        "date": 1612224000000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:2633",
+        "text": "도서관 자료정리 단계01 자료를 정리했어.",
+        "date": 1612137600000,
+        "derived": false
+      }
+    ],
+    "interpretation": "All frozen required target facts are original-supported and listed; completeness of arbitrary differently phrased related facts is not established. F2 candid bounded-search caveat is not a semantic omission, while native scoped enumeration remains a separate operational proof."
+  },
+  {
+    "caseId": "range_coverage-03",
+    "packetId": "2b0b33da150c8e8c2827",
+    "score": "pass",
+    "requiredOriginalTargetFacts": 14,
+    "deliveredRequiredOriginalTargetFacts": 14,
+    "allRequiredDatesExact": true,
+    "nativeCompleteScopedEnumerationProven": true,
+    "actualToolProof": [
+      {
+        "op": "enumerate",
+        "ok": true,
+        "sourceSearchesUsed": 1,
+        "sourceRowsRead": 14,
+        "scope": {
+          "type": "message",
+          "fromInclusive": 1614556800000,
+          "toExclusive": 1617235200000,
+          "containsLiteral": "천문대 자료정리",
+          "cutoffId": 184434
+        },
+        "canonicalMatchingRows": 14,
+        "scannedRowsThisPage": 14,
+        "excludedRowsThisPage": 0,
+        "nextAfterId": 6127,
+        "hasMore": false,
+        "completeToCutoff": true,
+        "completionMeaning": "Only when all pages from afterId=0 carry the same scopeFingerprint/cutoff and are read; each source's complete flag is separate",
+        "fullSourceTextsRead": true,
+        "literalMatchingScope": "persisted_SQL_excerpt",
+        "longOriginalsInDateScope": 0,
+        "literalFullTextCoverageUnverified": false,
+        "semanticRelevanceCompletenessGuaranteed": false
+      }
+    ],
+    "deliveredOriginalSources": [
+      {
+        "sourceId": "message:6127",
+        "text": "천문대 자료정리 단계14 자료를 정리했어.",
+        "date": 1615680000000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:6031",
+        "text": "천문대 자료정리 단계13 자료를 정리했어.",
+        "date": 1615593600000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:5946",
+        "text": "천문대 자료정리 단계12 자료를 정리했어.",
+        "date": 1615507200000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:5861",
+        "text": "천문대 자료정리 단계11 자료를 정리했어.",
+        "date": 1615420800000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:5776",
+        "text": "천문대 자료정리 단계10 자료를 정리했어.",
+        "date": 1615334400000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:5691",
+        "text": "천문대 자료정리 단계09 자료를 정리했어.",
+        "date": 1615248000000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:5606",
+        "text": "천문대 자료정리 단계08 자료를 정리했어.",
+        "date": 1615161600000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:5521",
+        "text": "천문대 자료정리 단계07 자료를 정리했어.",
+        "date": 1615075200000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:5436",
+        "text": "천문대 자료정리 단계06 자료를 정리했어.",
+        "date": 1614988800000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:5351",
+        "text": "천문대 자료정리 단계05 자료를 정리했어.",
+        "date": 1614902400000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:5266",
+        "text": "천문대 자료정리 단계04 자료를 정리했어.",
+        "date": 1614816000000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:5181",
+        "text": "천문대 자료정리 단계03 자료를 정리했어.",
+        "date": 1614729600000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:5096",
+        "text": "천문대 자료정리 단계02 자료를 정리했어.",
+        "date": 1614643200000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:5011",
+        "text": "천문대 자료정리 단계01 자료를 정리했어.",
+        "date": 1614556800000,
+        "derived": false
+      }
+    ],
+    "interpretation": "All frozen required target facts are original-supported and listed; completeness of arbitrary differently phrased related facts is not established. F2 candid bounded-search caveat is not a semantic omission, while native scoped enumeration remains a separate operational proof."
+  },
+  {
+    "caseId": "range_coverage-04",
+    "packetId": "b35fbb229e9407a91add",
+    "score": "pass",
+    "requiredOriginalTargetFacts": 14,
+    "deliveredRequiredOriginalTargetFacts": 14,
+    "allRequiredDatesExact": true,
+    "nativeCompleteScopedEnumerationProven": true,
+    "actualToolProof": [
+      {
+        "op": "enumerate",
+        "ok": true,
+        "sourceSearchesUsed": 1,
+        "sourceRowsRead": 14,
+        "scope": {
+          "type": "message",
+          "fromInclusive": 1617235200000,
+          "toExclusive": 1619827200000,
+          "containsLiteral": "목공방 자료정리",
+          "cutoffId": 184434
+        },
+        "canonicalMatchingRows": 14,
+        "scannedRowsThisPage": 14,
+        "excludedRowsThisPage": 0,
+        "nextAfterId": 8759,
+        "hasMore": false,
+        "completeToCutoff": true,
+        "completionMeaning": "Only when all pages from afterId=0 carry the same scopeFingerprint/cutoff and are read; each source's complete flag is separate",
+        "fullSourceTextsRead": true,
+        "literalMatchingScope": "persisted_SQL_excerpt",
+        "longOriginalsInDateScope": 0,
+        "literalFullTextCoverageUnverified": false,
+        "semanticRelevanceCompletenessGuaranteed": false
+      }
+    ],
+    "deliveredOriginalSources": [
+      {
+        "sourceId": "message:8759",
+        "text": "목공방 자료정리 단계14 자료를 정리했어.",
+        "date": 1618358400000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:8664",
+        "text": "목공방 자료정리 단계13 자료를 정리했어.",
+        "date": 1618272000000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:8579",
+        "text": "목공방 자료정리 단계12 자료를 정리했어.",
+        "date": 1618185600000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:8494",
+        "text": "목공방 자료정리 단계11 자료를 정리했어.",
+        "date": 1618099200000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:8409",
+        "text": "목공방 자료정리 단계10 자료를 정리했어.",
+        "date": 1618012800000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:8324",
+        "text": "목공방 자료정리 단계09 자료를 정리했어.",
+        "date": 1617926400000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:8239",
+        "text": "목공방 자료정리 단계08 자료를 정리했어.",
+        "date": 1617840000000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:8154",
+        "text": "목공방 자료정리 단계07 자료를 정리했어.",
+        "date": 1617753600000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:8069",
+        "text": "목공방 자료정리 단계06 자료를 정리했어.",
+        "date": 1617667200000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:7984",
+        "text": "목공방 자료정리 단계05 자료를 정리했어.",
+        "date": 1617580800000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:7899",
+        "text": "목공방 자료정리 단계04 자료를 정리했어.",
+        "date": 1617494400000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:7814",
+        "text": "목공방 자료정리 단계03 자료를 정리했어.",
+        "date": 1617408000000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:7729",
+        "text": "목공방 자료정리 단계02 자료를 정리했어.",
+        "date": 1617321600000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:7644",
+        "text": "목공방 자료정리 단계01 자료를 정리했어.",
+        "date": 1617235200000,
+        "derived": false
+      }
+    ],
+    "interpretation": "All frozen required target facts are original-supported and listed; completeness of arbitrary differently phrased related facts is not established. F2 candid bounded-search caveat is not a semantic omission, while native scoped enumeration remains a separate operational proof."
+  },
+  {
+    "caseId": "range_coverage-05",
+    "packetId": "bf096cd908b35e2abe22",
+    "score": "pass",
+    "requiredOriginalTargetFacts": 14,
+    "deliveredRequiredOriginalTargetFacts": 14,
+    "allRequiredDatesExact": true,
+    "nativeCompleteScopedEnumerationProven": true,
+    "actualToolProof": [
+      {
+        "op": "enumerate",
+        "ok": true,
+        "sourceSearchesUsed": 1,
+        "sourceRowsRead": 14,
+        "scope": {
+          "type": "message",
+          "fromInclusive": 1619827200000,
+          "toExclusive": 1622505600000,
+          "containsLiteral": "음악회 자료정리",
+          "cutoffId": 184434
+        },
+        "canonicalMatchingRows": 14,
+        "scannedRowsThisPage": 14,
+        "excludedRowsThisPage": 0,
+        "nextAfterId": 11307,
+        "hasMore": false,
+        "completeToCutoff": true,
+        "completionMeaning": "Only when all pages from afterId=0 carry the same scopeFingerprint/cutoff and are read; each source's complete flag is separate",
+        "fullSourceTextsRead": true,
+        "literalMatchingScope": "persisted_SQL_excerpt",
+        "longOriginalsInDateScope": 0,
+        "literalFullTextCoverageUnverified": false,
+        "semanticRelevanceCompletenessGuaranteed": false
+      }
+    ],
+    "deliveredOriginalSources": [
+      {
+        "sourceId": "message:11307",
+        "text": "음악회 자료정리 단계14 자료를 정리했어.",
+        "date": 1620950400000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:11211",
+        "text": "음악회 자료정리 단계13 자료를 정리했어.",
+        "date": 1620864000000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:11126",
+        "text": "음악회 자료정리 단계12 자료를 정리했어.",
+        "date": 1620777600000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:11041",
+        "text": "음악회 자료정리 단계11 자료를 정리했어.",
+        "date": 1620691200000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:10956",
+        "text": "음악회 자료정리 단계10 자료를 정리했어.",
+        "date": 1620604800000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:10871",
+        "text": "음악회 자료정리 단계09 자료를 정리했어.",
+        "date": 1620518400000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:10786",
+        "text": "음악회 자료정리 단계08 자료를 정리했어.",
+        "date": 1620432000000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:10701",
+        "text": "음악회 자료정리 단계07 자료를 정리했어.",
+        "date": 1620345600000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:10616",
+        "text": "음악회 자료정리 단계06 자료를 정리했어.",
+        "date": 1620259200000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:10531",
+        "text": "음악회 자료정리 단계05 자료를 정리했어.",
+        "date": 1620172800000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:10446",
+        "text": "음악회 자료정리 단계04 자료를 정리했어.",
+        "date": 1620086400000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:10361",
+        "text": "음악회 자료정리 단계03 자료를 정리했어.",
+        "date": 1620000000000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:10276",
+        "text": "음악회 자료정리 단계02 자료를 정리했어.",
+        "date": 1619913600000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:10191",
+        "text": "음악회 자료정리 단계01 자료를 정리했어.",
+        "date": 1619827200000,
+        "derived": false
+      }
+    ],
+    "interpretation": "All frozen required target facts are original-supported and listed; completeness of arbitrary differently phrased related facts is not established. F2 candid bounded-search caveat is not a semantic omission, while native scoped enumeration remains a separate operational proof."
+  },
+  {
+    "caseId": "range_coverage-06",
+    "packetId": "c54f72d71917abe7719e",
+    "score": "pass",
+    "requiredOriginalTargetFacts": 14,
+    "deliveredRequiredOriginalTargetFacts": 14,
+    "allRequiredDatesExact": true,
+    "nativeCompleteScopedEnumerationProven": true,
+    "actualToolProof": [
+      {
+        "op": "enumerate",
+        "ok": true,
+        "sourceSearchesUsed": 1,
+        "sourceRowsRead": 14,
+        "scope": {
+          "type": "message",
+          "fromInclusive": 1622505600000,
+          "toExclusive": 1625097600000,
+          "containsLiteral": "텃밭 자료정리",
+          "cutoffId": 184434
+        },
+        "canonicalMatchingRows": 14,
+        "scannedRowsThisPage": 14,
+        "excludedRowsThisPage": 0,
+        "nextAfterId": 13937,
+        "hasMore": false,
+        "completeToCutoff": true,
+        "completionMeaning": "Only when all pages from afterId=0 carry the same scopeFingerprint/cutoff and are read; each source's complete flag is separate",
+        "fullSourceTextsRead": true,
+        "literalMatchingScope": "persisted_SQL_excerpt",
+        "longOriginalsInDateScope": 0,
+        "literalFullTextCoverageUnverified": false,
+        "semanticRelevanceCompletenessGuaranteed": false
+      }
+    ],
+    "deliveredOriginalSources": [
+      {
+        "sourceId": "message:13937",
+        "text": "텃밭 자료정리 단계14 자료를 정리했어.",
+        "date": 1623628800000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:13842",
+        "text": "텃밭 자료정리 단계13 자료를 정리했어.",
+        "date": 1623542400000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:13757",
+        "text": "텃밭 자료정리 단계12 자료를 정리했어.",
+        "date": 1623456000000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:13672",
+        "text": "텃밭 자료정리 단계11 자료를 정리했어.",
+        "date": 1623369600000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:13587",
+        "text": "텃밭 자료정리 단계10 자료를 정리했어.",
+        "date": 1623283200000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:13502",
+        "text": "텃밭 자료정리 단계09 자료를 정리했어.",
+        "date": 1623196800000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:13417",
+        "text": "텃밭 자료정리 단계08 자료를 정리했어.",
+        "date": 1623110400000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:13332",
+        "text": "텃밭 자료정리 단계07 자료를 정리했어.",
+        "date": 1623024000000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:13247",
+        "text": "텃밭 자료정리 단계06 자료를 정리했어.",
+        "date": 1622937600000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:13162",
+        "text": "텃밭 자료정리 단계05 자료를 정리했어.",
+        "date": 1622851200000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:13077",
+        "text": "텃밭 자료정리 단계04 자료를 정리했어.",
+        "date": 1622764800000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:12992",
+        "text": "텃밭 자료정리 단계03 자료를 정리했어.",
+        "date": 1622678400000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:12907",
+        "text": "텃밭 자료정리 단계02 자료를 정리했어.",
+        "date": 1622592000000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:12822",
+        "text": "텃밭 자료정리 단계01 자료를 정리했어.",
+        "date": 1622505600000,
+        "derived": false
+      }
+    ],
+    "interpretation": "All frozen required target facts are original-supported and listed; completeness of arbitrary differently phrased related facts is not established. F2 candid bounded-search caveat is not a semantic omission, while native scoped enumeration remains a separate operational proof."
+  },
+  {
+    "caseId": "range_coverage-07",
+    "packetId": "b2e43483789770d9b758",
+    "score": "pass",
+    "requiredOriginalTargetFacts": 14,
+    "deliveredRequiredOriginalTargetFacts": 14,
+    "allRequiredDatesExact": true,
+    "nativeCompleteScopedEnumerationProven": true,
+    "actualToolProof": [
+      {
+        "op": "enumerate",
+        "ok": true,
+        "sourceSearchesUsed": 1,
+        "sourceRowsRead": 14,
+        "scope": {
+          "type": "message",
+          "fromInclusive": 1625097600000,
+          "toExclusive": 1627776000000,
+          "containsLiteral": "등산회 자료정리",
+          "cutoffId": 184434
+        },
+        "canonicalMatchingRows": 14,
+        "scannedRowsThisPage": 14,
+        "excludedRowsThisPage": 0,
+        "nextAfterId": 16486,
+        "hasMore": false,
+        "completeToCutoff": true,
+        "completionMeaning": "Only when all pages from afterId=0 carry the same scopeFingerprint/cutoff and are read; each source's complete flag is separate",
+        "fullSourceTextsRead": true,
+        "literalMatchingScope": "persisted_SQL_excerpt",
+        "longOriginalsInDateScope": 0,
+        "literalFullTextCoverageUnverified": false,
+        "semanticRelevanceCompletenessGuaranteed": false
+      }
+    ],
+    "deliveredOriginalSources": [
+      {
+        "sourceId": "message:16486",
+        "text": "등산회 자료정리 단계14 자료를 정리했어.",
+        "date": 1626220800000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:16390",
+        "text": "등산회 자료정리 단계13 자료를 정리했어.",
+        "date": 1626134400000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:16305",
+        "text": "등산회 자료정리 단계12 자료를 정리했어.",
+        "date": 1626048000000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:16220",
+        "text": "등산회 자료정리 단계11 자료를 정리했어.",
+        "date": 1625961600000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:16135",
+        "text": "등산회 자료정리 단계10 자료를 정리했어.",
+        "date": 1625875200000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:16050",
+        "text": "등산회 자료정리 단계09 자료를 정리했어.",
+        "date": 1625788800000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:15965",
+        "text": "등산회 자료정리 단계08 자료를 정리했어.",
+        "date": 1625702400000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:15880",
+        "text": "등산회 자료정리 단계07 자료를 정리했어.",
+        "date": 1625616000000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:15795",
+        "text": "등산회 자료정리 단계06 자료를 정리했어.",
+        "date": 1625529600000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:15710",
+        "text": "등산회 자료정리 단계05 자료를 정리했어.",
+        "date": 1625443200000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:15625",
+        "text": "등산회 자료정리 단계04 자료를 정리했어.",
+        "date": 1625356800000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:15540",
+        "text": "등산회 자료정리 단계03 자료를 정리했어.",
+        "date": 1625270400000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:15455",
+        "text": "등산회 자료정리 단계02 자료를 정리했어.",
+        "date": 1625184000000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:15370",
+        "text": "등산회 자료정리 단계01 자료를 정리했어.",
+        "date": 1625097600000,
+        "derived": false
+      }
+    ],
+    "interpretation": "All frozen required target facts are original-supported and listed; completeness of arbitrary differently phrased related facts is not established. F2 candid bounded-search caveat is not a semantic omission, while native scoped enumeration remains a separate operational proof."
+  },
+  {
+    "caseId": "range_coverage-08",
+    "packetId": "3baf5880d586d50d157e",
+    "score": "pass",
+    "requiredOriginalTargetFacts": 14,
+    "deliveredRequiredOriginalTargetFacts": 14,
+    "allRequiredDatesExact": true,
+    "nativeCompleteScopedEnumerationProven": true,
+    "actualToolProof": [
+      {
+        "op": "enumerate",
+        "ok": true,
+        "sourceSearchesUsed": 1,
+        "sourceRowsRead": 14,
+        "scope": {
+          "type": "message",
+          "fromInclusive": 1627776000000,
+          "toExclusive": 1630454400000,
+          "containsLiteral": "번역팀 자료정리",
+          "cutoffId": 184434
+        },
+        "canonicalMatchingRows": 14,
+        "scannedRowsThisPage": 14,
+        "excludedRowsThisPage": 0,
+        "nextAfterId": 19117,
+        "hasMore": false,
+        "completeToCutoff": true,
+        "completionMeaning": "Only when all pages from afterId=0 carry the same scopeFingerprint/cutoff and are read; each source's complete flag is separate",
+        "fullSourceTextsRead": true,
+        "literalMatchingScope": "persisted_SQL_excerpt",
+        "longOriginalsInDateScope": 0,
+        "literalFullTextCoverageUnverified": false,
+        "semanticRelevanceCompletenessGuaranteed": false
+      }
+    ],
+    "deliveredOriginalSources": [
+      {
+        "sourceId": "message:19117",
+        "text": "번역팀 자료정리 단계14 자료를 정리했어.",
+        "date": 1628899200000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:19022",
+        "text": "번역팀 자료정리 단계13 자료를 정리했어.",
+        "date": 1628812800000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:18937",
+        "text": "번역팀 자료정리 단계12 자료를 정리했어.",
+        "date": 1628726400000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:18852",
+        "text": "번역팀 자료정리 단계11 자료를 정리했어.",
+        "date": 1628640000000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:18767",
+        "text": "번역팀 자료정리 단계10 자료를 정리했어.",
+        "date": 1628553600000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:18682",
+        "text": "번역팀 자료정리 단계09 자료를 정리했어.",
+        "date": 1628467200000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:18597",
+        "text": "번역팀 자료정리 단계08 자료를 정리했어.",
+        "date": 1628380800000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:18512",
+        "text": "번역팀 자료정리 단계07 자료를 정리했어.",
+        "date": 1628294400000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:18427",
+        "text": "번역팀 자료정리 단계06 자료를 정리했어.",
+        "date": 1628208000000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:18342",
+        "text": "번역팀 자료정리 단계05 자료를 정리했어.",
+        "date": 1628121600000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:18257",
+        "text": "번역팀 자료정리 단계04 자료를 정리했어.",
+        "date": 1628035200000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:18172",
+        "text": "번역팀 자료정리 단계03 자료를 정리했어.",
+        "date": 1627948800000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:18087",
+        "text": "번역팀 자료정리 단계02 자료를 정리했어.",
+        "date": 1627862400000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:18002",
+        "text": "번역팀 자료정리 단계01 자료를 정리했어.",
+        "date": 1627776000000,
+        "derived": false
+      }
+    ],
+    "interpretation": "All frozen required target facts are original-supported and listed; completeness of arbitrary differently phrased related facts is not established. F2 candid bounded-search caveat is not a semantic omission, while native scoped enumeration remains a separate operational proof."
+  },
+  {
+    "caseId": "range_coverage-09",
+    "packetId": "39ed7465f4802729ae1e",
+    "score": "pass",
+    "requiredOriginalTargetFacts": 14,
+    "deliveredRequiredOriginalTargetFacts": 14,
+    "allRequiredDatesExact": true,
+    "nativeCompleteScopedEnumerationProven": true,
+    "actualToolProof": [
+      {
+        "op": "enumerate",
+        "ok": true,
+        "sourceSearchesUsed": 1,
+        "sourceRowsRead": 14,
+        "scope": {
+          "type": "message",
+          "fromInclusive": 1630454400000,
+          "toExclusive": 1633046400000,
+          "containsLiteral": "수영장 자료정리",
+          "cutoffId": 184434
+        },
+        "canonicalMatchingRows": 14,
+        "scannedRowsThisPage": 14,
+        "excludedRowsThisPage": 0,
+        "nextAfterId": 21748,
+        "hasMore": false,
+        "completeToCutoff": true,
+        "completionMeaning": "Only when all pages from afterId=0 carry the same scopeFingerprint/cutoff and are read; each source's complete flag is separate",
+        "fullSourceTextsRead": true,
+        "literalMatchingScope": "persisted_SQL_excerpt",
+        "longOriginalsInDateScope": 0,
+        "literalFullTextCoverageUnverified": false,
+        "semanticRelevanceCompletenessGuaranteed": false
+      }
+    ],
+    "deliveredOriginalSources": [
+      {
+        "sourceId": "message:21748",
+        "text": "수영장 자료정리 단계14 자료를 정리했어.",
+        "date": 1631577600000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:21652",
+        "text": "수영장 자료정리 단계13 자료를 정리했어.",
+        "date": 1631491200000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:21567",
+        "text": "수영장 자료정리 단계12 자료를 정리했어.",
+        "date": 1631404800000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:21482",
+        "text": "수영장 자료정리 단계11 자료를 정리했어.",
+        "date": 1631318400000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:21397",
+        "text": "수영장 자료정리 단계10 자료를 정리했어.",
+        "date": 1631232000000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:21312",
+        "text": "수영장 자료정리 단계09 자료를 정리했어.",
+        "date": 1631145600000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:21227",
+        "text": "수영장 자료정리 단계08 자료를 정리했어.",
+        "date": 1631059200000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:21142",
+        "text": "수영장 자료정리 단계07 자료를 정리했어.",
+        "date": 1630972800000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:21057",
+        "text": "수영장 자료정리 단계06 자료를 정리했어.",
+        "date": 1630886400000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:20972",
+        "text": "수영장 자료정리 단계05 자료를 정리했어.",
+        "date": 1630800000000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:20887",
+        "text": "수영장 자료정리 단계04 자료를 정리했어.",
+        "date": 1630713600000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:20802",
+        "text": "수영장 자료정리 단계03 자료를 정리했어.",
+        "date": 1630627200000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:20717",
+        "text": "수영장 자료정리 단계02 자료를 정리했어.",
+        "date": 1630540800000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:20632",
+        "text": "수영장 자료정리 단계01 자료를 정리했어.",
+        "date": 1630454400000,
+        "derived": false
+      }
+    ],
+    "interpretation": "All frozen required target facts are original-supported and listed; completeness of arbitrary differently phrased related facts is not established. F2 candid bounded-search caveat is not a semantic omission, while native scoped enumeration remains a separate operational proof."
+  },
+  {
+    "caseId": "range_coverage-10",
+    "packetId": "bc8b60913ac917a67dbf",
+    "score": "pass",
+    "requiredOriginalTargetFacts": 14,
+    "deliveredRequiredOriginalTargetFacts": 14,
+    "allRequiredDatesExact": true,
+    "nativeCompleteScopedEnumerationProven": true,
+    "actualToolProof": [
+      {
+        "op": "enumerate",
+        "ok": true,
+        "sourceSearchesUsed": 1,
+        "sourceRowsRead": 14,
+        "scope": {
+          "type": "message",
+          "fromInclusive": 1633046400000,
+          "toExclusive": 1635724800000,
+          "containsLiteral": "박물관 자료정리",
+          "cutoffId": 184434
+        },
+        "canonicalMatchingRows": 14,
+        "scannedRowsThisPage": 14,
+        "excludedRowsThisPage": 0,
+        "nextAfterId": 24296,
+        "hasMore": false,
+        "completeToCutoff": true,
+        "completionMeaning": "Only when all pages from afterId=0 carry the same scopeFingerprint/cutoff and are read; each source's complete flag is separate",
+        "fullSourceTextsRead": true,
+        "literalMatchingScope": "persisted_SQL_excerpt",
+        "longOriginalsInDateScope": 0,
+        "literalFullTextCoverageUnverified": false,
+        "semanticRelevanceCompletenessGuaranteed": false
+      }
+    ],
+    "deliveredOriginalSources": [
+      {
+        "sourceId": "message:24296",
+        "text": "박물관 자료정리 단계14 자료를 정리했어.",
+        "date": 1634169600000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:24201",
+        "text": "박물관 자료정리 단계13 자료를 정리했어.",
+        "date": 1634083200000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:24116",
+        "text": "박물관 자료정리 단계12 자료를 정리했어.",
+        "date": 1633996800000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:24031",
+        "text": "박물관 자료정리 단계11 자료를 정리했어.",
+        "date": 1633910400000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:23946",
+        "text": "박물관 자료정리 단계10 자료를 정리했어.",
+        "date": 1633824000000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:23861",
+        "text": "박물관 자료정리 단계09 자료를 정리했어.",
+        "date": 1633737600000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:23776",
+        "text": "박물관 자료정리 단계08 자료를 정리했어.",
+        "date": 1633651200000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:23691",
+        "text": "박물관 자료정리 단계07 자료를 정리했어.",
+        "date": 1633564800000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:23606",
+        "text": "박물관 자료정리 단계06 자료를 정리했어.",
+        "date": 1633478400000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:23521",
+        "text": "박물관 자료정리 단계05 자료를 정리했어.",
+        "date": 1633392000000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:23436",
+        "text": "박물관 자료정리 단계04 자료를 정리했어.",
+        "date": 1633305600000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:23351",
+        "text": "박물관 자료정리 단계03 자료를 정리했어.",
+        "date": 1633219200000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:23266",
+        "text": "박물관 자료정리 단계02 자료를 정리했어.",
+        "date": 1633132800000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:23181",
+        "text": "박물관 자료정리 단계01 자료를 정리했어.",
+        "date": 1633046400000,
+        "derived": false
+      }
+    ],
+    "interpretation": "All frozen required target facts are original-supported and listed; completeness of arbitrary differently phrased related facts is not established. F2 candid bounded-search caveat is not a semantic omission, while native scoped enumeration remains a separate operational proof."
+  },
+  {
+    "caseId": "range_coverage-11",
+    "packetId": "8cd8932ab607b8b36aa3",
+    "score": "pass",
+    "requiredOriginalTargetFacts": 14,
+    "deliveredRequiredOriginalTargetFacts": 14,
+    "allRequiredDatesExact": true,
+    "nativeCompleteScopedEnumerationProven": true,
+    "actualToolProof": [
+      {
+        "op": "enumerate",
+        "ok": true,
+        "sourceSearchesUsed": 1,
+        "sourceRowsRead": 14,
+        "scope": {
+          "type": "message",
+          "fromInclusive": 1635724800000,
+          "toExclusive": 1638316800000,
+          "containsLiteral": "도예실 자료정리",
+          "cutoffId": 184434
+        },
+        "canonicalMatchingRows": 14,
+        "scannedRowsThisPage": 14,
+        "excludedRowsThisPage": 0,
+        "nextAfterId": 26928,
+        "hasMore": false,
+        "completeToCutoff": true,
+        "completionMeaning": "Only when all pages from afterId=0 carry the same scopeFingerprint/cutoff and are read; each source's complete flag is separate",
+        "fullSourceTextsRead": true,
+        "literalMatchingScope": "persisted_SQL_excerpt",
+        "longOriginalsInDateScope": 0,
+        "literalFullTextCoverageUnverified": false,
+        "semanticRelevanceCompletenessGuaranteed": false
+      }
+    ],
+    "deliveredOriginalSources": [
+      {
+        "sourceId": "message:26928",
+        "text": "도예실 자료정리 단계14 자료를 정리했어.",
+        "date": 1636848000000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:26832",
+        "text": "도예실 자료정리 단계13 자료를 정리했어.",
+        "date": 1636761600000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:26747",
+        "text": "도예실 자료정리 단계12 자료를 정리했어.",
+        "date": 1636675200000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:26662",
+        "text": "도예실 자료정리 단계11 자료를 정리했어.",
+        "date": 1636588800000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:26577",
+        "text": "도예실 자료정리 단계10 자료를 정리했어.",
+        "date": 1636502400000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:26492",
+        "text": "도예실 자료정리 단계09 자료를 정리했어.",
+        "date": 1636416000000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:26407",
+        "text": "도예실 자료정리 단계08 자료를 정리했어.",
+        "date": 1636329600000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:26322",
+        "text": "도예실 자료정리 단계07 자료를 정리했어.",
+        "date": 1636243200000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:26237",
+        "text": "도예실 자료정리 단계06 자료를 정리했어.",
+        "date": 1636156800000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:26152",
+        "text": "도예실 자료정리 단계05 자료를 정리했어.",
+        "date": 1636070400000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:26067",
+        "text": "도예실 자료정리 단계04 자료를 정리했어.",
+        "date": 1635984000000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:25982",
+        "text": "도예실 자료정리 단계03 자료를 정리했어.",
+        "date": 1635897600000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:25897",
+        "text": "도예실 자료정리 단계02 자료를 정리했어.",
+        "date": 1635811200000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:25812",
+        "text": "도예실 자료정리 단계01 자료를 정리했어.",
+        "date": 1635724800000,
+        "derived": false
+      }
+    ],
+    "interpretation": "All frozen required target facts are original-supported and listed; completeness of arbitrary differently phrased related facts is not established. F2 candid bounded-search caveat is not a semantic omission, while native scoped enumeration remains a separate operational proof."
+  },
+  {
+    "caseId": "range_coverage-12",
+    "packetId": "a1dc766a0fc5960c55ff",
+    "score": "pass",
+    "requiredOriginalTargetFacts": 14,
+    "deliveredRequiredOriginalTargetFacts": 14,
+    "allRequiredDatesExact": true,
+    "nativeCompleteScopedEnumerationProven": true,
+    "actualToolProof": [
+      {
+        "op": "enumerate",
+        "ok": true,
+        "sourceSearchesUsed": 1,
+        "sourceRowsRead": 14,
+        "scope": {
+          "type": "message",
+          "fromInclusive": 1638316800000,
+          "toExclusive": 1640995200000,
+          "containsLiteral": "독서회 자료정리",
+          "cutoffId": 184434
+        },
+        "canonicalMatchingRows": 14,
+        "scannedRowsThisPage": 14,
+        "excludedRowsThisPage": 0,
+        "nextAfterId": 29474,
+        "hasMore": false,
+        "completeToCutoff": true,
+        "completionMeaning": "Only when all pages from afterId=0 carry the same scopeFingerprint/cutoff and are read; each source's complete flag is separate",
+        "fullSourceTextsRead": true,
+        "literalMatchingScope": "persisted_SQL_excerpt",
+        "longOriginalsInDateScope": 0,
+        "literalFullTextCoverageUnverified": false,
+        "semanticRelevanceCompletenessGuaranteed": false
+      }
+    ],
+    "deliveredOriginalSources": [
+      {
+        "sourceId": "message:29474",
+        "text": "독서회 자료정리 단계14 자료를 정리했어.",
+        "date": 1639440000000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:29379",
+        "text": "독서회 자료정리 단계13 자료를 정리했어.",
+        "date": 1639353600000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:29294",
+        "text": "독서회 자료정리 단계12 자료를 정리했어.",
+        "date": 1639267200000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:29209",
+        "text": "독서회 자료정리 단계11 자료를 정리했어.",
+        "date": 1639180800000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:29124",
+        "text": "독서회 자료정리 단계10 자료를 정리했어.",
+        "date": 1639094400000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:29039",
+        "text": "독서회 자료정리 단계09 자료를 정리했어.",
+        "date": 1639008000000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:28954",
+        "text": "독서회 자료정리 단계08 자료를 정리했어.",
+        "date": 1638921600000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:28869",
+        "text": "독서회 자료정리 단계07 자료를 정리했어.",
+        "date": 1638835200000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:28784",
+        "text": "독서회 자료정리 단계06 자료를 정리했어.",
+        "date": 1638748800000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:28699",
+        "text": "독서회 자료정리 단계05 자료를 정리했어.",
+        "date": 1638662400000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:28614",
+        "text": "독서회 자료정리 단계04 자료를 정리했어.",
+        "date": 1638576000000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:28529",
+        "text": "독서회 자료정리 단계03 자료를 정리했어.",
+        "date": 1638489600000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:28444",
+        "text": "독서회 자료정리 단계02 자료를 정리했어.",
+        "date": 1638403200000,
+        "derived": false
+      },
+      {
+        "sourceId": "message:28359",
+        "text": "독서회 자료정리 단계01 자료를 정리했어.",
+        "date": 1638316800000,
+        "derived": false
+      }
+    ],
+    "interpretation": "All frozen required target facts are original-supported and listed; completeness of arbitrary differently phrased related facts is not established. F2 candid bounded-search caveat is not a semantic omission, while native scoped enumeration remains a separate operational proof."
+  }
+]

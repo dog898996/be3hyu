@@ -21,7 +21,11 @@ public final class MemoryReviewCoordinator {
     private static final int SOURCE_CHARS = 8_000, BATCH_CHARS = 24_000, OVERLAP_CHARS = 512;
     private final HoyoungStore store;
     private final ThreadLocal<SourcePrivacyLedger.Snapshot> privacyScope = new ThreadLocal<>();
+    private volatile java.util.function.Predicate<JSONObject> deviceSourceVisibility=row->false;
     public MemoryReviewCoordinator(HoyoungStore store) { this.store = store; }
+    public void setDeviceSourceVisibility(java.util.function.Predicate<JSONObject> predicate) {
+        deviceSourceVisibility=predicate==null?row->false:predicate;
+    }
 
     public JSONObject prepareBatch() { return prepareBatch(60_000); }
 
@@ -916,7 +920,7 @@ public final class MemoryReviewCoordinator {
         if (source == null) return false;
         SourcePrivacyLedger.Snapshot policy = privacyScope.get();
         if (policy == null) throw new IllegalStateException("Source access requires a frozen privacy scope");
-        return SourceRecordVisibility.allowed(db, policy, "message", source);
+        return SourceRecordVisibility.allowed(db, policy, "message", source,deviceSourceVisibility);
     }
 
     private boolean knownExcludedMessageId(long id) {
@@ -966,7 +970,9 @@ public final class MemoryReviewCoordinator {
             if (records.length() == 0) break;
             for (int i = 0; i < records.length(); i++) {
                 JSONObject record = records.optJSONObject(i); long id = record.optLong("id");
-                if (id > through || sourceAllowed(db, record)) { stop = true; break; }
+                // A transient OS/implicit grant denial is not a durable owner
+                // exclusion and must never silently advance the owner cursor.
+                if (id > through || SourceRecordVisibility.allowed(db,privacyScope.get(),"message",record)) { stop = true; break; }
                 end = id; count++;
                 updateAssetPendingIndex(db, id, object("assets", new JSONArray()));
                 if (count >= 4096) break;

@@ -1,0 +1,54 @@
+{
+  "complete": true,
+  "counts": {
+    "rawV7": {
+      "pass": 144,
+      "partial": 0,
+      "fail": 0
+    },
+    "baselineTool": {
+      "pass": 144,
+      "partial": 0,
+      "fail": 0
+    },
+    "writerV7": {
+      "pass": 144,
+      "partial": 0,
+      "fail": 0
+    }
+  },
+  "writerProvenance": {
+    "actualV5AnswersCarried": 142,
+    "freshV7ModelAnswers": 2,
+    "qualifiedSourceSemanticEquivalenceProof": true,
+    "entireEnumerationResponsesByteIdentical": false
+  },
+  "counterfactualV7": {
+    "pass": 3,
+    "freshV7Answers": 0,
+    "actualV5BlindAnswersCarriedOnByteIdenticalEntirePackets": 3
+  },
+  "fairAccuracyRatio": 1.0,
+  "fairSemanticErrorRatio": null,
+  "twofoldSemanticGainEstablished": false,
+  "sha256": {
+    "/tmp/hoyoung-five-year-answer-evaluation/raw-v7-semantic-scores.json": "27989caea95bbd7937296d6c001eb4d63d40ec8b2a7339ada8c3c3734a47714d",
+    "/tmp/hoyoung-five-year-answer-evaluation/raw-v7-semantic-report.json": "5cbafe4431facbd00b7647965cc78252b6db6d9ba1c9fa66283c7f4bd2c01a74",
+    "/tmp/hoyoung-five-year-answer-evaluation/raw-v7-quote-audit.json": "cc634bb386098ecb5a9c8d46c76eb9cec76ca027be695e4fcc6edef270645cda",
+    "/tmp/hoyoung-five-year-answer-evaluation/raw-v7-range-source-coverage.json": "a3fadb40921e7cbc432c4b4a7b0f3e60fa2bc531de3520a2063065bf01932a66",
+    "/tmp/hoyoung-five-year-answer-evaluation/baseline-tool-semantic-scores.json": "a792e7e317d7336d92921a3a264913e6da3fd06e4c8d9befd10a303024051823",
+    "/tmp/hoyoung-five-year-answer-evaluation/baseline-tool-semantic-report.json": "9ed2680c608a0f1f9777098d482eb6ad865677df2c340c063ee6f7cb83bfa099",
+    "/tmp/hoyoung-five-year-answer-evaluation/baseline-tool-quote-audit.json": "2b1d4a127c8ba2179ad076ea356911f8ea036a0e480f788e67e325ae30e6aca1",
+    "/tmp/hoyoung-five-year-answer-evaluation/baseline-tool-range-source-coverage.json": "e7102a6176b143c31cf3bae38c92567ef01fb34917c6352eec5189b7b57c4491",
+    "/tmp/hoyoung-five-year-answer-evaluation/writer-v7-semantic-scores.json": "8c9b0cbc690feda608a8dd93831d64fa6b505cf67175121627fbabc21798360b",
+    "/tmp/hoyoung-five-year-answer-evaluation/writer-v7-semantic-report.json": "2e914d7229f3df0801355e892dcda17a17fe689fbfbe39931c384e95bdaa8c11",
+    "/tmp/hoyoung-five-year-answer-evaluation/writer-v7-quote-audit.json": "7feb4d05259eaa8a5b1da45f3e5eddb5196e55712aeba92a565b9508f109f055",
+    "/tmp/hoyoung-five-year-answer-evaluation/writer-v7-range-source-coverage.json": "ef1f20f79ed42eefadb5c66ee962c8d2c2a8d53f181242e0043dc2318acd785e",
+    "/tmp/hoyoung-five-year-answer-evaluation/writer-v7-carry-provenance.json": "289582834b4da18ab894a2e098e03d56e09f276bfa5a4360c76798d066d3d6fc",
+    "/tmp/hoyoung-five-year-answer-evaluation/writer-v7-consolidated-answers.jsonl": "a0d73479291dbebe73b2993df49c443b5315952ae03a3231f5874391b8e34fd4",
+    "/tmp/hoyoung-five-year-answer-evaluation/final-v7-paired-semantic-report.json": "5eaa8aaa7428040c70299cadd742256ab4a04744237b13876859b15e088bc258",
+    "/tmp/hoyoung-five-year-answer-evaluation/counterfactual-v7-semantic-scores.json": "b0c118d325084d5b67da9f10dff4423c57dde1009d436b2fbb22b7fe50a06960",
+    "/tmp/hoyoung-five-year-answer-evaluation/counterfactual-v7-semantic-report.json": "a72d97274405e4801bec5fe976c96fed2b2e178fe85c153a35d882a49ddbb14a"
+  },
+  "gateScope": "Synthetic final checkpoint semantic answer gate complete. This does not adjudicate global release CI, RFC/Dot/phoneWork real-world integration or whole-app wiring."
+}

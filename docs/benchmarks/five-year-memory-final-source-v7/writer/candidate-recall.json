@@ -1,0 +1,18 @@
+{
+  "5": {
+    "requiredSourceHits": 166,
+    "requiredSourceDenominator": 396,
+    "microRecall": 0.41919191919191917,
+    "allRequiredCandidateCases": 69,
+    "cases": 144,
+    "scope": "Native originalEvidence ranking before independent Gateway candidates/packing; not model-answer quality"
+  },
+  "12": {
+    "requiredSourceHits": 173,
+    "requiredSourceDenominator": 396,
+    "microRecall": 0.43686868686868685,
+    "allRequiredCandidateCases": 76,
+    "cases": 144,
+    "scope": "Native originalEvidence ranking before independent Gateway candidates/packing; not model-answer quality"
+  }
+}

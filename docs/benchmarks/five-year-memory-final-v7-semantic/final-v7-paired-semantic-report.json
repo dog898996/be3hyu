@@ -1,0 +1,904 @@
+{
+  "complete": true,
+  "sampleUnits": 144,
+  "checkpoint": "2026-12-31",
+  "baselineToolCounts": {
+    "pass": 144,
+    "partial": 0,
+    "fail": 0
+  },
+  "rawV7Counts": {
+    "pass": 144,
+    "partial": 0,
+    "fail": 0
+  },
+  "writerV7Counts": {
+    "pass": 144,
+    "partial": 0,
+    "fail": 0
+  },
+  "writerModelRunProvenance": {
+    "freshV7Answers": 2,
+    "carriedActualV5Answers": 142,
+    "strictPrimaryAndNativeToolSemanticEquivalenceVerified": true
+  },
+  "baselineToWriterAccuracyRatio": 1.0,
+  "baselineToWriterErrorRatio": null,
+  "errorRatioReason": "Both actual same-budget arms have zero semantic errors; error ratio undefined, semantic ceiling prevents error-halving claim.",
+  "twofoldSemanticImprovementEstablished": false,
+  "pairedRows": [
+    {
+      "caseId": "raw_only-01",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "alias_cues-01",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "temporal_change-01",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "claim_status-01",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "episodes-01",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "decision_reasons-01",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "procedure_scope-01",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "active_constraints-01",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "missing_facts-01",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "image_wire_scope-01",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "forget_revoke-01",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "range_coverage-01",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "raw_only-02",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "alias_cues-02",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "temporal_change-02",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "claim_status-02",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "episodes-02",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "decision_reasons-02",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "procedure_scope-02",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "active_constraints-02",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "missing_facts-02",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "image_wire_scope-02",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "forget_revoke-02",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "range_coverage-02",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "raw_only-03",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "alias_cues-03",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "temporal_change-03",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "claim_status-03",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "episodes-03",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "decision_reasons-03",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "procedure_scope-03",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "active_constraints-03",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "missing_facts-03",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "image_wire_scope-03",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "forget_revoke-03",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "range_coverage-03",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "raw_only-04",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "alias_cues-04",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "temporal_change-04",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "claim_status-04",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "episodes-04",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "decision_reasons-04",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "procedure_scope-04",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "active_constraints-04",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "missing_facts-04",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "image_wire_scope-04",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "forget_revoke-04",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "range_coverage-04",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "raw_only-05",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "alias_cues-05",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "temporal_change-05",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "claim_status-05",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "episodes-05",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "decision_reasons-05",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "procedure_scope-05",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "active_constraints-05",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "missing_facts-05",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "image_wire_scope-05",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "forget_revoke-05",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "range_coverage-05",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "raw_only-06",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "alias_cues-06",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "temporal_change-06",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "claim_status-06",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "episodes-06",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "decision_reasons-06",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "procedure_scope-06",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "active_constraints-06",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "missing_facts-06",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "image_wire_scope-06",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "forget_revoke-06",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "range_coverage-06",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "raw_only-07",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "alias_cues-07",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "temporal_change-07",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "claim_status-07",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "episodes-07",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "decision_reasons-07",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "procedure_scope-07",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "active_constraints-07",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "missing_facts-07",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "image_wire_scope-07",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "forget_revoke-07",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "range_coverage-07",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "raw_only-08",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "alias_cues-08",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "temporal_change-08",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "claim_status-08",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "episodes-08",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "decision_reasons-08",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "procedure_scope-08",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "active_constraints-08",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "missing_facts-08",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "image_wire_scope-08",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "forget_revoke-08",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "range_coverage-08",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "raw_only-09",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "alias_cues-09",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "temporal_change-09",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "claim_status-09",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "episodes-09",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "decision_reasons-09",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "procedure_scope-09",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "active_constraints-09",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "missing_facts-09",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "image_wire_scope-09",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "forget_revoke-09",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "range_coverage-09",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "raw_only-10",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "alias_cues-10",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "temporal_change-10",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "claim_status-10",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "episodes-10",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "decision_reasons-10",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "procedure_scope-10",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "active_constraints-10",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "missing_facts-10",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "image_wire_scope-10",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "forget_revoke-10",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "range_coverage-10",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "raw_only-11",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "alias_cues-11",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "temporal_change-11",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "claim_status-11",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "episodes-11",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "decision_reasons-11",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "procedure_scope-11",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "active_constraints-11",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "missing_facts-11",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "image_wire_scope-11",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "forget_revoke-11",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "range_coverage-11",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "raw_only-12",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "alias_cues-12",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "temporal_change-12",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "claim_status-12",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "episodes-12",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "decision_reasons-12",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "procedure_scope-12",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "active_constraints-12",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "missing_facts-12",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "image_wire_scope-12",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "forget_revoke-12",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    },
+    {
+      "caseId": "range_coverage-12",
+      "baselineTool": "pass",
+      "rawV7": "pass",
+      "writerV7": "pass"
+    }
+  ],
+  "operationalMetricsMustRemainSeparate": "First-packet source delivery, privacy exposure and native enumeration completeness are pipeline metrics, not answer semantic error rates.",
+  "unmeasured": [
+    "Real-world RFC",
+    "Dot",
+    "phoneWork",
+    "whole-app production wiring",
+    "five years actual runtime",
+    "model speed telemetry"
+  ]
+}

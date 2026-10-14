@@ -1,0 +1,38 @@
+{
+  "format": "source-only-counterfactual-v1",
+  "primaryId": "f504885e1f62d52b5806",
+  "selectionReceipt": {
+    "actualReaderAnswerFile": "/tmp/hoyoung-five-year-raw-final-reader/answers.jsonl",
+    "actualReaderAnswerFileSha256": "edbae3de56c398d433aab95b0e6455f55d6ff6bcf3a336475772f90d76575dff",
+    "actualQuotedNativeSourceId": "message:1106",
+    "actualQuotedRecordHash": "58c4d3271832d153c81d02ab29d476ece2363a7cc069efd06e4b4187eb22d2e0",
+    "quoteVerifiedInV5Canonical": true,
+    "goldReadForSelection": false
+  },
+  "variants": [
+    {
+      "tag": "a314c",
+      "scorerOnlyRelation": "unchanged_control"
+    },
+    {
+      "tag": "d782f",
+      "scorerOnlyRelation": "relevant_source_changed",
+      "mutation": {
+        "sourceId": 1106,
+        "expectedHash": "58c4d3271832d153c81d02ab29d476ece2363a7cc069efd06e4b4187eb22d2e0",
+        "oldSpan": "Q17-R0419",
+        "replacementSpan": "Q17-R0419_CF_NEW"
+      }
+    },
+    {
+      "tag": "b509e",
+      "scorerOnlyRelation": "unrelated_source_changed",
+      "mutation": {
+        "sourceId": 29464,
+        "expectedHash": "6cdc4234aab2b9b5f100277fd57fdc8eae89de4ef667b15204fdb3ab65b14418",
+        "oldSpan": "Q28-R0826",
+        "replacementSpan": "Q28-R0826_CF_OTHER"
+      }
+    }
+  ]
+}

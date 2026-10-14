@@ -1,0 +1,15 @@
+{
+  "format": "native-reader-replay-v1",
+  "date": "2026-12-31",
+  "gatewayEnabled": true,
+  "excludedDeviceIds": [
+    17,
+    2,
+    5,
+    8,
+    11,
+    14
+  ],
+  "privacyFingerprint": "18bb772eb43bd4c0bc79d70670f394f5224844ff13762d65564c7cacea67be1a",
+  "scope": "Exact synthetic native corpus\/policy\/predicate replay; no real phone or provider access"
+}

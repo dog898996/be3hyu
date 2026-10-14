@@ -1,0 +1,11 @@
+{
+  "run": "/tmp/hoyoung-five-year-writer-tool-comparator-v5-v7/comparator-only-v7-state",
+  "productionSourceManifestSha256": "2ae51d49a1b2aecd966d6514630b53240bb4100a586dcc24c7d38aa0fc30d1dd",
+  "helperSha256": "471c5d3ef24df5c5e245018deaf831220029c31db1c3f96616dcf2258d50a51d",
+  "requestSha256": "3cd2b87d510b109b62f133fa621736759eb1100913624652e92c143c1de5ccfb",
+  "responseSha256": "a8032f2bb3de55a6cb2983f863744cd146ec34c53276a1d6224ca2bbee814eb4",
+  "budgetBeforeSha256": null,
+  "budgetAfterSha256": "ad57e720590acc9c47a46a1d2f96b8654373be1e1340ab812bb4e7a8ba599381",
+  "exitCode": 0,
+  "scope": "Actual native source tools only; no gold or answer rubric read by helper. Search/row budgets persist across invocations for each packet."
+}

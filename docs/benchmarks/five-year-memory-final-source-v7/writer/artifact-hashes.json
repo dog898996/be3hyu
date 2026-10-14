@@ -1,0 +1,15 @@
+{
+  "candidate-recall.json": "a3906f25074a9334c769b36e96945e7336a68444f6633b2b98fbc9cdd32872e1",
+  "changed-reader-inputs-from-v5.jsonl.gz": "565d3c7c5a90a95a9e4823e604b556eb58e589dcab157b88c41ad97ba4f20f59",
+  "corpus-counts.json": "6bc1ca4f0472428c58dc36d6b6604b7d2a6a747ad7cf18993db16f3306f28791",
+  "exact-fixture.java.txt": "d93ea88c42d6ed59c5c21b3b6c0de6b206563e51968e46dcce21b980759bbe0b",
+  "execution.log": "c24d86d060d703ec0d9be5ebc70e35647674c6a755ab6f99340c7365c7d48749",
+  "final-reader-inputs.jsonl.gz": "a8b1b6be06aaa972c0d1eb6befa7b9bc055a31799b3c91bbf0d86a17658aa054",
+  "native-reader-control-snapshot.json": "1b74a7081365e11660a8d9a70c9957f1e51e33ae4de8990a0fdbbc75359b3750",
+  "privacy-replay-report.json": "15fbd57b8f9d88fe34a810456f955785d5de91949dd50d383b4138dcb1f79633",
+  "report.json": "a020b4fcd94540b32a2d7faf17eec4aa6e3f43f72a7e7cf98c1a2817da397e00",
+  "scoring-rows.json.gz": "2c55833757ee74a1102496dfb465fa1a4eab36c77f8566af1b22f03cdafb24a3",
+  "source-manifest.json": "2ae51d49a1b2aecd966d6514630b53240bb4100a586dcc24c7d38aa0fc30d1dd",
+  "stratum-summary.json": "7eda40b87c499dd2b01adb2060fceb0ac1f445506cb556642b098c6df56145e9",
+  "v5-exact-packet-comparison.json": "7c0327335ecc0079a66ebeb0af46d7e680dd36ee394a95ff3599c2dbb8be29fa"
+}

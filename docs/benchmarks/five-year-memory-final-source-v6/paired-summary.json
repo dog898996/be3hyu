@@ -1,0 +1,225 @@
+{
+  "status": "completed_production_retrieval_and_managed_local_replay",
+  "finalAcceptancePassed": false,
+  "groundedAnswerQuality": "not_measured_by_simulation_harness",
+  "normalizationsApplied": [],
+  "arms": {
+    "raw": {
+      "checkpoints": [
+        {
+          "checkpoint": "2021-12-31",
+          "cases": 144,
+          "allRequiredSourcesDelivered": 144,
+          "requiredSourceCount": 348,
+          "requiredSourcesDelivered": 348,
+          "rawOnlyCases": 12,
+          "rawOnlyCompleteDelivery": 12,
+          "protectedValueLeakCases": 0,
+          "blockedCases": 0,
+          "p50Millis": 355,
+          "p95Millis": 908,
+          "groundedAnswerAccuracy": "not_measured",
+          "completedUsefulAnswers": "not_measured"
+        },
+        {
+          "checkpoint": "2023-12-31",
+          "cases": 144,
+          "allRequiredSourcesDelivered": 144,
+          "requiredSourceCount": 396,
+          "requiredSourcesDelivered": 396,
+          "rawOnlyCases": 12,
+          "rawOnlyCompleteDelivery": 12,
+          "protectedValueLeakCases": 0,
+          "blockedCases": 0,
+          "p50Millis": 250,
+          "p95Millis": 512,
+          "groundedAnswerAccuracy": "not_measured",
+          "completedUsefulAnswers": "not_measured"
+        },
+        {
+          "checkpoint": "2026-12-31",
+          "cases": 144,
+          "allRequiredSourcesDelivered": 143,
+          "requiredSourceCount": 396,
+          "requiredSourcesDelivered": 395,
+          "rawOnlyCases": 12,
+          "rawOnlyCompleteDelivery": 12,
+          "protectedValueLeakCases": 0,
+          "blockedCases": 0,
+          "p50Millis": 494,
+          "p95Millis": 1460,
+          "groundedAnswerAccuracy": "not_measured",
+          "completedUsefulAnswers": "not_measured"
+        }
+      ],
+      "corpus": {
+        "messages": 184428,
+        "device_events": 18,
+        "memories": 0,
+        "message_search": 184428,
+        "integrityCheck": "ok",
+        "databaseBytes": 136089600
+      },
+      "retainedOriginals": 402,
+      "explicitlyDeletedOriginals": 6,
+      "cacheRestoreReplayPassed": true,
+      "sourceDeliveryErrorRatioVsMatchedF2": 0.07142857142857142,
+      "sourceDeliveryPairedTransitions": {
+        "bothPass": 130,
+        "bothFail": 1,
+        "failToPass": 13
+      },
+      "candidateRecall": {
+        "5": {
+          "requiredSourceHits": 237,
+          "requiredSourceDenominator": 396,
+          "microRecall": 0.5984848484848485,
+          "allRequiredCandidateCases": 83,
+          "cases": 144,
+          "scope": "Native originalEvidence ranking before independent Gateway candidates/packing; not model-answer quality"
+        },
+        "12": {
+          "requiredSourceHits": 334,
+          "requiredSourceDenominator": 396,
+          "microRecall": 0.8434343434343434,
+          "allRequiredCandidateCases": 96,
+          "cases": 144,
+          "scope": "Native originalEvidence ranking before independent Gateway candidates/packing; not model-answer quality"
+        }
+      },
+      "v5ExactPacketComparison": {
+        "format": "exact-packet-equivalence-v1",
+        "priorRun": "/tmp/hoyoung-five-year-final-gateway-raw-v5",
+        "newRun": "/tmp/hoyoung-five-year-final-gateway-raw-v6",
+        "priorProductionManifestSha256": "393b0ddaf90b0b1a2e6149cc8ba10bf128c33ad4ef957dac65032fe89c63a969",
+        "newProductionManifestSha256": "b989667a84fc30951db58801ac5bf5acce2fe9b19f9e38e366bcd8bff73f07eb",
+        "packetsCompared": 144,
+        "exactUnchangedContexts": 143,
+        "changedContexts": [
+          {
+            "id": "a83a589197c107d6974a",
+            "oldContextSha256": "000c0ec922c257e0bbef29fb8b2da1bec797ece6d4bf61aaf8474b3dbac5eed8",
+            "newContextSha256": "93d308559e23029f313f94fe3b4addc4f07e2f429c2626e94bc78104b61a8f86",
+            "oldContextChars": 8985,
+            "newContextChars": 4811
+          }
+        ],
+        "normalizationsApplied": [],
+        "semanticAnswersMustBeReevaluatedForChangedContexts": true,
+        "finalAcceptancePassed": false,
+        "allNonEvidencePacketFieldsExactlyEqual": true,
+        "allCanonicalSourceMappingsAndHashesExactlyEqual": true
+      },
+      "groundedAnswerQuality": "not_measured_by_simulation_harness"
+    },
+    "writer": {
+      "checkpoints": [
+        {
+          "checkpoint": "2021-12-31",
+          "cases": 144,
+          "allRequiredSourcesDelivered": 143,
+          "requiredSourceCount": 348,
+          "requiredSourcesDelivered": 346,
+          "rawOnlyCases": 12,
+          "rawOnlyCompleteDelivery": 12,
+          "protectedValueLeakCases": 0,
+          "blockedCases": 0,
+          "p50Millis": 402,
+          "p95Millis": 1225,
+          "groundedAnswerAccuracy": "not_measured",
+          "completedUsefulAnswers": "not_measured"
+        },
+        {
+          "checkpoint": "2023-12-31",
+          "cases": 144,
+          "allRequiredSourcesDelivered": 132,
+          "requiredSourceCount": 396,
+          "requiredSourcesDelivered": 383,
+          "rawOnlyCases": 12,
+          "rawOnlyCompleteDelivery": 12,
+          "protectedValueLeakCases": 0,
+          "blockedCases": 0,
+          "p50Millis": 399,
+          "p95Millis": 1028,
+          "groundedAnswerAccuracy": "not_measured",
+          "completedUsefulAnswers": "not_measured"
+        },
+        {
+          "checkpoint": "2026-12-31",
+          "cases": 144,
+          "allRequiredSourcesDelivered": 132,
+          "requiredSourceCount": 396,
+          "requiredSourcesDelivered": 383,
+          "rawOnlyCases": 12,
+          "rawOnlyCompleteDelivery": 12,
+          "protectedValueLeakCases": 0,
+          "blockedCases": 0,
+          "p50Millis": 535,
+          "p95Millis": 1602,
+          "groundedAnswerAccuracy": "not_measured",
+          "completedUsefulAnswers": "not_measured"
+        }
+      ],
+      "corpus": {
+        "messages": 184428,
+        "device_events": 18,
+        "memories": 180,
+        "message_search": 184428,
+        "integrityCheck": "ok",
+        "databaseBytes": 136708096
+      },
+      "retainedOriginals": 402,
+      "explicitlyDeletedOriginals": 6,
+      "cacheRestoreReplayPassed": true,
+      "sourceDeliveryErrorRatioVsMatchedF2": 0.36363636363636365,
+      "sourceDeliveryPairedTransitions": {
+        "bothPass": 100,
+        "passToFail": 11,
+        "failToPass": 32,
+        "bothFail": 1
+      },
+      "candidateRecall": {
+        "5": {
+          "requiredSourceHits": 166,
+          "requiredSourceDenominator": 396,
+          "microRecall": 0.41919191919191917,
+          "allRequiredCandidateCases": 69,
+          "cases": 144,
+          "scope": "Native originalEvidence ranking before independent Gateway candidates/packing; not model-answer quality"
+        },
+        "12": {
+          "requiredSourceHits": 173,
+          "requiredSourceDenominator": 396,
+          "microRecall": 0.43686868686868685,
+          "allRequiredCandidateCases": 76,
+          "cases": 144,
+          "scope": "Native originalEvidence ranking before independent Gateway candidates/packing; not model-answer quality"
+        }
+      },
+      "v5ExactPacketComparison": {
+        "format": "exact-packet-equivalence-v1",
+        "priorRun": "/tmp/hoyoung-five-year-final-gateway-writer-v5",
+        "newRun": "/tmp/hoyoung-five-year-final-gateway-writer-v6",
+        "priorProductionManifestSha256": "393b0ddaf90b0b1a2e6149cc8ba10bf128c33ad4ef957dac65032fe89c63a969",
+        "newProductionManifestSha256": "b989667a84fc30951db58801ac5bf5acce2fe9b19f9e38e366bcd8bff73f07eb",
+        "packetsCompared": 144,
+        "exactUnchangedContexts": 143,
+        "changedContexts": [
+          {
+            "id": "bdd7d90484275f4ba634",
+            "oldContextSha256": "9ad749b17229de1491e16620f3380f8726ae931f9774a03f74c67a49fe42894d",
+            "newContextSha256": "2b9e10f7e3fe0b8ae4cf4584d4424ce52364e4843fd18c7de5cad85b60c3ddb8",
+            "oldContextChars": 11968,
+            "newContextChars": 11968
+          }
+        ],
+        "normalizationsApplied": [],
+        "semanticAnswersMustBeReevaluatedForChangedContexts": true,
+        "finalAcceptancePassed": false,
+        "allNonEvidencePacketFieldsExactlyEqual": true,
+        "allCanonicalSourceMappingsAndHashesExactlyEqual": true
+      },
+      "groundedAnswerQuality": "not_measured_by_simulation_harness"
+    }
+  }
+}

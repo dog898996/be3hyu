@@ -1,0 +1,11 @@
+{
+  "run": "/tmp/hoyoung-five-year-final-gateway-writer-v5",
+  "productionSourceManifestSha256": "393b0ddaf90b0b1a2e6149cc8ba10bf128c33ad4ef957dac65032fe89c63a969",
+  "helperSha256": "471c5d3ef24df5c5e245018deaf831220029c31db1c3f96616dcf2258d50a51d",
+  "requestSha256": "272246463c3056e5f9f2d07ef718632a83b0614b8cbd46be66d668f9116eb147",
+  "responseSha256": "2af1252145bb4c09389b2db264e1c6390000e5c265e704203825f2ad9e808924",
+  "budgetBeforeSha256": "333c9306f93eed00e3a02f858a0e125459828b2c2f4442fa890788190edace26",
+  "budgetAfterSha256": "a99243b02130bddccc16dd91e593bdf63756099aa35f1aed56dcf4ca0da391b2",
+  "exitCode": 0,
+  "scope": "Actual native source tools only; no gold or answer rubric read by helper. Search/row budgets persist across invocations for each packet."
+}

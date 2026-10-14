@@ -1,0 +1,2090 @@
+[
+  {
+    "index": 0,
+    "packetId": "f504885e1f62d52b5806",
+    "caseId": "raw_only-01",
+    "sourceId": "message:1106",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 1,
+    "packetId": "a83a589197c107d6974a",
+    "caseId": "alias_cues-01",
+    "sourceId": "message:1107",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 1,
+    "packetId": "a83a589197c107d6974a",
+    "caseId": "alias_cues-01",
+    "sourceId": "message:1706",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 2,
+    "packetId": "135fd1a5dc1f5552bd07",
+    "caseId": "temporal_change-01",
+    "sourceId": "message:1108",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 2,
+    "packetId": "135fd1a5dc1f5552bd07",
+    "caseId": "temporal_change-01",
+    "sourceId": "message:32083",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 3,
+    "packetId": "5e8d673d48f2b426d528",
+    "caseId": "claim_status-01",
+    "sourceId": "message:1707",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 4,
+    "packetId": "7feadae2186c9043801f",
+    "caseId": "episodes-01",
+    "sourceId": "device_event:1",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 4,
+    "packetId": "7feadae2186c9043801f",
+    "caseId": "episodes-01",
+    "sourceId": "message:32084",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 5,
+    "packetId": "c6f1d6f4aea7bcf97d71",
+    "caseId": "decision_reasons-01",
+    "sourceId": "message:1111",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 5,
+    "packetId": "c6f1d6f4aea7bcf97d71",
+    "caseId": "decision_reasons-01",
+    "sourceId": "message:1708",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 6,
+    "packetId": "ccf2947c0a9f985ae49a",
+    "caseId": "procedure_scope-01",
+    "sourceId": "message:1112",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 7,
+    "packetId": "6c35ab337c108f49a302",
+    "caseId": "active_constraints-01",
+    "sourceId": "message:1113",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 7,
+    "packetId": "6c35ab337c108f49a302",
+    "caseId": "active_constraints-01",
+    "sourceId": "message:32086",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 8,
+    "packetId": "bb8cdf070a18c60a9a5e",
+    "caseId": "missing_facts-01",
+    "sourceId": "message:1114",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 9,
+    "packetId": "4e066eca74fd2bec6c3c",
+    "caseId": "image_wire_scope-01",
+    "sourceId": "message:1115",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 10,
+    "packetId": "a53b518b385050d1ddda",
+    "caseId": "forget_revoke-01",
+    "sourceId": "message:32087",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 11,
+    "packetId": "41f8f3847663a9c02ca1",
+    "caseId": "range_coverage-01",
+    "sourceId": "message:1",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 11,
+    "packetId": "41f8f3847663a9c02ca1",
+    "caseId": "range_coverage-01",
+    "sourceId": "message:1117",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 11,
+    "packetId": "41f8f3847663a9c02ca1",
+    "caseId": "range_coverage-01",
+    "sourceId": "message:1114",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 12,
+    "packetId": "a6a6d309ea350c50139e",
+    "caseId": "raw_only-02",
+    "sourceId": "message:3738",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 13,
+    "packetId": "06de574bccb45eeaf0f9",
+    "caseId": "alias_cues-02",
+    "sourceId": "message:3739",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 13,
+    "packetId": "06de574bccb45eeaf0f9",
+    "caseId": "alias_cues-02",
+    "sourceId": "message:4337",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 14,
+    "packetId": "ab57cf2a3a0dca62e097",
+    "caseId": "temporal_change-02",
+    "sourceId": "message:3740",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 14,
+    "packetId": "ab57cf2a3a0dca62e097",
+    "caseId": "temporal_change-02",
+    "sourceId": "message:34692",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 15,
+    "packetId": "f7bb4dc52953481e372b",
+    "caseId": "claim_status-02",
+    "sourceId": "message:3741",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 16,
+    "packetId": "293b7d5f96771b675d85",
+    "caseId": "episodes-02",
+    "sourceId": "device_event:3",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 16,
+    "packetId": "293b7d5f96771b675d85",
+    "caseId": "episodes-02",
+    "sourceId": "message:34693",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 17,
+    "packetId": "c5457776750a10316bcc",
+    "caseId": "decision_reasons-02",
+    "sourceId": "message:3743",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 17,
+    "packetId": "c5457776750a10316bcc",
+    "caseId": "decision_reasons-02",
+    "sourceId": "message:4338",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 18,
+    "packetId": "0ba32b38a695ff60f4cc",
+    "caseId": "procedure_scope-02",
+    "sourceId": "message:3744",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 19,
+    "packetId": "26f4542dd5052ee11fab",
+    "caseId": "active_constraints-02",
+    "sourceId": "message:3745",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 19,
+    "packetId": "26f4542dd5052ee11fab",
+    "caseId": "active_constraints-02",
+    "sourceId": "message:34695",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 20,
+    "packetId": "34bebce28f8373ec808b",
+    "caseId": "missing_facts-02",
+    "sourceId": "message:3746",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 21,
+    "packetId": "4bd98a5f6cb3e9d240ea",
+    "caseId": "image_wire_scope-02",
+    "sourceId": "message:3747",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 22,
+    "packetId": "5c56f4881ca4b51fc4c6",
+    "caseId": "forget_revoke-02",
+    "sourceId": "message:34696",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 23,
+    "packetId": "675e990de6fc9ae7be7f",
+    "caseId": "range_coverage-02",
+    "sourceId": "message:2633",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 23,
+    "packetId": "675e990de6fc9ae7be7f",
+    "caseId": "range_coverage-02",
+    "sourceId": "message:3748",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 23,
+    "packetId": "675e990de6fc9ae7be7f",
+    "caseId": "range_coverage-02",
+    "sourceId": "message:3746",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 24,
+    "packetId": "b731b069ac16299b7230",
+    "caseId": "raw_only-03",
+    "sourceId": "message:6116",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 25,
+    "packetId": "57a7d13c9cad7b4afd63",
+    "caseId": "alias_cues-03",
+    "sourceId": "message:6117",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 25,
+    "packetId": "57a7d13c9cad7b4afd63",
+    "caseId": "alias_cues-03",
+    "sourceId": "message:6716",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 26,
+    "packetId": "1305aa284f4dc207e732",
+    "caseId": "temporal_change-03",
+    "sourceId": "message:6118",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 26,
+    "packetId": "1305aa284f4dc207e732",
+    "caseId": "temporal_change-03",
+    "sourceId": "message:37049",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 27,
+    "packetId": "b42dc9886cd3db8836aa",
+    "caseId": "claim_status-03",
+    "sourceId": "message:6717",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 28,
+    "packetId": "7e48577cce495ce021c3",
+    "caseId": "episodes-03",
+    "sourceId": "device_event:4",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 28,
+    "packetId": "7e48577cce495ce021c3",
+    "caseId": "episodes-03",
+    "sourceId": "message:37050",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 29,
+    "packetId": "07df4c96e7f0b16e83ae",
+    "caseId": "decision_reasons-03",
+    "sourceId": "message:6121",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 29,
+    "packetId": "07df4c96e7f0b16e83ae",
+    "caseId": "decision_reasons-03",
+    "sourceId": "message:6718",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 30,
+    "packetId": "3a1631405e7c5a26ea97",
+    "caseId": "procedure_scope-03",
+    "sourceId": "message:6122",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 31,
+    "packetId": "193d277ed329b9faf46a",
+    "caseId": "active_constraints-03",
+    "sourceId": "message:6123",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 31,
+    "packetId": "193d277ed329b9faf46a",
+    "caseId": "active_constraints-03",
+    "sourceId": "message:37052",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 32,
+    "packetId": "cd813c4781bed7db2f16",
+    "caseId": "missing_facts-03",
+    "sourceId": "message:6124",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 33,
+    "packetId": "b1ab231d574ad653162c",
+    "caseId": "image_wire_scope-03",
+    "sourceId": "message:6125",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 33,
+    "packetId": "b1ab231d574ad653162c",
+    "caseId": "image_wire_scope-03",
+    "sourceId": "message:6719",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 34,
+    "packetId": "acb7aed394026703c458",
+    "caseId": "forget_revoke-03",
+    "sourceId": "message:37053",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 35,
+    "packetId": "2b0b33da150c8e8c2827",
+    "caseId": "range_coverage-03",
+    "sourceId": "message:5011",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 35,
+    "packetId": "2b0b33da150c8e8c2827",
+    "caseId": "range_coverage-03",
+    "sourceId": "message:6127",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 35,
+    "packetId": "2b0b33da150c8e8c2827",
+    "caseId": "range_coverage-03",
+    "sourceId": "message:6124",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 36,
+    "packetId": "47103d53f6128e60b944",
+    "caseId": "raw_only-04",
+    "sourceId": "message:8749",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 37,
+    "packetId": "4ad9c7eab5371cc2b676",
+    "caseId": "alias_cues-04",
+    "sourceId": "message:8750",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 37,
+    "packetId": "4ad9c7eab5371cc2b676",
+    "caseId": "alias_cues-04",
+    "sourceId": "message:9348",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 38,
+    "packetId": "56f7ca13b91bc5a7abc9",
+    "caseId": "temporal_change-04",
+    "sourceId": "message:8751",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 38,
+    "packetId": "56f7ca13b91bc5a7abc9",
+    "caseId": "temporal_change-04",
+    "sourceId": "message:39658",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 39,
+    "packetId": "985a7644dddf051a059a",
+    "caseId": "claim_status-04",
+    "sourceId": "message:9349",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 40,
+    "packetId": "3c95645a78f854f1bdbd",
+    "caseId": "episodes-04",
+    "sourceId": "device_event:6",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 40,
+    "packetId": "3c95645a78f854f1bdbd",
+    "caseId": "episodes-04",
+    "sourceId": "message:39659",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 41,
+    "packetId": "c46d5e9474eb353cd6ab",
+    "caseId": "decision_reasons-04",
+    "sourceId": "message:8754",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 41,
+    "packetId": "c46d5e9474eb353cd6ab",
+    "caseId": "decision_reasons-04",
+    "sourceId": "message:9350",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 42,
+    "packetId": "b3556b583f09fcf01795",
+    "caseId": "procedure_scope-04",
+    "sourceId": "message:8755",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 43,
+    "packetId": "c709db8b6f1def58a787",
+    "caseId": "active_constraints-04",
+    "sourceId": "message:8756",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 43,
+    "packetId": "c709db8b6f1def58a787",
+    "caseId": "active_constraints-04",
+    "sourceId": "message:39661",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 44,
+    "packetId": "902e1ee92cd7498d3865",
+    "caseId": "missing_facts-04",
+    "sourceId": "message:8757",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 45,
+    "packetId": "5110f4db874283771ac8",
+    "caseId": "image_wire_scope-04",
+    "sourceId": "message:8758",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 46,
+    "packetId": "b579c9921a0d8726e081",
+    "caseId": "forget_revoke-04",
+    "sourceId": "message:39662",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 47,
+    "packetId": "b35fbb229e9407a91add",
+    "caseId": "range_coverage-04",
+    "sourceId": "message:7644",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 47,
+    "packetId": "b35fbb229e9407a91add",
+    "caseId": "range_coverage-04",
+    "sourceId": "message:8759",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 47,
+    "packetId": "b35fbb229e9407a91add",
+    "caseId": "range_coverage-04",
+    "sourceId": "message:8757",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 48,
+    "packetId": "f8b87a5037bfae9b5886",
+    "caseId": "raw_only-05",
+    "sourceId": "message:11296",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 49,
+    "packetId": "92b8e54840a93eee28c8",
+    "caseId": "alias_cues-05",
+    "sourceId": "message:11297",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 49,
+    "packetId": "92b8e54840a93eee28c8",
+    "caseId": "alias_cues-05",
+    "sourceId": "message:11896",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 50,
+    "packetId": "df6b20d0b46e0d9da8bf",
+    "caseId": "temporal_change-05",
+    "sourceId": "message:11298",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 50,
+    "packetId": "df6b20d0b46e0d9da8bf",
+    "caseId": "temporal_change-05",
+    "sourceId": "message:42183",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 51,
+    "packetId": "c5105f6c773dd0c09a76",
+    "caseId": "claim_status-05",
+    "sourceId": "message:11299",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 52,
+    "packetId": "a27831f58d85aec2851b",
+    "caseId": "episodes-05",
+    "sourceId": "device_event:7",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 52,
+    "packetId": "a27831f58d85aec2851b",
+    "caseId": "episodes-05",
+    "sourceId": "message:42184",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 53,
+    "packetId": "28ec06e272e6d40a2d33",
+    "caseId": "decision_reasons-05",
+    "sourceId": "message:11301",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 53,
+    "packetId": "28ec06e272e6d40a2d33",
+    "caseId": "decision_reasons-05",
+    "sourceId": "message:11897",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 54,
+    "packetId": "5ee0401b93a4765414d3",
+    "caseId": "procedure_scope-05",
+    "sourceId": "message:11302",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 55,
+    "packetId": "0860b055a15fcd9f3f91",
+    "caseId": "active_constraints-05",
+    "sourceId": "message:11303",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 55,
+    "packetId": "0860b055a15fcd9f3f91",
+    "caseId": "active_constraints-05",
+    "sourceId": "message:42186",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 56,
+    "packetId": "206fff84cf6d7d55b946",
+    "caseId": "missing_facts-05",
+    "sourceId": "message:11304",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 57,
+    "packetId": "c4fc209c7a1aff5b9d57",
+    "caseId": "image_wire_scope-05",
+    "sourceId": "message:11305",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 58,
+    "packetId": "fd6a5ffd94c609df8f08",
+    "caseId": "forget_revoke-05",
+    "sourceId": "message:42187",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 59,
+    "packetId": "bf096cd908b35e2abe22",
+    "caseId": "range_coverage-05",
+    "sourceId": "message:10191",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 59,
+    "packetId": "bf096cd908b35e2abe22",
+    "caseId": "range_coverage-05",
+    "sourceId": "message:11307",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 59,
+    "packetId": "bf096cd908b35e2abe22",
+    "caseId": "range_coverage-05",
+    "sourceId": "message:11304",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 60,
+    "packetId": "4783a435bd64701cdfae",
+    "caseId": "raw_only-06",
+    "sourceId": "message:13927",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 61,
+    "packetId": "eb6ca4a9c2f551c40064",
+    "caseId": "alias_cues-06",
+    "sourceId": "message:13928",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 61,
+    "packetId": "eb6ca4a9c2f551c40064",
+    "caseId": "alias_cues-06",
+    "sourceId": "message:14526",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 62,
+    "packetId": "644c1734e5c2b9fdf175",
+    "caseId": "temporal_change-06",
+    "sourceId": "message:13929",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 62,
+    "packetId": "644c1734e5c2b9fdf175",
+    "caseId": "temporal_change-06",
+    "sourceId": "message:44792",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 63,
+    "packetId": "0f33714b77f913b0fbc5",
+    "caseId": "claim_status-06",
+    "sourceId": "message:14527",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 64,
+    "packetId": "65918a21a85ddc69597b",
+    "caseId": "episodes-06",
+    "sourceId": "device_event:9",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 64,
+    "packetId": "65918a21a85ddc69597b",
+    "caseId": "episodes-06",
+    "sourceId": "message:44793",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 65,
+    "packetId": "9f28b45516d1963a4c7e",
+    "caseId": "decision_reasons-06",
+    "sourceId": "message:13932",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 65,
+    "packetId": "9f28b45516d1963a4c7e",
+    "caseId": "decision_reasons-06",
+    "sourceId": "message:14528",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 66,
+    "packetId": "f16ee754c80f06d6f83a",
+    "caseId": "procedure_scope-06",
+    "sourceId": "message:13933",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 67,
+    "packetId": "4254040e29a8079aa561",
+    "caseId": "active_constraints-06",
+    "sourceId": "message:13934",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 67,
+    "packetId": "4254040e29a8079aa561",
+    "caseId": "active_constraints-06",
+    "sourceId": "message:44795",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 68,
+    "packetId": "9a39f67201365f17fe48",
+    "caseId": "missing_facts-06",
+    "sourceId": "message:13935",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 69,
+    "packetId": "4690730de11bd50c2273",
+    "caseId": "image_wire_scope-06",
+    "sourceId": "message:13936",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 69,
+    "packetId": "4690730de11bd50c2273",
+    "caseId": "image_wire_scope-06",
+    "sourceId": "message:14529",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 70,
+    "packetId": "9b142d6cbbce9a7af552",
+    "caseId": "forget_revoke-06",
+    "sourceId": "message:44796",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 71,
+    "packetId": "c54f72d71917abe7719e",
+    "caseId": "range_coverage-06",
+    "sourceId": "message:12822",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 71,
+    "packetId": "c54f72d71917abe7719e",
+    "caseId": "range_coverage-06",
+    "sourceId": "message:13937",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 71,
+    "packetId": "c54f72d71917abe7719e",
+    "caseId": "range_coverage-06",
+    "sourceId": "message:13935",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 72,
+    "packetId": "5590c3078e782c67a3ae",
+    "caseId": "raw_only-07",
+    "sourceId": "message:16475",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 73,
+    "packetId": "9a0dcc1b37a84a1ce50a",
+    "caseId": "alias_cues-07",
+    "sourceId": "message:16476",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 73,
+    "packetId": "9a0dcc1b37a84a1ce50a",
+    "caseId": "alias_cues-07",
+    "sourceId": "message:17075",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 74,
+    "packetId": "58764e69284c4162cb8d",
+    "caseId": "temporal_change-07",
+    "sourceId": "message:16477",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 74,
+    "packetId": "58764e69284c4162cb8d",
+    "caseId": "temporal_change-07",
+    "sourceId": "message:47317",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 75,
+    "packetId": "8d528ded41bd14ef7245",
+    "caseId": "claim_status-07",
+    "sourceId": "message:17076",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 76,
+    "packetId": "eb0091f2ba5483197f03",
+    "caseId": "episodes-07",
+    "sourceId": "device_event:10",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 76,
+    "packetId": "eb0091f2ba5483197f03",
+    "caseId": "episodes-07",
+    "sourceId": "message:47318",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 77,
+    "packetId": "ff56fa1951c40b52e033",
+    "caseId": "decision_reasons-07",
+    "sourceId": "message:16480",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 77,
+    "packetId": "ff56fa1951c40b52e033",
+    "caseId": "decision_reasons-07",
+    "sourceId": "message:17077",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 78,
+    "packetId": "9668d89b42f0fb783a87",
+    "caseId": "procedure_scope-07",
+    "sourceId": "message:16481",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 79,
+    "packetId": "63ab342b64d6c07cf7c5",
+    "caseId": "active_constraints-07",
+    "sourceId": "message:16482",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 79,
+    "packetId": "63ab342b64d6c07cf7c5",
+    "caseId": "active_constraints-07",
+    "sourceId": "message:47320",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 80,
+    "packetId": "0426c0d6154f1856a2de",
+    "caseId": "missing_facts-07",
+    "sourceId": "message:16483",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 81,
+    "packetId": "32db18c9e0429665625d",
+    "caseId": "image_wire_scope-07",
+    "sourceId": "message:16484",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 82,
+    "packetId": "310d4cce3556bfb84cef",
+    "caseId": "forget_revoke-07",
+    "sourceId": "message:47321",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 83,
+    "packetId": "b2e43483789770d9b758",
+    "caseId": "range_coverage-07",
+    "sourceId": "message:15370",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 83,
+    "packetId": "b2e43483789770d9b758",
+    "caseId": "range_coverage-07",
+    "sourceId": "message:16486",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 83,
+    "packetId": "b2e43483789770d9b758",
+    "caseId": "range_coverage-07",
+    "sourceId": "message:16483",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 84,
+    "packetId": "7cb26ad1637c877112d7",
+    "caseId": "raw_only-08",
+    "sourceId": "message:19107",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 85,
+    "packetId": "603082397a8883fee0e6",
+    "caseId": "alias_cues-08",
+    "sourceId": "message:19108",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 85,
+    "packetId": "603082397a8883fee0e6",
+    "caseId": "alias_cues-08",
+    "sourceId": "message:19706",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 86,
+    "packetId": "3d8d8c2c4831ceec4c64",
+    "caseId": "temporal_change-08",
+    "sourceId": "message:19109",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 86,
+    "packetId": "3d8d8c2c4831ceec4c64",
+    "caseId": "temporal_change-08",
+    "sourceId": "message:49926",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 87,
+    "packetId": "9c995f22884764a07735",
+    "caseId": "claim_status-08",
+    "sourceId": "message:19110",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 88,
+    "packetId": "2bc929f04004b6bb3e5f",
+    "caseId": "episodes-08",
+    "sourceId": "device_event:12",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 88,
+    "packetId": "2bc929f04004b6bb3e5f",
+    "caseId": "episodes-08",
+    "sourceId": "message:49927",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 89,
+    "packetId": "a969a040aed42025eb03",
+    "caseId": "decision_reasons-08",
+    "sourceId": "message:19112",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 89,
+    "packetId": "a969a040aed42025eb03",
+    "caseId": "decision_reasons-08",
+    "sourceId": "message:19707",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 90,
+    "packetId": "d4116da5a9583617994a",
+    "caseId": "procedure_scope-08",
+    "sourceId": "message:19113",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 91,
+    "packetId": "4a3989a6040d1a85b864",
+    "caseId": "active_constraints-08",
+    "sourceId": "message:19114",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 91,
+    "packetId": "4a3989a6040d1a85b864",
+    "caseId": "active_constraints-08",
+    "sourceId": "message:49929",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 92,
+    "packetId": "aa44520eedcdb8a9f5f0",
+    "caseId": "missing_facts-08",
+    "sourceId": "message:19115",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 93,
+    "packetId": "ef7dc86770c05011f4e7",
+    "caseId": "image_wire_scope-08",
+    "sourceId": "message:19116",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 94,
+    "packetId": "3371e1db947cf223523d",
+    "caseId": "forget_revoke-08",
+    "sourceId": "message:49930",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 95,
+    "packetId": "3baf5880d586d50d157e",
+    "caseId": "range_coverage-08",
+    "sourceId": "message:18002",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 95,
+    "packetId": "3baf5880d586d50d157e",
+    "caseId": "range_coverage-08",
+    "sourceId": "message:19117",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 95,
+    "packetId": "3baf5880d586d50d157e",
+    "caseId": "range_coverage-08",
+    "sourceId": "message:19115",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 96,
+    "packetId": "1820b8a6d7e5f573f5b9",
+    "caseId": "raw_only-09",
+    "sourceId": "message:21737",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 97,
+    "packetId": "b8b3314cff908998dad1",
+    "caseId": "alias_cues-09",
+    "sourceId": "message:21738",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 97,
+    "packetId": "b8b3314cff908998dad1",
+    "caseId": "alias_cues-09",
+    "sourceId": "message:22337",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 98,
+    "packetId": "9ddb51449c910e59e80e",
+    "caseId": "temporal_change-09",
+    "sourceId": "message:21739",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 98,
+    "packetId": "9ddb51449c910e59e80e",
+    "caseId": "temporal_change-09",
+    "sourceId": "message:52535",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 99,
+    "packetId": "a8e2710869bc77ee8104",
+    "caseId": "claim_status-09",
+    "sourceId": "message:22338",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 100,
+    "packetId": "34cbdf73282c0cd9569a",
+    "caseId": "episodes-09",
+    "sourceId": "device_event:13",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 100,
+    "packetId": "34cbdf73282c0cd9569a",
+    "caseId": "episodes-09",
+    "sourceId": "message:52536",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 101,
+    "packetId": "83b1a953080ff7e2ce73",
+    "caseId": "decision_reasons-09",
+    "sourceId": "message:21742",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 101,
+    "packetId": "83b1a953080ff7e2ce73",
+    "caseId": "decision_reasons-09",
+    "sourceId": "message:22339",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 102,
+    "packetId": "2b752af378233d829382",
+    "caseId": "procedure_scope-09",
+    "sourceId": "message:21743",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 103,
+    "packetId": "a0f3c960a4e8ad029c5e",
+    "caseId": "active_constraints-09",
+    "sourceId": "message:21744",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 103,
+    "packetId": "a0f3c960a4e8ad029c5e",
+    "caseId": "active_constraints-09",
+    "sourceId": "message:52538",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 104,
+    "packetId": "c260e58a02c748fb3d05",
+    "caseId": "missing_facts-09",
+    "sourceId": "message:21745",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 105,
+    "packetId": "f71e80eda56a62254651",
+    "caseId": "image_wire_scope-09",
+    "sourceId": "message:21746",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 105,
+    "packetId": "f71e80eda56a62254651",
+    "caseId": "image_wire_scope-09",
+    "sourceId": "message:22340",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 106,
+    "packetId": "414d7b1d2901ba8fa1e4",
+    "caseId": "forget_revoke-09",
+    "sourceId": "message:52539",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 107,
+    "packetId": "39ed7465f4802729ae1e",
+    "caseId": "range_coverage-09",
+    "sourceId": "message:20632",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 107,
+    "packetId": "39ed7465f4802729ae1e",
+    "caseId": "range_coverage-09",
+    "sourceId": "message:21748",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 107,
+    "packetId": "39ed7465f4802729ae1e",
+    "caseId": "range_coverage-09",
+    "sourceId": "message:21745",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 108,
+    "packetId": "91c432757ce25ead7b0a",
+    "caseId": "raw_only-10",
+    "sourceId": "message:24286",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 109,
+    "packetId": "c79122c55f6853215aac",
+    "caseId": "alias_cues-10",
+    "sourceId": "message:24287",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 109,
+    "packetId": "c79122c55f6853215aac",
+    "caseId": "alias_cues-10",
+    "sourceId": "message:24885",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 110,
+    "packetId": "55f7b6db941a40699d65",
+    "caseId": "temporal_change-10",
+    "sourceId": "message:24288",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 110,
+    "packetId": "55f7b6db941a40699d65",
+    "caseId": "temporal_change-10",
+    "sourceId": "message:55060",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 111,
+    "packetId": "67af9a6c02df982d40aa",
+    "caseId": "claim_status-10",
+    "sourceId": "message:24886",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 112,
+    "packetId": "2653bccc4a05480e076c",
+    "caseId": "episodes-10",
+    "sourceId": "device_event:15",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 112,
+    "packetId": "2653bccc4a05480e076c",
+    "caseId": "episodes-10",
+    "sourceId": "message:55061",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 113,
+    "packetId": "9a7194b21c7b1043d85e",
+    "caseId": "decision_reasons-10",
+    "sourceId": "message:24291",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 113,
+    "packetId": "9a7194b21c7b1043d85e",
+    "caseId": "decision_reasons-10",
+    "sourceId": "message:24887",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 114,
+    "packetId": "ba061464011573bf1b86",
+    "caseId": "procedure_scope-10",
+    "sourceId": "message:24292",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 115,
+    "packetId": "c59aa60f4d281e349315",
+    "caseId": "active_constraints-10",
+    "sourceId": "message:24293",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 115,
+    "packetId": "c59aa60f4d281e349315",
+    "caseId": "active_constraints-10",
+    "sourceId": "message:55063",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 116,
+    "packetId": "34eb1d0511586a11e3d8",
+    "caseId": "missing_facts-10",
+    "sourceId": "message:24294",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 117,
+    "packetId": "31ba69ad1d02e8c0b18e",
+    "caseId": "image_wire_scope-10",
+    "sourceId": "message:24295",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 118,
+    "packetId": "d439bc9a66f03d05ecf4",
+    "caseId": "forget_revoke-10",
+    "sourceId": "message:55064",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 119,
+    "packetId": "bc8b60913ac917a67dbf",
+    "caseId": "range_coverage-10",
+    "sourceId": "message:23181",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 119,
+    "packetId": "bc8b60913ac917a67dbf",
+    "caseId": "range_coverage-10",
+    "sourceId": "message:24296",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 119,
+    "packetId": "bc8b60913ac917a67dbf",
+    "caseId": "range_coverage-10",
+    "sourceId": "message:24294",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 120,
+    "packetId": "ab52237575bf0108b36b",
+    "caseId": "raw_only-11",
+    "sourceId": "message:26917",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 121,
+    "packetId": "f47ffeea2b0cc21c5820",
+    "caseId": "alias_cues-11",
+    "sourceId": "message:26918",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 121,
+    "packetId": "f47ffeea2b0cc21c5820",
+    "caseId": "alias_cues-11",
+    "sourceId": "message:27517",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 122,
+    "packetId": "6bb8dc101c3eec3579f2",
+    "caseId": "temporal_change-11",
+    "sourceId": "message:26919",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 122,
+    "packetId": "6bb8dc101c3eec3579f2",
+    "caseId": "temporal_change-11",
+    "sourceId": "message:57669",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 123,
+    "packetId": "73bfbdf25d140d8e8cd4",
+    "caseId": "claim_status-11",
+    "sourceId": "message:26920",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 124,
+    "packetId": "7f9680c465afd0568b5b",
+    "caseId": "episodes-11",
+    "sourceId": "device_event:16",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 124,
+    "packetId": "7f9680c465afd0568b5b",
+    "caseId": "episodes-11",
+    "sourceId": "message:57670",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 125,
+    "packetId": "6116bae16bf4f342f61a",
+    "caseId": "decision_reasons-11",
+    "sourceId": "message:26922",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 125,
+    "packetId": "6116bae16bf4f342f61a",
+    "caseId": "decision_reasons-11",
+    "sourceId": "message:27518",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 126,
+    "packetId": "7516b259fc36f72f1d8b",
+    "caseId": "procedure_scope-11",
+    "sourceId": "message:26923",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 127,
+    "packetId": "f9f67a7113d3f49a88ff",
+    "caseId": "active_constraints-11",
+    "sourceId": "message:26924",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 127,
+    "packetId": "f9f67a7113d3f49a88ff",
+    "caseId": "active_constraints-11",
+    "sourceId": "message:57672",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 128,
+    "packetId": "4e0ab30b9ed5a8448336",
+    "caseId": "missing_facts-11",
+    "sourceId": "message:26925",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 129,
+    "packetId": "913d923a0833973e6c2e",
+    "caseId": "image_wire_scope-11",
+    "sourceId": "message:26926",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 130,
+    "packetId": "3382a900eccabcfe4dd0",
+    "caseId": "forget_revoke-11",
+    "sourceId": "message:57673",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 131,
+    "packetId": "8cd8932ab607b8b36aa3",
+    "caseId": "range_coverage-11",
+    "sourceId": "message:25812",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 131,
+    "packetId": "8cd8932ab607b8b36aa3",
+    "caseId": "range_coverage-11",
+    "sourceId": "message:26928",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 131,
+    "packetId": "8cd8932ab607b8b36aa3",
+    "caseId": "range_coverage-11",
+    "sourceId": "message:26925",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 132,
+    "packetId": "17c71e5bb842063e8e97",
+    "caseId": "raw_only-12",
+    "sourceId": "message:29464",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 133,
+    "packetId": "b87cbb672c43324577b9",
+    "caseId": "alias_cues-12",
+    "sourceId": "message:29465",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 133,
+    "packetId": "b87cbb672c43324577b9",
+    "caseId": "alias_cues-12",
+    "sourceId": "message:30063",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 134,
+    "packetId": "3380bf6716574cd152e6",
+    "caseId": "temporal_change-12",
+    "sourceId": "message:29466",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 134,
+    "packetId": "3380bf6716574cd152e6",
+    "caseId": "temporal_change-12",
+    "sourceId": "message:60194",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 135,
+    "packetId": "eda7e221e9616bb82eb3",
+    "caseId": "claim_status-12",
+    "sourceId": "message:30064",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 136,
+    "packetId": "2eb53cf0ccd825aea6c1",
+    "caseId": "episodes-12",
+    "sourceId": "device_event:18",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 136,
+    "packetId": "2eb53cf0ccd825aea6c1",
+    "caseId": "episodes-12",
+    "sourceId": "message:60195",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 137,
+    "packetId": "bdd7d90484275f4ba634",
+    "caseId": "decision_reasons-12",
+    "sourceId": "message:29469",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 137,
+    "packetId": "bdd7d90484275f4ba634",
+    "caseId": "decision_reasons-12",
+    "sourceId": "message:30065",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 138,
+    "packetId": "d6521c5733046d5c25a4",
+    "caseId": "procedure_scope-12",
+    "sourceId": "message:29470",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 139,
+    "packetId": "98270fca47f96775005d",
+    "caseId": "active_constraints-12",
+    "sourceId": "message:29471",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 139,
+    "packetId": "98270fca47f96775005d",
+    "caseId": "active_constraints-12",
+    "sourceId": "message:60197",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 140,
+    "packetId": "e69b25eba7707602cd3f",
+    "caseId": "missing_facts-12",
+    "sourceId": "message:29472",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 141,
+    "packetId": "27ab15c10b639631f66a",
+    "caseId": "image_wire_scope-12",
+    "sourceId": "message:29473",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 141,
+    "packetId": "27ab15c10b639631f66a",
+    "caseId": "image_wire_scope-12",
+    "sourceId": "message:30066",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 142,
+    "packetId": "c726f5d2c962eda36301",
+    "caseId": "forget_revoke-12",
+    "sourceId": "message:60198",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 143,
+    "packetId": "a1dc766a0fc5960c55ff",
+    "caseId": "range_coverage-12",
+    "sourceId": "message:28359",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 143,
+    "packetId": "a1dc766a0fc5960c55ff",
+    "caseId": "range_coverage-12",
+    "sourceId": "message:29474",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  },
+  {
+    "index": 143,
+    "packetId": "a1dc766a0fc5960c55ff",
+    "caseId": "range_coverage-12",
+    "sourceId": "message:29472",
+    "delivered": true,
+    "exact": true,
+    "derived": false
+  }
+]

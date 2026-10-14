@@ -1,0 +1,557 @@
+{
+  "completed": 144,
+  "answered": 108,
+  "abstained": 36,
+  "exactQuoteClaims": 364,
+  "exactQuoteValid": 364,
+  "quoteErrors": [],
+  "sha256": "c5e1edff5182640cada14d24a4bcea987c55c0024d833bdd18ff837b5bcb8905",
+  "toolRequests": 12,
+  "nativeRowsDelivered": 168,
+  "maxSearchesPerPacket": 1,
+  "maxRowsPerPacket": 14,
+  "fullToolCapTrace": [
+    {
+      "id": "41f8f3847663a9c02ca1",
+      "questionIndex": 11,
+      "request": {
+        "id": "41f8f3847663a9c02ca1",
+        "op": "enumerate",
+        "args": {
+          "type": "message",
+          "fromInclusive": "2021-01-01",
+          "toExclusive": "2021-02-01",
+          "containsLiteral": "사진전 자료정리",
+          "limit": 20
+        }
+      },
+      "sourceSearchesUsed": 1,
+      "sourceRowsRead": 14,
+      "rowIds": [
+        "message:1",
+        "message:86",
+        "message:171",
+        "message:256",
+        "message:341",
+        "message:426",
+        "message:511",
+        "message:596",
+        "message:681",
+        "message:766",
+        "message:851",
+        "message:936",
+        "message:1021",
+        "message:1117"
+      ],
+      "scope": {
+        "type": "message",
+        "fromInclusive": 1609459200000,
+        "toExclusive": 1612137600000,
+        "containsLiteral": "사진전 자료정리",
+        "cutoffId": 184434
+      },
+      "scopeFingerprint": "e004c8551a1b1c4f3e883395e39f8fab01333cb87f1bd06e3a0f2805eca1f415",
+      "completeToCutoff": true,
+      "fullSourceTextsRead": true,
+      "allSourceComplete": true,
+      "semanticRelevanceCompletenessGuaranteed": false
+    },
+    {
+      "id": "675e990de6fc9ae7be7f",
+      "questionIndex": 23,
+      "request": {
+        "id": "675e990de6fc9ae7be7f",
+        "op": "enumerate",
+        "args": {
+          "type": "message",
+          "fromInclusive": "2021-02-01",
+          "toExclusive": "2021-03-01",
+          "containsLiteral": "도서관 자료정리",
+          "limit": 20
+        }
+      },
+      "sourceSearchesUsed": 1,
+      "sourceRowsRead": 14,
+      "rowIds": [
+        "message:2633",
+        "message:2718",
+        "message:2803",
+        "message:2888",
+        "message:2973",
+        "message:3058",
+        "message:3143",
+        "message:3228",
+        "message:3313",
+        "message:3398",
+        "message:3483",
+        "message:3568",
+        "message:3653",
+        "message:3748"
+      ],
+      "scope": {
+        "type": "message",
+        "fromInclusive": 1612137600000,
+        "toExclusive": 1614556800000,
+        "containsLiteral": "도서관 자료정리",
+        "cutoffId": 184434
+      },
+      "scopeFingerprint": "1d9f5d478d79b1726c4c5b29c506e7640365bc9dcf0ca8c0a60a0a8d2fdf4f8f",
+      "completeToCutoff": true,
+      "fullSourceTextsRead": true,
+      "allSourceComplete": true,
+      "semanticRelevanceCompletenessGuaranteed": false
+    },
+    {
+      "id": "2b0b33da150c8e8c2827",
+      "questionIndex": 35,
+      "request": {
+        "id": "2b0b33da150c8e8c2827",
+        "op": "enumerate",
+        "args": {
+          "type": "message",
+          "fromInclusive": "2021-03-01",
+          "toExclusive": "2021-04-01",
+          "containsLiteral": "천문대 자료정리",
+          "limit": 20
+        }
+      },
+      "sourceSearchesUsed": 1,
+      "sourceRowsRead": 14,
+      "rowIds": [
+        "message:5011",
+        "message:5096",
+        "message:5181",
+        "message:5266",
+        "message:5351",
+        "message:5436",
+        "message:5521",
+        "message:5606",
+        "message:5691",
+        "message:5776",
+        "message:5861",
+        "message:5946",
+        "message:6031",
+        "message:6127"
+      ],
+      "scope": {
+        "type": "message",
+        "fromInclusive": 1614556800000,
+        "toExclusive": 1617235200000,
+        "containsLiteral": "천문대 자료정리",
+        "cutoffId": 184434
+      },
+      "scopeFingerprint": "3a6e94ae80d254333e5a4250ab33f94ee4c2c11eaf43f16bff4edd15abeee02b",
+      "completeToCutoff": true,
+      "fullSourceTextsRead": true,
+      "allSourceComplete": true,
+      "semanticRelevanceCompletenessGuaranteed": false
+    },
+    {
+      "id": "b35fbb229e9407a91add",
+      "questionIndex": 47,
+      "request": {
+        "id": "b35fbb229e9407a91add",
+        "op": "enumerate",
+        "args": {
+          "type": "message",
+          "fromInclusive": "2021-04-01",
+          "toExclusive": "2021-05-01",
+          "containsLiteral": "목공방 자료정리",
+          "limit": 20
+        }
+      },
+      "sourceSearchesUsed": 1,
+      "sourceRowsRead": 14,
+      "rowIds": [
+        "message:7644",
+        "message:7729",
+        "message:7814",
+        "message:7899",
+        "message:7984",
+        "message:8069",
+        "message:8154",
+        "message:8239",
+        "message:8324",
+        "message:8409",
+        "message:8494",
+        "message:8579",
+        "message:8664",
+        "message:8759"
+      ],
+      "scope": {
+        "type": "message",
+        "fromInclusive": 1617235200000,
+        "toExclusive": 1619827200000,
+        "containsLiteral": "목공방 자료정리",
+        "cutoffId": 184434
+      },
+      "scopeFingerprint": "baef9ca0e576fa1f9413904b3ff6677201a8300af2a65c32eee713907651bcde",
+      "completeToCutoff": true,
+      "fullSourceTextsRead": true,
+      "allSourceComplete": true,
+      "semanticRelevanceCompletenessGuaranteed": false
+    },
+    {
+      "id": "bf096cd908b35e2abe22",
+      "questionIndex": 59,
+      "request": {
+        "id": "bf096cd908b35e2abe22",
+        "op": "enumerate",
+        "args": {
+          "type": "message",
+          "fromInclusive": "2021-05-01",
+          "toExclusive": "2021-06-01",
+          "containsLiteral": "음악회 자료정리",
+          "limit": 20
+        }
+      },
+      "sourceSearchesUsed": 1,
+      "sourceRowsRead": 14,
+      "rowIds": [
+        "message:10191",
+        "message:10276",
+        "message:10361",
+        "message:10446",
+        "message:10531",
+        "message:10616",
+        "message:10701",
+        "message:10786",
+        "message:10871",
+        "message:10956",
+        "message:11041",
+        "message:11126",
+        "message:11211",
+        "message:11307"
+      ],
+      "scope": {
+        "type": "message",
+        "fromInclusive": 1619827200000,
+        "toExclusive": 1622505600000,
+        "containsLiteral": "음악회 자료정리",
+        "cutoffId": 184434
+      },
+      "scopeFingerprint": "26c29a275f0f58d90ea160ef783911ee8875ac6e739910e4bfdf7d743ce36a33",
+      "completeToCutoff": true,
+      "fullSourceTextsRead": true,
+      "allSourceComplete": true,
+      "semanticRelevanceCompletenessGuaranteed": false
+    },
+    {
+      "id": "c54f72d71917abe7719e",
+      "questionIndex": 71,
+      "request": {
+        "id": "c54f72d71917abe7719e",
+        "op": "enumerate",
+        "args": {
+          "type": "message",
+          "fromInclusive": "2021-06-01",
+          "toExclusive": "2021-07-01",
+          "containsLiteral": "텃밭 자료정리",
+          "limit": 20
+        }
+      },
+      "sourceSearchesUsed": 1,
+      "sourceRowsRead": 14,
+      "rowIds": [
+        "message:12822",
+        "message:12907",
+        "message:12992",
+        "message:13077",
+        "message:13162",
+        "message:13247",
+        "message:13332",
+        "message:13417",
+        "message:13502",
+        "message:13587",
+        "message:13672",
+        "message:13757",
+        "message:13842",
+        "message:13937"
+      ],
+      "scope": {
+        "type": "message",
+        "fromInclusive": 1622505600000,
+        "toExclusive": 1625097600000,
+        "containsLiteral": "텃밭 자료정리",
+        "cutoffId": 184434
+      },
+      "scopeFingerprint": "eaaea94faad0feebfb3f6b2a8f184620ad3579b8197a6c0a31c6daad1eaa0802",
+      "completeToCutoff": true,
+      "fullSourceTextsRead": true,
+      "allSourceComplete": true,
+      "semanticRelevanceCompletenessGuaranteed": false
+    },
+    {
+      "id": "b2e43483789770d9b758",
+      "questionIndex": 83,
+      "request": {
+        "id": "b2e43483789770d9b758",
+        "op": "enumerate",
+        "args": {
+          "type": "message",
+          "fromInclusive": "2021-07-01",
+          "toExclusive": "2021-08-01",
+          "containsLiteral": "등산회 자료정리",
+          "limit": 20
+        }
+      },
+      "sourceSearchesUsed": 1,
+      "sourceRowsRead": 14,
+      "rowIds": [
+        "message:15370",
+        "message:15455",
+        "message:15540",
+        "message:15625",
+        "message:15710",
+        "message:15795",
+        "message:15880",
+        "message:15965",
+        "message:16050",
+        "message:16135",
+        "message:16220",
+        "message:16305",
+        "message:16390",
+        "message:16486"
+      ],
+      "scope": {
+        "type": "message",
+        "fromInclusive": 1625097600000,
+        "toExclusive": 1627776000000,
+        "containsLiteral": "등산회 자료정리",
+        "cutoffId": 184434
+      },
+      "scopeFingerprint": "03f6eed2152ad64ac5a82fb115a0efb9f5bf54504c7d98471dd1ddd424c34d74",
+      "completeToCutoff": true,
+      "fullSourceTextsRead": true,
+      "allSourceComplete": true,
+      "semanticRelevanceCompletenessGuaranteed": false
+    },
+    {
+      "id": "3baf5880d586d50d157e",
+      "questionIndex": 95,
+      "request": {
+        "id": "3baf5880d586d50d157e",
+        "op": "enumerate",
+        "args": {
+          "type": "message",
+          "fromInclusive": "2021-08-01",
+          "toExclusive": "2021-09-01",
+          "containsLiteral": "번역팀 자료정리",
+          "limit": 20
+        }
+      },
+      "sourceSearchesUsed": 1,
+      "sourceRowsRead": 14,
+      "rowIds": [
+        "message:18002",
+        "message:18087",
+        "message:18172",
+        "message:18257",
+        "message:18342",
+        "message:18427",
+        "message:18512",
+        "message:18597",
+        "message:18682",
+        "message:18767",
+        "message:18852",
+        "message:18937",
+        "message:19022",
+        "message:19117"
+      ],
+      "scope": {
+        "type": "message",
+        "fromInclusive": 1627776000000,
+        "toExclusive": 1630454400000,
+        "containsLiteral": "번역팀 자료정리",
+        "cutoffId": 184434
+      },
+      "scopeFingerprint": "509b6a549e9eec6b141336114774aca428065231f179c592c0b9f026673a52b6",
+      "completeToCutoff": true,
+      "fullSourceTextsRead": true,
+      "allSourceComplete": true,
+      "semanticRelevanceCompletenessGuaranteed": false
+    },
+    {
+      "id": "39ed7465f4802729ae1e",
+      "questionIndex": 107,
+      "request": {
+        "id": "39ed7465f4802729ae1e",
+        "op": "enumerate",
+        "args": {
+          "type": "message",
+          "fromInclusive": "2021-09-01",
+          "toExclusive": "2021-10-01",
+          "containsLiteral": "수영장 자료정리",
+          "limit": 20
+        }
+      },
+      "sourceSearchesUsed": 1,
+      "sourceRowsRead": 14,
+      "rowIds": [
+        "message:20632",
+        "message:20717",
+        "message:20802",
+        "message:20887",
+        "message:20972",
+        "message:21057",
+        "message:21142",
+        "message:21227",
+        "message:21312",
+        "message:21397",
+        "message:21482",
+        "message:21567",
+        "message:21652",
+        "message:21748"
+      ],
+      "scope": {
+        "type": "message",
+        "fromInclusive": 1630454400000,
+        "toExclusive": 1633046400000,
+        "containsLiteral": "수영장 자료정리",
+        "cutoffId": 184434
+      },
+      "scopeFingerprint": "7ccd7fce5c5f3026622c8ab296451217be1bd79dc0f158a1dc552b8c7b98bfd1",
+      "completeToCutoff": true,
+      "fullSourceTextsRead": true,
+      "allSourceComplete": true,
+      "semanticRelevanceCompletenessGuaranteed": false
+    },
+    {
+      "id": "bc8b60913ac917a67dbf",
+      "questionIndex": 119,
+      "request": {
+        "id": "bc8b60913ac917a67dbf",
+        "op": "enumerate",
+        "args": {
+          "type": "message",
+          "fromInclusive": "2021-10-01",
+          "toExclusive": "2021-11-01",
+          "containsLiteral": "박물관 자료정리",
+          "limit": 20
+        }
+      },
+      "sourceSearchesUsed": 1,
+      "sourceRowsRead": 14,
+      "rowIds": [
+        "message:23181",
+        "message:23266",
+        "message:23351",
+        "message:23436",
+        "message:23521",
+        "message:23606",
+        "message:23691",
+        "message:23776",
+        "message:23861",
+        "message:23946",
+        "message:24031",
+        "message:24116",
+        "message:24201",
+        "message:24296"
+      ],
+      "scope": {
+        "type": "message",
+        "fromInclusive": 1633046400000,
+        "toExclusive": 1635724800000,
+        "containsLiteral": "박물관 자료정리",
+        "cutoffId": 184434
+      },
+      "scopeFingerprint": "3e039bb4cb2c3b1076e4240b4f673f9c2f53091ca3d0b43a21c109e4e38a4daa",
+      "completeToCutoff": true,
+      "fullSourceTextsRead": true,
+      "allSourceComplete": true,
+      "semanticRelevanceCompletenessGuaranteed": false
+    },
+    {
+      "id": "8cd8932ab607b8b36aa3",
+      "questionIndex": 131,
+      "request": {
+        "id": "8cd8932ab607b8b36aa3",
+        "op": "enumerate",
+        "args": {
+          "type": "message",
+          "fromInclusive": "2021-11-01",
+          "toExclusive": "2021-12-01",
+          "containsLiteral": "도예실 자료정리",
+          "limit": 20
+        }
+      },
+      "sourceSearchesUsed": 1,
+      "sourceRowsRead": 14,
+      "rowIds": [
+        "message:25812",
+        "message:25897",
+        "message:25982",
+        "message:26067",
+        "message:26152",
+        "message:26237",
+        "message:26322",
+        "message:26407",
+        "message:26492",
+        "message:26577",
+        "message:26662",
+        "message:26747",
+        "message:26832",
+        "message:26928"
+      ],
+      "scope": {
+        "type": "message",
+        "fromInclusive": 1635724800000,
+        "toExclusive": 1638316800000,
+        "containsLiteral": "도예실 자료정리",
+        "cutoffId": 184434
+      },
+      "scopeFingerprint": "79d7996a124f09565dbd71d964f0e9ba477d5b6d63cba6115d2ae4315d8a37cf",
+      "completeToCutoff": true,
+      "fullSourceTextsRead": true,
+      "allSourceComplete": true,
+      "semanticRelevanceCompletenessGuaranteed": false
+    },
+    {
+      "id": "a1dc766a0fc5960c55ff",
+      "questionIndex": 143,
+      "request": {
+        "id": "a1dc766a0fc5960c55ff",
+        "op": "enumerate",
+        "args": {
+          "type": "message",
+          "fromInclusive": "2021-12-01",
+          "toExclusive": "2022-01-01",
+          "containsLiteral": "독서회 자료정리",
+          "limit": 20
+        }
+      },
+      "sourceSearchesUsed": 1,
+      "sourceRowsRead": 14,
+      "rowIds": [
+        "message:28359",
+        "message:28444",
+        "message:28529",
+        "message:28614",
+        "message:28699",
+        "message:28784",
+        "message:28869",
+        "message:28954",
+        "message:29039",
+        "message:29124",
+        "message:29209",
+        "message:29294",
+        "message:29379",
+        "message:29474"
+      ],
+      "scope": {
+        "type": "message",
+        "fromInclusive": 1638316800000,
+        "toExclusive": 1640995200000,
+        "containsLiteral": "독서회 자료정리",
+        "cutoffId": 184434
+      },
+      "scopeFingerprint": "6e62e4d7b1f9bae0d71cd37ce17d91f38d7497acd81bf1e7873ba471814b7e2b",
+      "completeToCutoff": true,
+      "fullSourceTextsRead": true,
+      "allSourceComplete": true,
+      "semanticRelevanceCompletenessGuaranteed": false
+    }
+  ],
+  "fixtureTime": "2021 records at modeled 2026-12-31 checkpoint; not real elapsed five years",
+  "semanticGradingPerformed": false
+}

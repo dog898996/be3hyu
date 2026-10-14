@@ -1,0 +1,423 @@
+{
+  "complete": true,
+  "primaryPacketEvidenceBytesUnchanged": 142,
+  "changedPrimaryPacketIndexes": [
+    45,
+    137
+  ],
+  "nonEvidencePacketFieldsExactlyEqual": true,
+  "sourceMappingExactlyEqual": true,
+  "sourceMappingTopLevelCount": 408,
+  "followupOperations": 23,
+  "nativeReadsEntireResponseEqual": 11,
+  "nativeEnumerationsSourceAndCoverageEqual": 12,
+  "deliveredSourceRowsExactlyEqual": 179,
+  "controlSnapshotDifferences": [
+    {
+      "path": ".privacyFingerprint",
+      "before": "2d3b508fa15a2510518d755432b8be9d4ea04b4261f2d38ee7ba3679567450a9",
+      "after": "f5b70b146a6257990633829628e9208acbcb2a95aa818724b7abe73cfec44146"
+    }
+  ],
+  "privacyPolicyDifferences": [
+    {
+      "path": ".exclusions[0].excludedAt",
+      "before": 1791940062180,
+      "after": 1791941976263
+    },
+    {
+      "path": ".exclusions[1].excludedAt",
+      "before": 1791940063018,
+      "after": 1791941977318
+    },
+    {
+      "path": ".exclusions[2].excludedAt",
+      "before": 1791940063452,
+      "after": 1791941977993
+    },
+    {
+      "path": ".exclusions[3].excludedAt",
+      "before": 1791940064239,
+      "after": 1791941978814
+    },
+    {
+      "path": ".exclusions[4].excludedAt",
+      "before": 1791940064831,
+      "after": 1791941979526
+    },
+    {
+      "path": ".exclusions[5].excludedAt",
+      "before": 1791940065734,
+      "after": 1791941980323
+    },
+    {
+      "path": ".exclusions[6].excludedAt",
+      "before": 1791940066235,
+      "after": 1791941981053
+    },
+    {
+      "path": ".exclusions[7].excludedAt",
+      "before": 1791940066650,
+      "after": 1791941981831
+    },
+    {
+      "path": ".exclusions[8].excludedAt",
+      "before": 1791940066992,
+      "after": 1791941982468
+    },
+    {
+      "path": ".exclusions[9].excludedAt",
+      "before": 1791940067533,
+      "after": 1791941983212
+    },
+    {
+      "path": ".exclusions[10].excludedAt",
+      "before": 1791940067933,
+      "after": 1791941983880
+    },
+    {
+      "path": ".exclusions[11].excludedAt",
+      "before": 1791940068387,
+      "after": 1791941984658
+    },
+    {
+      "path": ".fingerprint",
+      "before": "2d3b508fa15a2510518d755432b8be9d4ea04b4261f2d38ee7ba3679567450a9",
+      "after": "f5b70b146a6257990633829628e9208acbcb2a95aa818724b7abe73cfec44146"
+    }
+  ],
+  "responseDifferences": [
+    {
+      "id": "135fd1a5dc1f5552bd07",
+      "op": "read",
+      "entireTypedResponseExactlyEqual": true,
+      "allSourceObjectsExactlyEqual": true,
+      "allNonFingerprintFieldsExactlyEqual": true,
+      "retainedActualDifferences": []
+    },
+    {
+      "id": "ab57cf2a3a0dca62e097",
+      "op": "read",
+      "entireTypedResponseExactlyEqual": true,
+      "allSourceObjectsExactlyEqual": true,
+      "allNonFingerprintFieldsExactlyEqual": true,
+      "retainedActualDifferences": []
+    },
+    {
+      "id": "41f8f3847663a9c02ca1",
+      "op": "enumerate",
+      "entireTypedResponseExactlyEqual": false,
+      "allSourceObjectsExactlyEqual": true,
+      "allNonFingerprintFieldsExactlyEqual": true,
+      "retainedActualDifferences": [
+        {
+          "path": ".result.privacyFingerprint",
+          "before": "2d3b508fa15a2510518d755432b8be9d4ea04b4261f2d38ee7ba3679567450a9",
+          "after": "f5b70b146a6257990633829628e9208acbcb2a95aa818724b7abe73cfec44146"
+        },
+        {
+          "path": ".result.scopeFingerprint",
+          "before": "7bba1e166cbb840ee63703393f89a1bc5df9b2fea3756adac76bafc0f9bcd6d2",
+          "after": "597c2c87d36f45fa2e0f55e5b9664c3683589a164b231722a9aa208d401b7def"
+        }
+      ]
+    },
+    {
+      "id": "1305aa284f4dc207e732",
+      "op": "read",
+      "entireTypedResponseExactlyEqual": true,
+      "allSourceObjectsExactlyEqual": true,
+      "allNonFingerprintFieldsExactlyEqual": true,
+      "retainedActualDifferences": []
+    },
+    {
+      "id": "675e990de6fc9ae7be7f",
+      "op": "enumerate",
+      "entireTypedResponseExactlyEqual": false,
+      "allSourceObjectsExactlyEqual": true,
+      "allNonFingerprintFieldsExactlyEqual": true,
+      "retainedActualDifferences": [
+        {
+          "path": ".result.privacyFingerprint",
+          "before": "2d3b508fa15a2510518d755432b8be9d4ea04b4261f2d38ee7ba3679567450a9",
+          "after": "f5b70b146a6257990633829628e9208acbcb2a95aa818724b7abe73cfec44146"
+        },
+        {
+          "path": ".result.scopeFingerprint",
+          "before": "cec4051eea1316f707af13ae5bce7794c1934ca5a486d0a7322bab26e672a86d",
+          "after": "8dd7325184e779b3b840e99a5efe7599d2a373007c7b4ec83636f99cb2de067b"
+        }
+      ]
+    },
+    {
+      "id": "2b0b33da150c8e8c2827",
+      "op": "enumerate",
+      "entireTypedResponseExactlyEqual": false,
+      "allSourceObjectsExactlyEqual": true,
+      "allNonFingerprintFieldsExactlyEqual": true,
+      "retainedActualDifferences": [
+        {
+          "path": ".result.privacyFingerprint",
+          "before": "2d3b508fa15a2510518d755432b8be9d4ea04b4261f2d38ee7ba3679567450a9",
+          "after": "f5b70b146a6257990633829628e9208acbcb2a95aa818724b7abe73cfec44146"
+        },
+        {
+          "path": ".result.scopeFingerprint",
+          "before": "f5f16ba40ebb8ebfffee87f11983fd45582e3d26be9d472c35c7bd2199424dfd",
+          "after": "737149645278213b94045b07e9f008416f7d627e01736cbb32093c9d3d449cd2"
+        }
+      ]
+    },
+    {
+      "id": "56f7ca13b91bc5a7abc9",
+      "op": "read",
+      "entireTypedResponseExactlyEqual": true,
+      "allSourceObjectsExactlyEqual": true,
+      "allNonFingerprintFieldsExactlyEqual": true,
+      "retainedActualDifferences": []
+    },
+    {
+      "id": "df6b20d0b46e0d9da8bf",
+      "op": "read",
+      "entireTypedResponseExactlyEqual": true,
+      "allSourceObjectsExactlyEqual": true,
+      "allNonFingerprintFieldsExactlyEqual": true,
+      "retainedActualDifferences": []
+    },
+    {
+      "id": "b35fbb229e9407a91add",
+      "op": "enumerate",
+      "entireTypedResponseExactlyEqual": false,
+      "allSourceObjectsExactlyEqual": true,
+      "allNonFingerprintFieldsExactlyEqual": true,
+      "retainedActualDifferences": [
+        {
+          "path": ".result.privacyFingerprint",
+          "before": "2d3b508fa15a2510518d755432b8be9d4ea04b4261f2d38ee7ba3679567450a9",
+          "after": "f5b70b146a6257990633829628e9208acbcb2a95aa818724b7abe73cfec44146"
+        },
+        {
+          "path": ".result.scopeFingerprint",
+          "before": "408e1ab18cd5e620c859451c8f055e933b5e88c28945a6d6d6ebd873f69fbdd8",
+          "after": "a982268c3dba205b051c383acab1f949c273465bd896f89f3047bad8a4346ad2"
+        }
+      ]
+    },
+    {
+      "id": "644c1734e5c2b9fdf175",
+      "op": "read",
+      "entireTypedResponseExactlyEqual": true,
+      "allSourceObjectsExactlyEqual": true,
+      "allNonFingerprintFieldsExactlyEqual": true,
+      "retainedActualDifferences": []
+    },
+    {
+      "id": "bf096cd908b35e2abe22",
+      "op": "enumerate",
+      "entireTypedResponseExactlyEqual": false,
+      "allSourceObjectsExactlyEqual": true,
+      "allNonFingerprintFieldsExactlyEqual": true,
+      "retainedActualDifferences": [
+        {
+          "path": ".result.privacyFingerprint",
+          "before": "2d3b508fa15a2510518d755432b8be9d4ea04b4261f2d38ee7ba3679567450a9",
+          "after": "f5b70b146a6257990633829628e9208acbcb2a95aa818724b7abe73cfec44146"
+        },
+        {
+          "path": ".result.scopeFingerprint",
+          "before": "6f417acf60b831816e0c5df1c55529259a80544978eb2592cd1235521d96f3c6",
+          "after": "95c56711d2aee7f3ad7de33b30e93b87286dd0f1998d833d7b81ef9563e552c7"
+        }
+      ]
+    },
+    {
+      "id": "c54f72d71917abe7719e",
+      "op": "enumerate",
+      "entireTypedResponseExactlyEqual": false,
+      "allSourceObjectsExactlyEqual": true,
+      "allNonFingerprintFieldsExactlyEqual": true,
+      "retainedActualDifferences": [
+        {
+          "path": ".result.privacyFingerprint",
+          "before": "2d3b508fa15a2510518d755432b8be9d4ea04b4261f2d38ee7ba3679567450a9",
+          "after": "f5b70b146a6257990633829628e9208acbcb2a95aa818724b7abe73cfec44146"
+        },
+        {
+          "path": ".result.scopeFingerprint",
+          "before": "da2a8f2baaa42f293609807802f3f192277c5d9931322702927ae6698c63af73",
+          "after": "29bce85b06ef8fb5203b7629cd5aaafdf6277d0af6080a5b16dd23f245b9ea53"
+        }
+      ]
+    },
+    {
+      "id": "58764e69284c4162cb8d",
+      "op": "read",
+      "entireTypedResponseExactlyEqual": true,
+      "allSourceObjectsExactlyEqual": true,
+      "allNonFingerprintFieldsExactlyEqual": true,
+      "retainedActualDifferences": []
+    },
+    {
+      "id": "b2e43483789770d9b758",
+      "op": "enumerate",
+      "entireTypedResponseExactlyEqual": false,
+      "allSourceObjectsExactlyEqual": true,
+      "allNonFingerprintFieldsExactlyEqual": true,
+      "retainedActualDifferences": [
+        {
+          "path": ".result.privacyFingerprint",
+          "before": "2d3b508fa15a2510518d755432b8be9d4ea04b4261f2d38ee7ba3679567450a9",
+          "after": "f5b70b146a6257990633829628e9208acbcb2a95aa818724b7abe73cfec44146"
+        },
+        {
+          "path": ".result.scopeFingerprint",
+          "before": "22e7ec0d070cdf3e3f3a10971486c422a1a0752341cbb1b769539b43f77c5138",
+          "after": "3cf1ea6af4df3c48a63e3c7c92a97a057d5e1b1d6fa76293455bf377eaa0ecdf"
+        }
+      ]
+    },
+    {
+      "id": "9ddb51449c910e59e80e",
+      "op": "read",
+      "entireTypedResponseExactlyEqual": true,
+      "allSourceObjectsExactlyEqual": true,
+      "allNonFingerprintFieldsExactlyEqual": true,
+      "retainedActualDifferences": []
+    },
+    {
+      "id": "3baf5880d586d50d157e",
+      "op": "enumerate",
+      "entireTypedResponseExactlyEqual": false,
+      "allSourceObjectsExactlyEqual": true,
+      "allNonFingerprintFieldsExactlyEqual": true,
+      "retainedActualDifferences": [
+        {
+          "path": ".result.privacyFingerprint",
+          "before": "2d3b508fa15a2510518d755432b8be9d4ea04b4261f2d38ee7ba3679567450a9",
+          "after": "f5b70b146a6257990633829628e9208acbcb2a95aa818724b7abe73cfec44146"
+        },
+        {
+          "path": ".result.scopeFingerprint",
+          "before": "0fee06527b9fc4dd2a2db41c56ef74c1621074f5d4c8e3571c5f57ef7f002cd1",
+          "after": "3971aad997e5821f6cc195dbcefdbf9459409c433d32d524f08f950aaf44ba05"
+        }
+      ]
+    },
+    {
+      "id": "39ed7465f4802729ae1e",
+      "op": "enumerate",
+      "entireTypedResponseExactlyEqual": false,
+      "allSourceObjectsExactlyEqual": true,
+      "allNonFingerprintFieldsExactlyEqual": true,
+      "retainedActualDifferences": [
+        {
+          "path": ".result.privacyFingerprint",
+          "before": "2d3b508fa15a2510518d755432b8be9d4ea04b4261f2d38ee7ba3679567450a9",
+          "after": "f5b70b146a6257990633829628e9208acbcb2a95aa818724b7abe73cfec44146"
+        },
+        {
+          "path": ".result.scopeFingerprint",
+          "before": "ffc5ca59acad0c38407310819b91f5534b8f225b294cd84d6cad076c7f0fe38b",
+          "after": "4dd781aa086ac5abacea219075a6dbb93d6bf94f4168fc3c4450432cab977240"
+        }
+      ]
+    },
+    {
+      "id": "55f7b6db941a40699d65",
+      "op": "read",
+      "entireTypedResponseExactlyEqual": true,
+      "allSourceObjectsExactlyEqual": true,
+      "allNonFingerprintFieldsExactlyEqual": true,
+      "retainedActualDifferences": []
+    },
+    {
+      "id": "6bb8dc101c3eec3579f2",
+      "op": "read",
+      "entireTypedResponseExactlyEqual": true,
+      "allSourceObjectsExactlyEqual": true,
+      "allNonFingerprintFieldsExactlyEqual": true,
+      "retainedActualDifferences": []
+    },
+    {
+      "id": "bc8b60913ac917a67dbf",
+      "op": "enumerate",
+      "entireTypedResponseExactlyEqual": false,
+      "allSourceObjectsExactlyEqual": true,
+      "allNonFingerprintFieldsExactlyEqual": true,
+      "retainedActualDifferences": [
+        {
+          "path": ".result.privacyFingerprint",
+          "before": "2d3b508fa15a2510518d755432b8be9d4ea04b4261f2d38ee7ba3679567450a9",
+          "after": "f5b70b146a6257990633829628e9208acbcb2a95aa818724b7abe73cfec44146"
+        },
+        {
+          "path": ".result.scopeFingerprint",
+          "before": "0586c411414e9cce81d3a08a5cb7d72fb5aca068d0959340776c5e146e171fb1",
+          "after": "a1adcbe9ae4c0287abe5d29cd5118f69de5bb099e55ba43ac8237a48bd891c36"
+        }
+      ]
+    },
+    {
+      "id": "3380bf6716574cd152e6",
+      "op": "read",
+      "entireTypedResponseExactlyEqual": true,
+      "allSourceObjectsExactlyEqual": true,
+      "allNonFingerprintFieldsExactlyEqual": true,
+      "retainedActualDifferences": []
+    },
+    {
+      "id": "8cd8932ab607b8b36aa3",
+      "op": "enumerate",
+      "entireTypedResponseExactlyEqual": false,
+      "allSourceObjectsExactlyEqual": true,
+      "allNonFingerprintFieldsExactlyEqual": true,
+      "retainedActualDifferences": [
+        {
+          "path": ".result.privacyFingerprint",
+          "before": "2d3b508fa15a2510518d755432b8be9d4ea04b4261f2d38ee7ba3679567450a9",
+          "after": "f5b70b146a6257990633829628e9208acbcb2a95aa818724b7abe73cfec44146"
+        },
+        {
+          "path": ".result.scopeFingerprint",
+          "before": "cc1607b939c91d67a7a7533a8d64c7a690a3a4396f3e3950cb48e564e7582e51",
+          "after": "e61ee22c01fd3e8409f7ed045756478f6834deff6132b15c5962b76b225e8c5a"
+        }
+      ]
+    },
+    {
+      "id": "a1dc766a0fc5960c55ff",
+      "op": "enumerate",
+      "entireTypedResponseExactlyEqual": false,
+      "allSourceObjectsExactlyEqual": true,
+      "allNonFingerprintFieldsExactlyEqual": true,
+      "retainedActualDifferences": [
+        {
+          "path": ".result.privacyFingerprint",
+          "before": "2d3b508fa15a2510518d755432b8be9d4ea04b4261f2d38ee7ba3679567450a9",
+          "after": "f5b70b146a6257990633829628e9208acbcb2a95aa818724b7abe73cfec44146"
+        },
+        {
+          "path": ".result.scopeFingerprint",
+          "before": "e3e2879475ff907ade0db624ca75fdce5209767d3aa3a0c907642054709ec082",
+          "after": "74aab70f060de64a69928ac11f9cac55267e1d0d02feece765dd6bf0e129e7ea"
+        }
+      ]
+    }
+  ],
+  "noDifferencesRemovedOrNormalized": true,
+  "qualification": "11 entire typed read responses equal.12 enumeration responses have distinct privacy/scope fingerprints caused by independently recorded policy excludedAt timestamps. Exclusion identities/modes/reasons/version/device predicate, source data and other coverage/budget fields are exact. No old pagination token reused. Comparisons do not establish bit-identical whole snapshots or fresh model output for142 carried answers.",
+  "comparatorOnly": true,
+  "blindReadersReceivedNoOracleOrComparatorReplay": true,
+  "sha256": {
+    "/tmp/hoyoung-five-year-writer-tool-comparator-v5-v7/actual-original-v5-responses.jsonl": "dd47ca9f938a95ab2fba85d74bb10fb6df777a5103a96560510db4df589898bc",
+    "/tmp/hoyoung-five-year-writer-tool-comparator-v5-v7/actual-v7-replayed-responses.jsonl": "a8032f2bb3de55a6cb2983f863744cd146ec34c53276a1d6224ca2bbee814eb4",
+    "/tmp/hoyoung-five-year-writer-tool-comparator-v5-v7/exact-original-v5-requests.jsonl": "3cd2b87d510b109b62f133fa621736759eb1100913624652e92c143c1de5ccfb",
+    "/tmp/hoyoung-five-year-writer-tool-comparator-v5-v7/followup-equivalence-report.json": "cbae2c910ea7c28e668cc41f49ba475d6da6bd1e8578c9df11240ac2fd362dcd",
+    "/tmp/hoyoung-five-year-final-gateway-writer-v5/final-reader-inputs.jsonl": "1f45b7b5c89009690c875b339554af1cfe68fa578317dd2e72ef9caee2e41eed",
+    "/tmp/hoyoung-five-year-final-gateway-writer-v7/final-reader-inputs.jsonl": "f77868ec505eb2614fd16281a0d7d80a9c38c3127c30889df17d3530927a5993",
+    "/tmp/hoyoung-five-year-final-gateway-writer-v5/source-map.json": "758afbb7772f5acb4cdee7894f5f42a0a2283b2a3900f1bad181e238279ab091",
+    "/tmp/hoyoung-five-year-final-gateway-writer-v7/source-map.json": "758afbb7772f5acb4cdee7894f5f42a0a2283b2a3900f1bad181e238279ab091",
+    "/tmp/hoyoung-five-year-final-gateway-writer-v5/native-reader-files/privacy-ledger.json": "09f887adc0f42567a23c814d1111dc9be0b87516e6d02adc96697176620e80e1",
+    "/tmp/hoyoung-five-year-final-gateway-writer-v7/native-reader-files/privacy-ledger.json": "13897a69b1ad4f5a4fdc79ec6f0779a8d89148ddf8f137b5bcddbafd973fa2f4"
+  }
+}

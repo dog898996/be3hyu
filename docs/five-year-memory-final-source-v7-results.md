@@ -1,0 +1,24 @@
+# Final-source V7: timing limit corrected and replay complete
+
+The corrected release-source Store/Retriever/Gateway completed **432 cases per arm** on the unchanged 2,191-day, 184,044-distractor corpus. Final raw source delivery is **144/144 cases and 396/396 exact originals**; the same independent writer notes deliver **132/144 cases and 383/396 originals**. Both recover **12/12 raw-only first-year cases**, with zero candidate/context leaks and zero blocked cases. Independent semantic answer scores remain separate; this harness does not assign a passed final user gate.
+
+V7 freezes Retriever `39fcae31…`, Gateway `8a242b67…` and SourceRecordVisibility `66695bec…`. Its shared freeze manifest SHA-256 is `5c18d0890e0ba63fdae9ba0bed1c698f97cdba53572238a01ea98207f89cfdc0`. The general timing correction retains the 350 ms bound before starting a new SQL query and the existing three-query/twenty-hydration limits, while allowing already-returned bounded rows to be consumed. The independent source owner reproduced two pre-fix native failures and passed four new timing regressions plus eighteen adaptive tests. No frozen question, answer value, corpus, source packing policy or gold label was tuned.
+
+The real V6 alias omission is preserved in [its report](five-year-memory-final-source-v6-results.md). It is resolved in V7. Matched f2 complete-source error ratios are **0.000 raw and 0.364 writer**. These establish source-delivery error reduction, not a semantic model-answer gain by themselves. The writer's eleven omitted current raw bodies remain visible as source-validated derived facts, and two bodies in one fourteen-record range still need bounded source follow-ups for full raw delivery.
+
+| Native host measurement | Raw | Writer |
+|---|---:|---:|
+| Final preparation p50/p95 | 365/822 ms | 474/1,078 ms |
+| Full workload JUnit duration | 207.056 s | 234.553 s |
+| Retained messages / device events | 184,428 / 18 | 184,428 / 18 |
+| Accepted notes | 0 | 180 |
+
+All 408 original mappings/hashes match V5. Six explicit managed-local deletions leave 402 verified originals; FTS counts and SQLite integrity pass. All twelve actual old cached scopes are rejected after privacy changes in both arms. Actual old-backup restoration preserves current policy and re-purges all six deleted sources, with zero pending local jobs. All twelve restored queries complete without leaks or blocking. This verified scope excludes RAM, already delivered output, provider archives, external/untracked copies and policy after reinstall/data clear.
+
+Exact V5→V7 comparison uses **no normalization**. All 144 raw evidence contexts and non-evidence packet fields are unchanged. Writer has 142 unchanged contexts and two changed IDs, with their stripped packets retained for independent re-evaluation. One swaps unrelated originals through native tied-note packing; the other changes only two footer counters. Source IDs/hashes and non-evidence fields remain identical. **The existing completed raw reader's origin is V4**, whose 144 contexts all differ from V7; V5→V7 raw byte equality must not be misrepresented as that older reader having consumed V7 packets. A source/semantic review or actual new reader is needed before assigning a release-source raw model score.
+
+The writer's [23 actual V5 follow-ups were separately replayed on copied V7 native state](five-year-memory-writer-followup-equivalence.md). All 179 delivered source objects and all query/date/coverage/budget fields match; eleven read responses match entirely, and twelve enumeration responses differ only in their exact policy/scope fingerprints. Those fingerprints were recomputed and their timestamp-only policy identity differences retained. Both original reader budgets are untouched. This is comparator provenance, not a new model-answer run.
+
+The same three source-only counterfactual copies were rerun against actual V7 code in **10.162 seconds**. All source/hash/FTS and freshness assertions pass; the three entire blinded packets are byte-identical to the V5 counterfactual packets without normalization. This permits an explicitly traced carry-forward of independent counterfactual answers if provenance/scope also matches. The fixture itself generates no expected answer and assigns no semantic intervention score.
+
+[Artifacts](benchmarks/five-year-memory-final-source-v7/paired-summary.json) retain exact source/fixture hashes, all 432 rows per arm, 144 final packets, changed writer packets, paired source outcomes, candidate recall, integrity/counts, native cache/backup receipts, V5 and actual V4-reader-origin comparisons, and latest counterfactual traces. Native tools use `/tmp/hoyoung-five-year-final-gateway-{raw,writer}-v7`; intervention tools use `/tmp/hoyoung-five-year-counterfactual-v7-final`. No paid API calls, actual years of deployment, causal incremental extraction, real phone or deployed Work behavior are established by this run.

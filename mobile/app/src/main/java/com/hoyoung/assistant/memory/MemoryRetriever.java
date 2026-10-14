@@ -21,13 +21,15 @@ public final class MemoryRetriever {
     private final HoyoungStore store;
     private final SemanticEncoder encoder;
     private final SemanticIndex semantic;
+    private final java.util.function.LongSupplier adaptiveClock;
     private volatile boolean semanticEnabled=true;
     private volatile SemanticCandidateProvider candidateProvider;
     private volatile SourcePrivacyLedger privacyLedger;
     private volatile java.util.function.Predicate<JSONObject> deviceVisibility=event->true;
     public MemoryRetriever(HoyoungStore store) { this(store,null); }
     public MemoryRetriever(HoyoungStore store,SemanticEncoder encoder) { this(store,encoder,null); }
-    public MemoryRetriever(HoyoungStore store,SemanticEncoder encoder,SourcePrivacyLedger ledger) { this.store=store;this.encoder=encoder;semantic=new SemanticIndex(store,encoder);privacyLedger=ledger==null?store.getPrivacyLedger():ledger; }
+    public MemoryRetriever(HoyoungStore store,SemanticEncoder encoder,SourcePrivacyLedger ledger) { this(store,encoder,ledger,System::nanoTime); }
+    MemoryRetriever(HoyoungStore store,SemanticEncoder encoder,SourcePrivacyLedger ledger,java.util.function.LongSupplier adaptiveClock) { this.store=store;this.encoder=encoder;semantic=new SemanticIndex(store,encoder);privacyLedger=ledger==null?store.getPrivacyLedger():ledger;this.adaptiveClock=java.util.Objects.requireNonNull(adaptiveClock); }
     public void setSourcePrivacyLedger(SourcePrivacyLedger ledger){privacyLedger=ledger==null?store.getPrivacyLedger():ledger;}
     /** Reuse for native source.read/enumeration; a direct record and its supported native dependencies share privacy scope. */
     public boolean allowsSourceRecord(String type,JSONObject row,SourcePrivacyLedger.Snapshot snapshot){return row!=null&&new SearchPrivacy(privacyLedger,snapshot).allowedRecord(type,row);}
@@ -223,24 +225,28 @@ public final class MemoryRetriever {
         boolean relationRequest=MemoryText.normalize(q.query).matches("(?s).*(?:담당|파트너|동료|팀원|출장|누구|어디|관련|\\bwho\\b|\\bwhere\\b|\\bpartner\\b|\\blocation\\b).*");
         if(q.query.isEmpty()||(!relationRequest&&best>=0.85)){MemoryPolicy.put(report,"attempted",false);MemoryPolicy.put(report,"reason","initial_lexical_coverage_sufficient");return report;}
         Set<String> known=new LinkedHashSet<>();for(String term:MemoryText.terms(q.query))known.add(MemoryText.normalize(term));
-        List<Followup> pending=new ArrayList<>();Set<String> queued=new LinkedHashSet<>(),readIds=new LinkedHashSet<>();Map<String,ReadCue> cues=new LinkedHashMap<>();int hydrated=0,queries=0,added=0;boolean limited=false;long deadline=System.nanoTime()+350_000_000L;
+        List<Followup> pending=new ArrayList<>();Set<String> queued=new LinkedHashSet<>(),readIds=new LinkedHashSet<>();Map<String,ReadCue> cues=new LinkedHashMap<>();int hydrated=0,queries=0,added=0;boolean limited=false;long deadline=adaptiveClock.getAsLong()+350_000_000L;
         List<String> terms=MemoryText.terms(q.query);Map<String,Integer> frequency=new HashMap<>();for(String term:terms){int count=0;for(JSONObject row:originals.values())if(MemoryText.normalize(row.optString("excerpt")).contains(term))count++;frequency.put(term,count);}
         List<JSONObject> initial=new ArrayList<>(originals.values());initial.sort((a,b)->{int order=Double.compare(anchorScore(b,frequency),anchorScore(a,frequency));return order!=0?order:Double.compare(b.optDouble("lexicalScore",b.optDouble("retrievalScore")),a.optDouble("lexicalScore",a.optDouble("retrievalScore")));});
         // Initial cue inspection leaves most of the 20-source allowance for newly discovered edges.
-        for(JSONObject seed:initial){if(hydrated>=6||System.nanoTime()>deadline){limited=true;break;}String key=seed.optString("type")+":"+seed.optLong("id");if(!"message".equals(seed.optString("type"))||!"user".equals(seed.optString("role"))||!readIds.add(key))continue;
+        for(JSONObject seed:initial){if(hydrated>=6||adaptiveClock.getAsLong()>deadline){limited=true;break;}String key=seed.optString("type")+":"+seed.optLong("id");if(!"message".equals(seed.optString("type"))||!"user".equals(seed.optString("role"))||!readIds.add(key))continue;
             JSONObject canonical=source("message",seed.optLong("id"),privacy);if(canonical==null)continue;
             hydrated++;try{JSONObject range=store.readOriginalText(seed.optLong("id"),seed.optBoolean("exactOriginalRange")?seed.optLong("offsetChars"):0,6000);if(!seed.optString("hash").equals(range.optString("recordHash")))continue;cues.put(key,new ReadCue(range.optString("text"),seed));queueHints(pending,queued,known,range.optString("text"),seed);}
             catch(java.io.IOException|IllegalArgumentException unavailable){MemoryPolicy.put(report,"sourceReadFailed",true);}
         }
         JSONArray paths=new JSONArray();
         for(int next=0;next<pending.size()&&queries<3&&hydrated<20;next++){
-            if(System.nanoTime()>deadline){limited=true;break;}
-            Followup followup=pending.get(next);known.add(MemoryText.normalize(followup.term));queries++;
+            if(adaptiveClock.getAsLong()>deadline){limited=true;break;}
+            Followup followup=pending.get(next);known.add(MemoryText.normalize(followup.term));
             // Earlier hydrated originals may become connected only after this new alias is known.
             for(ReadCue cue:cues.values())queueHints(pending,queued,known,cue.text,cue.evidence);
+            if(adaptiveClock.getAsLong()>deadline){limited=true;break;}
+            queries++;
             JSONArray rows=store.rankedOriginalCandidates(followup.term,q.from,q.to,Math.min(20,20-hydrated));limited|=rows.length()>=Math.min(20,20-hydrated);
+            // The deadline limits starting operations. A slow SQLite call has already
+            // paid its cost; consume its bounded result instead of dropping every row.
+            // The next query still needs a fresh deadline check before its SQL starts.
             for(int i=0;i<rows.length()&&hydrated<20;i++){
-                if(System.nanoTime()>deadline){limited=true;break;}
                 JSONObject candidate=rows.optJSONObject(i);if(candidate==null)continue;long id=candidate.optLong("id");String key="message:"+id;
                 if(!"user".equals(candidate.optString("role"))||!privacy.allowedSource("message",id,candidate.optString("content_hash")))continue;
                 ReadCue cached=cues.get(key);if(cached!=null){if(id!=followup.source.optLong("id")&&matchesFollowup(cached.text,followup.term)){MemoryPolicy.put(cached.evidence,"adaptiveRank",paths.length()+1);MemoryPolicy.put(cached.evidence,"relevantToQuery",true);MemoryPolicy.put(cached.evidence,"followupQueryTerm",followup.term);paths.put(followupPath(followup,id,candidate.optString("content_hash")));}continue;}

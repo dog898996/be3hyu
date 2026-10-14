@@ -1,0 +1,4483 @@
+{
+  "format": "exact-reader-packet-equivalence-v2",
+  "beforeRun": "/tmp/hoyoung-five-year-final-gateway-raw-v4",
+  "afterRun": "/tmp/hoyoung-five-year-final-gateway-raw-v7",
+  "beforePacketsSha256": "f219179da83611b108c1e84e32d431c219ead37a9e13ea7de685714d28d84d60",
+  "afterPacketsSha256": "c22f2d77f9df922809747e2b3e17402ddc52657f8645c69dc027ee46f18b5e0e",
+  "beforeProductionManifestSha256": "2bad45edc060e063ad64c031d004aa6b2a41c903cf6a0c98380b4fbe1067708d",
+  "afterProductionManifestSha256": "2ae51d49a1b2aecd966d6514630b53240bb4100a586dcc24c7d38aa0fc30d1dd",
+  "packetsCompared": 144,
+  "exactUnchangedEvidenceContexts": 0,
+  "changedEvidenceContexts": [
+    {
+      "id": "f504885e1f62d52b5806",
+      "beforeContextSha256": "ddc968e8018babb14cf6969aeaebd231f835544de177eb7eb1c2e66dcd1aaa94",
+      "afterContextSha256": "3dd9d9af2566e64c24e1c73962f50392d522b72a221880656b20bbb18ed965b2",
+      "beforeContextChars": 11878,
+      "afterContextChars": 11724,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 17,
+          "after": 39
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 72,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "a83a589197c107d6974a",
+      "beforeContextSha256": "ae5f3a670620520904c0d63b58b602b59f65655b107b89461f419e5cf4b9b8c2",
+      "afterContextSha256": "000c0ec922c257e0bbef29fb8b2da1bec797ece6d4bf61aaf8474b3dbac5eed8",
+      "beforeContextChars": 11562,
+      "afterContextChars": 8985,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 1,
+          "after": 0
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 27,
+            "settingQueries": 27,
+            "cachedVerdictHits": 27,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 27,
+            "cachedSources": 27,
+            "cachedVerdicts": 27,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "135fd1a5dc1f5552bd07",
+      "beforeContextSha256": "a8a63a68b04689daed7d08b56b3d74f0cdc32b8b6a1abd15a3bdaf776eb42841",
+      "afterContextSha256": "83a7ca3f478951d3e33491992d9801cf29e1279fa671abdfa19c2839aaaefeca",
+      "beforeContextChars": 11466,
+      "afterContextChars": 11925,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 7,
+          "after": 32
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 72,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "5e8d673d48f2b426d528",
+      "beforeContextSha256": "73b4997b62963e9dc4d294cc471433e1119f62dbac8897cd9f4b0e946b9ddcaf",
+      "afterContextSha256": "659c59be06302052ff4c741cb7415e49dca56de882245b1ccbd939ef0b1b021d",
+      "beforeContextChars": 11507,
+      "afterContextChars": 11876,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 22,
+          "after": 37
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 72,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "7feadae2186c9043801f",
+      "beforeContextSha256": "e4cebb27259e28acbdf35573b249288ab7bad6d15dfd216a4f01e2085d142273",
+      "afterContextSha256": "1eb169792beb0bbe2a754fb2054c2237714d3fb0be831f5dfd37ef30ff72f7ed",
+      "beforeContextChars": 11583,
+      "afterContextChars": 11827,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 16,
+          "after": 33
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 63,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "c6f1d6f4aea7bcf97d71",
+      "beforeContextSha256": "5a7fab29065b99c70d80b9892c957eaea2d1b962fa5b5fa9bebb936c5ec4e5ed",
+      "afterContextSha256": "2088b578ba4baf871b681f6a9bf94f06b3bf50a0593bbc02135fe988197c91fd",
+      "beforeContextChars": 11871,
+      "afterContextChars": 11769,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 10,
+          "after": 24
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 63,
+            "settingQueries": 62,
+            "cachedVerdictHits": 63,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 63,
+            "cachedSources": 63,
+            "cachedVerdicts": 63,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "ccf2947c0a9f985ae49a",
+      "beforeContextSha256": "f69055a1aca8e66d2a26a9f5498d54a4179d6470b3375d78279e5da4d47bef1f",
+      "afterContextSha256": "be4e14d137a0c437466f86582fcb76135ef618177913eb86c300845b290ac415",
+      "beforeContextChars": 11453,
+      "afterContextChars": 11971,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 7,
+          "after": 33
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 71,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "6c35ab337c108f49a302",
+      "beforeContextSha256": "c3227894b1d40591daa26d77906229e86127e3d882c7afbbcafa1c333bece190",
+      "afterContextSha256": "1c7057a2f01a979ae8c26f1269533c1211b65e1a95937207b90be3d9be0f8ad9",
+      "beforeContextChars": 11650,
+      "afterContextChars": 11984,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 15,
+          "after": 33
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 71,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "bb8cdf070a18c60a9a5e",
+      "beforeContextSha256": "50095f4cff7e09345292887e198b20ce85322a8403e5ad9810b2a12c0897f681",
+      "afterContextSha256": "5700bfa48a579a3c106388a434410c681182ec8e97e4c32a532d63360cb0e3d4",
+      "beforeContextChars": 11503,
+      "afterContextChars": 11767,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 27,
+          "after": 36
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 72,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "4e066eca74fd2bec6c3c",
+      "beforeContextSha256": "b03cb8f08933ba147fdaf16fc433e86ea71792b6894b43470a2be684cc0391a6",
+      "afterContextSha256": "1846c2252c20007175c60e6d5d303e130f012ac567966100919aa3751ce842aa",
+      "beforeContextChars": 11808,
+      "afterContextChars": 11972,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 6,
+          "after": 31
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 71,
+            "settingQueries": 70,
+            "cachedVerdictHits": 71,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 71,
+            "cachedSources": 71,
+            "cachedVerdicts": 71,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "a53b518b385050d1ddda",
+      "beforeContextSha256": "c2192f495fc2ff3bc56dd08ab01bcfb61fa822190b14f6e1303d9f2f93749232",
+      "afterContextSha256": "9a440f1b5c6c81f08a2a9aa25187002c345e521ba3acaab068402b4384f0246c",
+      "beforeContextChars": 11902,
+      "afterContextChars": 11867,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 13,
+          "after": 33
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 71,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "41f8f3847663a9c02ca1",
+      "beforeContextSha256": "34147790502644f60aeac05a4616e0a1413cb51ff58cb3948a6ab5ee9a1fbf57",
+      "afterContextSha256": "ebc6330c3f848784c68f6a0e2a4dba693a1a027baaae0e9020615965d7ed9866",
+      "beforeContextChars": 11553,
+      "afterContextChars": 11878,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 7,
+          "after": 32
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 71,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "a6a6d309ea350c50139e",
+      "beforeContextSha256": "2eca28eb81971ee57516f0f0bb98f6fd622901a36bcf90987908626cefc92225",
+      "afterContextSha256": "46d3b89ec066211167accac13967860c1e74b286c7fb5426ac349dfa7a5065df",
+      "beforeContextChars": 11828,
+      "afterContextChars": 11688,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 29,
+          "after": 37
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 72,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "06de574bccb45eeaf0f9",
+      "beforeContextSha256": "de4d0359602ad161f254a61d2729248a66dc881973d26d6f3956056144f0299c",
+      "afterContextSha256": "d97ebaaa4b03c07fe7bbc419a8511ca6ec77be967dac16b96b1b7a6773bde392",
+      "beforeContextChars": 11485,
+      "afterContextChars": 11966,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 22,
+          "after": 35
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 71,
+            "settingQueries": 71,
+            "cachedVerdictHits": 71,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 71,
+            "cachedSources": 71,
+            "cachedVerdicts": 71,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "ab57cf2a3a0dca62e097",
+      "beforeContextSha256": "1800be1d3482b86f5123abda28d221e6dffe37f07d39f945eb81670b6cdc5dc1",
+      "afterContextSha256": "073626e40a8f6f3ecc3bfc520d5b5b62797900fa2ad30f66bc0b523290e82863",
+      "beforeContextChars": 11856,
+      "afterContextChars": 11925,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 7,
+          "after": 32
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 71,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "f7bb4dc52953481e372b",
+      "beforeContextSha256": "3f2fa5c7bc1df6ec37b3f5bc4a354e00a76bd25bcd0b60a7aabcb6c7b955a067",
+      "afterContextSha256": "2d2433dfd53e19aad647e0c72f168371c9fde1d51a40fbcd6bba31bab70e0506",
+      "beforeContextChars": 11466,
+      "afterContextChars": 11923,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 29,
+          "after": 38
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 72,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "293b7d5f96771b675d85",
+      "beforeContextSha256": "588c0478bd408507f1d28c8d2afe612f8fd9b67fc538e748d72f250c2832e8eb",
+      "afterContextSha256": "6ba955ea5940c435b471810cf8e8c65664b20ec093175cb3a2605a1c8750d232",
+      "beforeContextChars": 11877,
+      "afterContextChars": 11898,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 15,
+          "after": 33
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 61,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "c5457776750a10316bcc",
+      "beforeContextSha256": "f0138a3ea728729b6890200aa0e11e5643c3838980ac8964f6b6c3d1b6269991",
+      "afterContextSha256": "f692889553b6b416b71c2ca9581ddb3fae4700642ac2047c1bef15029b89e5f3",
+      "beforeContextChars": 11871,
+      "afterContextChars": 11798,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 10,
+          "after": 23
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 62,
+            "settingQueries": 61,
+            "cachedVerdictHits": 62,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 62,
+            "cachedSources": 62,
+            "cachedVerdicts": 62,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "0ba32b38a695ff60f4cc",
+      "beforeContextSha256": "99c4440fc276b78317d6b8105c40d6922f8e96f1b326adede36fd25015111f63",
+      "afterContextSha256": "b3021f66042eacc00889d003c30baf04bb5f72bffb95a22ce5cd77a9fb29cd5a",
+      "beforeContextChars": 11453,
+      "afterContextChars": 11997,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 7,
+          "after": 33
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 71,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "26f4542dd5052ee11fab",
+      "beforeContextSha256": "caab45767f5e9e6091b5fe932e9b423c0ba9991e82df1c1bcbff48b74ed5ac3d",
+      "afterContextSha256": "e0d1c7d66bb3dcc2e6778f7a82a02033c3945407072c7c3aef6efa00e7762c22",
+      "beforeContextChars": 11650,
+      "afterContextChars": 11984,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 15,
+          "after": 33
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 71,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "34bebce28f8373ec808b",
+      "beforeContextSha256": "ded0f82223bc08992e10ae55f2878c33cbc205936f2a0f810dba60eb2db00cb3",
+      "afterContextSha256": "decd0061cf27e071e6ffd3f62e1a8a9f075dfbc9a7d35a124e360c5f4791c1c7",
+      "beforeContextChars": 11506,
+      "afterContextChars": 11780,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 28,
+          "after": 36
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 72,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "4bd98a5f6cb3e9d240ea",
+      "beforeContextSha256": "162a2bcdc7f8405e2ed466717ca4fb47b7f4f7219fe7bc6d9d5b3088daebc9b1",
+      "afterContextSha256": "1b237e8e8f80c7c4aa7fd48d999ac9391cabaff60aa53af4440bb2e0d0ff1de7",
+      "beforeContextChars": 11808,
+      "afterContextChars": 11982,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 6,
+          "after": 31
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 71,
+            "settingQueries": 70,
+            "cachedVerdictHits": 71,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 71,
+            "cachedSources": 71,
+            "cachedVerdicts": 71,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "5c56f4881ca4b51fc4c6",
+      "beforeContextSha256": "9f9fb0311081f9f0762812097faab0df3f25c68dc6ce6cedf989e4459076fdbc",
+      "afterContextSha256": "0a783165cb029782a030893356a73378c8b70f4d66c15b5cdf969670d766505b",
+      "beforeContextChars": 11752,
+      "afterContextChars": 11999,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 6,
+          "after": 11
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 51,
+            "settingQueries": 50,
+            "cachedVerdictHits": 51,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 51,
+            "cachedSources": 51,
+            "cachedVerdicts": 51,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "675e990de6fc9ae7be7f",
+      "beforeContextSha256": "e0ffd7dd7d7365aa4baf1a6618a9422e1d44bc8c62b3ac99e823660627816108",
+      "afterContextSha256": "189da0a3fd8397b58187dd101c4dc03a8fce48e1714598328c3eb1f2c6ea7d73",
+      "beforeContextChars": 11716,
+      "afterContextChars": 11784,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 5,
+          "after": 33
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 71,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "b731b069ac16299b7230",
+      "beforeContextSha256": "453272b3cd4578e347aa917920415c7d04526a2fb7b7dd60a88f9f5f0536d5ae",
+      "afterContextSha256": "eb5a32ec58c374187f7567a678b32857836ca31bc75c3864a940a0f33705ac4a",
+      "beforeContextChars": 11842,
+      "afterContextChars": 11766,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 13,
+          "after": 39
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 72,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "57a7d13c9cad7b4afd63",
+      "beforeContextSha256": "05a64d351990e1d85f5ba3aa69272452c43a2c90428851434a80ee421d8356db",
+      "afterContextSha256": "3385f296d7e1076f94e330c2124fb01b0326734dfc9d755725f3249325cb6635",
+      "beforeContextChars": 11581,
+      "afterContextChars": 9351,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 2,
+          "after": 0
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 28,
+            "settingQueries": 28,
+            "cachedVerdictHits": 28,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 28,
+            "cachedSources": 28,
+            "cachedVerdicts": 28,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "1305aa284f4dc207e732",
+      "beforeContextSha256": "09f0d533cfb63169b0637b3342b7a3dbad88f0ea53bbdcd47449fbb5ba5e0111",
+      "afterContextSha256": "f49627ec3a94218e525bed4c29cb572a96a730909d392eede43e14767be0c72c",
+      "beforeContextChars": 11853,
+      "afterContextChars": 11926,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 7,
+          "after": 32
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 72,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "b42dc9886cd3db8836aa",
+      "beforeContextSha256": "28f9c267252322829c2960521f2af4b32bbe337c195ad295c5a3b44415897295",
+      "afterContextSha256": "1245db037f6dcf9ce54bfd4b9c26657965cf65ba0c881938978663932a3b93e6",
+      "beforeContextChars": 11786,
+      "afterContextChars": 11803,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 25,
+          "after": 37
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 72,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "7e48577cce495ce021c3",
+      "beforeContextSha256": "de189d98701bab0e886d8d3fb4fbe9da7f0f5923a0a7466f8c6433762aff9915",
+      "afterContextSha256": "fcef740cf39dae87fe52cf7239a167e59cec814c70bff2a7889e27430f572191",
+      "beforeContextChars": 11877,
+      "afterContextChars": 11898,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 15,
+          "after": 33
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 61,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "07df4c96e7f0b16e83ae",
+      "beforeContextSha256": "170540d6d40434c53187f625c4288605fcd8709bbf23111092a53110ede8b1e2",
+      "afterContextSha256": "daf9fdfef6d1ec1af7f4b4ae6bc18effca1a1653e7817a484278fceb6f2393e9",
+      "beforeContextChars": 11872,
+      "afterContextChars": 11808,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 10,
+          "after": 25
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 64,
+            "settingQueries": 63,
+            "cachedVerdictHits": 64,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 64,
+            "cachedSources": 64,
+            "cachedVerdicts": 64,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "3a1631405e7c5a26ea97",
+      "beforeContextSha256": "4dad416130bde78b82bcaa21a7318fb97500c0d1a97dad8d3df3031076756fd0",
+      "afterContextSha256": "e83667d7b83717b89a02c2669bb7297a256a2db14cf303b7c2a52d61549d42fa",
+      "beforeContextChars": 11453,
+      "afterContextChars": 11751,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 7,
+          "after": 34
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 71,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "193d277ed329b9faf46a",
+      "beforeContextSha256": "3683caf149fb862583b6a9dd353c9e6df0064c679db84593d191156458135892",
+      "afterContextSha256": "41fdfff961afde87742a3aff14141c7450aefcd032a3980a8101e7c7b626e6e3",
+      "beforeContextChars": 11636,
+      "afterContextChars": 11984,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 16,
+          "after": 33
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 71,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "cd813c4781bed7db2f16",
+      "beforeContextSha256": "1157550ecbde0c66e92d749b7e538ca7cec5a5bd4ec092757f3048d327f9b482",
+      "afterContextSha256": "10b94d704f4448b576c6381e184747871dc15c61350fe11ec5dc73946201caf1",
+      "beforeContextChars": 11755,
+      "afterContextChars": 11908,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 11,
+          "after": 17
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 56,
+            "settingQueries": 55,
+            "cachedVerdictHits": 56,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 56,
+            "cachedSources": 56,
+            "cachedVerdicts": 56,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "b1ab231d574ad653162c",
+      "beforeContextSha256": "18ed98bf6ed88c9dbee62cc1979750b2e9907ef1ed93a2ee0d8691d87c2d2323",
+      "afterContextSha256": "46e063f27522e47fa446a79b711f130c8ca613685f6b5ab0db925de3d55f1e13",
+      "beforeContextChars": 11808,
+      "afterContextChars": 11978,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 6,
+          "after": 31
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 71,
+            "settingQueries": 70,
+            "cachedVerdictHits": 71,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 71,
+            "cachedSources": 71,
+            "cachedVerdicts": 71,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "acb7aed394026703c458",
+      "beforeContextSha256": "77df8e19c02e0b90f779676b88689ad41c63a080a41e1b96d2cde4e2931c0569",
+      "afterContextSha256": "d027745ef4aad78a08d0564a0eb9f60e2da847e17dda9b5d42a77ad003cd490c",
+      "beforeContextChars": 11839,
+      "afterContextChars": 11783,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 13,
+          "after": 33
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 71,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "2b0b33da150c8e8c2827",
+      "beforeContextSha256": "0e80d31b36eeaa30daa3f1567cab7a99ca0820e49955ae17ee29c8d2b125066b",
+      "afterContextSha256": "23deb479e57ee2464bd6574f50343d8ee9e97e69d4a9baaa754839733e4e99bc",
+      "beforeContextChars": 11716,
+      "afterContextChars": 11934,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 5,
+          "after": 32
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 71,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "47103d53f6128e60b944",
+      "beforeContextSha256": "06559eccee266bc2d96073dd519d9907aa6b34d055101d9027151b71c1b70b0b",
+      "afterContextSha256": "3700a956eff84d94c1d893dfb90790aff88dbf429c09fd57efc1a002fcedc5f0",
+      "beforeContextChars": 11880,
+      "afterContextChars": 11724,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 17,
+          "after": 39
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 72,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "4ad9c7eab5371cc2b676",
+      "beforeContextSha256": "8f02a7e643fff37f4b25cf6baebfabc48f4c7b252986cca37b87bf4326a70973",
+      "afterContextSha256": "aea8df567ca393298d1df953f915620667a7ce64c739bc84cd9b20e5f6931d85",
+      "beforeContextChars": 11563,
+      "afterContextChars": 8986,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 1,
+          "after": 0
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 27,
+            "settingQueries": 27,
+            "cachedVerdictHits": 27,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 27,
+            "cachedSources": 27,
+            "cachedVerdicts": 27,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "56f7ca13b91bc5a7abc9",
+      "beforeContextSha256": "3e528548814a772c0d43fd0ca6e5aaa6a10cb461d115dbcd5867ee0021678ea6",
+      "afterContextSha256": "a4c78bf3b0e99cf961390f5f5dc7a22778c64711e64d5904c6baffb7cda7c716",
+      "beforeContextChars": 11467,
+      "afterContextChars": 11926,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 7,
+          "after": 32
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 72,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "985a7644dddf051a059a",
+      "beforeContextSha256": "efa3b265cbbf67d861f24d47f2702de2bae750520e9561e919559ea15902477a",
+      "afterContextSha256": "2781f612fdd3aafd7f938f6dd7421a1851d8cce76809d0b96f279ddec69b8903",
+      "beforeContextChars": 11885,
+      "afterContextChars": 11876,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 21,
+          "after": 37
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 72,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "3c95645a78f854f1bdbd",
+      "beforeContextSha256": "368d1ba89a930752c1ec8334a5b30e31cfbd444504cc03f77c5b6474f651ad89",
+      "afterContextSha256": "66a1ced45e3cc77e63ea6aff88d56c2b16ae9622edd3494af70ad3b3f9abf221",
+      "beforeContextChars": 11583,
+      "afterContextChars": 11831,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 16,
+          "after": 33
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 63,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "c46d5e9474eb353cd6ab",
+      "beforeContextSha256": "5d1a6056043c3db969936e729b384003e9bdc8d2557f9fa2ecdc30dddefc05e7",
+      "afterContextSha256": "d841a1d238fe40e29fd9eb0f3e6e4419989622b569f9e5cd44906b30a559d717",
+      "beforeContextChars": 11872,
+      "afterContextChars": 11770,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 10,
+          "after": 24
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 63,
+            "settingQueries": 62,
+            "cachedVerdictHits": 63,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 63,
+            "cachedSources": 63,
+            "cachedVerdicts": 63,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "b3556b583f09fcf01795",
+      "beforeContextSha256": "44da58376fb9ece1a0c5c7e6ca772b103abaaadeecd2f368337c57b75a637e5a",
+      "afterContextSha256": "8409e2e2809d1fe10f3761cdfb0e2d0f917b1e06dfc1e3c160a40f522bd40fff",
+      "beforeContextChars": 11453,
+      "afterContextChars": 11973,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 7,
+          "after": 33
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 71,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "c709db8b6f1def58a787",
+      "beforeContextSha256": "85676ad2b4872440f91452bfbf96127d99b4539a4f78518579cc4b7bc8981445",
+      "afterContextSha256": "e36e2726f323669da719d7847148e478a9b4208a3dc4f8d02717fbe3731bea35",
+      "beforeContextChars": 11621,
+      "afterContextChars": 11984,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 17,
+          "after": 33
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 71,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "902e1ee92cd7498d3865",
+      "beforeContextSha256": "cf48992fd6cdaf95de3b669ec568ee33313559c9bcdeb6e6315b3a36ca9dee5d",
+      "afterContextSha256": "4b8719c3c7eeaff9c326288c67892d8af1952b882184088321182452e5d91097",
+      "beforeContextChars": 11766,
+      "afterContextChars": 11899,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 11,
+          "after": 17
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 56,
+            "settingQueries": 55,
+            "cachedVerdictHits": 56,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 56,
+            "cachedSources": 56,
+            "cachedVerdicts": 56,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "5110f4db874283771ac8",
+      "beforeContextSha256": "2f4db0f3fdeacb526614d2e4a0e8612c5d4e87c42eb3348302722c2c705024a2",
+      "afterContextSha256": "8ea5cd0571804ddbb7ef644da4fb93380396555aa842925e3c08777045c3bfd7",
+      "beforeContextChars": 11808,
+      "afterContextChars": 11979,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 6,
+          "after": 31
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 71,
+            "settingQueries": 70,
+            "cachedVerdictHits": 71,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 71,
+            "cachedSources": 71,
+            "cachedVerdicts": 71,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "b579c9921a0d8726e081",
+      "beforeContextSha256": "a7ff63476716dcb87d6cfe935d8aa25ea8eff40ac9a398032e0f0ff4dd8756f1",
+      "afterContextSha256": "136eda29686e5ae948f59c3db09203b48a59743816e4f31c5710c52e212b63bb",
+      "beforeContextChars": 11779,
+      "afterContextChars": 11979,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 6,
+          "after": 12
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 52,
+            "settingQueries": 51,
+            "cachedVerdictHits": 52,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 52,
+            "cachedSources": 52,
+            "cachedVerdicts": 52,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "b35fbb229e9407a91add",
+      "beforeContextSha256": "d7af2d8b5728d1200eaf2ac2494c3b72eac0520d57e61bf2308c79b14f38c21b",
+      "afterContextSha256": "07c5c83f89cd75a8ba15424d41e97d9e79cbc3d71669670cccc8160eef5bf7c5",
+      "beforeContextChars": 11663,
+      "afterContextChars": 11896,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 6,
+          "after": 32
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 71,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "f8b87a5037bfae9b5886",
+      "beforeContextSha256": "4d04c0cf7f873dab752c4f1a2a78c75917093d037df2cbd281a9e92e8f9baaec",
+      "afterContextSha256": "aa2a31b2c6c4dfac2d5fa51c65bdf5fb9a900e80e5217ff5eab30dbd77d6ceff",
+      "beforeContextChars": 11833,
+      "afterContextChars": 11688,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 29,
+          "after": 37
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 72,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "92b8e54840a93eee28c8",
+      "beforeContextSha256": "7f6f9a643e712a0314f618e7c6a9cd9432a15523e8c7c71e230d5478d0c8d6cf",
+      "afterContextSha256": "6528adc738b7744d6ef935aacb709c922035163659cba0857e10cf4e6a2f0d40",
+      "beforeContextChars": 11488,
+      "afterContextChars": 11969,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 22,
+          "after": 35
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 71,
+            "settingQueries": 71,
+            "cachedVerdictHits": 71,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 71,
+            "cachedSources": 71,
+            "cachedVerdicts": 71,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "df6b20d0b46e0d9da8bf",
+      "beforeContextSha256": "0a2cbe421157483c37039d0713de7466061b12cd90122a627c813300b1973751",
+      "afterContextSha256": "a7e3e2177e262802bddb76a19d12a8ae0c7b8d013be3b852c1f83e411be3c54a",
+      "beforeContextChars": 11783,
+      "afterContextChars": 11927,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 8,
+          "after": 32
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 72,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "c5105f6c773dd0c09a76",
+      "beforeContextSha256": "85804b9cab5e4e7eb2490599eec301c754fc50ed62a7fef9443124427b4add30",
+      "afterContextSha256": "9607ca49f9a6d77235fdcc40c40de3bb9c14ac1e60e39eec3f720d87f0624364",
+      "beforeContextChars": 11491,
+      "afterContextChars": 11923,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 29,
+          "after": 38
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 72,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "a27831f58d85aec2851b",
+      "beforeContextSha256": "7d44d86d68fb6f8b32d05d65ba2b709f3f3bf36f508b4f8639985dd63130ed24",
+      "afterContextSha256": "c91e86912e3e8a3b0a6616c80ee2c72a2a494952158ea0debb6605c253eeec3c",
+      "beforeContextChars": 11878,
+      "afterContextChars": 11919,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 15,
+          "after": 33
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 61,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "28ec06e272e6d40a2d33",
+      "beforeContextSha256": "aaccd842f8b4add156ba76bf8b5dbff30f22f326456e7f00fdc12fcdddaf227c",
+      "afterContextSha256": "50d1bc401e1d41ab2ac69b157662e53e9add400491c380d0921ca07c26f49e71",
+      "beforeContextChars": 11873,
+      "afterContextChars": 11811,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 10,
+          "after": 23
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 62,
+            "settingQueries": 61,
+            "cachedVerdictHits": 62,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 62,
+            "cachedSources": 62,
+            "cachedVerdicts": 62,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "5ee0401b93a4765414d3",
+      "beforeContextSha256": "d6d5f28a552cd82da1081ad365374cd99694b740aeddd68ec03bb1dede631be8",
+      "afterContextSha256": "28957760a5b56b173cb7dd49e0c6cd6153684aec801cdc2c640b3c5eefdf26fb",
+      "beforeContextChars": 11453,
+      "afterContextChars": 11759,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 7,
+          "after": 34
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 71,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "0860b055a15fcd9f3f91",
+      "beforeContextSha256": "ad1a62acd9d89c94e66ab7b19bbaf88939d072d4c4f04a0ef52f5d85882c3719",
+      "afterContextSha256": "c9a7973de17cb10ae0e6ce7fe6d347106d2e7eacd120bc060904b6b2a107f8f4",
+      "beforeContextChars": 11624,
+      "afterContextChars": 11985,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 17,
+          "after": 33
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 71,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "206fff84cf6d7d55b946",
+      "beforeContextSha256": "ee0bf38eed12d9471e3f7b520f691e62f3a1de723991166613f34c5686b6e96c",
+      "afterContextSha256": "ce6ced561d0b42ea5cd0a9857117dddca7720ce1c43f8093ba8688798b9ae7e1",
+      "beforeContextChars": 11509,
+      "afterContextChars": 11780,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 28,
+          "after": 36
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 72,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "c4fc209c7a1aff5b9d57",
+      "beforeContextSha256": "82a9a55e446725e4fc7defc35b8904555ec372f6405705541d1381d7b55e6bf0",
+      "afterContextSha256": "f48ce881e2544b3f95743824c6235d89a9e5ab7047dedb29a6bef870be3fa1d4",
+      "beforeContextChars": 11808,
+      "afterContextChars": 11756,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 6,
+          "after": 32
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 71,
+            "settingQueries": 70,
+            "cachedVerdictHits": 71,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 71,
+            "cachedSources": 71,
+            "cachedVerdicts": 71,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "fd6a5ffd94c609df8f08",
+      "beforeContextSha256": "16397c775737fd4119e2d7557ad09feb4ce8eb7d6c8a431c5b14ff0b4bd5acbd",
+      "afterContextSha256": "ab64f779be6b0845fdf58f81d806fe9c5d64f60df555876b880e653bc91fed66",
+      "beforeContextChars": 11909,
+      "afterContextChars": 11918,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 13,
+          "after": 33
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 71,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "bf096cd908b35e2abe22",
+      "beforeContextSha256": "5cabbd0718f931ef01b84cd8f3b724591fbf5530ad124810a46d20dfce2df91f",
+      "afterContextSha256": "6c52929194b240f75342a7a6578b1b714bab59c9f34f8cc8cee8067e63967a0b",
+      "beforeContextChars": 11730,
+      "afterContextChars": 11937,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 5,
+          "after": 32
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 71,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "4783a435bd64701cdfae",
+      "beforeContextSha256": "1eaee3ff1e97679c72221c90c9d66a443b7b2ef12888e63e97366f1184d74698",
+      "afterContextSha256": "387fec70405c3b8a604972b5218b617426292c5e163db99caab7a197d19ee5e2",
+      "beforeContextChars": 11913,
+      "afterContextChars": 11773,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 12,
+          "after": 39
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 72,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "eb6ca4a9c2f551c40064",
+      "beforeContextSha256": "eab0a60acda638b49f74174c41278638602eb9dfcf11e23f9689d1df66f0ace3",
+      "afterContextSha256": "926703e4406dc7e7c22a3f9e2079a4d1768075282b29141e4096ca9244dab931",
+      "beforeContextChars": 11580,
+      "afterContextChars": 9350,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 2,
+          "after": 0
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 28,
+            "settingQueries": 28,
+            "cachedVerdictHits": 28,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 28,
+            "cachedSources": 28,
+            "cachedVerdicts": 28,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "644c1734e5c2b9fdf175",
+      "beforeContextSha256": "9eb220652b3441117727921c238f7368b1bca77f270b7440d1921de4c820b01e",
+      "afterContextSha256": "e08df2faaa3f278a21a80e10284052eb1277e0ceed36786f27ab93096588a8bb",
+      "beforeContextChars": 11853,
+      "afterContextChars": 11926,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 7,
+          "after": 32
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 71,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "0f33714b77f913b0fbc5",
+      "beforeContextSha256": "bd57129e435bde5e5ff2b371254386bf6f188535f51b4fa3ebca4540e3d9b639",
+      "afterContextSha256": "982d400033406e77de95294355de1c14a24396218cbf021f8395495c460038fc",
+      "beforeContextChars": 11725,
+      "afterContextChars": 11802,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 25,
+          "after": 37
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 72,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "65918a21a85ddc69597b",
+      "beforeContextSha256": "50aead8b18d2153258efaee9e7d49176dfef6833988df314bb5b215794627f43",
+      "afterContextSha256": "f5d175f75197f1ef7d59db77ab06ef69f4feecfadca37a1ff5f612f1901f0e18",
+      "beforeContextChars": 11876,
+      "afterContextChars": 11906,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 15,
+          "after": 36
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 61,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "9f28b45516d1963a4c7e",
+      "beforeContextSha256": "ad36bee12f77a02bfd1887400dd6ace7241a20ab62667c5fdf4e8f33ee513234",
+      "afterContextSha256": "442fedcd3b8f51c30af45c330a90b94b307ef3b7e377f4343161d5d7f8588564",
+      "beforeContextChars": 11865,
+      "afterContextChars": 11801,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 10,
+          "after": 25
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 64,
+            "settingQueries": 63,
+            "cachedVerdictHits": 64,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 64,
+            "cachedSources": 64,
+            "cachedVerdicts": 64,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "f16ee754c80f06d6f83a",
+      "beforeContextSha256": "ce92b6fb084769a8e60dcd07d3dadd291ad8ea2234676aeb26696ba777174043",
+      "afterContextSha256": "acf8915d01b7618f91e9cae73915576cc5e7530701131ad7d746deab919e9df9",
+      "beforeContextChars": 11451,
+      "afterContextChars": 12000,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 7,
+          "after": 33
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 71,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "4254040e29a8079aa561",
+      "beforeContextSha256": "11af33e79b8640d8a764f1cdf96ca9139ec618d59ec1937e0586c57ddccb2421",
+      "afterContextSha256": "b1b0802725ad1138029f968ff3f701893cc238b2916c4f3018df73cc06759fd3",
+      "beforeContextChars": 11616,
+      "afterContextChars": 11983,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 17,
+          "after": 33
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 71,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "9a39f67201365f17fe48",
+      "beforeContextSha256": "693a1de26847d8713d9da83d2683e7107780553adfb9f8befd548e7c3ecde059",
+      "afterContextSha256": "f0971e8c2975da696d16f6c5900effaa4c87d5b46c3f798abcf0ff7476dd064f",
+      "beforeContextChars": 11513,
+      "afterContextChars": 11779,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 28,
+          "after": 36
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 72,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "4690730de11bd50c2273",
+      "beforeContextSha256": "7c39ee4bb0a9297215bbf72148bb964c0ea720fe5be45a9c3fb2394f395e86e7",
+      "afterContextSha256": "cc7ee52712414e5ec54d169585619eb29d940dce3a3080df1064b3fb8a3c4233",
+      "beforeContextChars": 11806,
+      "afterContextChars": 11971,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 6,
+          "after": 31
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 71,
+            "settingQueries": 70,
+            "cachedVerdictHits": 71,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 71,
+            "cachedSources": 71,
+            "cachedVerdicts": 71,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "9b142d6cbbce9a7af552",
+      "beforeContextSha256": "78db648e05fd7872f0af9bb186527733f558dd793f19666bef793652ca468348",
+      "afterContextSha256": "c53d5a78b89b1a69a8c0c7e25bfb5a2a3f14620ae0d20510e71a8ee41711456b",
+      "beforeContextChars": 11782,
+      "afterContextChars": 11770,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 6,
+          "after": 14
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 53,
+            "settingQueries": 52,
+            "cachedVerdictHits": 53,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 53,
+            "cachedSources": 53,
+            "cachedVerdicts": 53,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "c54f72d71917abe7719e",
+      "beforeContextSha256": "fb85d7830a17ec0230cfaef4052d8fc4850287d8dd00d905d874c2a635ac79c1",
+      "afterContextSha256": "667bf969bc7a897e24303861ffaafa19d3a17c05ec94744ef791898e078416f0",
+      "beforeContextChars": 11714,
+      "afterContextChars": 11928,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 5,
+          "after": 32
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 71,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "5590c3078e782c67a3ae",
+      "beforeContextSha256": "8a34704ff93632d930cea1fa80378f2561296afa5b2a534be88dd3a8b27a01e0",
+      "afterContextSha256": "df87c9786d67b4437e2c58a173e7b6d5b2a2f10ce652922e24026a99d574f4ea",
+      "beforeContextChars": 11884,
+      "afterContextChars": 11724,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 17,
+          "after": 39
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 72,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "9a0dcc1b37a84a1ce50a",
+      "beforeContextSha256": "35f8287efea4429faff83f2d01be31c436c401674c2ee682c1ba2f40184f7fde",
+      "afterContextSha256": "7c8575e9a83d4206793eefe24cf936a0ff93af2e2ae1da961edcdcad31929880",
+      "beforeContextChars": 11566,
+      "afterContextChars": 8989,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 1,
+          "after": 0
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 27,
+            "settingQueries": 27,
+            "cachedVerdictHits": 27,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 27,
+            "cachedSources": 27,
+            "cachedVerdicts": 27,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "58764e69284c4162cb8d",
+      "beforeContextSha256": "0d8b34f62a83f2642794937641f53055b70132cab1eb60b9c77110d31deef36f",
+      "afterContextSha256": "4d06bde7f532fa6a2f878e003e1082c64644c49e78dd812490cbd610c5ea6e65",
+      "beforeContextChars": 11865,
+      "afterContextChars": 11927,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 7,
+          "after": 32
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 72,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "8d528ded41bd14ef7245",
+      "beforeContextSha256": "f4d97c8ee9bd3317577ff0b652eac462c27b09e1743b2670e4d05a9bdae67bc4",
+      "afterContextSha256": "c9bce1744fe06d9982de3033516d7abac0e4951b42b0b1e705763e373081f69b",
+      "beforeContextChars": 11857,
+      "afterContextChars": 11876,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 21,
+          "after": 37
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 72,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "eb0091f2ba5483197f03",
+      "beforeContextSha256": "1f122507f30ab623c2264536104159d00a8daea7de0e0319794567d1e0dcebb3",
+      "afterContextSha256": "a1ca8dab6766afdb52fd6561b0add1b6aeaa3fa435931f6c7835c2e928df813d",
+      "beforeContextChars": 11586,
+      "afterContextChars": 11844,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 16,
+          "after": 33
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 63,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "ff56fa1951c40b52e033",
+      "beforeContextSha256": "8fd04922a653e21518aa0bb166773c6183a3c2b681f3660fe289a6fbfcf07b4f",
+      "afterContextSha256": "4f633221f69cf186a39e4571c71d732fea5033ab14ad2ae046c8196a19aa0c35",
+      "beforeContextChars": 11874,
+      "afterContextChars": 11781,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 10,
+          "after": 24
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 63,
+            "settingQueries": 62,
+            "cachedVerdictHits": 63,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 63,
+            "cachedSources": 63,
+            "cachedVerdicts": 63,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "9668d89b42f0fb783a87",
+      "beforeContextSha256": "5b22e0c34629b6a95e8a517a57a8fdbac83a7b4e26ce1167099ac9ebfbced40b",
+      "afterContextSha256": "f23241fa8672b7accdddf7e805eba179787c62062f3eaa4fb32c72c719d7da4f",
+      "beforeContextChars": 11454,
+      "afterContextChars": 11981,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 7,
+          "after": 33
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 71,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "63ab342b64d6c07cf7c5",
+      "beforeContextSha256": "7b2092382e7c46944b2bc76ce94eebe63fc5de1da3f9b8751dd08df782a5f4dd",
+      "afterContextSha256": "c6b29db00e88869ea68b6ea97ca3b219f212099645c5c483d412a5272b789bf0",
+      "beforeContextChars": 11625,
+      "afterContextChars": 11985,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 17,
+          "after": 33
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 71,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "0426c0d6154f1856a2de",
+      "beforeContextSha256": "42fc8898848bacfb5f134df79c48badb7a76ec4c642812d4cba32560e0cc8c4b",
+      "afterContextSha256": "ff9d73d1ce403e45372c8a674ec98f093e21e70fe1221035240d8d798d70e6b2",
+      "beforeContextChars": 11510,
+      "afterContextChars": 11780,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 28,
+          "after": 36
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 72,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "32db18c9e0429665625d",
+      "beforeContextSha256": "7014aabcdfbf7a608fe4492792b329817c415c4084d669e58cc31eb800823c13",
+      "afterContextSha256": "20de0d4e4b960db7d4d2abd40f0d9a4eaff0515d8d47b4990d3a0a34fdc19f8e",
+      "beforeContextChars": 11809,
+      "afterContextChars": 11996,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 6,
+          "after": 31
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 71,
+            "settingQueries": 70,
+            "cachedVerdictHits": 71,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 71,
+            "cachedSources": 71,
+            "cachedVerdicts": 71,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "310d4cce3556bfb84cef",
+      "beforeContextSha256": "e56f9d88359051dbc4956fbb4824e034f86fb66f4560da5e7527534eb3415995",
+      "afterContextSha256": "39149b941a030b7c7714bd464586ddc6685669cffe4913154929151b225711dc",
+      "beforeContextChars": 11910,
+      "afterContextChars": 11890,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 13,
+          "after": 33
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 71,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "b2e43483789770d9b758",
+      "beforeContextSha256": "4740abdf691db82941a1f503124a32357b5bedc01993915ae6b837c4ded7d211",
+      "afterContextSha256": "4b5c12168356522db14d8d07b40efc7d308a2bef3283e589f24680eee4046d24",
+      "beforeContextChars": 11778,
+      "afterContextChars": 11917,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 5,
+          "after": 32
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 71,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "7cb26ad1637c877112d7",
+      "beforeContextSha256": "f930a497b08635fa524f6e32f3ecb88f75a9d035556039cae818432183fac49d",
+      "afterContextSha256": "b29939ece72bc1e4ea3ff0b158495b139633e168b1bc9675072ad14b4a252770",
+      "beforeContextChars": 11727,
+      "afterContextChars": 11688,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 28,
+          "after": 37
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 72,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "603082397a8883fee0e6",
+      "beforeContextSha256": "6e61a945c3df1adedb48f23e9a2c50fe7975139f27fd4190693662452244e65b",
+      "afterContextSha256": "c046bb71242809f250a3ad157cb913221fc687d08b4bfeed6523618f1e26d4e8",
+      "beforeContextChars": 11487,
+      "afterContextChars": 11968,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 22,
+          "after": 35
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 71,
+            "settingQueries": 71,
+            "cachedVerdictHits": 71,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 71,
+            "cachedSources": 71,
+            "cachedVerdicts": 71,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "3d8d8c2c4831ceec4c64",
+      "beforeContextSha256": "964261bd5596d4f6fed3d1d8f9a6e09c267538da3fe0428700b028d4889bb71e",
+      "afterContextSha256": "cf5bcb2abf8d81410fb2fe35ada6955f011b9a1769bd58fd85e88286c2c12304",
+      "beforeContextChars": 11545,
+      "afterContextChars": 11930,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 6,
+          "after": 32
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 71,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "9c995f22884764a07735",
+      "beforeContextSha256": "bc45125eb753640ead7626040efc8fce83fa6c373e720d6eefe41c5a956d7fc2",
+      "afterContextSha256": "1f74ba146079dcb5fc760562a6a0ef3e9938e5bffe3c781bfe30dd962b69c234",
+      "beforeContextChars": 11875,
+      "afterContextChars": 11923,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 27,
+          "after": 38
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 72,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "2bc929f04004b6bb3e5f",
+      "beforeContextSha256": "ac6936707712527d946ec2ce2788d182f2ef047edb39a90c81b71566af6cf4bf",
+      "afterContextSha256": "49bb11101d897aa24ee3c495f1430432596310514e1ff7792c01ee4b2b49bf30",
+      "beforeContextChars": 11878,
+      "afterContextChars": 11919,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 15,
+          "after": 33
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 61,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "a969a040aed42025eb03",
+      "beforeContextSha256": "ecd1f1ebb56e8258b271bd969f344230cc49edb4135d5cf72edf2e5475ecee4d",
+      "afterContextSha256": "133153db6cb6c484e3f4f6c08d41765d912c5a8fa98312df7f5d3e7074b53046",
+      "beforeContextChars": 11797,
+      "afterContextChars": 11809,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 6,
+          "after": 23
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 62,
+            "settingQueries": 61,
+            "cachedVerdictHits": 62,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 62,
+            "cachedSources": 62,
+            "cachedVerdicts": 62,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "d4116da5a9583617994a",
+      "beforeContextSha256": "1ec133c11404a2342277fce2a0d4f134ccd5f33be66efb499cfe6fbcf45e1b61",
+      "afterContextSha256": "598662a310a27629398f18bcc1cf59666d3b650c95c14da8668acc7917d8ce2d",
+      "beforeContextChars": 11901,
+      "afterContextChars": 11811,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 6,
+          "after": 33
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 71,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "4a3989a6040d1a85b864",
+      "beforeContextSha256": "76a2d0a538fca010ae07bf560224b952fa4fd33965062f6f107d9ea5c8ad551c",
+      "afterContextSha256": "7bc54ce9f830219231db4309a84eba230cd8995fce8f2e77eac02572fd5514c0",
+      "beforeContextChars": 11616,
+      "afterContextChars": 11961,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 6,
+          "after": 33
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 71,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "aa44520eedcdb8a9f5f0",
+      "beforeContextSha256": "9a180a1c3cb87752fb553a6ae554b131def9452961e77bc9a688d6955866367c",
+      "afterContextSha256": "4f1b4b446227c5d24fb5c0d9ac7872d42171851ae4e1f406b4301db7563d5bc6",
+      "beforeContextChars": 11622,
+      "afterContextChars": 11847,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 13,
+          "after": 33
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 71,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "ef7dc86770c05011f4e7",
+      "beforeContextSha256": "51f533f15e995bbfdac88fb33a193b3f82ad72bef5f42bb9f0874f1fbf63fee9",
+      "afterContextSha256": "87fa4a0f25f1a4978b7906359cb444b5674e34f9c85ca1c5813c79681bae253b",
+      "beforeContextChars": 11571,
+      "afterContextChars": 11907,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 10,
+          "after": 32
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 71,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "3371e1db947cf223523d",
+      "beforeContextSha256": "c3b5737e8d46c0d8cca13f14aa63587e9d848cda03e48fd4e5b8929fe83292cb",
+      "afterContextSha256": "8f9735429c93c9961626fd7768437152efa471ccef11d61c7e5a38f43ebe5778",
+      "beforeContextChars": 11727,
+      "afterContextChars": 11960,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 6,
+          "after": 11
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 51,
+            "settingQueries": 50,
+            "cachedVerdictHits": 51,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 51,
+            "cachedSources": 51,
+            "cachedVerdicts": 51,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "3baf5880d586d50d157e",
+      "beforeContextSha256": "1c42152d297ac0db191b25a64fa3544664ca8c7f543f0954f659396c56ef7fe2",
+      "afterContextSha256": "4fd5312dd49833bf9795427808f6b90378765be80c693b027409d4e894e53fd3",
+      "beforeContextChars": 11756,
+      "afterContextChars": 11936,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 5,
+          "after": 32
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 71,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "1820b8a6d7e5f573f5b9",
+      "beforeContextSha256": "3fd02b90dca4eb604027579d1682f5630a615c4760b66ad453f4f0390b31b197",
+      "afterContextSha256": "18b9c15a0bcd910f4e07b85e0bdd71a5fd0e49bc76d70153b24c7ae9969c3e5d",
+      "beforeContextChars": 11850,
+      "afterContextChars": 11766,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 13,
+          "after": 39
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 72,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "b8b3314cff908998dad1",
+      "beforeContextSha256": "2f688d0c89550852d3665dc0f2f7afeed2a8c9a8350b4a07eb75b2ddeb500bb5",
+      "afterContextSha256": "c322d358db3b56e3c2c6cbd870f85f6cf957d87c37ee9a3a67ddf68c03b97cbe",
+      "beforeContextChars": 11583,
+      "afterContextChars": 9353,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 2,
+          "after": 0
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 28,
+            "settingQueries": 28,
+            "cachedVerdictHits": 28,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 28,
+            "cachedSources": 28,
+            "cachedVerdicts": 28,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "9ddb51449c910e59e80e",
+      "beforeContextSha256": "901495f5631308b74315ebdee45541b54cf63687a0efa7c1071fe0f66d333d97",
+      "afterContextSha256": "abb49b3dfa6dabb510793fa372d4c5d907bdbb445a789f574b985b3522dffe21",
+      "beforeContextChars": 11784,
+      "afterContextChars": 11927,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 8,
+          "after": 32
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 72,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "a8e2710869bc77ee8104",
+      "beforeContextSha256": "dbc444fc51d8105c3d3fb2b869c23be45e295eb90d754d5083c9869331e1401c",
+      "afterContextSha256": "5191b6647ecb8fb6c77090747bb5c6b972af49e151342e3d75117021e4752221",
+      "beforeContextChars": 11660,
+      "afterContextChars": 11804,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 25,
+          "after": 37
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 72,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "34cbdf73282c0cd9569a",
+      "beforeContextSha256": "fb9e89606bac68efbb16648138ad93e137bd7f73055706a113a11f8d9bc1f69f",
+      "afterContextSha256": "4ea7b6913983c25d7731bd59dac44f9cbadd1cc295229d8cedb3bf8e4e76d5ef",
+      "beforeContextChars": 11878,
+      "afterContextChars": 11915,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 15,
+          "after": 33
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 61,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "83b1a953080ff7e2ce73",
+      "beforeContextSha256": "7e7757381d4cd9bbfa061cbde951f973d1c95e8395676f1e6e05ca04aab07422",
+      "afterContextSha256": "185b8cfe76502ed718341b634703b82ffe6329eae66f19763b9dd7d14fa3debd",
+      "beforeContextChars": 11563,
+      "afterContextChars": 11820,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 13,
+          "after": 25
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 64,
+            "settingQueries": 63,
+            "cachedVerdictHits": 64,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 64,
+            "cachedSources": 64,
+            "cachedVerdicts": 64,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "2b752af378233d829382",
+      "beforeContextSha256": "6a8e9879ea50625f7477c547788d4bde77e332759e12e15f04f6c8947f4828c3",
+      "afterContextSha256": "a8f76b811f4653a0789d2592e7bfde970be589bdbca88d57adf3b9346e5f17d1",
+      "beforeContextChars": 11454,
+      "afterContextChars": 11762,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 7,
+          "after": 34
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 71,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "a0f3c960a4e8ad029c5e",
+      "beforeContextSha256": "a18376c86e0ad497b5f60800464a88a98d88ff1c2e081dbf10b3313aa33a403b",
+      "afterContextSha256": "72836649e231eee353f4a42eb9e574c47d8f9a8a506307723e57cb7452270b4f",
+      "beforeContextChars": 11626,
+      "afterContextChars": 11986,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 17,
+          "after": 33
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 71,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "c260e58a02c748fb3d05",
+      "beforeContextSha256": "a46ef9ea69e9127e2b1fce2572d79968fb3294915b21b8cf503d11bd32d3a56c",
+      "afterContextSha256": "7846ebb63e481b26e0454237ce9527532a3fdfd26cf84ac90bc8a24930afcc3c",
+      "beforeContextChars": 11529,
+      "afterContextChars": 11786,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 28,
+          "after": 36
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 72,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "f71e80eda56a62254651",
+      "beforeContextSha256": "108d7c800a6a8e29c81f588983f9fc51a720a9ce9eace65a0060ae44fbce1a8f",
+      "afterContextSha256": "c55a79ceaad0a262c5cfcacd0aec9945730f21c617b18b7d55a5db829b9d71d3",
+      "beforeContextChars": 11809,
+      "afterContextChars": 11999,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 6,
+          "after": 31
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 71,
+            "settingQueries": 70,
+            "cachedVerdictHits": 71,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 71,
+            "cachedSources": 71,
+            "cachedVerdicts": 71,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "414d7b1d2901ba8fa1e4",
+      "beforeContextSha256": "730b80659da7efffed9b25efa16aa6589548e52da5d7467ccff2a66874548c66",
+      "afterContextSha256": "ffc2a1df8d87c31e17cd388778eed613671fc058a3f8f32f0a72ae3f48a10c9e",
+      "beforeContextChars": 11846,
+      "afterContextChars": 11804,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 13,
+          "after": 33
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 71,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "39ed7465f4802729ae1e",
+      "beforeContextSha256": "d52a8543a8d28db54d5b155a40f13ed1fc0905be472f73744e7862b2b7ee1b4c",
+      "afterContextSha256": "93cdc5d1791a97a2bb7c234f67c1812fa42fa69cffd3b8bf7a95f7f377315748",
+      "beforeContextChars": 11731,
+      "afterContextChars": 11959,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 5,
+          "after": 32
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 71,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "91c432757ce25ead7b0a",
+      "beforeContextSha256": "12cfefe52755494fb6695121416718a4ce90d130d4d8d71e47a22208fc8a96a2",
+      "afterContextSha256": "27c03c86d593a26d004cb4532c134fee76a24f48d7d1102f3f6a2230e8823a4b",
+      "beforeContextChars": 11890,
+      "afterContextChars": 11724,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 17,
+          "after": 39
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 72,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "c79122c55f6853215aac",
+      "beforeContextSha256": "f150c72a889ac32fa8b43de9746601f93dfb29e89ac8c77af9e03cdeffddd368",
+      "afterContextSha256": "4589cb0e070374de4282429e82db21bc7eba75cbc32b84d416f1f58c58ef4045",
+      "beforeContextChars": 11568,
+      "afterContextChars": 8991,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 1,
+          "after": 0
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 27,
+            "settingQueries": 27,
+            "cachedVerdictHits": 27,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 27,
+            "cachedSources": 27,
+            "cachedVerdicts": 27,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "55f7b6db941a40699d65",
+      "beforeContextSha256": "aedc4397d079e4324d72b082bfa31dc4bb9a0a185d0e401630ae3fad057ecf5e",
+      "afterContextSha256": "75efceae1c4fb2799d3da5aa2b66edcb2b442c08c4548f0ab03999df6cf214bb",
+      "beforeContextChars": 11472,
+      "afterContextChars": 11927,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 7,
+          "after": 32
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 72,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "67af9a6c02df982d40aa",
+      "beforeContextSha256": "a413705164e4dcee8cdb7b469da378633387fd25c8cfad0054f851c216bb1311",
+      "afterContextSha256": "1cec66952e2ed341f0f390e2468d900a98ac6d276acea5b6d712c3fb2456ebc0",
+      "beforeContextChars": 11809,
+      "afterContextChars": 11876,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 21,
+          "after": 37
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 72,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "2653bccc4a05480e076c",
+      "beforeContextSha256": "239c402b6d5e5da94ca64071eaa5f4f37707341137658a13bda64d115a98fd5b",
+      "afterContextSha256": "2f5624439ffffa274696b2313c70f58b0b36b34409b49e5b3d73d550f058d40a",
+      "beforeContextChars": 11588,
+      "afterContextChars": 11850,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 16,
+          "after": 33
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 63,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "9a7194b21c7b1043d85e",
+      "beforeContextSha256": "2a94d9660e1cbeb35cdd7d2e29ac951e06893642b0b6dd149d1a2015efd15b24",
+      "afterContextSha256": "54a6e9fda3163cf7bb020c0f3420b8378f2ced9e09497cf8cc380320b4c36e42",
+      "beforeContextChars": 11556,
+      "afterContextChars": 11785,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 14,
+          "after": 24
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 63,
+            "settingQueries": 62,
+            "cachedVerdictHits": 63,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 63,
+            "cachedSources": 63,
+            "cachedVerdicts": 63,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "ba061464011573bf1b86",
+      "beforeContextSha256": "5daf08e88ec7db20e44c3d7575de6fdbb4684261875a153af8a212f0684e61bc",
+      "afterContextSha256": "8f70e688c1eb8a33f77dd634e488cb741ad5359090e6dbbacd91721f79be1d20",
+      "beforeContextChars": 11454,
+      "afterContextChars": 11990,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 7,
+          "after": 33
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 71,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "c59aa60f4d281e349315",
+      "beforeContextSha256": "c3df31aa197187b6304f4aabbeaf58a28cc51aec37fcb12d773ced67f297852a",
+      "afterContextSha256": "64180fdc38760fc131e1eba9348c361e8de2e9fb6cf6e2d3f579357d09175122",
+      "beforeContextChars": 11626,
+      "afterContextChars": 11986,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 17,
+          "after": 33
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 71,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "34eb1d0511586a11e3d8",
+      "beforeContextSha256": "db5dae04a501be0c5d8a4cb36aadbbeccd9a18ee2ece0307ea5b3fa64d0eade4",
+      "afterContextSha256": "54b129c02c10dddaeceb84755cb50d197184637344fe760b832a31503c2e5b08",
+      "beforeContextChars": 11776,
+      "afterContextChars": 11924,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 11,
+          "after": 17
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 56,
+            "settingQueries": 55,
+            "cachedVerdictHits": 56,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 56,
+            "cachedSources": 56,
+            "cachedVerdicts": 56,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "31ba69ad1d02e8c0b18e",
+      "beforeContextSha256": "1d481d0519c032d4c37b1f9e139c53b7511c70a553c01336843d9248cd7dfb9d",
+      "afterContextSha256": "e9c280adef424a75d07cb96a80297904bb1653d8ba0d3ce3537ac7b4948a3bb1",
+      "beforeContextChars": 11809,
+      "afterContextChars": 11753,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 6,
+          "after": 32
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 71,
+            "settingQueries": 70,
+            "cachedVerdictHits": 71,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 71,
+            "cachedSources": 71,
+            "cachedVerdicts": 71,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "d439bc9a66f03d05ecf4",
+      "beforeContextSha256": "96d1bc2dda9fe51ce957f5a69aef425a9edb32e3217463bc29a7a04afde0b8e5",
+      "afterContextSha256": "7f0a9690f9a01ef5a219849f0caae2ec51eae7683696b307f09963c44efb3040",
+      "beforeContextChars": 11792,
+      "afterContextChars": 11758,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 6,
+          "after": 13
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 52,
+            "settingQueries": 51,
+            "cachedVerdictHits": 52,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 52,
+            "cachedSources": 52,
+            "cachedVerdicts": 52,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "bc8b60913ac917a67dbf",
+      "beforeContextSha256": "e5606746f7beb7300498d8cb875b25335185e836d9f27e81d32700baf4a151a8",
+      "afterContextSha256": "f36e68b958a37dc8f2782a3199c6efe98ee5a336bfc5cb8fac38949c63715e04",
+      "beforeContextChars": 11781,
+      "afterContextChars": 11924,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 5,
+          "after": 32
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 71,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "ab52237575bf0108b36b",
+      "beforeContextSha256": "161f24061ebe7fdc06050a20b3a628f940def680f9f6f5b01dff9a83f3d8ad14",
+      "afterContextSha256": "72c0530daccec8aff2a6f7c221b14e9be1acc1a48f41947cd7cf9f18ab79b540",
+      "beforeContextChars": 11764,
+      "afterContextChars": 11688,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 28,
+          "after": 37
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 72,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "f47ffeea2b0cc21c5820",
+      "beforeContextSha256": "2d64f84b03ac522818a3a0af0d8ee1d7a991916a6f727742c74a4ef1360870c6",
+      "afterContextSha256": "d2c399f88ac667999b1626f2979481778c6ee4e043eefedef0f8f4d17dc069a4",
+      "beforeContextChars": 11487,
+      "afterContextChars": 11968,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 22,
+          "after": 35
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 71,
+            "settingQueries": 71,
+            "cachedVerdictHits": 71,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 71,
+            "cachedSources": 71,
+            "cachedVerdicts": 71,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "6bb8dc101c3eec3579f2",
+      "beforeContextSha256": "721f7edeb644051c67728300c93fd429fddce0aaf4b73b214003b06a782dc5b5",
+      "afterContextSha256": "f520bc8f24c37372512c96a2656b952fead431189e93c17baf7d5f76efe8f42f",
+      "beforeContextChars": 11784,
+      "afterContextChars": 11927,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 8,
+          "after": 32
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 72,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "73bfbdf25d140d8e8cd4",
+      "beforeContextSha256": "65b0fd8d82a54d08b8d345b62a485f8d4bc5209d48f0ea1049d5901f68c6c590",
+      "afterContextSha256": "0e9be5d7ee0fa342fb028f7152e7a41e3e70edd99b9d863886105f862057dc8e",
+      "beforeContextChars": 11912,
+      "afterContextChars": 11923,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 27,
+          "after": 38
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 72,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "7f9680c465afd0568b5b",
+      "beforeContextSha256": "b4963797e0b8e687976e13cfb8150071fe8b0a28a0bb970215efe4ee763ee33b",
+      "afterContextSha256": "655d8fb0542b1b4c95589a97de64862a88f185d081e7356e9c962b1c7e0e8ee7",
+      "beforeContextChars": 11878,
+      "afterContextChars": 11919,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 15,
+          "after": 33
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 61,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "6116bae16bf4f342f61a",
+      "beforeContextSha256": "956ed70cb2e9d137b03592be0c10f59691e7d749511fffa0d6961568ccfd831c",
+      "afterContextSha256": "ae107ea169761dbe3393e61aed9c73c46a898b15f2dee3aca8b93c2ab72597ac",
+      "beforeContextChars": 11548,
+      "afterContextChars": 11811,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 15,
+          "after": 23
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 62,
+            "settingQueries": 61,
+            "cachedVerdictHits": 62,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 62,
+            "cachedSources": 62,
+            "cachedVerdicts": 62,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "7516b259fc36f72f1d8b",
+      "beforeContextSha256": "e138be656364b695b002a4cdaef525661721e2dcf8bb07232de21a0d801ee659",
+      "afterContextSha256": "6a3831b67b0e279d3b126976abc21b671b7d6e2b5db8d893475c16bc7683ffe1",
+      "beforeContextChars": 11454,
+      "afterContextChars": 11759,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 7,
+          "after": 34
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 71,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "f9f67a7113d3f49a88ff",
+      "beforeContextSha256": "22cc01fc3ce2571debd738f8fa710af393d49c68aed921053bdad1d1f3f1115b",
+      "afterContextSha256": "79edb058761574c9ec853ef1cc52faee8dc4ae794a2e3879f32ab2877b7abfaf",
+      "beforeContextChars": 11626,
+      "afterContextChars": 11987,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 17,
+          "after": 33
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 71,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "4e0ab30b9ed5a8448336",
+      "beforeContextSha256": "347ef28bc34032ac55da23bdaa115ae11a7d18d330d49fa1f434da02227bf4de",
+      "afterContextSha256": "0c4ce16fe056bf9ccf3e501dd60e07abc0816a2ec6e223156be94ded9386532d",
+      "beforeContextChars": 11514,
+      "afterContextChars": 11783,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 28,
+          "after": 36
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 72,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "913d923a0833973e6c2e",
+      "beforeContextSha256": "399f8e44b269fa969478a892f28f33e58a618ea92a51ae931dc0b5ecf9b9b288",
+      "afterContextSha256": "37a063b9321ddb67b9c417caff7e98359a300261794734731c8ea141f1cbf68d",
+      "beforeContextChars": 11809,
+      "afterContextChars": 11756,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 6,
+          "after": 32
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 71,
+            "settingQueries": 70,
+            "cachedVerdictHits": 71,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 71,
+            "cachedSources": 71,
+            "cachedVerdicts": 71,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "3382a900eccabcfe4dd0",
+      "beforeContextSha256": "f6449563f42a0ad34dedc92a3876530ae2ac88413dd515ad434ebe86b22246a7",
+      "afterContextSha256": "8e8c3451d88a1c7d7eeaf8625168e3b358433a58c67e70322c677a63952f17e1",
+      "beforeContextChars": 11908,
+      "afterContextChars": 11918,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 13,
+          "after": 33
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 71,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "8cd8932ab607b8b36aa3",
+      "beforeContextSha256": "a312405124b4138ca6f0e6899e330226ca30e5cf060fec9617200a0049bd9e83",
+      "afterContextSha256": "874f37001b439346574d4327e532641927609681b0574b4e4bfd0991ae87d6de",
+      "beforeContextChars": 11732,
+      "afterContextChars": 11937,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 5,
+          "after": 32
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 71,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "17c71e5bb842063e8e97",
+      "beforeContextSha256": "a60126625c6205d0361c5fde596d66206d7f491a92b26309c87d67675e69bbc0",
+      "afterContextSha256": "fce460c7d35b31f40b7eed70f4c7da3a39b2ae39415970368e12a60f6f6a519d",
+      "beforeContextChars": 11455,
+      "afterContextChars": 11774,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 13,
+          "after": 39
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 72,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "b87cbb672c43324577b9",
+      "beforeContextSha256": "e60a9c9d77261e204fe94820585777cdd7754437e50015b4e522bc4d61996aba",
+      "afterContextSha256": "c6e06e6e2b7f731eb1162fbf26005b810583e9e77445c6c79ffbbd6c535c42c6",
+      "beforeContextChars": 11583,
+      "afterContextChars": 9353,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 2,
+          "after": 0
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 28,
+            "settingQueries": 28,
+            "cachedVerdictHits": 28,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 28,
+            "cachedSources": 28,
+            "cachedVerdicts": 28,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "3380bf6716574cd152e6",
+      "beforeContextSha256": "5a1720907761154af4ef5b90e99e80427beb8dc7dd92b193405c959d4f41446c",
+      "afterContextSha256": "307311b1c1f2e373782c937fe3a80f717fd553302d2c4a7651404bb44a4cf29b",
+      "beforeContextChars": 11858,
+      "afterContextChars": 11927,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 7,
+          "after": 32
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 71,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "eda7e221e9616bb82eb3",
+      "beforeContextSha256": "62ffdc965d3436d3d8722beeb25491105652ab5a9b60d5046a4817726d29fc14",
+      "afterContextSha256": "f085960c1d31810d9c790bcf4aef9c47634ea7da9b4aaa802fb6ba488ae67f90",
+      "beforeContextChars": 11563,
+      "afterContextChars": 11804,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 24,
+          "after": 37
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 72,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "2eb53cf0ccd825aea6c1",
+      "beforeContextSha256": "72afdb22b79d95a0e72e410117f7b8a1e2e139c3b25bd6a28f1655c80eae6628",
+      "afterContextSha256": "5f6699150e32ec93fd6183d107a13e8a26878af73b5b644817cac73452d7b7c6",
+      "beforeContextChars": 11894,
+      "afterContextChars": 11841,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 16,
+          "after": 36
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 62,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "bdd7d90484275f4ba634",
+      "beforeContextSha256": "14eaef9933d340a9a1b638abbac666a4ea435800bebe59130d3af30e014f4616",
+      "afterContextSha256": "cb8c46fcc3a54edd316ac8749f497f0addaddc04694d99f5a2935b9d995225f6",
+      "beforeContextChars": 11589,
+      "afterContextChars": 11820,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 16,
+          "after": 25
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 64,
+            "settingQueries": 63,
+            "cachedVerdictHits": 64,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 64,
+            "cachedSources": 64,
+            "cachedVerdicts": 64,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "d6521c5733046d5c25a4",
+      "beforeContextSha256": "6dae6715b9bbe94d327da99ca54927e619b3f1e8ca37bd475d2369f0e81ad762",
+      "afterContextSha256": "7d3932fbbdeaead7beec3a2e802d78d2d8c66830e6ce93679a022d87004a9cc9",
+      "beforeContextChars": 11454,
+      "afterContextChars": 11762,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 7,
+          "after": 34
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 71,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "98270fca47f96775005d",
+      "beforeContextSha256": "c4b719296a1289fd1df925591c2deec2fe35d7d9c72d60bce1a22e0364ebcd87",
+      "afterContextSha256": "09761081d0290132798287f6e83aff09f745ed360ca50f9925fe864fa156ff79",
+      "beforeContextChars": 11627,
+      "afterContextChars": 11987,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 17,
+          "after": 33
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 71,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "e69b25eba7707602cd3f",
+      "beforeContextSha256": "71961677a6623c04a9f9ee55d2bbff0a13d1e66e1e4ec823919a536e8c706c38",
+      "afterContextSha256": "2bc6000ab6757bf7ab3ddf5e51f63297cfa9c182b14fc6ff6164cbcf15ea821d",
+      "beforeContextChars": 11528,
+      "afterContextChars": 11784,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 28,
+          "after": 36
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 72,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "27ab15c10b639631f66a",
+      "beforeContextSha256": "860ba5e2f1c95b70804a33d7e275d54c3689fc7e342d8866a8810d8dcf355068",
+      "afterContextSha256": "0e08c1eaf15a43fa25a0d6b6f70bcbc031b521fe581a78cf5d60987e14a2f36c",
+      "beforeContextChars": 11809,
+      "afterContextChars": 11999,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 6,
+          "after": 31
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 71,
+            "settingQueries": 70,
+            "cachedVerdictHits": 71,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 71,
+            "cachedSources": 71,
+            "cachedVerdicts": 71,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "c726f5d2c962eda36301",
+      "beforeContextSha256": "c148c203129ba206b7be7360c38bcb52da1b774ade1d163e243ea2d66facdf24",
+      "afterContextSha256": "c392a2a6a21950e2bf4bd149075ee03a30ae54e0252a06b51cb96c2ce6526af6",
+      "beforeContextChars": 11798,
+      "afterContextChars": 11801,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 6,
+          "after": 14
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 53,
+            "settingQueries": 52,
+            "cachedVerdictHits": 53,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 53,
+            "cachedSources": 53,
+            "cachedVerdicts": 53,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "a1dc766a0fc5960c55ff",
+      "beforeContextSha256": "a9279135b4df16e6e3c725ac04699945129aa9c1211b0fc1de4531a85ff992e7",
+      "afterContextSha256": "f055a0c8874d69ac9a7330c994ad4e62f1fc9ca2979f4e15b5234d06d0a8e1a0",
+      "beforeContextChars": 11659,
+      "afterContextChars": 11960,
+      "allBytesBeforeFooterExactlyEqual": false,
+      "footerChangedPaths": [
+        {
+          "path": "MEMORY_LIMITS.omittedOptionalItems",
+          "before": 6,
+          "after": 32
+        },
+        {
+          "path": "MEMORY_LIMITS.sourceGraphRead",
+          "before": null,
+          "after": {
+            "sourceQueries": 72,
+            "settingQueries": 71,
+            "cachedVerdictHits": 72,
+            "derivedSourceQueries": 0,
+            "examinedNodes": 72,
+            "cachedSources": 72,
+            "cachedVerdicts": 72,
+            "privacyVersion": 12,
+            "immutableReadSnapshot": true,
+            "persistentCache": false
+          }
+        }
+      ]
+    }
+  ],
+  "changedNonEvidencePacketIds": [],
+  "allCanonicalSourceMappingsAndHashesExactlyEqual": true,
+  "normalizationsApplied": [],
+  "semanticAnswerScoreAssigned": false,
+  "followupResponseEquivalence": "not measured by packet comparator",
+  "answerCarryForwardRule": "Changed evidence requires explicit independent review or a new source-grounded answer; unchanged primary bytes do not automatically establish follow-up tool-response equivalence."
+}

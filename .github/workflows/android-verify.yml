@@ -24,7 +24,7 @@ jobs:
   android:
     if: github.event.repository.private == false
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     defaults:
       run:
         shell: bash
@@ -41,6 +41,9 @@ jobs:
         with:
           distribution: temurin
           java-version: '17.0.16+8'
+
+      - name: Verify emulator driver failure accounting
+        run: python3 mobile/tools/tests/test-emulator-driver-protocol.py
 
       - name: Require runner SDK and hardware acceleration
         run: |
@@ -135,5 +138,5 @@ jobs:
             mobile/app/build/outputs/apk/debug/app-debug.apk
 
       - name: Test real Android runtime and ONNX on accelerated emulator
-        timeout-minutes: 20
+        timeout-minutes: 40
         run: ./mobile/tools/run-emulator-tests.sh ./mobile

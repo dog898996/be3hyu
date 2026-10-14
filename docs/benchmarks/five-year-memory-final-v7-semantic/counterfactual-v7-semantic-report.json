@@ -1,0 +1,68 @@
+{
+  "complete": true,
+  "counts": {
+    "pass": 3,
+    "partial": 0,
+    "fail": 0
+  },
+  "newV7ReaderModelRuns": 0,
+  "actualV5BlindAnswersCarried": 3,
+  "method": "Evaluator previously semantically reviewed actual three blind V5 answers. Evaluator now independently verified entire combined three-packet file byte equality, exact intervention/source-change equivalence, and readonly V7 canonical source text/date/hash match. Carry preserves prior judgments; not claimed as fresh V7 model execution.",
+  "proofScope": "One receipt scenario in control/relevant-change/unrelated-change conditions, not proof of whole app/wire or internal model reasoning.",
+  "sourceAndPacketQA": [
+    {
+      "readerId": "277ce9271b1f5981b250",
+      "relation": "unchanged_control",
+      "sourceRowsMatchedV7Intervention": true,
+      "sourceChangeExactlyEqualsPreviouslyGradedV5": true,
+      "entireReaderPacketByteEqual": true,
+      "newDatabaseSha256": "9da5e3bf5570d583433e282069147485b1610deaaf411d182d3ac1490a5e986d",
+      "newResponseReceiptLocator": {
+        "path": "/tmp/hoyoung-five-year-counterfactual-v7-final/scorer-only-intervention-receipts.json",
+        "readerId": "277ce9271b1f5981b250",
+        "tag": "a314c",
+        "snapshotId": "c965a15e-f61a-42fb-a771-5868b3014abb"
+      }
+    },
+    {
+      "readerId": "575b6c348beb730f9fc6",
+      "relation": "relevant_source_changed",
+      "sourceRowsMatchedV7Intervention": true,
+      "sourceChangeExactlyEqualsPreviouslyGradedV5": true,
+      "entireReaderPacketByteEqual": true,
+      "newDatabaseSha256": "a92d3075f3fafca467ff4fe0e45bc9afa585d58df20afce4c58da5c410edceb2",
+      "newResponseReceiptLocator": {
+        "path": "/tmp/hoyoung-five-year-counterfactual-v7-final/scorer-only-intervention-receipts.json",
+        "readerId": "575b6c348beb730f9fc6",
+        "tag": "d782f",
+        "snapshotId": "95e3fd04-dae9-4df7-8b3e-94fd316835df"
+      }
+    },
+    {
+      "readerId": "e1cff302f9e52447db1c",
+      "relation": "unrelated_source_changed",
+      "sourceRowsMatchedV7Intervention": true,
+      "sourceChangeExactlyEqualsPreviouslyGradedV5": true,
+      "entireReaderPacketByteEqual": true,
+      "newDatabaseSha256": "f35e836f308516176663ca1e3c299a63cf3ed8c4cce99682b464ed9b2225c9c3",
+      "newResponseReceiptLocator": {
+        "path": "/tmp/hoyoung-five-year-counterfactual-v7-final/scorer-only-intervention-receipts.json",
+        "readerId": "e1cff302f9e52447db1c",
+        "tag": "b509e",
+        "snapshotId": "034f607f-a63b-4294-b7b1-658845c17750"
+      }
+    }
+  ],
+  "relevantChangeAnswerSensitive": true,
+  "unrelatedChangeAnswerStable": true,
+  "failedFirstRunPreserved": true,
+  "sha256": {
+    "/tmp/hoyoung-five-year-counterfactual-v7-final/reader-inputs.jsonl": "73e19f927000a0f0fffbbe9237bcc95b70b0bab2241f2b0e6d4493b7276c94dd",
+    "/tmp/hoyoung-five-year-counterfactual-v5-final/reader-inputs.jsonl": "73e19f927000a0f0fffbbe9237bcc95b70b0bab2241f2b0e6d4493b7276c94dd",
+    "/tmp/hoyoung-five-year-counterfactual-v7-final/v5-exact-packet-equivalence.json": "e468d00071be01a3453ed9a92705b81f43ddc0bb00aa2843f99fee62e5aa2cdf",
+    "/tmp/hoyoung-five-year-counterfactual-v7-final/scorer-only-intervention-receipts.json": "3628f819d5058d041f7e813d98b071db059f4e248de36b9272814fadc2a9e37c",
+    "/tmp/hoyoung-five-year-counterfactual-blind-reader/answers.jsonl": "946e5a38e8d604d4f36279bcc1897c0b6995895932a8119c913a9f84172b7a03",
+    "/tmp/hoyoung-five-year-answer-evaluation/counterfactual-semantic-scores.json": "9688fccbccfac2b9e2e2334c4694e650d8696f4c4f6249dd98e2ca25ebbd77c9",
+    "/tmp/hoyoung-five-year-answer-evaluation/counterfactual-v7-semantic-scores.json": "b0c118d325084d5b67da9f10dff4423c57dde1009d436b2fbb22b7fe50a06960"
+  }
+}
