@@ -168,13 +168,18 @@ args=sys.argv[1:]
 assert args[:2]==['-s','emulator-owned-fixture']
 args=args[2:]
 with pathlib.Path(os.environ['FAKE_CALLS']).open('a') as out: out.write(repr(args)+'\\n')
+root_marker=pathlib.Path(os.environ['FAKE_CALLS']+'.root')
 if args[:2]==['shell','getprop']:
     key=args[2]
     print({'ro.kernel.qemu':os.environ.get('FAKE_QEMU','1'),'ro.build.version.sdk':'35','ro.debuggable':os.environ.get('FAKE_DEBUGGABLE','1')}[key])
-elif args==['shell','id','-u']: print('0')
+elif args==['root']:
+    root_marker.touch(); print('restarting adbd as root')
+elif args==['shell','id','-u']: print('0' if root_marker.exists() else '2000')
 elif args==['shell','dumpsys','connectivity']:
     print('Active default network: 100\\nTransports: ETHERNET')
 elif args==['shell','ip','-o','link','show']:
+    if not root_marker.exists():
+        print('request send failed: Permission denied',file=sys.stderr); sys.exit(13)
     print('1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536\\n2: eth0: <BROADCAST,MULTICAST,UP> mtu 1500')
 elif args[:3]==['shell','am','instrument']:
     print('OK (1 test)')
@@ -185,6 +190,8 @@ elif args[:1]==['shell'] and 'HOYOUNG_FIXTURE_GUEST_ADAPTERS_DOWN' in args[1]:
     if os.environ.get('FAKE_FAIL_ADAPTERS')=='true': sys.exit(24)
     assert 'ip link set dev "$iface" down' in args[1]
     assert 'lo) continue' in args[1]
+    assert '[ "$((flags & 1))" = 0 ] && continue' in args[1]
+    assert 'HOYOUNG_FIXTURE_ADAPTER_DOWN_FAILED iface=$iface' in args[1]
     print('HOYOUNG_FIXTURE_GUEST_ADAPTERS_DOWN')
 ''')
             adb.chmod(0o755)
@@ -200,13 +207,20 @@ emulator_pid=$$
 
             def run(body, **variables):
                 calls.write_text('')
+                pathlib.Path(str(calls)+'.root').unlink(missing_ok=True)
                 return subprocess.run(['bash', '-c', prefix + body], env=dict(environment, **variables),
                                       text=True, capture_output=True, timeout=10)
 
+            # The real AVD rejects NETLINK_ROUTE inspection before adb root. A
+            # diagnostic must not prevent the later privileged transition.
+            result = run('capture_network_fixture unprivileged\n')
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn('request send failed: Permission denied', result.stderr)
             result = run('isolate_emulator_network initial && verify_framework_offline\n')
             self.assertEqual(0, result.returncode, result.stdout + result.stderr)
             self.assertIn('ETHERNET', result.stdout)
             self.assertIn('HOYOUNG_FIXTURE_FRAMEWORK_OFFLINE', result.stdout)
+            self.assertLess(calls.read_text().index("['root']"), calls.read_text().index("['shell', 'ip', '-o', 'link', 'show']"))
             for variables in ({'FAKE_QEMU':'0'}, {'FAKE_DEBUGGABLE':'0'}):
                 with self.subTest(variables=variables):
                     result = run('isolate_emulator_network initial\n', **variables)

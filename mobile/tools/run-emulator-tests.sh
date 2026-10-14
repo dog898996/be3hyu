@@ -148,10 +148,12 @@ isolate_emulator_network() {
   [[ "$(timeout 8 "$ADB" -s "$SERIAL" shell getprop ro.kernel.qemu | tr -d '\r')" == 1 ]] || return 1
   [[ "$(timeout 8 "$ADB" -s "$SERIAL" shell getprop ro.build.version.sdk | tr -d '\r')" == 35 ]] || return 1
   [[ "$(timeout 8 "$ADB" -s "$SERIAL" shell getprop ro.debuggable | tr -d '\r')" == 1 ]] || return 1
-  capture_network_fixture "${phase}_before" || return 1
+  # Android restricts unprivileged NETLINK_ROUTE inspection as well as writes.
+  # Complete the owned-AVD root transition before even the diagnostic link dump.
   timeout 20 "$ADB" -s "$SERIAL" root || return 1
   timeout 20 "$ADB" -s "$SERIAL" wait-for-device || return 1
   [[ "$(timeout 8 "$ADB" -s "$SERIAL" shell id -u | tr -d '\r')" == 0 ]] || return 1
+  capture_network_fixture "${phase}_before" || return 1
   timeout 8 "$ADB" -s "$SERIAL" shell cmd connectivity airplane-mode enable || return 1
   timeout 8 "$ADB" -s "$SERIAL" shell svc wifi disable || return 1
   timeout 8 "$ADB" -s "$SERIAL" shell svc data disable || return 1
@@ -162,7 +164,16 @@ isolate_emulator_network() {
       for path in /sys/class/net/*; do
         iface=${path##*/}
         case "$iface" in lo) continue ;; ""|*[!A-Za-z0-9_.:-]*) exit 1 ;; esac
-        ip link set dev "$iface" down || exit 1
+        flags=$(cat "$path/flags") || exit 1
+        case "$flags" in 0x[0-9a-fA-F]*) ;; *) exit 1 ;; esac
+        [ "$((flags & 1))" = 0 ] && continue
+        if ! ip link set dev "$iface" down; then
+          echo "HOYOUNG_FIXTURE_ADAPTER_DOWN_FAILED iface=$iface; flags=$flags" >&2
+          id >&2
+          getenforce >&2
+          cat /proc/self/status | sed -n "/^Cap/p" >&2
+          exit 1
+        fi
       done
       remaining=0
       for path in /sys/class/net/*; do
