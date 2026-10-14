@@ -1,0 +1,28 @@
+{
+  "version": "0.4.2",
+  "sourceCommit": "9d1de774b8ee722b4b6f20078cdcb22d4956aa61",
+  "focusedUnitTotals": {
+    "tests": 227,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "focusedUnitSuiteCount": 23,
+  "testReceipts": "android-v042-focused.json",
+  "releaseBuild": "passed",
+  "releaseLint": {
+    "errors": 0,
+    "warnings": 29
+  },
+  "apkVerification": "android-v042-apk.json",
+  "samePublicCertificateAsV041": true,
+  "completeAndroidPermissionDeclarations": 48,
+  "runtimeCatalogTools": 122,
+  "fullSuiteRepeated": false,
+  "fiveYearMemorySimulationRepeated": false,
+  "newEmulatorRun": false,
+  "physicalSamsungRun": false,
+  "realModelCalls": 0,
+  "dateUtc": "2026-10-14T12:39:46.044217+00:00",
+  "soloFinalReview": "Reviewed integrated changes; fixed live-control growth from historical goals/pauses and held-request context overflow; focused gateway/route/autonomy regressions passed."
+}

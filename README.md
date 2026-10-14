@@ -2,7 +2,7 @@
 
 추가 서버 비용 0원, 사설 VM·상시 PC 없이 **Android 전용 앱 → ChatGPT Work 임시채팅**으로 작업하고 원문·기억·파일은 폰에 보관한다. [Android 설치·연결·백업 안내](mobile/README.md)를 먼저 참고한다. 아래 Node/사설 VM 코드는 이전 구현으로 보존한다.
 
-**최신 0.4.1**: 보내기 옆에서 이번 화면의 모델을 선택하고, 화면을 떠나도 이미 맡긴 작업의 모델은 유지한다. 영구 라우팅·이름·프사는 설정과 채팅에서 바꾸고 전체 백업에 보관한다. 정기 판단 기본값은 Medium이다. [설치 파일](https://github.com/dog898996/be3hyu/releases/tag/v0.4.1) · [변경·검증 기록](docs/release-v041.md) · [설정 동작 설명](docs/routing-and-identity-v041.md). 변경 관련 집중 검사 100/100 통과. 아래 0.4.0의 전체·Android 에뮬레이터 검증은 이전 버전의 이력이다.
+**최신 0.4.2**: 여섯 분야 코드 감사와 통합 담당자의 최종 재검토로 장기기억·설정 충돌·새 지시·한도 복구·첨부·알림·응답 캡처 오류를 수정했다. 변경 관련 검사 **227/227 통과**, signed release·lint 오류 0. [설치 파일](https://github.com/dog898996/be3hyu/releases/tag/v0.4.2) · [변경·검증 기록](docs/release-v042.md) · [지속가능성·복원 범위](docs/final-code-audit-v042.md) · [모델·프로필 설정](docs/routing-and-identity-v041.md). 아래 전체·Android 에뮬레이터 검증은 이전 버전의 이력이다.
 
 **0.4.0**은 대화 중심 UI, 고양이 프로필, 메시지 애니메이션·입력 중 표시, 기억으로 보존되는 이모지 반응, 계정·추가 인증 보관함과 실제 휴대폰 도구를 연결한다. 설정·권한·기억·계정·파일·Work는 사이드바에서 연다. [11개 앱 화면](docs/ui-redesign.md) · [0.4.0 배포 기록](docs/release-v040.md).
 
