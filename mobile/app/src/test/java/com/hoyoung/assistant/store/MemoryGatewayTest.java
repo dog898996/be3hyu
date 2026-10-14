@@ -34,6 +34,30 @@ public final class MemoryGatewayTest {
     private static JSONObject receipt(MemoryGateway.Prepared p,String name)throws Exception{JSONArray all=p.receipts();for(int i=0;i<all.length();i++)if(name.equals(all.getJSONObject(i).getString("layer")))return all.getJSONObject(i);throw new AssertionError("Missing layer "+name);}
     private void blocked(MemoryGateway.Prepared p,String reason)throws Exception{try{gateway.assertFresh(p,1_000_001);fail("Old context must not be released");}catch(MemoryGateway.Blocked expected){assertEquals(reason,expected.reason);}}
 
+    @Test public void retainedClosedGoalsAndBlockedHistoryCannotExhaustTheLiveContext()throws Exception{
+        store.withTransaction(db->{
+            for(int i=0;i<1100;i++){
+                store.putSetting("pausedRoot:closed-"+i,"false");
+                store.putSetting("goalSources:closed-"+i,"HISTORICAL-PROVENANCE-"+i);
+                JSONObject failed=store.enqueueRequest("old unsent request "+i,"user","blocked-old-"+i);
+                store.markRequest(failed.optLong("id"),"blocked",null);
+            }
+            return null;
+        });
+        store.putSetting("pausedRoot:root-1","true");
+        MemoryGateway.Prepared prepared=prepare("current exact task");
+        assertFalse(prepared.context.contains("HISTORICAL-PROVENANCE"));
+        assertFalse(prepared.context.contains("pausedRoot:closed-"));
+        assertTrue(prepared.context.contains("pausedRoot:root-1"));
+        assertTrue(prepared.context.contains("newest_32_plus_current_root"));
+        assertTrue(prepared.context.contains("1100"));
+        assertTrue(prepared.context.length()<80_000);
+        assertEquals("HISTORICAL-PROVENANCE-42",store.getSetting("goalSources:closed-42",""));
+        store.putSetting("goalSources:closed-42","HISTORICAL-UPDATED");
+        gateway.assertFresh(prepared,1_000_001);
+        store.putSetting("pausedRoot:root-1","false");blocked(prepared,"memory_control_changed");
+    }
+
     @Test public void fiveActualEmptyReadsStillAllowAnOrdinaryReply()throws Exception{
         MemoryGateway.Prepared p=prepare("안녕");assertEquals(5,p.receipts().length());Set<String> layers=new HashSet<>();
         for(int i=0;i<5;i++){JSONObject r=p.receipts().getJSONObject(i);assertTrue(layers.add(r.getString("layer")));assertEquals("empty",r.getString("status"));assertTrue(r.getJSONArray("queries").length()>0);assertEquals(p.snapshotId,r.getString("snapshotId"));assertEquals("canonical_query_scope_at_snapshot",r.getString("coverage"));}

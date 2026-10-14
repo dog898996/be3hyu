@@ -45,6 +45,10 @@ public final class AssistantIdentity {
         JSONObject avatar=null;
         if (avatarFileId!=null) {
             avatar=files.freezeAttachments(new JSONArray().put(avatarFileId)).optJSONObject(0);
+            // The avatar renderer and Work image path require the preserved image MIME.
+            // Do not rewrite an immutable original's provider metadata to make it appear usable.
+            if(!avatar.optString("mime",avatar.optString("mimeType","")).startsWith("image/"))
+                throw new IOException("이미지 형식으로 확인된 파일을 선택해 줘. 현재 파일의 MIME으로는 프로필 사진을 표시할 수 없어.");
             Bitmap checked=decode(files,avatar,128);
             if (checked==null) throw new IOException("선택한 파일을 프로필 이미지로 읽을 수 없어.");
             checked.recycle();

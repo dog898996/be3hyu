@@ -39,6 +39,16 @@ public final class RecoveryCodeLedger {
         digest(fingerprint);JSONObject snapshot=snapshot();JSONArray entries=snapshot.optJSONArray("reservations");
         for(int i=0;i<entries.length();i++){JSONObject entry=entries.optJSONObject(i);if(fingerprint.equals(entry.optString("codeFingerprint"))||fingerprint.equals(stable(entry)))return true;}return false;
     }
+    /** One validated point-in-time view for metadata counts across many stored codes.
+     * Reservation/reveal still uses reserve() and its live exclusive lock. */
+    public Set<String> reservedFingerprints()throws IOException {
+        JSONArray entries=snapshot().optJSONArray("reservations");Set<String> result=new HashSet<>();
+        for(int i=0;i<entries.length();i++){
+            JSONObject entry=entries.optJSONObject(i);result.add(entry.optString("codeFingerprint"));
+            String alias=stable(entry);if(!alias.isEmpty())result.add(alias);
+        }
+        return Collections.unmodifiableSet(result);
+    }
     /** A reservation is durable before a caller can return its raw code. An uncertain attempt
      * remains reserved, rather than treating a crash as proof the code was never used. */
     public JSONObject reserve(String accountId,String codeFingerprint,String requestId,JSONObject origin)throws IOException {

@@ -116,6 +116,7 @@ public final class HoyoungApplication extends Application {
         runtime.attachTransport(webController);
         startupReady = true;
         startupState = state(true, "ready", "");
+        com.hoyoung.assistant.phone.HoyoungNotificationListener.onStartupReady(this);
         if (new com.hoyoung.assistant.phone.PermissionOnboarding(this).snapshot().ready()) webController.start();
         com.hoyoung.assistant.store.ExternalOwnerPolicyFolder folder=new com.hoyoung.assistant.store.ExternalOwnerPolicyFolder(this);
         if(folder.connected()){folder.markPending();scheduleOwnerPolicyMirror(true);}

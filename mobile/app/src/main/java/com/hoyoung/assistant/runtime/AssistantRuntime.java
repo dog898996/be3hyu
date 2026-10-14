@@ -409,6 +409,7 @@ public final class AssistantRuntime {
             if (!"accepted".equals(active.optString("status")) && (event.optBoolean("knownNotSent", false) || "not_sent".equals(code) || "preflight_rejected".equals(code)
                     || (event.has("mayHaveBeenAccepted") && Boolean.FALSE.equals(event.opt("mayHaveBeenAccepted"))))) {
                 store.markRequest(id, "blocked", bounded(event.optString("text", code), 4000));
+                releaseRequestResources(requestId,"blocked_memory");
                 active = null;
                 store.putSetting("runtime.progress", "전송 전에 멈춤 (" + bounded(code, 128) + "). 연결 상태를 확인한 후 직접 다시 시도해 줘.");
                 store.putSetting("runtime.lastCode", bounded(code, 128));
@@ -556,6 +557,9 @@ public final class AssistantRuntime {
         store.markRequest(reserved.optLong("id"), "dispatching", null);
         JSONObject selected=preparedRoutes.get(reserved.optString("external_id"));
         store.putSetting("dispatchModelPreferences:"+reserved.optString("external_id"),selected.toString());
+        String routeRoot=store.getSetting("requestRoot:"+reserved.optString("external_id"),reserved.optString("external_id"));
+        if(store.getSetting("taskRoutingSettings:"+routeRoot,"").isEmpty())
+            store.putSetting("taskRoutingSettings:"+routeRoot,routingSettings().toString());
         store.putSetting("dispatchIdentityRevision:"+reserved.optString("external_id"),store.getSetting("preparedIdentityRevision:"+reserved.optString("external_id"),"default"));
         recordUsageSafely(()->usageBudget.recordStaged(reserved.optString("external_id"),reserved.optString("kind"),selected.optString("model"),selected.optString("effort"),selected.optString("speed"),prompt.length(),nowMillis()));
         recordUsageSafely(()->usageBudget.recordSelectionObserved(reserved.optString("external_id"),webState,nowMillis()));
@@ -657,7 +661,7 @@ public final class AssistantRuntime {
                 "initiator", directOwnerControl ? "owner_app_control" : "agent_tool_request", "reason", bounded(reason, 1000),
                 "newLocalEffectsHeld", true, "knownNotSent", beforeDispatch, "cloudStoppedConfirmed", false));
         boolean cancellationRequested = false;
-        if (beforeDispatch) { store.markRequest(active.optLong("id"), "blocked", "앱에서 전송 전 작업 중지를 요청함"); active = null; }
+        if (beforeDispatch) { store.markRequest(active.optLong("id"), "blocked", "앱에서 전송 전 작업 중지를 요청함"); releaseRequestResources(requestId,"blocked_memory"); active = null; }
         else if (active != null && transport != null) {
             try { transport.cancel(); cancellationRequested = true; }
             catch (RuntimeException failure) { store.recordEvent("cloud_cancellation_unverified", object("requestId", requestId)); }
@@ -683,6 +687,7 @@ public final class AssistantRuntime {
         JSONObject old = store.getRequest(id);
         if (old == null || !("blocked".equals(old.optString("status")) || "quota".equals(old.optString("status")))) throw new IllegalStateException("접수 여부가 불명확한 작업은 먼저 결과를 확인하거나 명시적으로 제외해야 해.");
         String oldExternalId = old.optString("external_id");
+        releaseRequestResources(oldExternalId,"blocked_memory");
         String externalId = UUID.randomUUID().toString();
         JSONObject restored = store.withTransaction(db -> {
             JSONObject queued = store.enqueueRequest(old.optString("text"), old.optString("kind"), externalId);
@@ -927,6 +932,7 @@ public final class AssistantRuntime {
         JSONObject request = store.getRequest(id);
         if (request == null || !"uncertain".equals(request.optString("status"))) throw new IllegalArgumentException("확인되지 않은 작업만 정리할 수 있어.");
         store.markRequest(id, "completed", "사용자가 기존 Work 결과를 직접 확인해 정리함. 자동 재전송 없음.");
+        releaseRequestResources(request.optString("external_id"),"blocked_memory");
         resolveReceiptsFor(request);
         recomputeUncertainty();
         store.recordEvent("owner_resolved_uncertain", object("requestId", request.optString("external_id"), "replayed", false));
@@ -940,6 +946,7 @@ public final class AssistantRuntime {
         if (request == null || !"uncertain".equals(request.optString("status"))) throw new IllegalArgumentException("확인되지 않은 작업만 제외할 수 있어.");
         if (active != null || completing) throw new IllegalStateException("현재 실행 중인 요청부터 확인해 줘.");
         store.markRequest(id, "abandoned", null);
+        releaseRequestResources(request.optString("external_id"),"blocked_memory");
         resolveReceiptsFor(request, true);
         recomputeUncertainty();
         webStateAt = 0;
@@ -1047,7 +1054,8 @@ public final class AssistantRuntime {
         boolean newDevice="autonomy".equals(request.optString("kind"))&&!String.valueOf(store.lastDeviceEventId()).equals(
                 store.getSetting("routingDeviceWatermark:"+id,store.getSetting("autonomy.lastObservedDeviceId","0")));
         boolean doubt=!owner&&(uncertaintyBlocked()||newDevice||hasDueGoalOrUnreadable(nowMillis()));
-        JSONObject route=ModelRoutingPolicy.choose(routingSettings(),request.optString("kind"),purpose,review,doubt,minimum);
+        String acceptedSettings=store.getSetting("taskRoutingSettings:"+root,"");
+        JSONObject route=ModelRoutingPolicy.choose(acceptedSettings.isEmpty()?routingSettings():parseObject(acceptedSettings),request.optString("kind"),purpose,review,doubt,minimum);
         if(owner) {
             JSONObject selected=parseObject(store.getSetting("ownerRouteOverride:"+root,"{}"));
             if(selected.optBoolean("selected")) {
@@ -1134,7 +1142,7 @@ public final class AssistantRuntime {
         store.putSetting("runtime.quotaBlocked", "true");
         store.putSetting("runtime.quotaCode", bounded(code, 256));
         if (active != null) {
-            if ((knownNotSent || "preparing".equals(active.optString("status"))) && !"accepted".equals(active.optString("status"))) { store.markRequest(active.optLong("id"), "quota", "전송되지 않았음이 확인된 한도 소진: " + bounded(code, 256)); active = null; }
+            if ((knownNotSent || "preparing".equals(active.optString("status"))) && !"accepted".equals(active.optString("status"))) { store.markRequest(active.optLong("id"), "quota", "전송되지 않았음이 확인된 한도 소진: " + bounded(code, 256)); releaseRequestResources(active.optString("external_id"),"blocked_quota"); active = null; }
             else makeUncertain("한도 알림이 떴지만 기존 작업의 접수·실행 여부는 확인되지 않았어. Work 결과를 확인할 때까지 재전송을 멈췄어.");
         }
         if (first) localNotice("quota_exhausted", "지금 서비스 한도가 소진됐어. 자동 호출을 멈췄고, 결제나 유료 API 전환은 하지 않아. 나중에 한도를 확인하고 직접 다시 시도해 줘.");
@@ -1145,6 +1153,7 @@ public final class AssistantRuntime {
         if (active != null) {
             store.markRequest(active.optLong("id"), "uncertain", reason);
             store.recordEvent("work_outcome_uncertain", object("requestId", active.optString("external_id"), "reason", reason));
+            releaseRequestResources(active.optString("external_id"),"blocked_memory");
             active = null;
         }
         store.putSetting("runtime.uncertaintyBlocked", "true");
@@ -1205,8 +1214,7 @@ public final class AssistantRuntime {
         store.putSetting("preparedIdentityRevision:"+externalId,currentIdentity.optString("revision"));
         prompt.append("\nCURRENT_ASSISTANT_IDENTITY (현재 설정, 과거 기억·옛 이름보다 우선):\n").append(currentIdentity).append("\n")
                 .append("현재 자기 이름은 위 name이다. 과거의 호영/옛 자기소개는 역사이며 현재 이름으로 되돌리지 않는다. 프사 파일은 app.identity.avatar로 직접 볼 수 있다. 실제로 업로드된 새 프사를 보면 assistantAvatarAnalysis:{revision,sha256,description}으로 관찰을 남겨. 보지 못했으면 내용을 추측하지 않는다.\n")
-                .append("이번만/이번 작업/잠깐 모델 변경은 app.routing.session.set을 사용한다. 화면을 보는 동안 다음 사용자 메시지에도 유지되고 화면 이탈은 다음 새 메시지의 선택만 초기화한다. 이미 맡긴 작업은 후속 처리까지 선택을 유지한다. 영구/앞으로 변경은 app.settings.update를 사용한다. session 도구가 실패하면 영구 설정으로 대신 바꾸지 마. 모델 선택 변경은 그 턴에서 session.set 도구 하나만 요청하고, 실제 작업은 변경된 모델로 이어지는 다음 턴에 해. 프사·이름은 app.identity.update로 바꾸고 현재 revision을 확인해.\n")
-                .append("현재 화면 임시 선택: ").append(foregroundRouting.snapshot()).append("\n");
+                .append("이번만/이번 작업/잠깐 모델 변경은 app.routing.session.set을 사용한다. 화면을 보는 동안 다음 사용자 메시지에도 유지되고 화면 이탈은 다음 새 메시지의 선택만 초기화한다. 이미 맡긴 작업은 후속 처리까지 선택을 유지한다. 영구/앞으로 변경은 app.settings.update를 사용한다. session 도구가 실패하면 영구 설정으로 대신 바꾸지 마. 모델 선택 변경은 그 턴에서 session.set 도구 하나만 요청하고, 실제 작업은 변경된 모델로 이어지는 다음 턴에 해. 프사·이름은 app.identity.update로 바꾸고 현재 revision을 확인해.\n");
         String primaryCustom=store.getSetting("customInstructions",null);
         String customKey=primaryCustom==null?"personalizedInstructions":"customInstructions";
         String custom=primaryCustom==null?store.getSetting("personalizedInstructions","<unset>"):primaryCustom;
@@ -1264,6 +1272,7 @@ public final class AssistantRuntime {
         int staticPrefixChars=prompt.length();
         prompt.append("\nREQUEST_SCOPE: 호영 앱 사용자 requestId=").append(externalId)
                 .append(" rootRequestId=").append(rootId).append(" ownerSourceMessageId=").append(store.getSetting("requestSource:" + externalId, "0")).append(" purpose=").append(purpose).append(".\n");
+        prompt.append("현재 화면 임시 선택: ").append(foregroundRouting.snapshot()).append("\n");
         String inputActor=store.getSetting("inputActor:"+rootId,UiAutomationProvenance.OWNER);
         if(!UiAutomationProvenance.isOwner(inputActor))prompt.append("입력 출처: ").append(inputActor).append(". 이 요청은 호영이 앱 UI에 입력한 기록이며 사용자의 새 말이나 승인으로 해석하지 않는다. 원문은 system 기록이고 기존 실제 사용자 지침 범위에서 처리한다.\n");
         else if(UiAutomationProvenance.MIXED.equals(inputActor))prompt.append("입력 출처: 사용자가 직접 전송한 AI 작성/보조 초안이다. 사용자가 채택한 실제 지시이므로 수정·취소/steer에 반영하되 문장 전체를 사용자가 직접 작성했다고 주장하지 않는다.\n");
@@ -1464,7 +1473,7 @@ public final class AssistantRuntime {
             // privacy change or newer owner input. A long coding turn is not stale
             // solely because its admission permit has expired.
             try {
-                memoryGateway.assertFresh(preparedMemory.get(externalId),nowMillis(),false);
+                memoryGateway.assertFreshForOwnerRebase(preparedMemory.get(externalId),nowMillis());
                 assertReviewFresh(externalId);
                 String grants=deviceGrantPolicy();
                 if(!completed.optString("deviceGrantPolicy",grants).equals(grants))throw new MemoryGateway.Blocked("device_source_grant_changed");
@@ -1474,9 +1483,10 @@ public final class AssistantRuntime {
                 store.recordEvent("work_output_held",object("requestId",externalId,"reason",stale.reason,
                         "providerResultRetained",true,"replyReleased",false,"memoryPromoted",false,"nativeEffectsStarted",false));
                 finishAutomaticTick(externalId,false,"blocked_memory");
-                localNotice("reply_context_changed","새 입력·정정·권한 변경 때문에 이전 응답을 그대로 사용하지 않았어. 최신 원문을 기준으로 이어서 판단할게.");
+                localNotice("reply_context_changed","지침·기억 정정·권한 변경 때문에 이전 응답을 보류했어. 결과 원문은 보관했고, 이 작업을 다시 이어가려면 새로 요청해 줘.");
                 return;
             }
+            if(ownerInputChanged(externalId)) { enqueueOwnerRebase(completed,text);return; }
             String dispatchedIdentity=store.getSetting("dispatchIdentityRevision:"+externalId,identity.snapshot().optString("revision"));
             if(!dispatchedIdentity.equals(identity.snapshot().optString("revision"))) {
                 enqueueIdentityRefresh(completed,text);return;
@@ -1689,6 +1699,7 @@ public final class AssistantRuntime {
             store.markRequest(completed.optLong("id"), "uncertain", text);
             store.putSetting("runtime.uncertaintyBlocked", "true");
             store.recordEvent("completion_processing_uncertain", object("requestId", externalId));
+            finishAutomaticTick(externalId,false,"blocked_memory");
             store.putSetting("runtime.progress", "응답 처리 중 오류가 생겼어. 저장된 작업 결과를 확인해 줘.");
         } finally {
             preparedMemory.remove(externalId);preparedReviews.remove(externalId);dispatchPayloads.forget(externalId);
@@ -1701,20 +1712,37 @@ public final class AssistantRuntime {
     /** A profile edited during inference takes precedence over that turn's old self-description.
      * Keep its observed cloud output and immutable task route; never replay completed cloud actions. */
     private void enqueueIdentityRefresh(JSONObject completed,String raw) {
+        enqueueContextRefresh(completed,raw,false);
+    }
+
+    /** New input steers the unexecuted part of an accepted task instead of silently
+     * completing it. The original output remains source-bound, not fresh authority. */
+    private void enqueueOwnerRebase(JSONObject completed,String raw) {
+        enqueueContextRefresh(completed,raw,true);
+    }
+
+    private void enqueueContextRefresh(JSONObject completed,String raw,boolean ownerChanged) {
         String id=completed.optString("external_id"),root=store.getSetting("requestRoot:"+id,id),nextId=UUID.randomUUID().toString();
         if(requestPaused(id)) {store.markRequest(completed.optLong("id"),"completed",raw);finishAutomaticTick(id,false,"");return;}
+        String reason=ownerChanged?"owner_input_changed_during_inference":"identity_changed_during_inference";
         store.withTransaction(db->{
-            JSONObject observation=store.addMessage("system",object("type","identity_changed_during_inference","previousRequestId",id,"observedProviderOutput",raw,
-                    "nativeActionsExecuted",false,"instruction","프로필 변경 전의 모델 출력이다. 이미 수행된 클라우드 행동은 재실행하지 말고 결과만 이어받아 현재 이름과 프사로 답변하라. 이전 출력의 폰 도구는 아직 실행되지 않았다.").toString(),id);
-            store.enqueueRequest("작업 중 이름 또는 프사가 바뀌었다. 현재 CURRENT_ASSISTANT_IDENTITY를 따르고, 원문 "+observation.optLong("id")+"의 이전 Work 결과를 읽어 원 요청을 이어서 마쳐. 이미 끝난 클라우드 작업은 다시 실행하지 마. 이 작업의 모델 선택은 그대로 유지된다.","tool-continuation",nextId);
+            JSONObject observation=store.addMessage("system",object("type",reason,"previousRequestId",id,"observedProviderOutput",raw,
+                    "nativeActionsExecuted",false,"instruction","변경 전의 모델 출력이다. 이미 수행된 클라우드 행동은 재실행하지 말고 관찰한 결과만 이어받아 최신 사용자 입력과 현재 이름·프사를 대조해라. 이전 출력의 폰 도구는 아직 실행되지 않았다.").toString(),id);
+            MemoryGateway.Prepared used=preparedMemory.get(id);
+            store.putSetting("answerSources:"+observation.optLong("id"),object("version",1,"sources",nativeSourcesForDispatch(id,used),
+                    "memoryFingerprint",used==null?"":used.evidenceFingerprint).toString());
+            String guidance=ownerChanged?"작업 중 새 사용자 입력이 도착했다. 최신 입력을 먼저 대조하고 취소·정정이면 이전 계획을 실행하지 마. 별도 새 작업은 해당 사용자 요청 ID에서 처리한다. 현재도 유효한 원 요청만 이어가라. ":"작업 중 이름 또는 프사가 바뀌었다. 현재 CURRENT_ASSISTANT_IDENTITY를 따라라. ";
+            store.enqueueRequest(guidance+"원문 "+observation.optLong("id")+" (hash="+observation.optString("content_hash")+")의 이전 Work 결과를 읽어 원 요청을 이어서 마쳐. 이미 끝난 클라우드 작업은 다시 실행하지 마. 이 작업의 모델 선택은 그대로 유지된다.","tool-continuation",nextId);
             putRequestMetadata(nextId,root,store.getSetting("requestSource:"+id,"0"),store.getSetting("toolRound:"+id,"0"),store.getSetting("attachments:"+id,"[]"),store.getSetting("attachmentMetadata:"+id,"[]"));
             store.putSetting("requestPurpose:"+nextId,store.getSetting("requestPurpose:"+id,completed.optString("kind")));
             for(String prefix:new String[]{"memoryReview:","memoryReviewSavedCount:","memoryReviewHadRejected:","autonomyTick:"}){String value=store.getSetting(prefix+id,"");if(!value.isEmpty())store.putSetting(prefix+nextId,value);}
             store.markRequest(completed.optLong("id"),"completed",raw);
-            store.recordEvent("identity_refresh_queued",object("requestId",nextId,"rootRequestId",root,"previousRequestId",id,"modelSelectionPreserved",true));return null;
+            if(ownerChanged)store.recordEvent("work_output_held",object("requestId",id,"reason","owner_input_changed",
+                    "providerResultRetained",true,"replyReleased",false,"memoryPromoted",false,"nativeEffectsStarted",false,"rebaseRequestId",nextId));
+            store.recordEvent(ownerChanged?"owner_rebase_queued":"identity_refresh_queued",object("requestId",nextId,"rootRequestId",root,"previousRequestId",id,"modelSelectionPreserved",true,"observationMessageId",observation.optLong("id")));return null;
         });
-        recordUsageSafely(()->usageBudget.recordOutcome(id,"identity_refresh",nowMillis()));
-        store.putSetting("runtime.lastCode","identity_refresh");store.putSetting("runtime.progress","바뀐 이름·프사를 반영해서 기존 작업 결과를 이어받는 중");
+        recordUsageSafely(()->usageBudget.recordOutcome(id,ownerChanged?"owner_rebase":"identity_refresh",nowMillis()));
+        store.putSetting("runtime.lastCode",ownerChanged?"owner_rebase":"identity_refresh");store.putSetting("runtime.progress",ownerChanged?"새 입력을 먼저 처리하고 기존 작업 결과를 최신 지시에 맞춰 이어받는 중":"바뀐 이름·프사를 반영해서 기존 작업 결과를 이어받는 중");
     }
 
     /** A proposed action from a cheap decision is data only; the stronger turn re-evaluates it. */
@@ -2024,6 +2052,7 @@ public final class AssistantRuntime {
                     JSONObject archived = files.archiveToolResult(rootId, actionId, rawResult);
                     JSONObject pointer = object("ok", result.optBoolean("ok", true), "code", result.optString("code", "ok"), "fullResultArchived", true, "artifact", archived,
                             "originalChars", rawResult.length(), "resultPreview", bounded(rawResult, 2000), "previewIncomplete", true);
+                    if(result.optJSONArray("sourceRefs")!=null)put(pointer,"sourceRefs",result.optJSONArray("sourceRefs"));
                     for (String field : new String[]{"completionConfirmed", "initiated", "requested", "accepted", "started", "browserLoaded"})
                         if (result.opt(field) instanceof Boolean) put(pointer, field, result.opt(field));
                     result = pointer;
@@ -2117,6 +2146,14 @@ public final class AssistantRuntime {
         else autonomyTicks.complete(tick,noAction,nowMillis());
     }
 
+    /** Terminal dispatches relinquish both the periodic claim and transient payloads.
+     * The durable request/receipts still determine whether owner recovery is required. */
+    private void releaseRequestResources(String requestId,String blocked) {
+        finishAutomaticTick(requestId,false,blocked);
+        preparedMemory.remove(requestId);preparedReviews.remove(requestId);preparedRoutes.remove(requestId);
+        dispatchPayloads.forget(requestId);
+    }
+
     /** Small non-private native outcome evidence lets useful execution lessons cite a real source. */
     private void archiveNativeOutcome(String rootId, String requestId, String actionId, String tool, JSONObject receipt) {
         JSONObject result = receipt.optJSONObject("result");
@@ -2160,7 +2197,9 @@ public final class AssistantRuntime {
         if (name.startsWith("phone_")) return phoneTools.execute(name, args);
         if (name.startsWith("files.")) return files.execute(name, args);
         if (name.startsWith("accounts.")) {
-            JSONObject result=accountTools.execute(name,args,nativeActionIdentity,pendingRecovery,pendingNativeIdentity);
+            JSONObject result="accounts.delete".equals(name)
+                    ?files.withExclusiveStorageMaintenance(()->accountTools.execute(name,args,nativeActionIdentity,pendingRecovery,pendingNativeIdentity))
+                    :accountTools.execute(name,args,nativeActionIdentity,pendingRecovery,pendingNativeIdentity);
             if("accounts.recovery.state".equals(name)&&result.optBoolean("ok")) {
                 JSONObject discovery=recoveryResumeCandidates(args.optString("accountId"));
                 put(result,"resumeCandidates",discovery.optJSONArray("resumeCandidates"));put(result,"resumeCandidatesTruncated",discovery.optBoolean("resumeCandidatesTruncated"));
@@ -2279,7 +2318,7 @@ public final class AssistantRuntime {
                 // and subsequent new owner messages. Leaving the screen never rewrites it.
                 store.putSetting("ownerRouteOverride:"+root,result.toString());
                 store.putSetting("ownerRoutingAuthority:"+root,String.valueOf(result.optLong("revision")));
-                if(args.optBoolean("reset"))store.putSetting("routingMinimumEffort:"+root,"");
+                if(args.optBoolean("reset")) {store.putSetting("routingMinimumEffort:"+root,"");store.putSetting("taskRoutingSettings:"+root,routingSettings().toString());}
                 put(result,"backgroundRoutingChanged",false);changed();
             }
             return result;
@@ -2327,6 +2366,10 @@ public final class AssistantRuntime {
             if(!completingRequestId.isEmpty()&&!store.getSetting("ownerSettingsAuthority:"+root,"0").equals(store.getSetting("personalSettingsRevision","0")))
                 return object("ok",false,"code","settings_changed","message","더 최근의 설정 변경이 있어. 이전 요청으로 덮어쓰지 않았어.");
             JSONObject result=applyPersonalSettings(args);
+            if(!completingRequestId.isEmpty()&&result.optBoolean("ok")
+                    &&(args.has("requiredModel")||args.has("requiredEffort")||args.has("requiredSpeed")
+                    ||args.has("backgroundSpeed")||args.has("autonomousEffort")||args.has("memoryMinimumEffort")||args.has("usageOptimizationEnabled")))
+                store.putSetting("taskRoutingSettings:"+root,routingSettings().toString());
             if(!completingRequestId.isEmpty())store.putSetting("ownerSettingsAuthority:"+root,store.getSetting("personalSettingsRevision","0"));
             return result;
     }

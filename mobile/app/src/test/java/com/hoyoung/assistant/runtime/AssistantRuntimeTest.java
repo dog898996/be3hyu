@@ -739,7 +739,7 @@ public class AssistantRuntimeTest {
         assertTrue(transport.prompts.get(1).contains("앱 진행 상태 원문"));
     }
 
-    @Test public void ownerSteeringHoldsOldOutputAndPrioritizesExactLatestInputWithoutContinuation() throws Exception {
+    @Test public void ownerSteeringHoldsOldEffectsAndPrioritizesExactLatestInputBeforeReassessment() throws Exception {
         ready(); JSONObject first = runtime.receive("파일을 써 줘", new JSONArray()); accept(first);
         String steering = "  방금 그 파일 작성은 취소야.\n새로 쓰지 마.  ";
         JSONObject newer = runtime.receive(steering, new JSONArray());
@@ -752,7 +752,9 @@ public class AssistantRuntimeTest {
         JSONObject held = heldOutput(first.optString("external_id"));
         assertTrue(held.getBoolean("providerResultRetained"));
         assertFalse(held.getBoolean("replyReleased")); assertFalse(held.getBoolean("memoryPromoted")); assertFalse(held.getBoolean("nativeEffectsStarted"));
-        assertFalse(store.listMessages(100).toString().contains("예전 계획"));
+        JSONArray observed=store.listMessages(100);
+        for(int i=0;i<observed.length();i++)if("assistant".equals(observed.getJSONObject(i).optString("role")))
+            assertFalse(observed.getJSONObject(i).optString("text").contains("예전 계획"));
         assertEquals(0, store.searchMemories("task-result:" + first.optString("external_id"), 10).length());
         assertEquals(2, transport.ids.size());
         assertEquals(newer.optString("external_id"), transport.ids.get(1));
@@ -761,9 +763,14 @@ public class AssistantRuntimeTest {
         JSONObject authority = promptSource(transport.prompts.get(1), "AUTHORITATIVE_OWNER_SOURCE ");
         assertEquals(latestSource, authority.getLong("messageId"));
         assertEquals(store.getMessage(latestSource).getString("content_hash"), authority.getString("recordHash"));
+        JSONObject continuation=store.nextQueuedRequest();assertNotNull(continuation);
         complete(newer, "취소 요청을 확인했어.");
         runtime.tick();
-        assertEquals(2, transport.ids.size());
+        assertEquals(3, transport.ids.size());
+        assertEquals(continuation.optString("external_id"),transport.ids.get(2));
+        assertEquals(first.optString("external_id"),store.getSetting("requestRoot:"+transport.ids.get(2),""));
+        assertTrue(transport.prompts.get(2).contains("취소·정정이면 이전 계획을 실행하지 마"));
+        complete(continuation,"원 작업은 최신 취소 요청에 따라 새 파일을 작성하지 않고 종료했어.");
         assertNull(store.nextQueuedRequest());
         assertEquals(0, files.listFiles().length());
         assertNull(runtime.getGoalLedger().get(first.optString("external_id")));

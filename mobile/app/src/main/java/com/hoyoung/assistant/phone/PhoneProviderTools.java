@@ -52,7 +52,16 @@ final class PhoneProviderTools {
             operations.add(operation.withValue(ContactsContract.Data.DATA1, value).build());
         }
         android.content.ContentProviderResult[] results = context.getContentResolver().applyBatch(ContactsContract.AUTHORITY, operations);
-        return PhoneEventJournal.object("ok", true, "code", "ok", "rawContactId", rawId, "operationsApplied", results.length, "scope", "All existing fields of each requested MIME in this selected raw contact are replaced.");
+        int applied = 0, rowsChanged = 0;
+        for (android.content.ContentProviderResult result : results) {
+            if (result == null) continue;
+            if (result.uri != null) { applied++; rowsChanged++; }
+            else if (result.count != null && result.count > 0) { applied++; rowsChanged += result.count; }
+        }
+        boolean completed = results.length == operations.size() && applied == operations.size();
+        return PhoneEventJournal.object("ok", completed, "code", completed ? "ok" : applied == 0 ? "target_not_found" : "provider_update_incomplete",
+                "rawContactId", rawId, "operationsApplied", applied, "rowsChanged", rowsChanged, "providerConfirmed", completed,
+                "completionConfirmed", completed, "cloudSyncConfirmed", false, "scope", "All existing fields of each requested MIME in this selected raw contact are replaced.");
     }
     JSONObject updateEvent(JSONObject args) throws Exception {
         if (!new PermissionCatalog(context).has(Manifest.permission.WRITE_CALENDAR)) return missing("calendar");

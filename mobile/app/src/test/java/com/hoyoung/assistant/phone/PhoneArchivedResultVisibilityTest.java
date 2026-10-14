@@ -28,13 +28,16 @@ public final class PhoneArchivedResultVisibilityTest {
     @After public void cleanup() { journal.ingestPendingForTests(); journal.closeWorker(); journal.awaitClosedForTests(); store.close(); context.deleteDatabase(HoyoungStore.DATABASE_NAME); }
     @Test public void oldNotificationAndMixedContextCannotBypassARevokedSourceGrant() throws Exception {
         Settings.Secure.putString(context.getContentResolver(), "enabled_notification_listeners", new ComponentName(context, HoyoungNotificationListener.class).flattenToString());
-        JSONObject notification = new JSONObject().put("ok", true).put("notifications", new JSONArray().put(new JSONObject().put("text", "synthetic old message")));
-        assertTrue(tools.canReadArchivedToolResult("phone_notifications_read", notification));
+        JSONObject unboundNotification = new JSONObject().put("ok", true).put("notifications", new JSONArray().put(new JSONObject().put("text", "synthetic old message")));
+        assertFalse("Historical notification bytes need a canonical source identity", tools.canReadArchivedToolResult("phone_notifications_read", unboundNotification));
         JSONObject unpersisted = new JSONObject().put("category", "notification").put("source", "android.notification_listener").put("payload", new JSONObject().put("text", "synthetic"));
         assertFalse("An event without canonical source identity must never be admitted",
                 tools.canReadArchivedToolResult("phone_context_read", new JSONObject().put("events", new JSONArray().put(unpersisted))));
         JSONObject event = store.appendDeviceEvent("notification", "android.notification_listener",
                 new JSONObject().put("text", "synthetic"), 123, "archived-result-visibility-fixture");
+        JSONObject notification = tools.execute("phone_notifications_read", new JSONObject());
+        assertEquals(1, notification.getJSONArray("notifications").length());
+        assertTrue(tools.canReadArchivedToolResult("phone_notifications_read", notification));
         JSONObject contextResult = new JSONObject().put("events", new JSONArray().put(event)); assertTrue(tools.canReadArchivedToolResult("phone_context_read", contextResult));
         Settings.Secure.putString(context.getContentResolver(), "enabled_notification_listeners", "");
         assertFalse(tools.canReadArchivedToolResult("phone_notifications_read", notification)); assertFalse(tools.canReadArchivedToolResult("phone_context_read", contextResult));

@@ -52,6 +52,15 @@ public class AssistantIdentityBackupTest {
         assertEquals("호영",identity.snapshot().optString("name"));JSONObject asset=identity.avatarForUpload();assertEquals("assistant_profile",asset.optString("purpose"));
         assertEquals("e8296967706181a2c25c3b64a87b8241b39351ff1c280e575e0dec04cca53f16",asset.optString("sha256"));
     }
+    @Test public void genericBinaryImageCannotReplaceAProfileThatTheAvatarRendererCanShow()throws Exception{
+        JSONObject file;
+        try(InputStream input=context.getResources().openRawResource(R.drawable.hoyoung_profile)){file=files.writeFile("profile-without-image-type.bin",input);}
+        String before=identity.snapshot().toString();
+        try{identity.update("uncommitted name",file.optString("id"),false,"default");fail("Generic MIME must be rejected before committing the profile");}
+        catch(IOException expected){assertTrue(expected.getMessage().contains("MIME"));}
+        assertEquals(before,identity.snapshot().toString());
+        assertTrue(identity.update("하루",picture().optString("id"),false,"default").optBoolean("ok"));
+    }
     private JSONObject picture()throws Exception{try(InputStream input=context.getResources().openRawResource(R.drawable.hoyoung_profile)){return files.writeFile("test-profile.jpg",input);}}
     private static void clear(File file)throws IOException{if(!file.exists())return;if(file.isDirectory()){File[] children=file.listFiles();if(children!=null)for(File child:children)clear(child);}if(!file.delete())throw new IOException("Unable to clear fixture");}
 }

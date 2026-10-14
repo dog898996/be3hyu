@@ -3,9 +3,14 @@ package com.hoyoung.assistant.phone;
 import android.app.Notification;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
+import com.hoyoung.assistant.store.HoyoungStore;
+import com.hoyoung.assistant.store.SourcePrivacyLedger;
+import com.hoyoung.assistant.store.SourceRecordVisibility;
+import java.io.IOException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -15,11 +20,30 @@ public final class HoyoungNotificationListener extends NotificationListenerServi
     private static volatile boolean connected;
     private static volatile HoyoungNotificationListener instance;
     private static final java.util.concurrent.ConcurrentHashMap<PhoneEventJournal, Boolean> MIGRATING = new java.util.concurrent.ConcurrentHashMap<>();
-    @Override public void onListenerConnected() {
-        instance = this;
-        connected = true;
-        if (startupUnavailable(this)) return;
-        PhoneEventJournal journal = PhoneEventJournal.forContext(this);
+    private final android.os.Handler main = new android.os.Handler(android.os.Looper.getMainLooper());
+    private long connectionGeneration;
+    private boolean initialSnapshotScheduled;
+    @Override public synchronized void onListenerConnected() {
+        instance = this; connected = true; connectionGeneration++; initialSnapshotScheduled = false;
+        scheduleInitialSnapshot();
+    }
+    /** Application recovery may finish after Android connected this listener. */
+    public static void onStartupReady(Context context) {
+        HoyoungNotificationListener current = instance;
+        if (current != null && current.getApplicationContext() == context.getApplicationContext()) current.scheduleInitialSnapshot();
+    }
+    private synchronized void scheduleInitialSnapshot() {
+        if (initialSnapshotScheduled || instance != this || !connected || startupUnavailable(this)) return;
+        PhoneEventJournal journal = PhoneEventJournal.forContext(this); long generation = connectionGeneration;
+        initialSnapshotScheduled = true;
+        if (!journal.runBackground(() -> {
+            try { journal.refreshPolicyBlocking(); }
+            catch (RuntimeException unavailable) { journal.gap("android.notification_listener", System.currentTimeMillis(), System.currentTimeMillis(), "initial_snapshot_policy_unavailable"); return; }
+            main.post(() -> captureInitialSnapshot(journal, generation));
+        })) initialSnapshotScheduled = false;
+    }
+    private synchronized void captureInitialSnapshot(PhoneEventJournal journal, long generation) {
+        if (instance != this || !connected || generation != connectionGeneration || startupUnavailable(this)) return;
         migrateLegacyAsync(this, journal);
         long gap = number(journal.get("notification.gapSince", "0"));
         if (gap == 0) gap = number(journal.get("notification.lastObservedAt", "0"));
@@ -37,7 +61,8 @@ public final class HoyoungNotificationListener extends NotificationListenerServi
     }
     @Override public void onListenerDisconnected() { disconnected("listener_disconnected"); }
     @Override public void onDestroy() { disconnected("listener_destroyed"); super.onDestroy(); }
-    private void disconnected(String reason) {
+    private synchronized void disconnected(String reason) {
+        connectionGeneration++; initialSnapshotScheduled = false;
         if (instance == this) instance = null;
         connected = false; if (startupUnavailable(this)) return;
         PhoneEventJournal journal = PhoneEventJournal.forContext(this); long now = System.currentTimeMillis();
@@ -62,16 +87,87 @@ public final class HoyoungNotificationListener extends NotificationListenerServi
     /** Recent-view compatibility; every older record remains in durable, paged deviceEvents. */
     public static JSONArray notificationSnapshot(Context context) {
         if (startupUnavailable(context)) return new JSONArray();
-        PhoneEventJournal journal = PhoneEventJournal.forContext(context); migrateLegacy(context, journal);
-        JSONArray recent = journal.recent("notification", null, 500), output = new JSONArray();
-        for (int i = 0; i < recent.length(); i++) {
-            JSONObject row = recent.optJSONObject(i);
-            if (row == null || !"notification".equals(row.optString("category"))) continue;
-            JSONObject entry = row.optJSONObject("payload"); if (entry == null) continue;
-            try { JSONObject copy = new JSONObject(entry.toString()); copy.put("deviceEventId", row.getLong("id")).put("source", row.optString("source")).put("observedAt", row.optLong("observed_at")).put("recordedAt", row.optLong("recorded_at")); output.put(copy); }
-            catch (JSONException corrupt) { /* Invalid rows are retained in store, never fabricated. */ }
+        try {
+            JSONArray newest = notificationHistory(context, 500, "").optJSONArray("notifications"), output = new JSONArray();
+            for (int i = newest == null ? -1 : newest.length() - 1; i >= 0; i--) output.put(newest.opt(i));
+            return output;
+        } catch (IOException | JSONException unavailable) { return new JSONArray(); }
+    }
+    /** One indexed, bounded read and one ancestry memo, discarded before returning. */
+    static JSONObject notificationHistory(Context context, int limit, String packageName) throws IOException, JSONException {
+        PhoneEventJournal journal = PhoneEventJournal.forContext(context);
+        journal.refreshPolicyBlocking();
+        if (!historyAllowed(context, journal)) return PhoneEventJournal.object("ok", false, "code", "permission_disabled");
+        migrateLegacy(context, journal);
+        HoyoungStore store = journal.canonicalStore(); SourcePrivacyLedger.Snapshot privacy = store.getPrivacyLedger().capture();
+        JSONArray output = new JSONArray(), references = new JSONArray(); int scanned = 0, omitted = 0; boolean truncated = false;
+        try (HoyoungStore.ReadSnapshot snapshot = store.openReadSnapshot()) {
+            SourceRecordVisibility.ReadContext visibility = new SourceRecordVisibility.ReadContext(snapshot, privacy);
+            // category,id has an index. The extra candidate only establishes that the bounded view has more rows.
+            try (Cursor rows = snapshot.rawQuery("SELECT * FROM device_events WHERE category = ? ORDER BY id DESC LIMIT 501", new String[]{"notification"})) {
+                while (rows.moveToNext()) {
+                    if (scanned == 500 || output.length() == limit) { truncated = true; break; }
+                    scanned++;
+                    JSONObject row = notificationRecord(rows), payload = row.optJSONObject("payload");
+                    if (payload == null || !packageName.isEmpty() && !packageName.equals(payload.optString("package"))) continue;
+                    if (!visibility.allowed("device_event", row)) { omitted++; continue; }
+                    JSONObject reference = sourceReference(row);
+                    JSONObject entry = new JSONObject(payload.toString()).put("deviceEventId", row.getLong("id"))
+                            .put("source", row.optString("source")).put("observedAt", row.optLong("observed_at")).put("recordedAt", row.optLong("recorded_at"))
+                            .put("sourceRefs", new JSONArray().put(reference));
+                    output.put(entry); references.put(reference);
+                }
+            }
         }
-        return output;
+        journal.refreshPolicyBlocking();
+        if (!historyAllowed(context, journal)) return PhoneEventJournal.object("ok", false, "code", "permission_disabled");
+        if (!privacy.fingerprint.equals(store.getPrivacyLedger().fingerprint())) throw new IOException("Notification source controls changed during read");
+        return PhoneEventJournal.object("ok", true, "code", "ok", "notifications", output, "sourceRefs", references,
+                "scannedCandidates", scanned, "omittedForCurrentControls", omitted, "truncated", truncated,
+                "coverage", "newest_500_durable_notification_candidates; older_records_remain_available_through_phone_context_read");
+    }
+    /** Historical output must retain its exact canonical identities, including large-result pointers. */
+    static boolean archivedHistoryAllowed(Context context, JSONObject result) {
+        try {
+            PhoneEventJournal journal = PhoneEventJournal.forContext(context);
+            if (!historyAllowed(context, journal)) return false;
+            JSONArray entries = result.optJSONArray("notifications"), references = result.optJSONArray("sourceRefs");
+            if (references == null || references.length() > 500 || entries == null && !result.optBoolean("fullResultArchived")) return false;
+            if (entries != null && entries.length() != references.length()) return false;
+            HoyoungStore store = journal.canonicalStore(); SourcePrivacyLedger.Snapshot privacy = store.getPrivacyLedger().capture();
+            try (HoyoungStore.ReadSnapshot snapshot = store.openReadSnapshot()) {
+                SourceRecordVisibility.ReadContext visibility = new SourceRecordVisibility.ReadContext(snapshot, privacy);
+                for (int i = 0; i < references.length(); i++) {
+                    JSONObject reference = references.optJSONObject(i);
+                    if (reference == null || !"device_event".equals(reference.optString("type")) || !(reference.opt("id") instanceof Number)
+                            || ((Number) reference.opt("id")).doubleValue() != reference.optLong("id") || reference.optLong("id") <= 0
+                            || !reference.optString("hash").matches("[a-f0-9]{64}")) return false;
+                    JSONObject entry = entries == null ? null : entries.optJSONObject(i);
+                    if (entries != null && (entry == null || entry.optLong("deviceEventId") != reference.optLong("id"))) return false;
+                    try (Cursor rows = snapshot.rawQuery("SELECT * FROM device_events WHERE id = ? AND category = ?",
+                            new String[]{String.valueOf(reference.optLong("id")), "notification"})) {
+                        if (!rows.moveToFirst()) return false;
+                        JSONObject row = notificationRecord(rows);
+                        if (!reference.optString("hash").equals(row.optString("content_hash")) || !visibility.allowed("device_event", row)) return false;
+                    }
+                }
+            }
+            journal.refreshPolicyBlocking();
+            return historyAllowed(context, journal) && privacy.fingerprint.equals(store.getPrivacyLedger().fingerprint());
+        } catch (IOException | JSONException | RuntimeException unavailable) { return false; }
+    }
+    private static boolean historyAllowed(Context context, PhoneEventJournal journal) {
+        return !startupUnavailable(context) && journal.collectionEnabled() && journal.toolAllowed("phone_notifications_read")
+                && new PermissionCatalog(context).notificationAccess();
+    }
+    private static JSONObject notificationRecord(Cursor row) throws JSONException {
+        return PhoneEventJournal.object("id", row.getLong(row.getColumnIndexOrThrow("id")), "category", row.getString(row.getColumnIndexOrThrow("category")),
+                "source", row.getString(row.getColumnIndexOrThrow("source")), "payload", new JSONObject(row.getString(row.getColumnIndexOrThrow("payload"))),
+                "observed_at", row.getLong(row.getColumnIndexOrThrow("observed_at")), "recorded_at", row.getLong(row.getColumnIndexOrThrow("recorded_at")),
+                "content_hash", row.getString(row.getColumnIndexOrThrow("content_hash")));
+    }
+    private static JSONObject sourceReference(JSONObject row) {
+        return PhoneEventJournal.object("type", "device_event", "id", row.optLong("id"), "hash", row.optString("content_hash"));
     }
     private void retain(StatusBarNotification sbn, String event, int reason) {
         if (sbn == null || startupUnavailable(this)) return;

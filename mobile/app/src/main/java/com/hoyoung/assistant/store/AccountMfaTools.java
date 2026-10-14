@@ -78,8 +78,9 @@ public final class AccountMfaTools {
             JSONArray codes = recoveryCodes(account); int total = codes.length(), reserved = 0;
             if (name.equals("accounts.recovery.state")) {
                 java.util.Set<String> unique = new java.util.HashSet<>();
-                for (int i = 0; i < total; i++) if (unique.add(codes.getString(i)) && (recovery.isReserved(RecoveryCodeLedger.fingerprint(accountId, codes.getString(i)))
-                        || recovery.isReserved(RecoveryCodeLedger.stableFingerprint(account.getString("service"), account.getString("username"), codes.getString(i))))) reserved++;
+                java.util.Set<String> reservedCodes = recovery.reservedFingerprints();
+                for (int i = 0; i < total; i++) if (unique.add(codes.getString(i)) && (reservedCodes.contains(RecoveryCodeLedger.fingerprint(accountId, codes.getString(i)))
+                        || reservedCodes.contains(RecoveryCodeLedger.stableFingerprint(account.getString("service"), account.getString("username"), codes.getString(i))))) reserved++;
                 if (!fresh(account, sourceScope)) return result(false, "account_source_changed");
                 return result(true, "ok").put("accountId", accountId).put("total", unique.size()).put("storedEntries", total).put("duplicateEntries", total - unique.size()).put("reserved", reserved).put("available", unique.size() - reserved)
                         .put("serverConsumptionVerified", false).put("sourceRefs", refs).put("metadataOnly", true);

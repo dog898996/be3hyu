@@ -72,7 +72,7 @@ public final class MainActivity extends Activity {
     private final ExecutorService commands = Executors.newSingleThreadExecutor();
     private final ExecutorService display = Executors.newSingleThreadExecutor();
     private final ExecutorService fileListing = Executors.newSingleThreadExecutor();
-    private final Runnable runtimeRefreshListener = () -> main.post(() -> { refreshStatus(); if("대화".equals(MainActivity.this.tab))refreshMessages(); });
+    private final Runnable runtimeRefreshListener = () -> main.post(() -> { if(isFinishing()||isDestroyed())return;refreshStatus(); if("대화".equals(MainActivity.this.tab))refreshMessages(); });
     private ChatAttachmentPreviews photoPreviews;
     private final java.util.IdentityHashMap<AlertDialog, Bitmap> expandedPhotos = new java.util.IdentityHashMap<>();
     private final java.util.IdentityHashMap<TextView, JSONObject> replyViews = new java.util.IdentityHashMap<>();
@@ -522,7 +522,7 @@ public final class MainActivity extends Activity {
 
     /** At most forty bounded previews are read/rendered; old originals stay available by source id. */
     private void refreshMessages() {
-        if (app.getRuntime().isRestoringBackup() || messageList == null || !"대화".equals(tab) || messagesLoading) return;
+        if (isFinishing() || isDestroyed() || app.getRuntime().isRestoringBackup() || messageList == null || !"대화".equals(tab) || messagesLoading) return;
         if (chatBeforeId > 0 && displayedMessageId >= 0) return;
         final long generation = chatGeneration, before = chatBeforeId, alreadyDisplayed = displayedMessageId;
         messagesLoading = true;
@@ -964,14 +964,21 @@ public final class MainActivity extends Activity {
         addSettingToggle(behavior,"잠금 화면에 답장 내용 표시","replyLockscreenContentVisible",true);
         addSettingToggle(behavior,"Android 알림의 제안 동작 허용","replySystemContextualActionsEnabled",true);
         addSettingToggle(behavior,"Work에서 작업 파일 내려받기","workFileDownloadsEnabled",true);
+        JSONObject limitBaseline=app.getRuntime().personalSettingsBaseline();
         EditText rounds=accountField(behavior,"작업당 도구 실행 턴 · 0은 제한 없음",app.getStore().getSetting("toolRoundLimit","0"),false);
         rounds.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
         EditText actions=accountField(behavior,"한 턴의 도구 개수 · 0은 제한 없음",app.getStore().getSetting("toolActionsPerTurnLimit","0"),false);
         actions.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
+        JSONObject initialLimits=settingsObject("toolRoundLimit",rounds.getText().toString(),"toolActionsPerTurnLimit",actions.getText().toString());
         behavior.addView(button("실행 한도 저장",()->{try{
             int roundCount=Integer.parseInt(rounds.getText().toString());int actionCount=Integer.parseInt(actions.getText().toString());
             if(roundCount<0||actionCount<0)throw new IllegalArgumentException();
-            app.getRuntime().updatePersonalSettings(settingsObject("toolRoundLimit",roundCount,"toolActionsPerTurnLimit",actionCount),null);
+            JSONObject desired=settingsObject("toolRoundLimit",rounds.getText().toString(),"toolActionsPerTurnLimit",actions.getText().toString()),patch=new JSONObject();
+            for(String key:new String[]{"toolRoundLimit","toolActionsPerTurnLimit"})if(!desired.optString(key).equals(initialLimits.optString(key)))patch.put(key,Integer.parseInt(desired.optString(key)));
+            JSONObject result=app.getRuntime().updatePersonalSettings(patch,limitBaseline);
+            if(!result.optBoolean("ok")){notice(result.optString("message"));return;}
+            JSONObject saved=app.getRuntime().personalSettingsBaseline();
+            for(java.util.Iterator<String> keys=patch.keys();keys.hasNext();){String key=keys.next();limitBaseline.put(key,saved.opt(key));initialLimits.put(key,desired.opt(key));}
             notice("네가 정한 실행 한도를 저장했어. 0은 제한 없이 실행해.");
         }catch(Exception invalid){notice("0 이상의 정수를 입력해.");}}));
         panel.addView(disclosure("알림·다운로드·실행 방식",behavior,false));
@@ -1042,7 +1049,7 @@ public final class MainActivity extends Activity {
         boolean existing=!record.optString("accountId").isEmpty();final AlertDialog[] editor=new AlertDialog[1];
         if(existing){form.addView(button("수정 이력 보기",()->showAccountHistory(record.optString("accountId"))));form.addView(button("계정 보관함에서 삭제",()->{
             String actor=UiAutomationProvenance.currentActor(this);
-            io.execute(()->{try{accounts().delete(record.optString("accountId"),actor);main.post(()->{if(editor[0]!=null)editor[0].dismiss();notice("계정 보관함의 복사본과 이전 값을 삭제했어. 일반 대화 원문은 그대로야.");showAccounts();});}catch(Exception failure){main.post(()->notice("계정 삭제를 완료하지 못했어."));}});
+            io.execute(()->{try{app.getFiles().withExclusiveStorageMaintenance(()->accounts().delete(record.optString("accountId"),actor));main.post(()->{if(editor[0]!=null)editor[0].dismiss();notice("계정 보관함의 복사본과 이전 값을 삭제했어. 일반 대화 원문은 그대로야.");showAccounts();});}catch(Exception failure){main.post(()->notice("계정 삭제를 완료하지 못했어."));}});
         }));}
         AlertDialog dialog=new ObservedDialogBuilder(this).setTitle(existing?"계정 수정":"새 계정").setView(scroll).setPositiveButton("저장",null).setNegativeButton("닫기",null).create();
         editor[0]=dialog;
@@ -1051,7 +1058,7 @@ public final class MainActivity extends Activity {
                     .put("label",labelInput.getText().toString()).put("loginUrl",url.getText().toString()).put("notes",notes.getText().toString()).put("extra",authentication.apply(new JSONObject(extra.getText().toString())));
                 if(existing)supplied.put("accountId",record.optString("accountId"));String actor=UiAutomationProvenance.currentActor(this);
                 dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
-                io.execute(()->{try{accounts().saveFromUi(supplied,actor);main.post(()->{dialog.dismiss();showAccounts();notice("계정의 최신 값을 저장했어. 실제 로그인 성공은 별도 확인해.");});}catch(Exception failure){main.post(()->{dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);notice("계정 저장을 완료하지 못했어. 서비스·아이디와 추가 필드 형식을 확인해.");});}});
+                io.execute(()->{try{accounts().saveFromUi(supplied,actor,existing?record:null);main.post(()->{dialog.dismiss();showAccounts();notice("계정의 최신 값을 저장했어. 실제 로그인 성공은 별도 확인해.");});}catch(AccountStore.AccountChangedException conflict){main.post(()->{dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);notice("다른 화면이나 대화에서 계정이 바뀌었어. 최신 계정을 다시 열고 수정해 줘. 이전 값으로 덮어쓰지 않았어.");});}catch(Exception failure){main.post(()->{dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);notice("계정 저장을 완료하지 못했어. 서비스·아이디와 추가 필드 형식을 확인해.");});}});
             }catch(Exception invalid){notice("추가 필드의 JSON과 2단계 인증의 숫자 설정을 확인해 줘.");}
         }));dialog.show();UiAutomationProvenance.observeWindow(this,dialog.getWindow());
     }
@@ -1127,6 +1134,7 @@ public final class MainActivity extends Activity {
     }
 
     private void showFiles() {
+        if(isDestroyed()||isFinishing()||!"파일".equals(tab)||app.getRuntime().isRestoringBackup())return;
         content.removeAllViews(); LinearLayout panel = scrollPanel();
         panel.addView(label("작업 파일", 20, INK));
         panel.addView(label("파일은 폰의 앱 내부 저장소에 보관해. 일반 캐시 삭제에는 남아. 앱 삭제·데이터 삭제 전에 백업을 내보내야 해.", 14, SUBTLE));
@@ -1487,7 +1495,8 @@ public final class MainActivity extends Activity {
     }
 
     private void refreshStatus() {
-        if(app==null||app.getRuntime()==null)return;
+        if(isFinishing()||isDestroyed()||app==null||app.getRuntime()==null)return;
+        refreshDraftFromStore();
         refreshModelSelector();
         String currentIdentity=app.getRuntime().assistantIdentity().toString();
         if(!currentIdentity.equals(renderedIdentity)){
@@ -1595,25 +1604,27 @@ public final class MainActivity extends Activity {
                 notice("대화 첨부는 한 번에 최대 8개야. 선택을 나누거나 기존 첨부 선택을 지워 줘. 이번 파일은 일부만 추가하지 않았어.");
                 return;
             }
+            final String importActor=UiAutomationProvenance.currentActor(this);
+            final String storageGeneration=app.getStore().getSetting("internal.files.restoreToken","");
             io.execute(() -> {
                 try {
-                    JSONArray saved = new JSONArray();
-                    for (Uri uri : uris) {
-                        JSONObject file = app.getFiles().saveFromUri(uri, null);
-                        app.getStore().putSetting("fileMeta:" + file.getString("id"), file.toString()); saved.put(file.getString("id"));
-                    }
+                    app.getFiles().withExclusiveStorageMaintenance(()->{
+                        if(app.getRuntime().isRestoringBackup()||!storageGeneration.equals(app.getStore().getSetting("internal.files.restoreToken","")))throw new java.io.IOException("The attachment import belongs to a previous storage generation");
+                        JSONArray saved = new JSONArray();
+                        for (Uri uri : uris) {
+                            JSONObject file = app.getFiles().saveFromUri(uri, null);
+                            String id=file.optString("id");app.getStore().putSetting("fileMeta:" + id, file.toString());saved.put(id);
+                        }
+                        draftStore.appendAttachments(saved,importActor);
+                        return null;
+                    });
                     main.post(() -> {
                         if (isDestroyed() || isFinishing()) return;
-                        if (attachments.length() + saved.length() > 8) {
-                            notice("파일 원본은 보관했지만 첨부 선택이 바뀌어 이번 파일을 대화에 추가하지 않았어. 파일 탭에서 나눠 선택해 줘.");
-                            if ("파일".equals(tab)) showFiles();
-                            return;
-                        }
-                        for (int i = 0; i < saved.length(); i++) attachments.put(saved.optString(i));
-                        persistDraft();
+                        refreshDraftFromStore();
                         if ("파일".equals(tab)) showFiles(); else updateComposerState();
                     });
-                } catch (Exception e) { main.post(() -> notice("파일을 저장하지 못했어. 파일 크기와 접근 권한을 확인해.")); }
+                } catch (IllegalArgumentException full) { main.post(() -> notice("파일 원본은 보관했지만 첨부 선택이 바뀌어 이번 파일을 대화에 추가하지 않았어. 파일 탭에서 나눠 선택해 줘.")); }
+                catch (Exception e) { main.post(() -> notice("파일을 저장하지 못했어. 파일 크기와 접근 권한을 확인해.")); }
             }); return;
         }
         Uri uri = data.getData(); if (uri == null) return;
@@ -1726,14 +1737,20 @@ public final class MainActivity extends Activity {
     private void persistDraft() {
         if (app == null || app.getRuntime().isRestoringBackup()) return;
         String text = composer != null ? composer.getText().toString() : draftState == null ? "" : draftState.text;
-        try { draftState = draftStore.edit(text, attachments,UiAutomationProvenance.currentActor(this)); draftSaveFailed = false; }
+        try { applyDraft(draftStore.editFrom(draftState,text,attachments,UiAutomationProvenance.currentActor(this))); }
         catch (RuntimeException failure) { draftSaveFailed = true; connection.setText("임시 입력을 저장하지 못했어. 입력을 그대로 두고 다시 확인해 줘."); }
+    }
+    private void refreshDraftFromStore(){
+        if(draftStore==null||draftSaveFailed||app.getRuntime().isRestoringBackup())return;
+        if(composer!=null&&draftState!=null&&(!draftState.text.equals(composer.getText().toString())||!draftState.attachmentsJson.equals(attachments.toString())))return;
+        OwnerDraftStore.Snapshot current=draftStore.read();
+        if(draftState==null||current.revision!=draftState.revision||!current.clientInputId.equals(draftState.clientInputId))applyDraft(current);
     }
     private void applyDraft(OwnerDraftStore.Snapshot snapshot) {
         draftState = snapshot; attachments = snapshot.attachments();
         draftSaveFailed = false;
         applyingDraft = true;
-        try { if (composer != null) composer.setText(snapshot.text); }
+        try { if (composer != null&&!snapshot.text.contentEquals(composer.getText())) composer.setText(snapshot.text); }
         finally { applyingDraft = false; }
         updateComposerState();
     }

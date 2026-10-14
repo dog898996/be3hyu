@@ -64,6 +64,64 @@ public final class OwnerDraftStore {
         });
     }
 
+    /** Apply a live editor's changed fields without writing back an unseen import/send result. */
+    public Snapshot editFrom(Snapshot before,String text,JSONArray attachments,String inputActor){
+        if(before==null)return edit(text,attachments,inputActor);
+        final String editedText=text==null?"":text;
+        final String editedAttachments=attachments==null?"[]":attachments.toString();
+        return store.withTransaction(db->{
+            Snapshot current=readInside(db);
+            String mergedText=editedText.equals(before.text)?current.text:editedText;
+            JSONArray mergedAttachments=editedAttachments.equals(before.attachmentsJson)?current.attachments()
+                    :mergeAttachmentChanges(before.attachments(),attachments==null?new JSONArray():attachments,current.attachments());
+            return edit(mergedText,mergedAttachments,inputActor);
+        });
+    }
+
+    /** Remove only visible selections the owner removed; add only newly selected IDs.
+     * In particular, retaining an old selection does not restore it after a send consumed it. */
+    private static JSONArray mergeAttachmentChanges(JSONArray before,JSONArray edited,JSONArray current){
+        java.util.Set<String> previousIds=new java.util.HashSet<>(),editedIds=new java.util.HashSet<>(),mergedIds=new java.util.HashSet<>();
+        for(int i=0;i<before.length();i++)previousIds.add(attachmentKey(before.opt(i)));
+        for(int i=0;i<edited.length();i++)editedIds.add(attachmentKey(edited.opt(i)));
+        JSONArray merged=new JSONArray();
+        for(int i=0;i<current.length();i++){
+            Object value=current.opt(i);String key=attachmentKey(value);
+            if(previousIds.contains(key)&&!editedIds.contains(key))continue;
+            merged.put(value);mergedIds.add(key);
+        }
+        for(int i=0;i<edited.length();i++){
+            Object value=edited.opt(i);String key=attachmentKey(value);
+            if(!previousIds.contains(key)&&mergedIds.add(key))merged.put(value);
+        }
+        if(merged.length()>8)throw new IllegalArgumentException("A message supports at most eight attachments");
+        return merged;
+    }
+    private static String attachmentKey(Object value){
+        if(value instanceof String)return "id:"+value;
+        if(value instanceof JSONObject object){
+            String id=object.optString("originalAssetId",object.optString("id",object.optString("fileId","")));
+            if(!id.isEmpty())return "id:"+id;
+        }
+        return "value:"+String.valueOf(value);
+    }
+
+    /** Import completion belongs to durable storage, independent of the originating Activity. */
+    public Snapshot appendAttachments(JSONArray imported,String inputActor){
+        final JSONArray additions;
+        try{additions=new JSONArray(imported==null?"[]":imported.toString());}
+        catch(Exception invalid){throw new IllegalArgumentException("Invalid imported attachments",invalid);}
+        validateAttachments(additions.toString());
+        return store.withTransaction(db->{
+            Snapshot current=readInside(db);
+            if(current.recoveryRequired)throw new IllegalStateException(current.recoveryReason);
+            JSONArray merged=current.attachments();
+            if(merged.length()+additions.length()>8)throw new IllegalArgumentException("A message supports at most eight attachments");
+            for(int i=0;i<additions.length();i++)merged.put(additions.opt(i));
+            return edit(current.text,merged,inputActor);
+        });
+    }
+
     /** CAS the entire tuple, including attachments. Call inside the successful enqueue transaction.
      * A stale callback/duplicate send/recovery draft never clears any field. */
     public Snapshot consume(String clientId,long revision){

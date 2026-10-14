@@ -136,6 +136,7 @@ public final class PhoneContextTest {
     }
 
     @Test public void legacyNotificationMigrationKeepsOriginalsAndExplicitlyMarksIrrecoverableOlderHistory() throws Exception {
+        notificationGrant();
         JSONArray old = new JSONArray().put(new JSONObject().put("title", "legacy").put("time", 100));
         context.getSharedPreferences("hoyoung_notification_history", Context.MODE_PRIVATE).edit().putString("events", old.toString()).commit();
         HoyoungNotificationListener.notificationSnapshot(context); journal.ingestPendingForTests(); assertEquals(1, HoyoungNotificationListener.notificationSnapshot(context).length());

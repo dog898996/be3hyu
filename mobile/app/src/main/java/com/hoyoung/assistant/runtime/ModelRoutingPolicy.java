@@ -17,28 +17,31 @@ public final class ModelRoutingPolicy {
         AssistantRuntime.validateModelPreferences(model,ownerEffort,legacySpeed);
         boolean optimize=config.optBoolean("usageOptimizationEnabled",true);
         boolean owner="user".equals(kind)||"user".equals(purpose);
+        // Periodic tasks retain their configured effort across execution and
+        // follow-up turns, including when usage optimization is disabled.
+        String autonomyFloor="autonomy".equals(purpose)?config.optString("autonomousEffort","medium"):"low";
         String effort,speed,lane,reason;
         boolean decisionOnly=false;
         if(owner) {
             effort=atLeast(ownerEffort,"medium",minimumEffort);speed="fast";lane="owner";reason="owner_direct_fast";
         } else if(!optimize) {
             boolean writer="memory-review".equals(purpose)||reviewPending;
-            effort=writer?atLeast(ownerEffort,config.optString("memoryMinimumEffort","medium"),"medium",minimumEffort)
-                    :atLeast(ownerEffort,"medium",minimumEffort);
+            effort=writer?atLeast(ownerEffort,config.optString("memoryMinimumEffort","medium"),"medium",autonomyFloor,minimumEffort)
+                    :atLeast(ownerEffort,"medium",autonomyFloor,minimumEffort);
             speed=legacySpeed;lane=writer?"memory":"legacy";reason=writer?"memory_writer_quality_floor":"optimization_disabled";
         } else {
             speed=config.optString("backgroundSpeed","standard");
             // An owner's explicitly higher inference level must never be reduced by optimization.
             String explicitFloor=rank(ownerEffort)>rank("medium")?ownerEffort:"low";
             if("memory-review".equals(purpose)||reviewPending) {
-                effort=atLeast(config.optString("memoryMinimumEffort","medium"),"medium",explicitFloor,minimumEffort);
+                effort=atLeast(config.optString("memoryMinimumEffort","medium"),"medium",explicitFloor,autonomyFloor,minimumEffort);
                 lane="memory";reason="memory_writer_quality_floor";
             } else if("autonomy".equals(kind)&&"autonomy".equals(purpose)&&!dueGoalOrDoubt&&rank(minimumEffort)<=rank("low")) {
-                effort=atLeast(config.optString("autonomousEffort","medium"),explicitFloor,minimumEffort);
+                effort=atLeast(autonomyFloor,explicitFloor,minimumEffort);
                 decisionOnly="low".equals(effort);lane=decisionOnly?"autonomy_decision":"background";
                 reason=decisionOnly?"bounded_decision_candidate":"configured_autonomy_effort";
             } else {
-                effort=atLeast(ownerEffort,"medium",explicitFloor,minimumEffort);lane="background";reason="task_or_uncertainty_requires_reasoning";
+                effort=atLeast(ownerEffort,"medium",explicitFloor,autonomyFloor,minimumEffort);lane="background";reason="task_or_uncertainty_requires_reasoning";
             }
         }
         AssistantRuntime.validateModelPreferences(model,effort,speed);

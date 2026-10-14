@@ -215,6 +215,8 @@ public final class HoyoungStore extends SQLiteOpenHelper {
             scalar(database, "SELECT COUNT(*) FROM sqlite_master");
         }
         void requireOwner() { if (Thread.currentThread() != owner) throw new IllegalStateException("Read snapshots belong to their opening thread"); }
+        /** Caller closes the cursor before this thread-owned read-only snapshot. */
+        public Cursor rawQuery(String sql, String[] args) { requireOwner(); return database.rawQuery(sql, args); }
         @Override public void close() {
             requireOwner();
             try { if (modern) database.endTransaction(); else database.execSQL("RELEASE hoyoung_read_snapshot"); }

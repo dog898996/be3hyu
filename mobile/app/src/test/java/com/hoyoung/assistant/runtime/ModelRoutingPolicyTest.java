@@ -89,11 +89,43 @@ public final class ModelRoutingPolicyTest {
         assertRoute(choose(object("autonomousEffort","high"),"autonomy","autonomy",false,false,""),"high","standard","background",false);
     }
 
+    @Test public void configuredAutonomyEffortSurvivesDueGoalsAndToolContinuations() throws Exception {
+        for(String effort:new String[]{"high","xhigh","max","ultra"}) {
+            JSONObject settings=object("autonomousEffort",effort);
+            assertRoute(choose(settings,"autonomy","autonomy",false,true,""),effort,"standard","background",false);
+            assertRoute(choose(settings,"tool-continuation","autonomy",false,false,""),effort,"standard","background",false);
+            assertRoute(choose(settings,"tool-continuation","autonomy",false,true,"high"),effort,"standard","background",false);
+        }
+        assertRoute(choose(object("autonomousEffort","high"),"tool-continuation","autonomy",false,true,"ultra"),"ultra","standard","background",false);
+    }
+
+    @Test public void piggybackMemoryKeepsAutonomyEffortWithoutChangingIndependentReviewOrOwnerRoutes() throws Exception {
+        JSONObject settings=object("autonomousEffort","xhigh","memoryMinimumEffort","medium");
+        assertRoute(choose(settings,"autonomy","autonomy",true,false,""),"xhigh","standard","memory",false);
+        assertRoute(choose(settings,"tool-continuation","autonomy",true,true,""),"xhigh","standard","memory",false);
+        assertRoute(choose(settings,"memory-review","memory-review",true,false,""),"medium","standard","memory",false);
+        assertRoute(choose(settings,"user","user",false,false,""),"medium","fast","owner",false);
+    }
+
+    @Test public void lowAutonomyStillRequiresMediumForDueGoalsContinuationsAndMemory() throws Exception {
+        JSONObject settings=object("autonomousEffort","low");
+        assertRoute(choose(settings,"autonomy","autonomy",false,true,""),"medium","standard","background",false);
+        assertRoute(choose(settings,"tool-continuation","autonomy",false,false,""),"medium","standard","background",false);
+        assertRoute(choose(settings,"autonomy","autonomy",true,false,""),"medium","standard","memory",false);
+    }
+
     @Test public void optimizationDisabledPreservesLegacyBackgroundButOwnerStillFast() throws Exception {
         JSONObject settings=object("usageOptimizationEnabled",false,"requiredEffort","low","requiredSpeed","standard");
         assertRoute(choose(settings,"autonomy","autonomy",false,true,""),"medium","standard","legacy",false);
         assertRoute(choose(settings,"user","user",false,false,""),"medium","fast","owner",false);
         assertRoute(choose(settings,"tool-continuation","user",false,false,""),"medium","fast","owner",false);
+    }
+    @Test public void disablingOptimizationPreservesExplicitAutonomyEffortForWorkAndReview() throws Exception {
+        JSONObject settings=object("usageOptimizationEnabled",false,"requiredEffort","medium","requiredSpeed","standard","autonomousEffort","xhigh");
+        assertRoute(choose(settings,"autonomy","autonomy",false,true,""),"xhigh","standard","legacy",false);
+        assertRoute(choose(settings,"tool-continuation","autonomy",false,false,""),"xhigh","standard","legacy",false);
+        assertRoute(choose(settings,"tool-continuation","autonomy",true,true,""),"xhigh","standard","memory",false);
+        assertRoute(choose(settings,"user","user",false,false,""),"medium","fast","owner",false);
     }
     @Test public void turningOptimizationOffCannotLowerTheMemoryWriterBelowMedium() throws Exception {
         JSONObject settings=object("usageOptimizationEnabled",false,"requiredEffort","low","requiredSpeed","standard","memoryMinimumEffort","low");

@@ -24,6 +24,8 @@ public final class SemanticIndex {
     public boolean visibleMemory(String key,int revision){synchronized(store){try(Cursor c=store.getReadableDatabase().rawQuery("SELECT source_id FROM memory_sources WHERE memory_key=? AND revision=? AND source_type='device_event'",new String[]{key,String.valueOf(revision)})){while(c.moveToNext())if(!visibleDevice(c.getLong(0)))return false;}}return true;}
     private long scannedVectors,scannedBytes,scanMillis;
     private boolean scanLimitReached;
+    private long pendingMemoryBefore=Long.MAX_VALUE;
+    private String pendingMemoryAfterKey="";
     public synchronized void resetScanDiagnostics(){scannedVectors=0;scannedBytes=0;scanMillis=0;scanLimitReached=false;}
     public synchronized JSONObject scanDiagnostics(){JSONObject r=new JSONObject();MemoryPolicy.put(r,"method","paged_exact_cosine_with_1500ms_per_index_budget");MemoryPolicy.put(r,"scannedVectors",scannedVectors);MemoryPolicy.put(r,"scannedVectorBytes",scannedBytes);MemoryPolicy.put(r,"elapsedMillis",scanMillis);MemoryPolicy.put(r,"limitReached",scanLimitReached);MemoryPolicy.put(r,"approximateNearestNeighbor",false);return r;}
     synchronized void recordSelectiveScan(long vectors,long bytes,long millis){scannedVectors+=vectors;scannedBytes+=bytes;scanMillis+=millis;}
@@ -53,6 +55,7 @@ public final class SemanticIndex {
             List<JSONObject> pending = pendingMemories(max);
             for (JSONObject memory : pending) {
                 if (monotonicMillis() >= deadline) break;
+                pendingMemoryBefore=memory.optLong("updated_at");pendingMemoryAfterKey=MemoryPolicy.key(memory);
                 String key = MemoryPolicy.key(memory), hash = memory.optString("content_hash");
                 if(!visibleMemory(key,memory.optInt("revision")))continue;
                 float[] vector = VectorCodec.normalize(encoder.encode(document(memory)), encoder.dimensions());
@@ -99,10 +102,17 @@ public final class SemanticIndex {
     private List<JSONObject> pendingMemories(int limit) {
         List<JSONObject> rows = new ArrayList<>(); List<String> keys = new ArrayList<>();
         synchronized (store) {
-            try (Cursor c = store.getReadableDatabase().rawQuery("SELECT m.memory_key FROM memories m LEFT JOIN semantic_vectors v "
-                    + "ON v.memory_key=m.memory_key AND v.model_id=? AND v.source_hash=m.content_hash AND v.revision=m.revision "
-                    + "WHERE v.memory_key IS NULL ORDER BY m.updated_at DESC LIMIT ?", new String[]{encoder.modelId(), String.valueOf(limit)})) {
-                while (c.moveToNext()) keys.add(c.getString(0));
+            // Continue a bounded newest-first pass even when its first page is forbidden.
+            // Reset at the end so newly changed memories and restored permissions are revisited.
+            for(int pass=0;pass<2;pass++){
+                try (Cursor c = store.getReadableDatabase().rawQuery("SELECT m.memory_key FROM memories m LEFT JOIN semantic_vectors v "
+                        + "ON v.memory_key=m.memory_key AND v.model_id=? AND v.source_hash=m.content_hash AND v.revision=m.revision "
+                        + "WHERE v.memory_key IS NULL AND (m.updated_at<? OR (m.updated_at=? AND m.memory_key>?)) "
+                        + "ORDER BY m.updated_at DESC,m.memory_key ASC LIMIT ?", new String[]{encoder.modelId(),String.valueOf(pendingMemoryBefore),String.valueOf(pendingMemoryBefore),pendingMemoryAfterKey,String.valueOf(limit)})) {
+                    while (c.moveToNext()) keys.add(c.getString(0));
+                }
+                if(!keys.isEmpty()||pendingMemoryAfterKey.isEmpty())break;
+                pendingMemoryBefore=Long.MAX_VALUE;pendingMemoryAfterKey="";
             }
             for (String key : keys) { JSONObject row = store.getMemory(key); if (row != null) rows.add(row); }
         }

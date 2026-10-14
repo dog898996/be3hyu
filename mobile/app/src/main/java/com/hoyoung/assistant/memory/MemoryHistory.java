@@ -33,10 +33,20 @@ final class MemoryHistory {
         }
     }
     private JSONObject read(String key,int revision){
-        try(Cursor c=store.getReadableDatabase().rawQuery("SELECT memory_key,revision,substr(content,1,8192),length(content),kind,created_at,source_ids,source_refs "
+        try(Cursor c=store.getReadableDatabase().rawQuery("SELECT memory_key,revision,substr(content,1,8192),length(content),kind,created_at "
                 +"FROM memory_revisions WHERE memory_key=? AND revision=?",new String[]{key,String.valueOf(revision)})){
             if(!c.moveToFirst())return null;JSONObject row=new JSONObject();MemoryPolicy.put(row,"key",c.getString(0));MemoryPolicy.put(row,"revision",c.getInt(1));MemoryPolicy.put(row,"content",c.getString(2));MemoryPolicy.put(row,"contentChars",c.getInt(3));MemoryPolicy.put(row,"contentExcerpt",c.getInt(3)>8192);MemoryPolicy.put(row,"kind",c.getString(4));MemoryPolicy.put(row,"created_at",c.getLong(5));
-            try{MemoryPolicy.put(row,"sourceMessageIds",new JSONArray(c.getString(6)));MemoryPolicy.put(row,"sourceRefs",new JSONArray(c.getString(7)));}catch(org.json.JSONException corrupt){throw new IllegalStateException("Corrupt revision provenance",corrupt);}
+            // Revision rows retain compact identities. Provenance labels and citations need
+            // the canonical links for this revision, not the current memory's sources.
+            JSONArray refs=new JSONArray(),messageIds=new JSONArray();
+            try(Cursor sources=store.getReadableDatabase().rawQuery("SELECT source_type,source_id,source_hash,source_role,observed_at FROM memory_sources WHERE memory_key=? AND revision=? ORDER BY source_type,source_id",new String[]{key,String.valueOf(revision)})){
+                while(sources.moveToNext()){
+                    JSONObject ref=new JSONObject();String type=sources.getString(0);long id=sources.getLong(1);
+                    MemoryPolicy.put(ref,"type",type);MemoryPolicy.put(ref,"id",id);MemoryPolicy.put(ref,"hash",sources.getString(2));MemoryPolicy.put(ref,"role",sources.getString(3));MemoryPolicy.put(ref,"observedAt",sources.getLong(4));refs.put(ref);
+                    if("message".equals(type))messageIds.put(id);
+                }
+            }
+            MemoryPolicy.put(row,"sourceMessageIds",messageIds);MemoryPolicy.put(row,"sourceRefs",refs);MemoryPolicy.put(row,"sourceCount",refs.length());
             try(Cursor metadata=store.getReadableDatabase().rawQuery("SELECT metadata_json FROM memory_metadata_revisions WHERE memory_key=? AND memory_revision=? ORDER BY metadata_revision DESC LIMIT 1",new String[]{key,String.valueOf(revision)})){MemoryPolicy.put(row,"metadata",metadata.moveToFirst()?parse(metadata.getString(0)):JSONObject.NULL);}
             return row;
         }

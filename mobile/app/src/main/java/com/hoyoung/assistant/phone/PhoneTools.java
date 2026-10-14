@@ -310,12 +310,12 @@ public final class PhoneTools {
         return uri == null ? failure("operation_failed", "The calendar provider returned no event.") : success().put("eventUri", uri.toString());
     }
 
-    private JSONObject notifications(JSONObject args) throws JSONException {
+    private JSONObject notifications(JSONObject args) throws Exception {
         if (!permissions.notificationAccess()) return missing("notification_access");
         int limit = limit(args, 50, 250); String packageName = optionalString(args, "package", 200);
-        JSONArray all = HoyoungNotificationListener.notificationSnapshot(context), result = new JSONArray();
-        for (int i = all.length() - 1; i >= 0 && result.length() < limit; i--) { JSONObject entry = all.optJSONObject(i); if (entry != null && (packageName.isEmpty() || packageName.equals(entry.optString("package")))) result.put(entry); }
-        return success().put("notifications", result).put("listenerConnected", HoyoungNotificationListener.isConnected()).put("historical", true).put("sensitive", true).put("requestScoped", true).put("source", "local_notification_listener_history");
+        JSONObject result = HoyoungNotificationListener.notificationHistory(context, limit, packageName);
+        if (!result.optBoolean("ok")) return result;
+        return result.put("listenerConnected", HoyoungNotificationListener.isConnected()).put("historical", true).put("sensitive", true).put("requestScoped", true).put("source", "local_notification_listener_history");
     }
 
     private JSONObject location(JSONObject args) throws JSONException {
@@ -473,7 +473,7 @@ public final class PhoneTools {
             default: if (!journal.collectionEnabled()) return false;
         }
         switch (name) {
-            case "phone_notifications_read": return permissions.notificationAccess();
+            case "phone_notifications_read": return permissions.notificationAccess() && HoyoungNotificationListener.archivedHistoryAllowed(context, result);
             case "phone_location_last": case "phone_location_refresh": case "phone_location_refresh_read": return (permissions.has(Manifest.permission.ACCESS_FINE_LOCATION) || permissions.has(Manifest.permission.ACCESS_COARSE_LOCATION)) && journal.toolAllowed("phone_location_last") && journal.toolAllowed("phone_location_refresh_read".equals(name) ? "phone_location_refresh" : name);
             case "phone_activity_read": return Build.VERSION.SDK_INT < 29 || permissions.has(Manifest.permission.ACTIVITY_RECOGNITION);
             case "phone_contacts_read": case "phone_contact_get": case "phone_contacts_create": case "phone_contact_update": return permissions.has(Manifest.permission.READ_CONTACTS) && journal.toolAllowed("phone_contacts_read") && (!"phone_contacts_create".equals(name) && !"phone_contact_update".equals(name) || permissions.has(Manifest.permission.WRITE_CONTACTS));

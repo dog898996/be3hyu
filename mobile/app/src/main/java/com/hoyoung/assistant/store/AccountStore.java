@@ -11,10 +11,12 @@ import java.io.Reader;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -80,6 +82,16 @@ public final class AccountStore {
         return saveNative(supplied, inputActor, "owner".equals(inputActor) ? OWNER_SUPPLIED : AGENT_GENERATED);
     }
 
+    /** The unmodified record shown by an existing editor is its compare-and-save token.
+     * Source identities also distinguish a recreated/restored record whose revision repeats. */
+    public JSONObject saveFromUi(JSONObject supplied, String inputActor, JSONObject expectedRecord) throws IOException {
+        return saveNative(supplied, inputActor, "owner".equals(inputActor) ? OWNER_SUPPLIED : AGENT_GENERATED, expectedRecord);
+    }
+
+    public static final class AccountChangedException extends IOException {
+        public AccountChangedException() { super("The account changed or became unavailable; reopen its current record before saving"); }
+    }
+
     public JSONObject saveFromAgent(JSONObject supplied) throws IOException {
         return saveNative(supplied, "agent_authored", AGENT_GENERATED);
     }
@@ -87,10 +99,18 @@ public final class AccountStore {
     /** Also supports a newly generated password for account creation. Its origin remains
      * explicit and loginVerified stays false until an actual external login is established. */
     public JSONObject saveNative(JSONObject supplied, String inputActor, String origin) throws IOException {
+        return saveNative(supplied, inputActor, origin, null);
+    }
+
+    private JSONObject saveNative(JSONObject supplied, String inputActor, String origin, JSONObject expectedRecord) throws IOException {
         synchronized (ACCOUNT_MUTATION_LOCK) {
             actor(inputActor); origin(origin);
             JSONObject record = normalize(supplied, inputActor, origin);
             synchronized (store) {
+                if (expectedRecord != null) {
+                    JSONObject current = get(record.optString("accountId"));
+                    if (current == null || !current.toString().equals(expectedRecord.toString())) throw new AccountChangedException();
+                }
                 if ("agent_authored".equals(inputActor)) requireNotRemovedForGeneratedInput(record, store.getPrivacyLedger().capture());
                 return store.withTransaction(db -> writeNativeCopy(record, new JSONArray(), null));
             }
@@ -218,25 +238,49 @@ public final class AccountStore {
             // entering it. The immutable identities were captured before any revision was purged.
             JSONArray receipts = new JSONArray(); int pending = 0;
             SourcePayloadDeletion deletion = new SourcePayloadDeletion(context, store);
-            for (JSONObject source : originals) {
-                JSONObject original = store.getMessage(source.optLong("id"));
-                if (original != null) {
-                    JSONObject nativeCopy = nativeCopy(original);
-                    // Only our dedicated system records are owned by this removal. Legacy or
-                    // externally authored memory refs must not widen removal to a chat message.
-                    if (nativeCopy == null) throw new IOException("Account deletion source is not a dedicated account copy");
-                    JSONObject tombstone = object("type", "account_copy_removed", "accountId", accountId,
-                            "credentialFingerprint", credentialFingerprint(parseRecord(nativeCopy.optString("recordJson"))));
-                    JSONObject ownerOriginal = nativeCopy.optJSONObject("ownerOriginal");
-                    if (ownerOriginal != null) {
-                        put(tombstone, "ownerOriginal", ownerOriginal);
+            Set<String> removalControls = new HashSet<>();
+            JSONArray exclusions = store.getPrivacyLedger().snapshot().optJSONArray("exclusions");
+            for (int index = 0; index < exclusions.length(); index++) {
+                String reason = exclusions.optJSONObject(index).optString("reason");
+                try { if (new JSONObject(reason).optInt("controlVersion") == 2) removalControls.add(reason); }
+                catch (JSONException ordinaryReason) { /* Ordinary retrieval exclusions are not account removal controls. */ }
+            }
+            Throwable primaryFailure = null;
+            try {
+                for (JSONObject source : originals) {
+                    JSONObject original = store.getMessage(source.optLong("id"));
+                    if (original != null) {
+                        JSONObject nativeCopy = nativeCopy(original);
+                        // Only our dedicated system records are owned by this removal. Legacy or
+                        // externally authored memory refs must not widen removal to a chat message.
+                        if (nativeCopy == null) throw new IOException("Account deletion source is not a dedicated account copy");
+                        JSONObject tombstone = object("type", "account_copy_removed", "controlVersion", 2, "accountId", accountId,
+                                "credentialFingerprint", credentialFingerprint(parseRecord(nativeCopy.optString("recordJson"))));
+                        JSONObject ownerOriginal = nativeCopy.optJSONObject("ownerOriginal");
+                        if (ownerOriginal != null) put(tombstone, "ownerOriginal", ownerOriginal);
+                        // An existing retrieval exclusion keeps its original append-only reason.
+                        // Give removal its own real source identity so union with an older policy
+                        // cannot discard the tombstone on a duplicate account-copy identity.
+                        String control = tombstone.toString();
+                        if (removalControls.add(control)) {
+                            JSONObject marker = store.addMessage("system", object("type", "native_account_removal", "version", 1, "control", tombstone).toString(), null);
+                            store.getPrivacyLedger().excludeSource("message", marker.optLong("id"), marker.optString("content_hash"),
+                                    SourcePrivacyLedger.RETRIEVAL_EXCLUDE, control);
+                        }
+                        store.getPrivacyLedger().excludeSource("message", source.optLong("id"), source.optString("hash"),
+                                SourcePrivacyLedger.RETRIEVAL_EXCLUDE, control);
                     }
-                    store.getPrivacyLedger().excludeSource("message", source.optLong("id"), source.optString("hash"),
-                            SourcePrivacyLedger.RETRIEVAL_EXCLUDE, tombstone.toString());
+                    JSONObject receipt = deletion.deleteSource(source.optString("type"), source.optLong("id"), source.optString("hash"),
+                            "account removed by " + inputActor);
+                    receipts.put(receipt); if (receipt.optBoolean("pendingDeletion")) pending++;
                 }
-                JSONObject receipt = deletion.deleteSource(source.optString("type"), source.optLong("id"), source.optString("hash"),
-                        "account removed by " + inputActor);
-                receipts.put(receipt); if (receipt.optBoolean("pendingDeletion")) pending++;
+            } catch (IOException | RuntimeException | Error failure) {
+                primaryFailure = failure; throw failure;
+            } finally {
+                // Account UI/tool deletion bypasses the ordinary source-control UI wrapper.
+                // Queue this union too, including a partly completed deletion, for its mirror.
+                if (!originals.isEmpty()) try { new ExternalOwnerPolicyFolder(context).markPendingDurably(); }
+                catch (IOException failure) { if (primaryFailure != null) primaryFailure.addSuppressed(failure); else throw failure; }
             }
             JSONObject result = object("accountId", accountId, "inputActor", inputActor,
                     "affectedSourceCount", originals.size(), "sourceScope", "dedicated_account_copies_and_tracked_derivatives",

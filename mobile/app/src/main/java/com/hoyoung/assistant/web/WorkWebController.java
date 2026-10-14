@@ -72,8 +72,11 @@ public final class WorkWebController implements AssistantRuntime.Transport {
     private final java.util.concurrent.ExecutorService downloads = java.util.concurrent.Executors.newSingleThreadExecutor();
     private final java.util.concurrent.ExecutorService responseCaptures = java.util.concurrent.Executors.newSingleThreadExecutor();
     private final java.util.concurrent.ExecutorService attachmentPreparation = java.util.concurrent.Executors.newSingleThreadExecutor();
+    // Owned only by responseCaptures. Retire a document/request after all already queued parts.
     private final Map<String, ResponseCaptureJournal> captures = new HashMap<>();
-    private final Set<String> failedCaptures = new HashSet<>();
+    private int captureDocumentEpoch;
+    private String captureRequestId = "";
+    private boolean captureRequestClosed;
 
     public WorkWebController(Context context, AssistantRuntime runtime, InternalFiles files) {
         this(context, runtime, files, WebView::new);
@@ -136,7 +139,7 @@ public final class WorkWebController implements AssistantRuntime.Transport {
             publishUnavailableState("work_recovery_review_required", false, 0, null); scheduleSafetyWait(); return;
         }
         try {
-            loaded = false; currentOrigin = ""; documentEpoch++;
+            loaded = false; currentOrigin = ""; advanceDocumentEpoch();
             publishLoadingState();
             destination.loadUrl(TEMPORARY_URL);
             // Queuing a URL is not proof that the initial renderer survived.
@@ -219,7 +222,7 @@ public final class WorkWebController implements AssistantRuntime.Transport {
     }
 
     private void discardView(WebView discarded) {
-        if (discarded == view) { view = null; loaded = false; started = false; currentOrigin = ""; documentEpoch++; }
+        if (discarded == view) { view = null; loaded = false; started = false; currentOrigin = ""; advanceDocumentEpoch(); }
         if (fileCallback != null) {
             ValueCallback<Uri[]> callback = fileCallback; fileCallback = null;
             try { callback.onReceiveValue(null); } catch (RuntimeException | LinkageError ignored) { }
@@ -266,13 +269,18 @@ public final class WorkWebController implements AssistantRuntime.Transport {
                         }
                         if ("response_capture_part".equals(event.optString("code")) || "completed".equals(type) && event.has("captureId")) {
                             String requestId = event.optString("requestId", "");
-                            if (requestId.isEmpty() || !requestId.equals(runtime.state().optString("activeRequestId", ""))) return;
+                            if (!loaded || requestId.isEmpty() || !requestId.equals(runtime.state().optString("activeRequestId", ""))) return;
                             // Ordering is preserved on a dedicated worker. Already received
                             // parts may still be archived after the WebView disconnects.
-                            responseCaptures.execute(() -> receiveCaptureEvent(event));
+                            int epoch = documentEpoch;
+                            responseCaptures.execute(() -> receiveCaptureEvent(event, epoch));
                             return;
                         }
-                        runtime.onWebEvent(event);
+                        String interrupted = "quota".equals(type)
+                                ? event.optString("requestId", runtime.state().optString("activeRequestId", ""))
+                                : "error".equals(type) ? event.optString("requestId", "") : "";
+                        try { runtime.onWebEvent(event); }
+                        finally { retireCaptureRequest(interrupted); }
                     } catch (Exception ignored) { emitError("BRIDGE_EVENT_INVALID", null); }
                 });
         } else emitError("WEBVIEW_MESSAGE_LISTENER_UNAVAILABLE", null);
@@ -289,7 +297,7 @@ public final class WorkWebController implements AssistantRuntime.Transport {
             }
             @Override public void onPageStarted(WebView v, String url, Bitmap favicon) {
                 if (v != view) return;
-                documentEpoch++;
+                advanceDocumentEpoch();
                 if (loaded) emitActiveTransportError("WORK_DOCUMENT_REPLACED");
                 loaded = false;
                 currentOrigin = url;
@@ -696,13 +704,48 @@ public final class WorkWebController implements AssistantRuntime.Transport {
         byte[] toByteArray() { return output.toByteArray(); }
     }
 
-    private void receiveCaptureEvent(JSONObject event) {
+    /** Main-thread document boundary; worker ordering preserves received bytes before closure. */
+    private void advanceDocumentEpoch() {
+        int nextEpoch = ++documentEpoch;
+        responseCaptures.execute(() -> {
+            if (nextEpoch <= captureDocumentEpoch) return;
+            closeCaptureJournals();
+            captureDocumentEpoch = nextEpoch;
+            captureRequestId = "";
+            captureRequestClosed = false;
+        });
+    }
+
+    private void retireCaptureRequest(String requestId) {
+        if (requestId == null || requestId.isEmpty()) return;
+        responseCaptures.execute(() -> {
+            if (!requestId.equals(captureRequestId)) return;
+            closeCaptureJournals();
+            captureRequestClosed = true;
+        });
+    }
+
+    /** Worker only. Partial originals/manifests remain available without holding file descriptors. */
+    private void closeCaptureJournals() {
+        for (ResponseCaptureJournal journal : captures.values()) journal.closePartial();
+        captures.clear();
+    }
+
+    private void receiveCaptureEvent(JSONObject event, int epoch) {
+        if (epoch != captureDocumentEpoch) return;
         String captureId = event.optString("captureId", "");
         String requestId = event.optString("requestId", "");
         if (captureId.isEmpty() || captureId.length() > 1024 || !requestId.matches("[A-Za-z0-9_.:-]{1,128}")) {
             emitError("RESPONSE_CAPTURE_METADATA_INVALID", requestId); return;
         }
-        if (failedCaptures.contains(captureId)) return;
+        if (!requestId.equals(captureRequestId)) {
+            closeCaptureJournals();
+            captureRequestId = requestId;
+            captureRequestClosed = false;
+        }
+        // One terminal marker replaces an unbounded failed-capture history. Native admission
+        // binds all queued parts to the current request, and retired document epochs cannot reopen it.
+        if (captureRequestClosed) return;
         ResponseCaptureJournal journal = captures.get(captureId);
         try {
             int totalParts = event.getInt("totalParts");
@@ -736,13 +779,14 @@ public final class WorkWebController implements AssistantRuntime.Transport {
                 .put("sha256", journal.sha256()).put("characters", text.length()).put("captureComplete", true));
             journal.archived(saved.optString("id"));
             captures.remove(captureId);
+            closeCaptureJournals();
+            captureRequestClosed = true;
             original.delete();
             if (requestId.equals(runtime.state().optString("activeRequestId", ""))) runtime.onWebEvent(complete);
             else runtime.localNotice("work_reply_archived_after_disconnect", "연결이 끊긴 작업의 답변 원문은 폰 작업 파일에 저장했어. 기존 작업을 직접 확인해 줘: " + saved.optString("name"));
         } catch (Exception failure) {
-            failedCaptures.add(captureId);
-            if (journal != null) journal.closePartial();
-            captures.remove(captureId);
+            closeCaptureJournals();
+            captureRequestClosed = true;
             emitError("RESPONSE_CAPTURE_INCOMPLETE", requestId);
         }
     }
@@ -821,7 +865,10 @@ public final class WorkWebController implements AssistantRuntime.Transport {
         void archived(String fileId) throws IOException { rawFileId = fileId; writeManifest(true); }
 
         void closePartial() {
-            if (!closed) try { output.getFD().sync(); output.close(); } catch (IOException ignored) { }
+            if (!closed) {
+                try { output.getFD().sync(); } catch (IOException ignored) { }
+                try { output.close(); } catch (IOException ignored) { }
+            }
             closed = true; // Keep partial originals for inspection, without a completed receipt.
         }
     }
@@ -837,7 +884,7 @@ public final class WorkWebController implements AssistantRuntime.Transport {
             try {
                 WebView destination = getView();
                 if (!canAutomaticallyOpen(runtime.state())) { publishUnavailableState("work_recovery_review_required", false, 0, null); return; }
-                loaded = false; currentOrigin = ""; documentEpoch++;
+                loaded = false; currentOrigin = ""; advanceDocumentEpoch();
                 publishLoadingState();
                 destination.loadUrl(TEMPORARY_URL); started = true;
             } catch (RuntimeException | LinkageError failure) {
@@ -889,6 +936,7 @@ public final class WorkWebController implements AssistantRuntime.Transport {
             if (requestId == null && "WEBVIEW_RENDERER_LOST".equals(code)) requestId = runtime.state().optString("activeRequestId", "");
             runtime.onWebEvent(new JSONObject().put("type", "error").put("code", code).put("requestId", requestId == null ? JSONObject.NULL : requestId));
         } catch (Exception ignored) { }
+        finally { retireCaptureRequest(requestId); }
     }
 
     private void emitActiveTransportError(String code) {

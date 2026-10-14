@@ -25,7 +25,7 @@ public final class MemoryGateway {
     private static final long MAX_AGE_MS = 600_000L;
     private static final int MAX_LAYER_CANDIDATES = 16, MAX_HYBRID_IDS = 32, MAX_SOURCE_LINKS = 128;
     private static final String[] POLICY_KEYS = {"customInstructions", "personalizedInstructions", "standingGoals", "toolPermissions",
-            "phoneContextEnabled", "semanticSearchEnabled", "requiredModel", "requiredEffort", "requiredSpeed", "goalLedgerRevision",
+            "phoneContextEnabled", "semanticSearchEnabled", "goalLedgerRevision",
             "ownerInputRevision", "latestOwnerRequestId", "memory.privacyEpoch", "memory.correctionEpoch", "memory.permissionEpoch", "memory.controlEpoch"};
     private final HoyoungStore store;
     private final SourcePrivacyLedger privacy;
@@ -180,13 +180,25 @@ public final class MemoryGateway {
     }
     public void assertFreshOutput(Prepared prepared){assertFresh(prepared,System.currentTimeMillis(),false);}
     public void assertFresh(Prepared prepared,long now,boolean requireAdmissionTtl) {
+        assertFresh(prepared,now,requireAdmissionTtl,false);
+    }
+    /** Only permits retaining old output for a fresh steering turn. This does not
+     * authorize releasing its reply, promoting memories, or executing its actions. */
+    public void assertFreshForOwnerRebase(Prepared prepared,long now) {
+        assertFresh(prepared,now,false,true);
+    }
+    private void assertFresh(Prepared prepared,long now,boolean requireAdmissionTtl,boolean allowNewOwnerInput) {
         if(prepared==null||now<prepared.preparedAt||(requireAdmissionTtl&&now>=prepared.validUntil))throw new Blocked("memory_context_expired");
         if(now>=prepared.temporalValidUntil)throw new Blocked("memory_temporal_boundary_changed");
         PrivacyView visibility=privacyView();
         if(!prepared.privacyFingerprint.equals(visibility.fingerprint))throw new Blocked("memory_privacy_changed");
         try(HoyoungStore.ReadSnapshot snapshot=store.openReadSnapshot()) {
             SQLiteDatabase db=snapshot.database;
-            if(!prepared.controlFingerprint.equals(digest(canonical(controls(db,prepared.rootId)))))throw new Blocked("memory_control_changed");
+            JSONObject currentControls=controls(db,prepared.rootId),previousControls=json(prepared.control);
+            if(allowNewOwnerInput)for(String key:new String[]{"ownerInputRevision","latestOwnerRequestId"}) {
+                currentControls.remove(key);previousControls.remove(key);
+            }
+            if(!canonical(previousControls).equals(canonical(currentControls)))throw new Blocked("memory_control_changed");
             JSONArray dependencies=prepared.dependencies();
             Accumulator checker=new Accumulator(snapshot,visibility,now,prepared.validUntil,deviceVisibility);
             for(int i=0;i<dependencies.length();i++) {
@@ -358,8 +370,8 @@ public final class MemoryGateway {
 
     private LayerRead active(SQLiteDatabase db,String rootId,PrivacyView privacy,Accumulator selected)throws IOException {
         LayerRead result=new LayerRead("active");
-        JSONArray rows=query(db,"SELECT setting_key,value FROM settings WHERE (setting_key>='activeGoal:' AND setting_key<'activeGoal;')"
-                +" OR (setting_key>='pausedRoot:' AND setting_key<'pausedRoot;') OR setting_key IN ('toolPermissions','standingGoals','runtime.uncertaintyBlocked','runtime.quotaBlocked','autonomy.enabled') ORDER BY setting_key",Collections.emptyList(),result);
+        JSONArray rows=query(db,"SELECT setting_key,value FROM settings WHERE setting_key IN ("+activeControlKeys(false)+")"
+                +" OR setting_key=? OR setting_key IN ('toolPermissions','standingGoals','runtime.uncertaintyBlocked','runtime.quotaBlocked','autonomy.enabled') ORDER BY setting_key",java.util.Arrays.asList("pausedRoot:"+rootId),result);
         if(rows.length()>1024)throw new Blocked("active_constraints_population_overflow");
         for(int i=0;i<rows.length();i++){
             JSONObject row=rows.optJSONObject(i);String key=row.optString("setting_key"),raw=row.optString("value");
@@ -380,9 +392,11 @@ public final class MemoryGateway {
                 long next=goal.optLong("nextCheckAt");if(next>selected.now){selected.validUntil=Math.min(selected.validUntil,next);selected.temporalValidUntil=Math.min(selected.temporalValidUntil,next);}
             }else result.payload.put(row);
         }
-        JSONArray uncertain=query(db,"SELECT id,external_id,kind,status FROM requests WHERE status IN ('uncertain','blocked','quota') ORDER BY id",Collections.emptyList(),result);
-        if(uncertain.length()>1024)throw new Blocked("active_constraints_population_overflow");
+        JSONArray uncertain=query(db,unresolvedRequestSql(),java.util.Arrays.asList(rootId),result);
         for(int i=0;i<uncertain.length();i++){JSONObject constraint=uncertain.optJSONObject(i);put(constraint,"mayAutoRepeat",false);result.payload.put(constraint);}
+        JSONArray unresolvedCounts=query(db,UNRESOLVED_COUNTS,Collections.emptyList(),result);
+        if(unresolvedCounts.length()>0)result.payload.put(object("unresolvedRequestCounts",unresolvedCounts,"detailCoverage","newest_32_plus_current_root",
+                "allHistoricalRowsRetained",true,"mayAutoRepeat",false,"instruction","blocked/quota/uncertain 과거 요청은 일부만 표시돼도 모두 명시적 새 요청 없이 재실행하지 않는다."));
         result.exclusion="none_mandatory_native_controls";return result;
     }
 
@@ -558,18 +572,54 @@ public final class MemoryGateway {
     private static String ranking(String expression,List<String> terms,List<String> args){StringBuilder score=new StringBuilder("0");for(int i=0;i<Math.min(24,terms.size());i++){score.append(" + CASE WHEN ").append(expression).append(" LIKE ? ESCAPE '\\' THEN ").append(10+Math.min(24,terms.get(i).length())).append(" ELSE 0 END");args.add("%"+terms.get(i).replace("\\","\\\\").replace("%","\\%").replace("_","\\_")+"%");}return score.toString();}
     private static JSONObject controls(SQLiteDatabase db,String root){JSONObject result=new JSONObject();for(String key:POLICY_KEYS){JSONObject row=one(db,"SELECT value FROM settings WHERE setting_key=?",new String[]{key});put(result,key,row==null?"<unset>":row.optString("value"));}
         put(result,"pausedRoot",setting(db,"pausedRoot:"+root,"false"));put(result,"runGeneration",setting(db,"runGeneration:"+root,"0"));
-        JSONArray active=query(db,"SELECT setting_key,value FROM settings WHERE (setting_key>='activeGoal:' AND setting_key<'activeGoal;') OR (setting_key>='goalSources:' AND setting_key<'goalSources;') OR (setting_key>='pausedRoot:' AND setting_key<'pausedRoot;') OR setting_key IN ('runtime.uncertaintyBlocked','runtime.quotaBlocked') ORDER BY setting_key",new String[0]);
-        JSONArray uncertain=query(db,"SELECT id,external_id,status FROM requests WHERE status IN ('uncertain','blocked','quota') ORDER BY id",new String[0]);
-        put(result,"activeConstraintsFingerprint",digest(canonical(object("settings",active,"unresolvedRequests",uncertain))));return result;}
+        JSONArray active=query(db,"SELECT setting_key,value FROM settings WHERE setting_key IN ("+activeControlKeys(true)+") OR setting_key IN (?,?,'runtime.uncertaintyBlocked','runtime.quotaBlocked') ORDER BY setting_key",new String[]{"pausedRoot:"+root,"goalSources:"+root});
+        JSONArray uncertain=query(db,unresolvedRequestSql(),new String[]{root});
+        put(result,"activeConstraintsFingerprint",digest(canonical(object("settings",active,"unresolvedRequests",uncertain,"unresolvedRequestCounts",query(db,UNRESOLVED_COUNTS,new String[0])))));return result;}
+    /** Indexed active-root lookups: closed-goal provenance stays stored, outside the live prompt. */
+    private static String activeControlKeys(boolean sources){
+        String roots=" FROM settings WHERE setting_key>='activeGoal:' AND setting_key<'activeGoal;'";
+        return "SELECT setting_key"+roots+" UNION SELECT 'pausedRoot:'||substr(setting_key,12)"+roots
+                +(sources?" UNION SELECT 'goalSources:'||substr(setting_key,12)"+roots:"");
+    }
+    private static final String UNRESOLVED_COUNTS="SELECT status,COUNT(*) AS count,MAX(id) AS newestId,MAX(updated_at) AS latestChangeAt FROM requests WHERE status IN ('uncertain','blocked','quota') GROUP BY status ORDER BY status";
+    private static String unresolvedRequestSql(){
+        return "SELECT id,external_id,kind,status FROM requests WHERE id IN (SELECT id FROM requests WHERE status IN ('uncertain','blocked','quota') ORDER BY id DESC LIMIT 32) "
+                +"OR (external_id=? AND status IN ('uncertain','blocked','quota')) ORDER BY id DESC";
+    }
     private static String setting(SQLiteDatabase db,String key,String fallback){JSONObject row=one(db,"SELECT value FROM settings WHERE setting_key=?",new String[]{key});return row==null?fallback:row.optString("value");}
     private static boolean allowedSetting(String raw,String name){if("<unset>".equals(raw))return true;JSONObject permissions=json(raw);if(permissions.has(name)&&!(permissions.opt(name) instanceof Boolean))throw new Blocked("memory_permission_configuration_invalid");return !permissions.has(name)||Boolean.TRUE.equals(permissions.opt(name));}
     private static JSONObject projectionState(SQLiteDatabase db){long reviewed=number(setting(db,"watermark:memory.review.owner","0"));JSONObject pending=one(db,"SELECT COUNT(*) AS count,COALESCE(MAX(id),0) AS latest FROM messages WHERE role='user' AND id>?",new String[]{String.valueOf(reviewed)});return object("state",pending.optLong("count")>0?"pending":"ready_source_ranges_only","structuredExtraction","source_ranges_acknowledged_not_semantic_completeness", "ownerReviewedThroughId",reviewed,"latestOwnerId",Math.max(reviewed,pending.optLong("latest")),"unreviewedOwnerCount",pending.optLong("count"),"semanticIndexRequiredForAdmission",false,"rawFallback","canonical_sql");}
     private PrivacyView privacyView(){try{return privacy==null?new PrivacyView(new JSONObject()):new PrivacyView(privacy.snapshot());}catch(IOException unavailable){throw new Blocked("memory_privacy_ledger_unavailable",unavailable);}}
     private static final class PrivacyView {
         final JSONObject state;final String fingerprint;final JSONArray exclusions;final SourcePrivacyLedger.Snapshot policy;
-        PrivacyView(JSONObject state){this.state=json(state.toString());this.exclusions=this.state.optJSONArray("exclusions");try{policy=SourcePrivacyLedger.fromSnapshot(this.state);}catch(IOException invalid){throw new Blocked("memory_privacy_ledger_invalid",invalid);}this.fingerprint=policy.fingerprint;}
+        final String messageExclusionKeys,deviceExclusionHashes;
+        PrivacyView(JSONObject state){
+            this.state=json(state.toString());this.exclusions=this.state.optJSONArray("exclusions");
+            try{policy=SourcePrivacyLedger.fromSnapshot(this.state);}catch(IOException invalid){throw new Blocked("memory_privacy_ledger_invalid",invalid);}
+            this.fingerprint=policy.fingerprint;
+            StringBuilder messages=new StringBuilder(),devices=new StringBuilder();Set<String> deviceHashes=new LinkedHashSet<>();
+            // Snapshot validation restricts every literal to a positive integer and a SHA-256.
+            for(int i=0;i<exclusions.length();i++){
+                JSONObject row=exclusions.optJSONObject(i);String sha=row.optString("hash");
+                if("message".equals(row.optString("type"))){
+                    if(messages.length()>0)messages.append(',');messages.append('\'').append(row.optLong("id")).append(':').append(sha).append('\'');
+                }else if(deviceHashes.add(sha)){
+                    if(devices.length()>0)devices.append(',');devices.append('\'').append(sha).append('\'');
+                }
+            }
+            messageExclusionKeys=messages.toString();deviceExclusionHashes=devices.toString();
+        }
         boolean allowed(String type,long id,String hash){return policy.allowedSource(type,id,hash);}
-        String sql(String type,String id,String hash){StringBuilder filter=new StringBuilder("1=1");for(int i=0;exclusions!=null&&i<exclusions.length();i++){JSONObject row=exclusions.optJSONObject(i);if(row==null)throw new Blocked("memory_privacy_ledger_invalid");if(!type.equals(row.optString("type")))continue;long value=row.optLong("id");String sha=row.optString("hash");if(value<=0||!sha.matches("[0-9a-f]{64}"))throw new Blocked("memory_privacy_ledger_invalid");filter.append(" AND NOT (");if(!"device_event".equals(type))filter.append(id).append('=').append(value).append(" AND ");filter.append(hash).append("='").append(sha).append("')");}return filter.toString();}
+        String sql(String type,String id,String hash){
+            String values,identity;
+            if("message".equals(type)){values=messageExclusionKeys;identity="("+id+" || ':' || "+hash+")";}
+            else if("device_event".equals(type)){values=deviceExclusionHashes;identity=hash;}
+            else return "1=1";
+            // Scalar membership avoids both SQLite's 1,000-deep expression limit and a
+            // row-value NOT IN scan for each absent source. Message generations stay distinct;
+            // replayed device observations remain excluded even under another SQLite ID.
+            return values.isEmpty()?"1=1":identity+" NOT IN ("+values+")";
+        }
         String memorySql(){return "NOT EXISTS(SELECT 1 FROM memory_sources privacy_ref WHERE privacy_ref.memory_key=m.memory_key AND privacy_ref.revision=m.revision AND ((privacy_ref.source_type='message' AND NOT ("+sql("message","privacy_ref.source_id","privacy_ref.source_hash")+")) OR (privacy_ref.source_type='device_event' AND NOT ("+sql("device_event","privacy_ref.source_id","privacy_ref.source_hash")+"))))";}
     }
     private static void identifier(String value){if(value==null||!value.matches("[A-Za-z0-9_.:-]{1,450}"))throw new IllegalArgumentException("Invalid native memory identifier");}
