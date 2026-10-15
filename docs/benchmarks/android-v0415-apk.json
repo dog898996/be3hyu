@@ -8,8 +8,8 @@
   "debuggable": false,
   "releaseIdentityVerified": true,
   "certificateSha256": "5b634dac5d4538f871ff0bfdbe1b31b2baa02dbe4390d11d7f6af235b2df1e3e",
-  "apkSha256": "8137cbf46f7bf69e738ba78aa413bfe878ed530ce0d0a09137115f162c26dc8d",
-  "apkBytes": 79147764,
+  "apkSha256": "31acc66c9fba55cf4b86e5d6468271b68ecf0209234cb116a42ebd3e2e5e5012",
+  "apkBytes": 79148274,
   "sourcePermissionDeclarationsExactlyMatch": true,
   "permissionCount": 48,
   "permissions": [

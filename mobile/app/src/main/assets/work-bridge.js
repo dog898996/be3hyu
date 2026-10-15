@@ -2,7 +2,7 @@
  * DOM-only ChatGPT Work transport for Hoyoung's Android WebView.
  * Composer, stable turn identities and answer/footer observation are adapted from
  * miuuyy/codex-chatgpt-web (MIT), pinned 0b6087c5307c7a58adda9c420358f3f70d2035f5.
- * Response/commentary boundaries rechecked at f137c2f84da5df214c1e228d74f5ff43e7641c48.
+ * Response/user-message boundaries rechecked at f137c2f84da5df214c1e228d74f5ff43e7641c48.
  * This is not that project's desktop terminal bridge or an official Work API.
  * It deliberately fails closed when Work/model selection cannot be
  * proven from the current UI. It never reads cookies, passwords or web storage.
@@ -935,11 +935,33 @@
     // Compare the authored subtree, never the controls or a loose text prefix.
     const clone=element.cloneNode(true);
     for(const control of clone.querySelectorAll('button,[role="button"],script,style,svg,[hidden],[aria-hidden="true"],[data-markdown-copy="exclude"]'))control.remove();
+    // The current user renderer replaces literal fenced code with PRE/CODE.
+    // Reconstruct only this explicit provider format before comparing the whole
+    // normalized original; a plain PRE does not prove that fences were supplied.
+    for(const block of clone.querySelectorAll('pre[data-markdown-copy="code-block"]')) {
+      const code=block.querySelector('code[data-markdown-copy-content="true"][data-language]');
+      if(code&&block.children.length===1&&!/[\r\n`]/.test(code.getAttribute('data-language')))
+        block.replaceWith(document.createTextNode('\n```'+code.getAttribute('data-language')+'\n'+code.textContent+'\n```\n'));
+    }
     for(const block of clone.querySelectorAll('br,div,p,li,ul,ol,blockquote,pre')) {
       if(block.tagName==='BR')block.replaceWith(document.createTextNode('\n'));
       else {block.before(document.createTextNode('\n'));block.after(document.createTextNode('\n'));}
     }
     return normalized(clone.textContent);
+  }
+  function expandPendingUser(snapshot) {
+    if(!active||!active.clicked||active.acceptedUserId||!snapshot.valid||active.phase!=='awaiting_ack')return false;
+    const users=snapshot.turns.filter(turn=>turn.role==='user'&&!active.baseline.has(turn.id));
+    if(users.length!==1||users[0].text===normalized(active.text))return false;
+    const user=users[0];
+    if(active.userExpansion)return active.userExpansion.id===user.id&&Date.now()-active.userExpansion.at<5_000;
+    const buttons=transcriptAll('button[type="button"][aria-expanded="false"][data-thread-find-skip="true"][data-markdown-copy="exclude"]',user.content);
+    if(buttons.length!==1||buttons[0].disabled)return false;
+    // A single new bubble following our one send may be truncated in the DOM.
+    // Expanding is read-only, once per request; only full equality below can
+    // certify acceptance. Never expand history or retry a send on a prefix.
+    active.userExpansion={id:user.id,at:Date.now()};
+    try{buttons[0].click();return true;}catch(_){return false;}
   }
   function transcriptRendered(element) {
     if(!element||!element.isConnected)return false;
@@ -1192,6 +1214,7 @@
     if (location.pathname !== initialPath && initialPath === '/' && active && active.clicked && active.freshConversation
         && currentConversation) {
       const snapshot = turnSnapshot();
+      if(expandPendingUser(snapshot))return;
       const users = snapshot.turns.filter(turn => turn.role === 'user' && !active.baseline.has(turn.id));
       if (snapshot.valid && users.length === 1 && users[0].text === normalized(active.text)) {
         initialPath = location.pathname;
@@ -1235,6 +1258,7 @@
     if (!active || quotaLatched || active.phase === 'uncertain' || active.phase === 'preparing' || active.phase === 'preparing_attachments' || active.phase === 'awaiting_authorization') return;
     const snapshot = turnSnapshot();
     if (!snapshot.valid) { uncertain('turn_identity_unverified'); return; }
+    if(expandPendingUser(snapshot))return;
     const newUsers = snapshot.turns.filter(turn => turn.role === 'user' && !active.baseline.has(turn.id));
     const matches = newUsers.filter(turn => turn.text === normalized(active.text));
     if (matches.length > 1 || newUsers.some(turn => turn.text !== normalized(active.text))) { uncertain('turn_ambiguous'); return; }

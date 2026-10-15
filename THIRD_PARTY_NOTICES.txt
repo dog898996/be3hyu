@@ -1,6 +1,6 @@
 The optional ChatGPT browser adapter was informed by the browser selectors and
 response observation approach in codex-chatgpt-web, inspected at commit
-0b6087c5307c7a58adda9c420358f3f70d2035f5, with response/commentary and
+0b6087c5307c7a58adda9c420358f3f70d2035f5, with response/user-message and
 DOM-ready lifecycle benchmarking at f137c2f84da5df214c1e228d74f5ff43e7641c48.
 Its license notice follows.
 

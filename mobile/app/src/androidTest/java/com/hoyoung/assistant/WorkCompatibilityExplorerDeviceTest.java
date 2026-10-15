@@ -345,6 +345,21 @@ public final class WorkCompatibilityExplorerDeviceTest {
         } finally {releaseImage.countDown();}
     }
 
+    @Test public void truncatedAndCodeFormattedUserTurnsAreConfirmedWithoutResending() throws Exception {
+        open("window.expandClicks=0;document.querySelector('form').addEventListener('submit',()=>{"
+            +"const content=window.lastGroup.querySelector('[data-search-result-target]');if(window.clicks===1){const full=content.textContent;content.textContent=full.slice(0,100);"
+            +"const button=document.createElement('button');button.type='button';button.setAttribute('aria-expanded','false');button.setAttribute('data-thread-find-skip','true');button.setAttribute('data-markdown-copy','exclude');button.textContent='더 보기';content.parentElement.append(button);"
+            +"button.onclick=()=>{window.expandClicks++;setTimeout(()=>{content.textContent=full;button.setAttribute('aria-expanded','true');},500);};}"
+            +"else content.innerHTML='원문<pre data-markdown-copy=code-block><code data-markdown-copy-content=true data-language=json>{\"value\":\"a b\"}</code></pre>끝';});");
+        assertEquals("dispatch_pending",send("truncated-original","긴 원문 ".repeat(200)+"END").getString("code"));
+        awaitEvent("accepted","truncated-original",30_000);assertEquals(1,intValue("expandClicks"));
+        eval("answerPlain('긴 원문 확인 완료');true");awaitEvent("completed","truncated-original",30_000);
+        assertEquals("dispatch_pending",send("code-original","원문\n```json\n{\"value\":\"a b\"}\n```\n끝").getString("code"));
+        awaitEvent("accepted","code-original",30_000);eval("answerPlain('코드 원문 확인 완료');true");awaitEvent("completed","code-original",30_000);
+        assertEquals(2,intValue("clicks"));assertEquals(1,intValue("expandClicks"));
+        proof("actual-WebView; DOM-truncated-user-expands-once; code-fence-reconstruction; two-unique-requests; no-resubmit");
+    }
+
     private void open(String setup) throws Exception {
         String page = PAGE.replace("/* SETUP */", setup);
         byte[] bytes = page.getBytes(StandardCharsets.UTF_8);

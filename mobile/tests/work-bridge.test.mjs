@@ -2078,3 +2078,32 @@ test('upstream benchmark plain final text remains readable beside non-Markdown p
     assert.equal((await events(page)).find(e=>e.type==='completed')?.text,'일반 글로 온 최종 답변');
   });
 });
+
+test('upstream benchmark rendered user code fences still acknowledge the original request',async()=>{
+  await pageFixture(async page=>{
+    await page.evaluate(()=>document.querySelector('form').addEventListener('submit',()=>{document.querySelector('[data-search-result-target]').innerHTML='원문<pre data-markdown-copy="code-block"><code data-markdown-copy-content="true" data-language="json">{"value":"a b"}</code></pre>끝';}));
+    await send(page,{text:'원문\n```json\n{"value":"a b"}\n```\n끝'});
+    await advance(page,400);
+    assert.equal((await events(page)).filter(e=>e.type==='accepted').length,1);
+    await page.evaluate(()=>window.answer('코드 요청 완료'));await advance(page,2500);
+    assert.equal((await events(page)).filter(e=>e.type==='completed').length,1);
+    assert.equal(await page.evaluate(()=>window.clicks),1);
+  });
+});
+
+test('upstream benchmark expands a DOM-truncated new user bubble once and requires its whole text',async()=>{
+  for(const correct of [true,false])await pageFixture(async page=>{
+    const prompt='새 요청 본문 '+ '원문이 긴 작업 '.repeat(200)+'END';
+    await page.evaluate(({prompt,correct})=>document.querySelector('form').addEventListener('submit',()=>{
+      const content=document.querySelector('[data-search-result-target]');content.textContent=prompt.slice(0,200);
+      window.expandClicks=0;const button=document.createElement('button');button.type='button';button.setAttribute('aria-expanded','false');button.setAttribute('data-thread-find-skip','true');button.setAttribute('data-markdown-copy','exclude');button.textContent='더 보기';content.parentElement.append(button);
+      button.onclick=()=>{window.expandClicks++;setTimeout(()=>{content.textContent=correct?prompt:prompt+'OTHER';button.setAttribute('aria-expanded','true');},500);};
+    }),{prompt,correct});
+    await send(page,{text:prompt});await advance(page,1500);
+    assert.equal(await page.evaluate(()=>window.expandClicks),1);
+    assert.equal((await events(page)).filter(e=>e.type==='accepted').length,correct?1:0);
+    if(correct){await page.evaluate(()=>window.answer('전체 원문 확인 완료'));await advance(page,2500);assert.equal((await events(page)).filter(e=>e.type==='completed').length,1);}
+    else {await advance(page,31000);assert.equal((await events(page)).filter(e=>e.type==='completed').length,0);}
+    assert.equal(await page.evaluate(()=>window.clicks),1);
+  });
+});
