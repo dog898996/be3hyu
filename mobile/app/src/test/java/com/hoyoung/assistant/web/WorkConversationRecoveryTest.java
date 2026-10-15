@@ -109,4 +109,18 @@ public class WorkConversationRecoveryTest {
         assertTrue(journal.accept(id,"owned-prior-123"));emitReady();assertEquals("owned-prior-123",journal.id());
         journal.requestCleanup();emitReady();assertFalse(runtime.state().getBoolean("ready"));assertTrue(journal.cleaning());
     }
+    @Test public void failedJournalCleanupCannotEraseKnownNotSentEvidenceOrAdvertiseReady() throws Exception {
+        emitReady();JSONObject request=runtime.receive("저장소 오류 때 보존할 요청",new JSONArray());String id=request.getString("external_id");
+        journal.begin(id);
+        Field file=WorkConversationJournal.class.getDeclaredField("file");file.setAccessible(true);
+        file.set(journal,new android.util.AtomicFile(new File(context.getNoBackupFilesDir(),"work-conversation.json")){
+            @Override public java.io.FileOutputStream startWrite() throws java.io.IOException {throw new java.io.IOException("fixture disk unavailable");}
+        });
+        Method failure=WorkWebController.class.getDeclaredMethod("emitPreflight",String.class,String.class);failure.setAccessible(true);
+        failure.invoke(controller,"dispatch_authorization_denied",id);emitReady();
+        assertEquals("blocked",store.getRequest(request.getLong("id")).getString("status"));
+        assertEquals("dispatch_authorization_denied",store.getSetting("dispatchKnownNotSent:"+id,""));
+        assertEquals(id,journal.pendingRequest());assertFalse(runtime.state().getBoolean("ready"));
+        assertEquals("conversation_journal_unavailable",runtime.state().getString("readinessCode"));
+    }
 }

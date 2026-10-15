@@ -62,7 +62,10 @@ public final class WorkNativeDispatchDeviceTest {
                     activity.addContentView(web,new FrameLayout.LayoutParams(-1,-1));web.loadUrl(WorkWebController.HOME_URL);
                 }catch(Exception failure){throw new AssertionError(failure);}
             });
-            await(()->app.getRuntime().state().optBoolean("ready"));
+            // loadUrl posts navigation: a prior document's readiness may still
+            // be visible before onPageStarted. Require this reservation's receipt.
+            await(()->app.getRuntime().state().optBoolean("ready")
+                    &&!app.getStore().getSetting("workCreationRetired:"+oldId,"").isEmpty());
             JSONObject retirement=new JSONObject(app.getStore().getSetting("workCreationRetired:"+oldId,""));
             assertFalse(retirement.getBoolean("providerDeletionVerified"));
             JSONObject[] request={null};scenario.onActivity(activity->request[0]=app.getRuntime().receive("새 인사에 답해 줘",new JSONArray()));

@@ -77,6 +77,7 @@ public final class WorkWebController implements AssistantRuntime.Transport {
     private ValueCallback<Uri[]> fileCallback;
     private String currentOrigin = "";
     private String pageLoadFailure = "";
+    private String conversationJournalFailure = "";
     private boolean pageAwaitingFinish;
     private final java.util.concurrent.ExecutorService downloads = java.util.concurrent.Executors.newSingleThreadExecutor();
     private final java.util.concurrent.ExecutorService responseCaptures = java.util.concurrent.Executors.newSingleThreadExecutor();
@@ -330,7 +331,7 @@ public final class WorkWebController implements AssistantRuntime.Transport {
                             }
                         }
                         if (("error".equals(type) || "quota".equals(type)) && event.optBoolean("knownNotSent"))
-                            conversations.notSent(event.optString("requestId"));
+                            recordNotSent(event.optString("requestId"));
                         if ("state".equals(type)) {
                             JSONObject state=event.optJSONObject("state");
                             if(state!=null)emitState(state,event.optString("code",state.optString("readinessCode","")));
@@ -455,6 +456,10 @@ public final class WorkWebController implements AssistantRuntime.Transport {
     /** Explicit owner retry. Loading failure is not an already-running connection. */
     public void connect() {
         main.post(() -> {
+            if(!conversationJournalFailure.isEmpty()) {
+                try{conversations.verifyWritable();conversationJournalFailure="";}
+                catch(IOException failure){publishUnavailableState("conversation_journal_unavailable",false,0,null);return;}
+            }
             JSONObject state=runtime.state();
             if(view==null && canAutomaticallyOpen(state)) {
                 ownerRecoveryRequired=false;startupRetry.reset();cancelStartupRetry();
@@ -728,7 +733,9 @@ public final class WorkWebController implements AssistantRuntime.Transport {
                         emitPreflight("unowned_conversation", requestId); return;
                     }
                     conversations.begin(requestId);
-                } catch (Exception ownershipFailure) { emitPreflight("conversation_journal_unavailable", requestId); return; }
+                } catch (Exception ownershipFailure) {
+                    conversationJournalFailure="write_failed";emitPreflight("conversation_journal_unavailable",requestId);return;
+                }
                 try { destination.evaluateJavascript(call, raw -> {
                     try {
                         if (raw == null || "null".equals(raw)) { emitError("BRIDGE_NOT_READY", requestId); return; }
@@ -1209,6 +1216,7 @@ public final class WorkWebController implements AssistantRuntime.Transport {
 
     private String reconcileConversationCreation() {
         if(conversations.blocked())return "conversation_journal_unreadable";
+        if(!conversationJournalFailure.isEmpty())return "conversation_journal_unavailable";
         if(conversations.cleaning())return "conversation_cleanup_pending";
         String pending=conversations.pendingRequest();
         if(pending.isEmpty()||pending.equals(runtime.state().optString("activeRequestId")))return "";
@@ -1216,13 +1224,14 @@ public final class WorkWebController implements AssistantRuntime.Transport {
             JSONObject proof=runtime.webCreationReservation(pending,true);
             if(!proof.optBoolean("retirementAllowed"))return "conversation_ownership_unresolved";
             conversations.retireReviewedCreation(pending,proof.optString("disposition"));return "";
-        }catch(Exception failure){return "conversation_journal_unavailable";}
+        }catch(Exception failure){conversationJournalFailure="reconciliation_failed";return "conversation_journal_unavailable";}
     }
 
     private JSONObject conversationJournalDiagnostics() throws IOException {
         JSONObject result=conversations.snapshot();String pending=conversations.pendingRequest();
         try {
             result.put("nativeReadinessCode",runtime.state().optString("readinessCode"));
+            result.put("writeFailure",conversationJournalFailure);
             if(!pending.isEmpty())result.put("pendingRequest",runtime.webCreationReservation(pending,false));
         }catch(Exception failure){throw new IOException(failure);}
         return result;
@@ -1243,8 +1252,16 @@ public final class WorkWebController implements AssistantRuntime.Transport {
     }
 
     private void emitPreflight(String code, String requestId) {
-        try { conversations.notSent(requestId); } catch (IOException unresolved) { /* Keep the durable ownership ambiguity. */ }
+        recordNotSent(requestId);
         try { runtime.onWebEvent(new JSONObject().put("type", "error").put("code", code).put("knownNotSent", true).put("requestId", requestId)); } catch (Exception ignored) { }
+        if(!conversationJournalFailure.isEmpty())emitState(new JSONObject(),"conversation_journal_unavailable");
+    }
+
+    private void recordNotSent(String requestId) {
+        try {conversations.notSent(requestId);}
+        catch(IOException failure){conversationJournalFailure="write_failed";}
+        // A journal write failure cannot swallow native evidence that this
+        // request was never sent. Reconciliation may retry after storage recovers.
     }
 
     private static JSONObject decodeResult(String raw) throws Exception {

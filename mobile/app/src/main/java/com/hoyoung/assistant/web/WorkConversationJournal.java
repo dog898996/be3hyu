@@ -54,6 +54,10 @@ final class WorkConversationJournal {
         put(retired,"providerDeletionVerified",false);put(next,"lastRetiredCreation",retired);save(next);
     }
     synchronized JSONObject snapshot() throws IOException { return copy(); }
+    synchronized void verifyWritable() throws IOException {
+        if(blocked())throw new IOException("Ownership receipt is unreadable");
+        save(copy());
+    }
     synchronized void requestCleanup() throws IOException {
         if (blocked() || !pendingRequest().isEmpty()) throw new IOException("Conversation ownership unresolved");
         if (id().isEmpty()) return;

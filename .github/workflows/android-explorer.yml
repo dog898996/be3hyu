@@ -8,7 +8,7 @@ on:
         required: true
         type: choice
         default: full
-        options: [full, work-recovery]
+        options: [full, work-recovery, native-dispatch]
 
 # Public repository, standard free runners only. No paid models or signing secrets.
 permissions:

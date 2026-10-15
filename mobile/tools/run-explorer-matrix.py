@@ -17,7 +17,7 @@ PROFILES = {
 }
 parser = argparse.ArgumentParser()
 parser.add_argument('profile', choices=PROFILES)
-parser.add_argument('--scope', choices=('full', 'work-recovery'), default='full')
+parser.add_argument('--scope', choices=('full', 'work-recovery', 'native-dispatch'), default='full')
 args = parser.parse_args()
 project = Path(__file__).resolve().parents[1]
 tools = Path(os.environ['HOYOUNG_ANDROID_TOOLS_DIR'])
@@ -151,7 +151,9 @@ try:
     print('HOYOUNG_EXPLORER_PROFILE ' + json.dumps({'profile': args.profile, 'api': 35,
           'requestedPixels': [width, height], 'requestedFontScale': font, 'requestedLocale': locale,
           'configurationMustBeReadFromActualTestProof': True}), flush=True)
-    if args.scope == 'work-recovery':
+    if args.scope == 'native-dispatch':
+        instrument('native-dispatch', app + '.WorkNativeDispatchDeviceTest', 1, 120)
+    elif args.scope == 'work-recovery':
         instrument('work-recovery', app + '.WorkCompatibilityExplorerDeviceTest', 13, 360)
         instrument('native-dispatch', app + '.WorkNativeDispatchDeviceTest', 1, 120)
     else:

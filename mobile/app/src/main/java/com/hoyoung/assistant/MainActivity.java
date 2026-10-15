@@ -1522,7 +1522,9 @@ public final class MainActivity extends Activity {
             panel.addView(label(stateLabel + " · " + shorten(request.optString("text"), 120), 13, SUBTLE));
             String failure=app.getStore().getSetting("dispatchKnownNotSent:"+request.optString("external_id"),"");
             if(failure.isEmpty()&&request.optString("result").matches("[A-Za-z_]{3,128}"))failure=request.optString("result");
-            if(!failure.isEmpty())panel.addView(label("중단 이유: "+failure,12,SUBTLE));
+            if(!failure.isEmpty())panel.addView(label(failure.startsWith("conversation_")
+                    ?com.hoyoung.assistant.ui.WorkConnectionStatus.hint(failure)
+                    :"전송 준비를 확인하지 못했어. Work의 상세정보에서 연결 상태를 확인해 줘.",12,SUBTLE));
             if (!"uncertain".equals(status)) panel.addView(button("이 요청 다시 시도", () -> {
                 try { app.getRuntime().retryRequest(request.optLong("id")); showSettings(); }
                 catch (Exception e) { notice("이 작업은 지금 다시 시작할 수 없어."); }
