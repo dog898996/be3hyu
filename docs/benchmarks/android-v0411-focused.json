@@ -1,0 +1,16 @@
+{
+  "version": "0.4.11",
+  "scope": "Backup limit editor removal only; backup storage, routing and Work transport code unchanged.",
+  "native": {
+    "tests": 8,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "suite": "com.hoyoung.assistant.MainActivityRoutingProfileTest",
+  "build": "assembleRelease and lintVitalRelease passed",
+  "paidModelCalls": 0,
+  "physicalDeviceTested": false,
+  "browserTestsRepeated": false,
+  "longTermMemorySimulationRepeated": false
+}

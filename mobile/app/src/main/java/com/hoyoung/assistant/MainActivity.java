@@ -1347,10 +1347,6 @@ public final class MainActivity extends Activity {
         addSettingToggle(panel, "허용한 휴대폰 정보 활용", "phoneContextEnabled", true);
         addSettingToggle(panel, "폰 내부 의미 검색", "semanticSearchEnabled", true);
         addSettingToggle(panel, "비서의 답장·선톡 알림", "replyNotificationsEnabled", true);
-        panel.addView(label("백업 용량 한도 · GiB",12,SUBTLE));
-        panel.addView(label("한 번의 백업·복원에 허용할 최대 용량이야. 공간을 미리 차지하거나 기억 저장량을 제한하지 않아.",12,SUBTLE));
-        EditText backupLimit = new EditText(this); backupLimit.setInputType(android.text.InputType.TYPE_CLASS_NUMBER); backupLimit.setHint("백업 용량 한도(GiB, 1~64)");
-        backupLimit.setText(app.getStore().getSetting("backupMaxGiB", "64")); panel.addView(backupLimit);
         panel.addView(label("정기 판단과 기억 모델",17,INK));
         android.widget.Spinner autonomyEffortChoice = new android.widget.Spinner(this), memoryEffortChoice = new android.widget.Spinner(this), backgroundSpeedChoice = new android.widget.Spinner(this);
         String[] autonomyEfforts = {"low", "medium", "high", "xhigh", "max", "ultra"}, memoryEfforts = {"medium", "high", "xhigh", "max", "ultra"}, backgroundSpeeds = {"standard", "fast"};
@@ -1376,7 +1372,7 @@ public final class MainActivity extends Activity {
         EditText instructions = new EditText(this); instructions.setMinLines(8); instructions.setGravity(Gravity.TOP);
         instructions.setText(app.getStore().getSetting("customInstructions", bundledInstructions())); panel.addView(instructions);
         java.util.function.Supplier<JSONObject> formValues=()->settingsObject(
-            "heartbeatSeconds",interval.getText().toString(),"backupMaxGiB",backupLimit.getText().toString(),
+            "heartbeatSeconds",interval.getText().toString(),
             "customInstructions",instructions.getText().toString(),
             "requiredModel",com.hoyoung.assistant.ui.ModelChoices.id(modelChoice.getSelectedItemPosition()),"requiredEffort",efforts[effortChoice.getSelectedItemPosition()],"requiredSpeed",fastChoice.isChecked()?"fast":"standard",
             "autonomousEffort",autonomyEfforts[autonomyEffortChoice.getSelectedItemPosition()],
@@ -1385,21 +1381,20 @@ public final class MainActivity extends Activity {
         panel.addView(button("설정 저장", () -> {
             try {
                 int seconds = Integer.parseInt(interval.getText().toString()); if (seconds < 60 || seconds > 86400) throw new IllegalArgumentException();
-                int backupGiB = Integer.parseInt(backupLimit.getText().toString()); if (backupGiB < 1 || backupGiB > 64) throw new IllegalArgumentException();
                 String chosenModel = com.hoyoung.assistant.ui.ModelChoices.id(modelChoice.getSelectedItemPosition()), chosenEffort = efforts[effortChoice.getSelectedItemPosition()], chosenSpeed = fastChoice.isChecked() ? "fast" : "standard";
                 com.hoyoung.assistant.runtime.AssistantRuntime.validateModelPreferences(chosenModel, chosenEffort, chosenSpeed);
                 String instructionText = instructions.getText().toString();
                 if (instructionText.length() > 50_000) throw new IllegalArgumentException();
                 JSONObject desired=formValues.get(),patch=new JSONObject();
                 for(java.util.Iterator<String> keys=desired.keys();keys.hasNext();){String key=keys.next();if(!java.util.Objects.equals(desired.opt(key),initialForm.opt(key)))patch.put(key,desired.opt(key));}
-                for(String key:new String[]{"heartbeatSeconds","backupMaxGiB"})if(patch.has(key))patch.put(key,Integer.parseInt(patch.optString(key)));
+                if(patch.has("heartbeatSeconds"))patch.put("heartbeatSeconds",Integer.parseInt(patch.optString("heartbeatSeconds")));
                 JSONObject result=app.getRuntime().updatePersonalSettings(patch,baseline);
                 if(!result.optBoolean("ok")){notice(result.optString("message"));return;}
                 JSONObject saved=app.getRuntime().personalSettingsBaseline();
                 for(java.util.Iterator<String> keys=patch.keys();keys.hasNext();){String key=keys.next();baseline.put(key,saved.opt(key));initialForm.put(key,desired.opt(key));}
                 AutonomyService.reevaluateActiveService();refreshModelSelector();
                 notice("변경한 지침과 영구 설정을 저장했어.");
-            } catch (Exception e) { notice("판단 간격은 60~86,400초, 백업 한도는 1~64GiB, 사용자 지침은 50,000자 이내로 입력해."); }
+            } catch (Exception e) { notice("판단 간격은 60~86,400초, 사용자 지침은 50,000자 이내로 입력해."); }
         }));
         panel.addView(button("한도·연결 상태 다시 확인", () -> { app.getWebController().manualRetryCheck(); refreshStatus(); }));
         panel.addView(button("연결 진단 복사", this::copyConnectionDiagnosis));

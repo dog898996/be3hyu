@@ -90,7 +90,8 @@ public class MainActivityRoutingProfileTest {
         MainActivityUiTestSupport.navigate(activity,"설정");
         assertNull(findHint(root(),"계속 맡길 일과 목표"));
         assertNull(MainActivityUiTestSupport.text(root(),"사용량 절약 · 하루 10% 목표"));
-        assertNotNull(MainActivityUiTestSupport.text(root(),"백업 용량 한도 · GiB"));
+        assertNull(findHint(root(),"백업 용량 한도(GiB, 1~64)"));
+        assertNotNull(MainActivityUiTestSupport.text(root(),"백업과 복원 열기"));
         EditText instructions=(EditText)MainActivityUiTestSupport.description(root(),"사용자 지침 편집");
         instructions.setText("화면에서 편집한 지침");
         app.getRuntime().updatePersonalSettings(new JSONObject().put("requiredEffort","high"),null);
