@@ -198,6 +198,9 @@
     const family = /^(?:GPT[-\s]?)?(\d+(?:\.\d+)?)\s*[- ]?\s*(Sol|Astra|Luna)$/i.exec(label);
     if (family) return 'gpt-' + family[1] + '-' + family[2].toLowerCase();
     const canonical = label.toLowerCase().replace(/^gpt(?:\s*-\s*|\s+)/, 'gpt-').replace(/\s+/g, '-');
+    // A styled header can split GPT-6.1 / Sol / Medium into separate spans.
+    // The version fragment is not a second, conflicting model identity.
+    if (/^gpt-\d+(?:\.\d+)?$/.test(canonical)) return null;
     return canonical.length <= 80 && MODEL_ID.test(canonical) ? canonical : null;
   }
   function requiredPreferences(payload, defaults) {
@@ -302,7 +305,13 @@
     }
   }
   function pickerHeaders() {
-    return ownedMenus(modelTriggers()).flatMap(menu => all('[data-model-picker-view-toggle]',menu));
+    return ownedMenus(modelTriggers()).flatMap(menu => {
+      const marked=all('[data-model-picker-view-toggle]',menu);
+      if(marked.length)return marked;
+      return all('button,[role="button"],[role="menuitem"]',menu).filter(node=>
+        /^(?:모델 선택|Select model|Choose model)$/i.test(normalized(node.getAttribute('aria-label')))
+        && !node.closest('[role="menuitemradio"],[role="option"]'));
+    });
   }
   function pickerReadings() {
     const values = [];
@@ -335,18 +344,21 @@
   function fastControlState(element) {
     const labels=controlLabels(element).concat(normalized(element.getAttribute('aria-describedby')).split(' ').map(id=>document.getElementById(id))
       .filter(node=>node && visible(node) && !node.closest(TRANSCRIPT)).map(node=>renderedWords(node)));
-    const name=/^(?:Fast(?: mode| responses?| response mode)?|빠름|빠른 (?:응답|모드)|빠른 응답 모드)$/i;
-    const onAction=/^(?:Disable|Turn off) (?:fast(?: mode| responses?| response mode)?)$|^(?:빠름|빠른 (?:응답|모드)|빠른 응답 모드) (?:끄기|해제)$/i;
-    const offAction=/^(?:Enable|Turn on) (?:fast(?: mode| responses?| response mode)?)$|^(?:빠름|빠른 (?:응답|모드)|빠른 응답 모드) (?:켜기|활성화)$/i;
+    const name=/^(?:Fast(?: mode| responses?| response mode| 모드)?|빠름|빠른 (?:응답|모드)|빠른 응답 모드)$/i;
+    const onAction=/^(?:Disable|Turn off) (?:fast(?: mode| responses?| response mode)?)$|^(?:Fast(?: 모드)?|빠름|빠른 (?:응답|모드)|빠른 응답 모드) (?:끄기|해제|비활성화)$/i;
+    const offAction=/^(?:Enable|Turn on) (?:fast(?: mode| responses?| response mode)?)$|^(?:Fast(?: 모드)?|빠름|빠른 (?:응답|모드)|빠른 응답 모드) (?:켜기|활성화)$/i;
     const values=[];
-    for(const label of labels) {if(onAction.test(label))values.push('fast');if(offAction.test(label))values.push('standard');}
-    if(labels.some(label=>name.test(label))) {
+    if(labels.some(label=>name.test(label)||onAction.test(label)||offAction.test(label))) {
       for(const attribute of ['aria-checked','aria-pressed']) {
         const value=element.getAttribute(attribute);if(value==='true'||value==='false')values.push(value==='true'?'fast':'standard');
       }
       const state=element.getAttribute('data-state');
       if(/^(on|checked)$/.test(state||''))values.push('fast');if(/^(off|unchecked)$/.test(state||''))values.push('standard');
     }
+    // Checkbox labels such as "Fast 모드 활성화" remain constant when checked.
+    // Explicit ARIA state wins over whether the caption sounds like an action.
+    if(values.length)return uniqueValue(values);
+    for(const label of labels) {if(onAction.test(label))values.push('fast');if(offAction.test(label))values.push('standard');}
     return uniqueValue(values);
   }
   function fastToggles() {

@@ -81,7 +81,7 @@ public final class MainActivity extends Activity {
     private boolean resumed;
     private OwnerDraftStore draftStore;
     private OwnerDraftStore.Snapshot draftState;
-    private boolean applyingDraft, messagesLoading, draftSaveFailed, sourceControlBusy;
+    private boolean applyingDraft, messagesLoading, draftSaveFailed, sourceControlBusy, chatViewUpdating;
     private long chatBeforeId, nextBeforeId, chatGeneration;
     private LinearLayout chatNavigation;
     private HoyoungApplication app;
@@ -108,6 +108,7 @@ public final class MainActivity extends Activity {
         }
     };
     private long displayedMessageId = -1;
+    private long displayedHiddenThroughId = -1;
     private boolean sending;
     private final Runnable refresh = new Runnable() {
         @Override public void run() {
@@ -241,9 +242,34 @@ public final class MainActivity extends Activity {
     private void showConversationOptions() {
         if(permissionBlocked){showPermissionOnboarding();return;}
         if("Work".equals(tab)){showWorkOptions();return;}
-        new ObservedDialogBuilder(this).setTitle("대화 옵션").setItems(new String[]{"모델·응답 설정","Work 연결 상태","현재 작업 중지"},(dialog,which)->{
-            if(which==0)showTab("설정");else if(which==1)showTab("Work");else commands.execute(()->{app.getRuntime().pauseCurrentWork("사용자가 대화 옵션에서 현재 작업 중지 선택");main.post(this::refreshStatus);});
+        java.util.ArrayList<String> options=new java.util.ArrayList<>(java.util.List.of("대화방 비우기","모델·응답 설정","Work 연결 상태","현재 작업 중지"));
+        if(app.getStore().chatViewHiddenThroughId()>0)options.add("비운 대화 다시 보기");
+        new ObservedDialogBuilder(this).setTitle("대화 옵션").setItems(options.toArray(new String[0]),(dialog,which)->{
+            switch(options.get(which)) {
+                case "대화방 비우기" -> changeChatView(true);
+                case "비운 대화 다시 보기" -> changeChatView(false);
+                case "모델·응답 설정" -> showTab("설정");
+                case "Work 연결 상태" -> showTab("Work");
+                case "현재 작업 중지" -> commands.execute(()->{app.getRuntime().pauseCurrentWork("사용자가 대화 옵션에서 현재 작업 중지 선택");main.post(this::refreshStatus);});
+            }
         }).setNegativeButton("닫기",null).show();
+    }
+
+    private void changeChatView(boolean clear) {
+        if(chatViewUpdating || app.getRuntime().isRestoringBackup())return;
+        chatViewUpdating=true;chatGeneration++;displayedMessageId=-1;
+        display.execute(()->{
+            try {
+                if(clear)app.getStore().clearChatView();else app.getStore().restoreChatView();
+                main.post(()->{
+                    chatViewUpdating=false;
+                    if(isFinishing()||isDestroyed())return;
+                    chatBeforeId=0;nextBeforeId=0;displayedMessageId=-1;displayedHiddenThroughId=-1;chatGeneration++;
+                    refreshMessages();
+                    android.widget.Toast.makeText(this,clear?"화면만 비웠어. 기록과 기억은 그대로야.":"보관된 대화를 다시 표시했어.",android.widget.Toast.LENGTH_SHORT).show();
+                });
+            }catch(RuntimeException failure){main.post(()->{chatViewUpdating=false;if(!isFinishing()&&!isDestroyed()){refreshMessages();notice("대화 화면 설정을 저장하지 못했어. 기록은 그대로야.");}});}
+        });
     }
 
     private void showConnectionDetails() {
@@ -377,9 +403,12 @@ public final class MainActivity extends Activity {
                 JSONObject page = app.getStore().boundedChatMessagePage(id + 1, 1, 1);
                 JSONObject source = page.optJSONArray("messages").optJSONObject(0);
                 if (source == null || source.optLong("id") != id || !hash.equals(source.optString("content_hash")) || "user".equals(source.optString("role"))) return;
+                boolean hidden = id <= app.getStore().chatViewHiddenThroughId();
                 main.post(() -> {
                     if (isFinishing() || isDestroyed() || app.getRuntime().isRestoringBackup()) return;
-                    showTab("대화"); chatBeforeId = id + 1; displayedMessageId = -1; chatGeneration++; refreshMessages();
+                    showTab("대화");
+                    if(hidden){showOriginal(id,0);return;}
+                    chatBeforeId = id + 1; displayedMessageId = -1; chatGeneration++; refreshMessages();
                 });
             } catch (RuntimeException unavailable) { /* A stale notification does not certify read or restored-source identity. */ }
         });
@@ -535,15 +564,16 @@ public final class MainActivity extends Activity {
 
     /** At most forty bounded previews are read/rendered; old originals stay available by source id. */
     private void refreshMessages() {
-        if (isFinishing() || isDestroyed() || app.getRuntime().isRestoringBackup() || messageList == null || !"대화".equals(tab) || messagesLoading) return;
+        if (isFinishing() || isDestroyed() || app.getRuntime().isRestoringBackup() || messageList == null || !"대화".equals(tab) || messagesLoading || chatViewUpdating) return;
         if (chatBeforeId > 0 && displayedMessageId >= 0) return;
-        final long generation = chatGeneration, before = chatBeforeId, alreadyDisplayed = displayedMessageId;
+        final long generation = chatGeneration, before = chatBeforeId, alreadyDisplayed = displayedMessageId, alreadyHidden = displayedHiddenThroughId;
         messagesLoading = true;
         display.execute(() -> {
             try {
                 long newest = app.getStore().lastChatMessageId();
-                if (newest == alreadyDisplayed) { main.post(() -> { messagesLoading = false; if (generation != chatGeneration && !isDestroyed() && "대화".equals(tab)) refreshMessages(); }); return; }
-                JSONObject page = app.getStore().boundedChatMessagePage(before, 40, 8000);
+                long hiddenThrough=app.getStore().chatViewHiddenThroughId();
+                if (newest == alreadyDisplayed && hiddenThrough == alreadyHidden) { main.post(() -> { messagesLoading = false; if (generation != chatGeneration && !isDestroyed() && "대화".equals(tab)) refreshMessages(); }); return; }
+                JSONObject page = app.getStore().visibleChatMessagePage(before, 40, 8000);
                 JSONArray messages = page.optJSONArray("messages");
                 java.util.HashMap<Long, JSONArray> assets = new java.util.HashMap<>();
                 for (int i = 0; i < messages.length(); i++) {
@@ -553,11 +583,12 @@ public final class MainActivity extends Activity {
                 main.post(() -> {
                     messagesLoading = false;
                     if (isFinishing() || isDestroyed() || generation != chatGeneration || before != chatBeforeId || !"대화".equals(tab)) { if (!isDestroyed() && "대화".equals(tab)) refreshMessages(); return; }
-                    if (newest == displayedMessageId) return;
+                    long pageBoundary=page.optLong("hiddenThroughId");
+                    if (newest == displayedMessageId && pageBoundary == displayedHiddenThroughId) return;
                     boolean follow = displayedMessageId < 0 || messageScroll.getChildAt(0).getHeight() - messageScroll.getHeight() - messageScroll.getScrollY() < dp(100);
                     int scrollY = messageScroll.getScrollY();
-                    long previousNewest=displayedMessageId;
-                    displayedMessageId = newest; nextBeforeId = page.optLong("nextBeforeId", 0);
+                    long previousNewest=pageBoundary == displayedHiddenThroughId?displayedMessageId:-1;
+                    displayedMessageId = newest; displayedHiddenThroughId=pageBoundary; nextBeforeId = page.optLong("nextBeforeId", 0);
                     renderChatPage(messages,assets,previousNewest);
                     chatNavigation.removeAllViews();
                     if(before>0)chatNavigation.addView(button("최신 대화",()->{chatBeforeId=0;displayedMessageId=-1;chatGeneration++;refreshMessages();}));

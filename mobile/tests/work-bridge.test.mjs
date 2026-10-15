@@ -335,6 +335,42 @@ test('phone power picker opens automatically from a generic label, confirms Fast
   },{setup:phonePowerPicker});
 });
 
+// The owner's 0.4.7 live diagnostics reported a menuitem labelled 모델 선택
+// with GPT-6.1 Sol Medium and a menuitemcheckbox named Fast 모드 활성화.
+// Include both header marker variants: the diagnostic did not expose that marker.
+const reportedKoreanPicker = (headerMarker=true) => phonePowerPicker+`
+phoneTrigger.removeAttribute('data-codex-intelligence-trigger');phoneTrigger.removeAttribute('data-composer-navigation-target');
+const basePhoneRender=window.renderPhonePicker;window.renderPhonePicker=()=>{
+ basePhoneRender();const panel=document.querySelector('#phone-picker');if(!panel)return;
+ const header=panel.querySelector('#phone-header');${headerMarker?'':`header.removeAttribute('data-model-picker-view-toggle');`}
+ header.setAttribute('aria-expanded','false');
+ const family=window.phoneModel.split(' ');header.innerHTML='<span><span>'+family[0]+'</span> <span>'+family[1]+'</span></span><span>'+window.phoneEfforts[window.phoneIndex]+'</span>';
+ let fast=panel.querySelector('#phone-fast');if(fast.tagName==='BUTTON'){
+  const checkbox=document.createElement('div');checkbox.id=fast.id;checkbox.setAttribute('role','menuitemcheckbox');checkbox.tabIndex=0;checkbox.innerHTML=fast.innerHTML;checkbox.onclick=fast.onclick;fast.replaceWith(checkbox);fast=checkbox;
+ }
+ fast.setAttribute('aria-label','Fast 모드 활성화');fast.removeAttribute('aria-pressed');fast.setAttribute('aria-checked',String(window.phoneFast));
+};`;
+
+test('reported Korean Work picker reads the complete split model and checkbox state, closes and completes a reply',async()=>{
+  for(const marker of [false,true])await pageFixture(async page=>{
+    await connect(page);await advance(page,2000);
+    const current=await inspect(page);assert.equal(current.code,'ready');
+    assert.deepEqual([current.state.model,current.state.effort,current.state.speed],['gpt-6.1-sol','medium','fast']);
+    assert.deepEqual(await page.evaluate(()=>[window.phoneOpens,window.phoneFastChanges,window.phoneCloses]),[1,1,1]);
+    assert.equal((await send(page)).ok,true);await advance(page,350);
+    await page.evaluate(()=>window.answer('이번 진단 형태에서 실제 답변 경로 완료'));await advance(page,2500);
+    assert.equal((await events(page)).filter(event=>event.type==='completed').length,1);assert.equal(await page.evaluate(()=>window.clicks),1);
+  },{setup:reportedKoreanPicker(marker)});
+});
+
+test('reported Korean Fast checkbox has a constant activation label while checked, and supports turning off',async()=>{
+  for(const speed of ['fast','standard'])await pageFixture(async page=>{
+    await page.evaluate(speed=>window.HoyoungWorkBridge.connect({requiredModel:'gpt-6.1-sol',requiredEffort:'medium',requiredSpeed:speed}),speed);
+    await advance(page,2000);assert.equal((await inspect(page)).code,'ready');assert.equal((await inspect(page)).state.speed,speed);
+    assert.equal(await page.evaluate(()=>window.phoneFastChanges),speed==='fast'?0:1);
+  },{setup:reportedKoreanPicker()+`window.phoneFast=true;`});
+});
+
 test('phone power picker finishes and releases focus when the owner already opened it',async()=>{
   for(const dialog of [false,true])await pageFixture(async page=>{
     assert.equal((await inspect(page)).state.model,'gpt-6.1-sol');

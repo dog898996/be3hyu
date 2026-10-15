@@ -215,6 +215,37 @@ public final class MainActivityChatUiTest {
         assertNotNull(MainActivityUiTestSupport.description(root(),"대화 옵션"));
     }
 
+    @Test public void chatOverflowClearsOnlyTheViewAndRestoresItWithoutLosingDraftOrActiveWork() throws Exception {
+        JSONObject original=store.addMessage("user","화면만 숨길 이전 대화",null);
+        store.addMessage("assistant","이전 테스트 결과",null);
+        start(true);
+        EditText draft=(EditText)MainActivityUiTestSupport.description(root(),"메시지 입력");draft.setText("아직 안 보낸 초안");
+        JSONObject active=new JSONObject().put("external_id","keep-active").put("kind","user").put("status","awaiting_response");
+        set(app.getRuntime(),"active",active);
+        assertEquals(2,((Map<?,?>)get(activity,"messageRows")).size());
+        chooseConversationOption("대화방 비우기");drain();
+        assertEquals(0,((Map<?,?>)get(activity,"messageRows")).size());assertSame(active,get(app.getRuntime(),"active"));
+        assertEquals(2,store.listMessages(40).length());assertNotNull(store.getMessage(original.getLong("id")));
+        assertEquals("아직 안 보낸 초안",draft.getText().toString());
+        MainActivityUiTestSupport.navigate(activity,"설정");MainActivityUiTestSupport.navigate(activity,"대화");drain();
+        assertEquals(0,((Map<?,?>)get(activity,"messageRows")).size());
+        JSONObject incoming=addReaction(original,"👍",true);invoke("refreshMessages");drain();
+        assertTrue(((Map<?,?>)get(activity,"messageRows")).containsKey(incoming.getLong("id")));
+        assertNotNull(MainActivityUiTestSupport.text(root(),"이전 메시지에 👍 반응했어"));
+        chooseConversationOption("비운 대화 다시 보기");drain();
+        assertTrue(((Map<?,?>)get(activity,"messageRows")).containsKey(original.getLong("id")));
+        assertNotNull(MainActivityUiTestSupport.description(root(),"호영이 이 메시지에 👍 이모지로 응답함"));
+        assertEquals("아직 안 보낸 초안",((EditText)MainActivityUiTestSupport.description(root(),"메시지 입력")).getText().toString());
+        assertSame(active,get(app.getRuntime(),"active"));
+    }
+
+    private void chooseConversationOption(String label) {
+        assertTrue(MainActivityUiTestSupport.description(root(),"대화 옵션").performClick());
+        AlertDialog menu=ShadowAlertDialog.getLatestAlertDialog();android.widget.ListAdapter adapter=menu.getListView().getAdapter();
+        int index=-1;for(int i=0;i<adapter.getCount();i++)if(label.equals(adapter.getItem(i)))index=i;
+        assertTrue(label,index>=0);menu.getListView().performItemClick(null,index,index);menu.dismiss();
+    }
+
     private void start(boolean grants) throws Exception {
         if(grants)PermissionTestGrants.allowAll(app);
         controller=Robolectric.buildActivity(MainActivity.class).setup().visible();activity=controller.get();

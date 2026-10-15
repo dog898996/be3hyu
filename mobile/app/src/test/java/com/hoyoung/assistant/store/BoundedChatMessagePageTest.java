@@ -44,6 +44,47 @@ public final class BoundedChatMessagePageTest {
         deleteTree(context.getFilesDir());
     }
 
+    @Test public void clearingChatViewPreservesOriginalSearchMemoryQueueAndBackupAcrossReopen() throws Exception {
+        JSONObject original=store.addMessage("user","ARCHIVEKEY 운동 기록은 계속 기억해",null);
+        store.addMessage("assistant","계속 기억할게",null);
+        store.upsertMemory("routine","ARCHIVEKEY 운동", "preference",new JSONArray().put(original.getLong("id")));
+        store.enqueueRequest("다음 요청도 계속 수행","user","queued-keep");
+        JSONObject before=store.exportSnapshot();
+        store.clearChatView();
+        JSONObject hidden=store.visibleChatMessagePage(0,40,8000);
+        assertEquals(0,hidden.getJSONArray("messages").length());assertFalse(hidden.getBoolean("hasMore"));
+        for(String table:new String[]{"messages","memories","memory_revisions","requests"})
+            assertEquals(table,before.getJSONArray(table).toString(),store.exportSnapshot().getJSONArray(table).toString());
+        assertEquals(original.getString("text"),store.readOriginalText(original.getLong("id"),0,8000).getString("text"));
+        assertTrue(store.queryOriginals("ARCHIVEKEY",0,Long.MAX_VALUE,0,20).length()>0);
+        assertEquals(2,store.boundedChatMessagePage(0,40,8000).getJSONArray("messages").length());
+        assertTrue(store.verifyIntegrity().getBoolean("ok"));
+        JSONObject backup=store.exportSnapshot();
+        store.close();store=new HoyoungStore(context);
+        assertEquals(0,store.visibleChatMessagePage(0,40,8000).getJSONArray("messages").length());
+        store.restoreChatView();assertEquals(2,store.visibleChatMessagePage(0,40,8000).getJSONArray("messages").length());
+        store.importSnapshot(backup);
+        assertEquals(0,store.visibleChatMessagePage(0,40,8000).getJSONArray("messages").length());
+        assertNotNull(store.getMemory("routine"));
+        JSONObject fresh=store.addMessage("assistant","비운 뒤 도착한 새 답장",null);
+        assertEquals(fresh.getLong("id"),store.visibleChatMessagePage(0,40,8000).getJSONArray("messages").getJSONObject(0).getLong("id"));
+        store.restoreChatView();assertEquals(3,store.visibleChatMessagePage(0,40,8000).getJSONArray("messages").length());
+    }
+
+    @Test public void clearBoundaryLimitsOlderPagingAndAnUnrelatedBoundaryCannotHideNewMessages() throws Exception {
+        for(int i=0;i<43;i++)store.addMessage("user","이전 화면 "+i,null);
+        store.clearChatView();long boundary=store.chatViewHiddenThroughId();
+        for(int i=0;i<45;i++)store.addMessage("assistant","새 화면 "+i,null);
+        JSONObject latest=store.visibleChatMessagePage(0,40,8000);assertTrue(latest.getBoolean("hasMore"));
+        JSONObject older=store.visibleChatMessagePage(latest.getLong("nextBeforeId"),40,8000);
+        assertEquals(5,older.getJSONArray("messages").length());assertFalse(older.getBoolean("hasMore"));
+        assertEquals(boundary+1,older.getJSONArray("messages").getJSONObject(0).getLong("id"));
+        assertEquals(0,store.visibleChatMessagePage(boundary+1,40,8000).getJSONArray("messages").length());
+        store.putSetting("ui.chatView.hiddenThrough",new JSONObject().put("id",boundary).put("hash","wrong-database-hash").toString());
+        assertEquals(0,store.chatViewHiddenThroughId());
+        assertEquals(40,store.visibleChatMessagePage(0,40,8000).getJSONArray("messages").length());
+    }
+
     @Test public void hugeOriginalHasBoundedDisplayButExactTailAndHashesRemainAvailable() throws Exception {
         String body = repeat('x', 240_000) + "\n😀 EXACT-CHAT-TAIL-718 \t";
         JSONObject original = store.addMessage("assistant", body, "synthetic-request");

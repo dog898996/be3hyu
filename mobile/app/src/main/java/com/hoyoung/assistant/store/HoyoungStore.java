@@ -332,9 +332,45 @@ public final class HoyoungStore extends SQLiteOpenHelper {
     // Plain system notices are visible app replies; structured system records are internal
     // source evidence. Their full originals remain available to source.read/search/backup.
     private static final String CHAT_VISIBLE = "(role<>'system' OR substr(text,1,1)<>'{')";
+    private static final String CHAT_VIEW_BOUNDARY = "ui.chatView.hiddenThrough";
+
+    /** Presentation only. The anchor travels with settings in a normal backup. */
+    public synchronized long chatViewHiddenThroughId() {
+        try {
+            JSONObject boundary = new JSONObject(getSetting(CHAT_VIEW_BOUNDARY, "{}"));
+            long id = boundary.optLong("id", 0);
+            if (id <= 0) return 0;
+            try (Cursor cursor = getReadableDatabase().rawQuery("SELECT content_hash FROM messages WHERE id=?", new String[]{String.valueOf(id)})) {
+                // A detached setting from another/restored database cannot hide new rows.
+                return cursor.moveToFirst() && boundary.optString("hash").equals(cursor.getString(0)) ? id : 0;
+            }
+        } catch (org.json.JSONException invalid) { return 0; }
+    }
+
+    public synchronized void clearChatView() {
+        JSONObject boundary = new JSONObject();
+        try (Cursor cursor = getReadableDatabase().rawQuery("SELECT id,content_hash FROM messages ORDER BY id DESC LIMIT 1", null)) {
+            if (cursor.moveToFirst()) { put(boundary, "id", cursor.getLong(0)); put(boundary, "hash", cursor.getString(1)); }
+        }
+        // No message, provenance, memory, queue, attachment, or read receipt is modified.
+        putSetting(CHAT_VIEW_BOUNDARY, boundary.toString());
+    }
+
+    public synchronized void restoreChatView() { putSetting(CHAT_VIEW_BOUNDARY, "{}"); }
+
+    public synchronized JSONObject visibleChatMessagePage(long beforeId, int limit, int textChars) {
+        long afterId = chatViewHiddenThroughId();
+        JSONObject page = boundedChatMessagePage(beforeId, limit, textChars, afterId);
+        put(page, "hiddenThroughId", afterId);
+        return page;
+    }
 
     /** Bounded visible chat excerpts; exact originals and hashes remain authoritative. */
     public synchronized JSONObject boundedChatMessagePage(long beforeId, int limit, int textChars) {
+        return boundedChatMessagePage(beforeId, limit, textChars, 0);
+    }
+
+    private JSONObject boundedChatMessagePage(long beforeId, int limit, int textChars, long afterId) {
         if (beforeId < 0) throw new IllegalArgumentException("beforeId must be nonnegative");
         if (limit < 1 || limit > 40) throw new IllegalArgumentException("limit must be between 1 and 40");
         if (textChars < 1 || textChars > 8000) throw new IllegalArgumentException("textChars must be between 1 and 8000");
@@ -347,9 +383,10 @@ public final class HoyoungStore extends SQLiteOpenHelper {
                 + "raw_file_id,raw_char_count,raw_byte_count,raw_content_hash,"
                 + "CASE WHEN raw_char_count IS NULL THEN length(text) ELSE raw_char_count END AS textTotalChars,"
                 + "CASE WHEN length(CAST(text AS BLOB))>? THEN 1 ELSE 0 END AS sqlPageTruncated FROM messages"
-                + " WHERE " + CHAT_VISIBLE + (beforeId == 0 ? "" : " AND id<?") + " ORDER BY id DESC LIMIT ?";
+                + " WHERE " + CHAT_VISIBLE + " AND id>?" + (beforeId == 0 ? "" : " AND id<?") + " ORDER BY id DESC LIMIT ?";
         List<String> arguments = new ArrayList<>();
         arguments.add(String.valueOf(sqlTextBytes)); arguments.add(String.valueOf(sqlTextBytes));
+        arguments.add(String.valueOf(afterId));
         if (beforeId != 0) arguments.add(String.valueOf(beforeId));
         arguments.add(String.valueOf(limit + 1));
         JSONArray descending = new JSONArray();
