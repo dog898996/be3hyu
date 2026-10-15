@@ -264,6 +264,7 @@ public final class MainActivity extends Activity {
         if("Work".equals(tab)){showWorkOptions();return;}
         java.util.ArrayList<String> options=new java.util.ArrayList<>(java.util.List.of("대화방 비우기","모델·응답 설정","Work 연결 상태","현재 작업 중지"));
         if(app.getStore().chatViewHiddenThroughId()>0)options.add("비운 대화 다시 보기");
+        options.add("도움말");
         new ObservedDialogBuilder(this).setTitle("대화 옵션").setItems(options.toArray(new String[0]),(dialog,which)->{
             switch(options.get(which)) {
                 case "대화방 비우기" -> changeChatView(true);
@@ -271,6 +272,7 @@ public final class MainActivity extends Activity {
                 case "모델·응답 설정" -> showTab("설정");
                 case "Work 연결 상태" -> showTab("Work");
                 case "현재 작업 중지" -> commands.execute(()->{app.getRuntime().pauseCurrentWork("사용자가 대화 옵션에서 현재 작업 중지 선택");main.post(this::refreshStatus);});
+                case "도움말" -> showHelp();
             }
         }).setNegativeButton("닫기",null).show();
     }
@@ -819,19 +821,40 @@ public final class MainActivity extends Activity {
     }
 
     private void showWorkOptions() {
-        java.util.ArrayList<String> items=new java.util.ArrayList<>(java.util.List.of("새 Work 대화","연결 상세","연결 진단 복사","연결 동작 테스트"));
-        if(!app.getWebController().pendingConversationDeletion().isEmpty() || !app.getWebController().unresolvedConversationCreation().isEmpty()) items.add("삭제 확인 복구");
+        java.util.ArrayList<String> items=new java.util.ArrayList<>(java.util.List.of("연결","재연결","상세정보","새 Work 대화","연결 진단 복사","연결 동작 테스트"));
+        if(!app.getWebController().pendingConversationDeletion().isEmpty())items.add("직접 삭제한 대화 확인");
+        else if(!app.getWebController().unresolvedConversationCreation().isEmpty()&&!app.getRuntime().state().optBoolean("uncertaintyBlocked"))items.add("정리한 웹 대화 확인");
+        items.add("도움말");
         new ObservedDialogBuilder(this).setTitle("Work 연결").setItems(items.toArray(new String[0]),(dialog,which)->{
             switch(items.get(which)) {
                 case "새 Work 대화" -> startNewWorkConversation();
-                case "연결 상세" -> showConnectionDetails();
+                case "연결" -> app.getWebController().connect();
+                case "재연결" -> app.getWebController().manualRetryCheck();
+                case "상세정보" -> showConnectionDetails();
                 case "연결 진단 복사" -> copyConnectionDiagnosis();
                 case "연결 동작 테스트" -> new ObservedDialogBuilder(this).setTitle("연결 동작 테스트")
                     .setMessage("실제 Work 요청을 보내 사용량이 발생해. 평소 연결에는 이 테스트가 필요하지 않아.")
                     .setPositiveButton("테스트",(d,w)->verifyWorkConnection()).setNegativeButton("취소",null).show();
-                case "삭제 확인 복구" -> recoverWorkConversationDeletion();
+                case "직접 삭제한 대화 확인", "정리한 웹 대화 확인" -> recoverWorkConversationDeletion();
+                case "도움말" -> showHelp();
             }
         }).setNegativeButton("닫기",null).show();
+    }
+
+    private void showHelp() {
+        new ObservedDialogBuilder(this).setTitle("도움말").setMessage(
+            "연결\nChatGPT 로그인과 Work·모델 설정을 확인해. 준비되면 대화 탭의 대기 메시지를 자동으로 보내. 로그인은 아래 웹 화면에서 하면 돼.\n\n"
+            +"재연결\n연결 확인을 다시 시작해. 이미 보낸 요청은 다시 보내지 않고, 열린 대화에 나온 답변부터 가져와. 페이지 로딩이 실패했다면 같은 주소를 다시 열어.\n\n"
+            +"상세정보 · 연결 진단 복사\n멈춘 단계와 이유를 확인하고, 문제를 전달할 진단 텍스트를 복사해.\n\n"
+            +"답변 가져오기\n일반 글·코드·표·임베드의 읽을 수 있는 내용을 자동으로 가져와. 외부 임베드 내부에 접근할 수 없으면 이름·주소만 표시해. 다른 웹 대화로 이동했다면 답변이 나온 호영 대화로 돌아와 줘.\n\n"
+            +"새 Work 대화\n진행 중인 결과를 정리한 뒤, 앱이 만든 이전 웹 대화를 삭제하고 새 세션을 열어. 호영 앱의 기록·기억은 유지돼.\n\n"
+            +"직접 삭제한 대화 확인 · 정리한 웹 대화 확인\n자동 삭제 확인이 실패했을 때만 나타나. 웹에서 해당 대화를 직접 삭제한 사실을 앱에 알려 주는 버튼이야. 버튼이 대화를 삭제하거나 답변을 복구하는 것은 아니야. 답변 수신 문제에는 재연결을 사용해.\n\n"
+            +"연결 동작 테스트\n실제 요청으로 클라우드·폰 도구를 확인하며 계정 사용량이 발생해. 평소 연결에는 필요 없어.\n\n"
+            +"대화 · 추가 지시\n처리 중에도 메시지를 보낼 수 있어. 저장된 추가 지시는 진행 상태에 맞춰 순서대로 반영돼. 현재 작업 중지는 앱의 후속 처리를 멈추며 웹 작업이 중단됐는지는 별도로 확인해.\n\n"
+            +"대화방 비우기 · 비운 대화 다시 보기\n앱 화면의 표시만 비우거나 되돌려. 실제 대화 기록과 기억은 삭제하지 않아.\n\n"
+            +"모델·응답 설정\n보내기 옆 선택은 앱을 보고 있는 동안 유지돼. 화면을 떠나면 해제되지만 이미 시작한 작업의 모델은 유지돼. 영구 설정은 설정 또는 채팅으로 바꿔. Fast는 별도 선택이야.\n\n"
+            +"기억 · 계정 · 권한 · 설정\n기억과 로그인 정보를 관리하고, 권한 탭에서 도구 사용을 정해. 설정에서 이름·프사·지침·자율 실행·백업을 관리해. 백업에는 개인 설정과 기억이 포함돼. Android 권한과 웹 로그인은 기기에서 다시 확인할 수 있어.")
+            .setPositiveButton("닫기",null).show();
     }
 
     private void verifyWorkConnection() {
@@ -869,13 +892,17 @@ public final class MainActivity extends Activity {
     private android.widget.FrameLayout workWebHost;
 
     private void showWork() {
-        LinearLayout bar=row();bar.setGravity(Gravity.CENTER_VERTICAL);bar.setPadding(dp(16),dp(6),dp(12),dp(6));
+        LinearLayout bar=column();bar.setPadding(dp(16),dp(6),dp(12),dp(6));
         workConnectionDetails=label("연결 상태 확인 중…",13,SUBTLE);
         workConnectionDetails.setMaxLines(2);workConnectionDetails.setEllipsize(android.text.TextUtils.TruncateAt.END);
         workConnectionDetails.setPadding(0,dp(4),dp(12),dp(4));workConnectionDetails.setContentDescription("Work 연결 상세");
         workConnectionDetails.setOnClickListener(v->showConnectionDetails());
-        bar.addView(workConnectionDetails,new LinearLayout.LayoutParams(0,-2,1));
-        bar.addView(button("연결",()->app.getWebController().connect()),new LinearLayout.LayoutParams(dp(84),dp(48)));
+        bar.addView(workConnectionDetails,new LinearLayout.LayoutParams(-1,-2));
+        LinearLayout actions=row();
+        actions.addView(button("연결",()->app.getWebController().connect()),new LinearLayout.LayoutParams(0,-2,1));
+        actions.addView(button("재연결",()->app.getWebController().manualRetryCheck()),new LinearLayout.LayoutParams(0,-2,1));
+        actions.addView(button("상세정보",this::showConnectionDetails),new LinearLayout.LayoutParams(0,-2,1));
+        bar.addView(actions,new LinearLayout.LayoutParams(-1,-2));
         content.addView(bar,new LinearLayout.LayoutParams(-1,-2));
         workWebHost=new android.widget.FrameLayout(this);
         workWebHost.setContentDescription("Work 웹 화면");
@@ -1672,13 +1699,15 @@ public final class MainActivity extends Activity {
         String detail=connection.getText().toString();connection.setContentDescription(detail);
         boolean active=!state.isNull("activeRequestId")&&!state.optString("activeRequestId").isEmpty();
         boolean blocked=state.optBoolean("quotaBlocked")||state.optBoolean("uncertaintyBlocked")||state.optBoolean("storageRecoveryBlocked")||state.optBoolean("restoringBackup");
-        if(blocked)connection.setText(state.optBoolean("quotaBlocked")?"사용 한도 대기 중":"작업 상태 확인 필요");
+        boolean recovering=state.optBoolean("uncertaintyBlocked")&&("reply_recovery_settling".equals(code)||"reply_recovery_waiting".equals(code));
+        if(recovering)connection.setText("reply_recovery_waiting".equals(code)?"보낸 요청의 답변을 기다리고 있어":"나온 답변을 가져오고 있어");
+        else if(blocked)connection.setText(state.optBoolean("quotaBlocked")?"사용 한도 대기 중":"작업 상태 확인 필요");
         else if(active)connection.setText("preparing".equals(state.optString("activePhase"))?"답변을 준비하고 있어":"응답을 기다리고 있어");
         else if(state.optBoolean("ready"))connection.setText("연결됨 · "+("true".equals(app.getStore().getSetting("autonomy.enabled","false"))?"자율 모드":"대화 준비 완료"));
         else connection.setText("Work".equals(tab)?detail:(web!=null&&web.optBoolean("loading")?"Work 연결 중":"Work 연결 확인 필요"));
         if("Work".equals(tab)&&workConnectionDetails!=null)workConnectionDetails.setText(com.hoyoung.assistant.ui.WorkConnectionStatus.compact(code,web));
         statusDot.setBackground(round(blocked?Color.rgb(203,146,81):state.optBoolean("ready")?Color.rgb(80,161,128):Color.rgb(177,171,191)));
-        if(typingDots!=null&&typingRow!=null){boolean show=active&&state.optBoolean("activeOwnerReply")&&!blocked&&"대화".equals(tab);typingRow.setVisibility(show?View.VISIBLE:View.GONE);typingDots.setActive(show&&resumed);typingLabel.setText("preparing".equals(state.optString("activePhase"))?"기억을 살펴보고 있어":"답변을 기다리고 있어");}
+        if(typingDots!=null&&typingRow!=null){boolean show=(active&&state.optBoolean("activeOwnerReply")&&!blocked||recovering)&&"대화".equals(tab);typingRow.setVisibility(show?View.VISIBLE:View.GONE);typingDots.setActive(show&&resumed);typingLabel.setText(recovering?"보낸 요청의 답변을 확인하고 있어":"preparing".equals(state.optString("activePhase"))?"기억을 살펴보고 있어":"답변을 기다리고 있어");}
     }
 
     private void pickDocuments(int code, String mime) {

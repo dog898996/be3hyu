@@ -72,6 +72,8 @@ public final class WorkWebController implements AssistantRuntime.Transport {
     private final WorkConversationJournal conversations;
     private boolean cleanupRunning;
     private boolean recoveringReply;
+    private int replyRecoveryMisses;
+    private final Runnable replyRecoveryPoll=this::pollRecoveredReply;
     private ValueCallback<Uri[]> fileCallback;
     private String currentOrigin = "";
     private String pageLoadFailure = "";
@@ -328,7 +330,7 @@ public final class WorkWebController implements AssistantRuntime.Transport {
                                 ? event.optString("requestId", runtime.state().optString("activeRequestId", ""))
                                 : "error".equals(type) ? event.optString("requestId", "") : "";
                         try { runtime.onWebEvent(event); }
-                        finally { retireCaptureRequest(interrupted); }
+                        finally { retireCaptureRequest(interrupted); scheduleReplyRecovery(); }
                     } catch (Exception ignored) { emitError("BRIDGE_EVENT_INVALID", null); }
                 });
         } else emitError("WEBVIEW_MESSAGE_LISTENER_UNAVAILABLE", null);
@@ -528,9 +530,9 @@ public final class WorkWebController implements AssistantRuntime.Transport {
 
     private void recoverRenderedReply() {
         if(recoveringReply||view==null||!loaded)return;
-        JSONArray ids=runtime.recoverableWebRequestIds();if(ids.length()==0)return;
+        JSONArray ids=runtime.recoverableWebRequests();if(ids.length()==0)return;
         recoveringReply=true;final WebView target=view;final int epoch=documentEpoch;
-        Runnable timeout=()->{if(view==target&&documentEpoch==epoch)recoveringReply=false;};main.postDelayed(timeout,5_000);
+        Runnable timeout=()->{if(view==target&&documentEpoch==epoch){recoveringReply=false;scheduleReplyRecovery();}};main.postDelayed(timeout,5_000);
         try {target.evaluateJavascript("window.HoyoungWorkBridge && window.HoyoungWorkBridge.recoverResponse ? JSON.stringify(window.HoyoungWorkBridge.recoverResponse("+ids+")) : null",raw->{
             main.removeCallbacks(timeout);
             if(view!=target||!loaded||documentEpoch!=epoch)return;
@@ -539,16 +541,27 @@ public final class WorkWebController implements AssistantRuntime.Transport {
             try {
                 JSONObject proof=decodeResult(raw),state=proof.optJSONObject("state");String code=proof.optString("code","reply_recovery_open_conversation");
                 if(state!=null)emitState(state,code);
-                if("reply_recovery_settling".equals(code)) {main.postDelayed(()->{if(view==target&&loaded&&documentEpoch==epoch)recoverRenderedReply();},2_100);return;}
-                if(!proof.optBoolean("ok"))return;
+                if(!proof.optBoolean("ok")){
+                    replyRecoveryMisses="reply_recovery_settling".equals(code)?0:Math.min(30,replyRecoveryMisses+1);
+                    scheduleReplyRecovery();return;
+                }
                 String request=proof.optString("requestId"),conversation=proof.optString("conversationId");
-                if(!conversations.accept(request,conversation)||!runtime.recoverObservedWebReply(proof))return;
-                ownerRecoveryRequired=false;
+                if(!conversations.accept(request,conversation)||!runtime.recoverObservedWebReply(proof)){scheduleReplyRecovery();return;}
+                ownerRecoveryRequired=false;replyRecoveryMisses=0;
                 target.evaluateJavascript("window.HoyoungWorkBridge.adoptRecoveredResponse("+JSONObject.quote(request)+","+JSONObject.quote(conversation)+")",ignored->{
                     if(view==target&&loaded&&documentEpoch==epoch)inspect(true);
                 });
-            } catch(Exception invalid) {publishUnavailableState("reply_recovery_open_conversation",false,0,null);}
+            } catch(Exception invalid) {publishUnavailableState("reply_recovery_open_conversation",false,0,null);scheduleReplyRecovery();}
         });} catch(RuntimeException failure) {main.removeCallbacks(timeout);recoveringReply=false;}
+    }
+
+    private void scheduleReplyRecovery() {
+        main.removeCallbacks(replyRecoveryPoll);
+        if(view!=null&&loaded&&canReadRecovery(runtime.state()))main.postDelayed(replyRecoveryPoll,replyRecoveryMisses<6?2_100:15_000);
+    }
+
+    private void pollRecoveredReply() {
+        if(view!=null&&loaded&&canReadRecovery(runtime.state()))recoverRenderedReply();
     }
 
     public void selectWork() {
@@ -882,6 +895,8 @@ public final class WorkWebController implements AssistantRuntime.Transport {
     /** Main-thread document boundary; worker ordering preserves received bytes before closure. */
     private void advanceDocumentEpoch() {
         recoveringReply = false;
+        replyRecoveryMisses=0;
+        main.removeCallbacks(replyRecoveryPoll);
         int nextEpoch = ++documentEpoch;
         responseCaptures.execute(() -> {
             if (nextEpoch <= captureDocumentEpoch) return;
@@ -1180,7 +1195,7 @@ public final class WorkWebController implements AssistantRuntime.Transport {
             if (requestId == null && "WEBVIEW_RENDERER_LOST".equals(code)) requestId = runtime.state().optString("activeRequestId", "");
             runtime.onWebEvent(new JSONObject().put("type", "error").put("code", code).put("requestId", requestId == null ? JSONObject.NULL : requestId));
         } catch (Exception ignored) { }
-        finally { retireCaptureRequest(requestId); }
+        finally { retireCaptureRequest(requestId); main.post(this::scheduleReplyRecovery); }
     }
 
     private void emitActiveTransportError(String code) {

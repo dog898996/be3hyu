@@ -55,11 +55,11 @@ public final class AssistantRuntimeRoutingTest {
         store.close();context.deleteDatabase(HoyoungStore.DATABASE_NAME);context.deleteDatabase(UsageBudgetLedger.DATABASE_NAME);
     }
 
-    @Test public void ownerUsesFastDirectlyAndPreservesConfiguredHigherEffort() {
+    @Test public void ownerPreservesConfiguredFastToggleAndHigherEffort() {
         store.putSetting("requiredSpeed","standard");store.putSetting("requiredEffort","high");
         JSONObject request=runtime.receive("복잡한 계획을 자세히 검토해 줘",new JSONArray());
-        ready("high","standard");assertEquals(0,transport.ids.size());
-        assertEquals("fast",runtime.requiredModelPreferences().optString("speed"));
+        ready("high","standard");assertEquals(1,transport.ids.size());
+        assertEquals("standard",runtime.requiredModelPreferences().optString("speed"));
         ready("high","fast");assertEquals(1,transport.ids.size());
         assertEquals(request.optString("external_id"),transport.ids.get(0));
         assertEquals("high",runtime.requiredModelPreferences(request.optString("external_id")).optString("effort"));
@@ -224,7 +224,10 @@ public final class AssistantRuntimeRoutingTest {
         for(int i=0;i<capabilities.length();i++)assertTrue(compact.contains('"'+capabilities.getJSONObject(i).optString("name")+'"'));
         runtime.onWebEvent(object("type","error","requestId",candidate.optString("external_id"),"code","preflight_rejected","knownNotSent",true));
         store.putSetting("usageOptimizationEnabled","false");store.putSetting("requiredEffort","medium");store.putSetting("requiredSpeed","standard");
-        JSONObject baseline=runtime.retryRequest(candidate.optLong("id"));ready("medium","standard");assertEquals(2,transport.ids.size());
+        // A fresh task observes new settings; a retry deliberately retains its original task route.
+        JSONObject baseline=store.enqueueRequest(candidate.optString("text"),candidate.optString("kind"),java.util.UUID.randomUUID().toString());
+        store.putSetting("requestSource:"+baseline.optString("external_id"),"0");
+        ready("medium","standard");assertEquals(2,transport.ids.size());
         String complete=transport.prompts.get(1);assertTrue(complete.contains(original));assertTrue(complete.contains("LATEST_OWNER_INPUT"));
         assertEquals(candidate.optString("text"),baseline.optString("text"));
         assertEquals("0",store.getSetting("requestSource:"+candidate.optString("external_id"),""));
@@ -297,7 +300,8 @@ public final class AssistantRuntimeRoutingTest {
         String a=transport.prompts.get(0),marker="\nREQUEST_SCOPE:";
         assertTrue(a.indexOf(marker)>0);
         String prefix=a.substring(0,a.indexOf(marker));
-        assertTrue(prefix.startsWith("기본 운영 지침:"));
+        assertTrue(prefix.startsWith("APP_MEMORY_AUTHORITY v1"));
+        assertTrue(prefix.contains("기본 운영 지침:"));
         assertTrue(prefix.contains("ROUTING_OWNER_SENTINEL"));
         assertFalse(prefix.contains(first.optString("external_id")));
         assertFalse(prefix.contains("FIRST_DYNAMIC_OWNER_TEXT_9327"));
@@ -386,6 +390,22 @@ public final class AssistantRuntimeRoutingTest {
         assertEquals(4,transport.ids.size());assertEquals(owner.optString("external_id"),transport.ids.get(3));
         assertEquals("fast",runtime.requiredModelPreferences(owner.optString("external_id")).optString("speed"));
         assertFalse(runtime.state().optBoolean("quotaBlocked"));
+    }
+
+    @Test public void firstConnectionContinuesPreparedMessageAfterConnectionEvidenceExpires() throws Exception {
+        runtime.detachTransport();
+        java.lang.reflect.Field budget=AssistantRuntime.class.getDeclaredField("usageBudget");budget.setAccessible(true);((UsageBudgetLedger)budget.get(runtime)).close();
+        List<Runnable> jobs=new ArrayList<>();
+        runtime=new AssistantRuntime(context,store,new InternalFiles(context),new PhoneTools(context,store),jobs::add,clock::get);
+        jobs.remove(0).run();runtime.attachTransport(transport);drain();ready("medium","fast");
+        JSONObject request=runtime.receive("최초 연결 한 번으로 이어서 보내",new JSONArray());
+        assertEquals("preparing",runtime.state().optString("activePhase"));assertEquals(1,jobs.size());
+        clock.addAndGet(91_000);jobs.remove(0).run();drain();
+        assertEquals("preparing",runtime.state().optString("activePhase"));assertEquals(0,transport.ids.size());
+        ready("medium","fast");drain();
+        assertEquals(1,transport.ids.size());assertEquals(request.optString("external_id"),transport.ids.get(0));
+        assertEquals(0,jobs.size());
+        ready("medium","fast");assertEquals(1,transport.ids.size());
     }
 
     private void enable() {store.putSetting("autonomy.enabled","true");runtime.tick();drain();}

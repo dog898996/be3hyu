@@ -252,6 +252,49 @@ public final class WorkCompatibilityExplorerDeviceTest {
         proof("hidden-CodeMirror-source-and-string-whitespace-blocked; no-completion-or-recovery-until-rendered; exact-protocol-on-reveal; one-completion");
     }
 
+    @Test public void missingProfileDoesNotBlockOriginalReplyRecoveryAfterDocumentRestart() throws Exception {
+        open("");String original="새로고침 뒤 일반 글도 가져와 줘";
+        assertEquals("dispatch_pending",send("plain-recovery",original).getString("code"));
+        awaitEvent("accepted","plain-recovery",30_000);
+        eval("answerPlain('일반 글 답변과 표의 결과 4');HoyoungWorkBridge.__dispose('fixture_restart');delete window.HoyoungWorkBridge;document.querySelector('#profile').remove();true");
+        eval(asset("work-bridge.js")+";true");
+        String requests=new JSONArray().put(new JSONObject().put("requestId","plain-recovery")
+                .put("userTextDigest",com.hoyoung.assistant.runtime.DispatchPayloadRegistry.replyTextDigest(original))).toString();
+        assertTrue(object("HoyoungWorkBridge.inspect()").getJSONObject("state").isNull("authenticated"));
+        awaitJs("HoyoungWorkBridge.recoverResponse("+requests+").ok",30_000);
+        JSONObject proof=object("HoyoungWorkBridge.recoverResponse("+requests+")");
+        assertEquals("일반 글 답변과 표의 결과 4",proof.getString("text"));assertEquals("user_text_sha256",proof.getString("requestBinding"));
+        assertEquals(1,intValue("clicks"));
+        assertTrue(bool("HoyoungWorkBridge.adoptRecoveredResponse('plain-recovery','owned-matrix-123')"));
+        proof("Android-WebCrypto; bridge-restart; no-account-control; exact-original-prompt-digest; plain-reply-recovery; one-submit");
+    }
+
+    @Test public void assistantCardsAndEmbedWithoutMarkdownAreCollectedAsReplyContent() throws Exception {
+        open("");assertEquals("dispatch_pending",send("card-response","표와 미리보기를 보여 줘").getString("code"));
+        awaitEvent("accepted","card-response",30_000);
+        eval("answerPlain('');const section=window.lastGroup.querySelector('[data-conversation-role=assistant]');"
+            +"section.innerHTML='<p>일반 글</p><pre><code>2+2</code></pre><table><tr><td>결과</td><td>4</td></tr></table><iframe title=작업미리보기 src=https://preview.example/result></iframe>';true");
+        awaitEvent("completed","card-response",30_000);JSONObject answer=event("completed","card-response");
+        assertTrue(answer.getString("text").contains("일반 글"));assertTrue(answer.getString("text").contains("결과"));
+        assertTrue(answer.getString("text").contains("[임베드: 작업미리보기] https://preview.example/result"));
+        assertFalse(answer.has("structuredEnvelope"));assertEquals(1,intValue("clicks"));
+        proof("actual-WebView; plain-code-table-and-embed; no-Markdown-wrapper; one-completion; no-protocol-execution");
+    }
+
+    @Test public void connectionActionsAndHelpRemainReachableWithoutTechnicalRecoveryLabels() throws Exception {
+        DevicePermissionFixture.assertReady(context);UiDevice device=UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
+        scenario=ActivityScenario.launch(MainActivity.class);DeviceFixtureHealth.openPage(device,"Work");
+        for(String label:new String[]{"연결","재연결","상세정보"})assertNotNull(label,device.wait(Until.findObject(By.text(label).pkg(context.getPackageName())),20_000));
+        UiObject2 menu=device.findObject(By.desc("연결 옵션"));assertNotNull(menu);menu.click();
+        device.waitForIdle();UiObject2 list=device.findObject(By.scrollable(true));
+        if(!device.hasObject(By.text("도움말"))&&list!=null)list.scroll(androidx.test.uiautomator.Direction.DOWN,1f);
+        UiObject2 help=device.wait(Until.findObject(By.text("도움말")),20_000);assertNotNull(help);help.click();
+        assertTrue(device.wait(Until.hasObject(By.textContains("이미 보낸 요청은 다시 보내지 않고")),20_000));
+        device.pressBack();DeviceFixtureHealth.openPage(device,"대화");
+        device.findObject(By.desc("대화 옵션")).click();assertNotNull(device.wait(Until.findObject(By.text("도움말")),20_000));
+        proof("native-Work-actions; connection-reconnection-details; Work-and-chat-help-accessible; offline-no-paid-request");
+    }
+
     private void open(String setup) throws Exception {
         String page = PAGE.replace("/* SETUP */", setup);
         byte[] bytes = page.getBytes(StandardCharsets.UTF_8);

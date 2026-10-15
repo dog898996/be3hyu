@@ -535,7 +535,7 @@ public final class AssistantRuntime {
             localNotice(oversized ? "prompt_too_large" : "prompt_unavailable", oversized ? "요청과 지침이 너무 길어서 전송 전에 멈췄어. 원문은 저장돼 있어." : "기억이나 지침을 준비하지 못해서 전송 전에 멈췄어. 원문은 저장돼 있어.");
             changed(); return;
         }
-        if (transport == null || quotaBlocked() || uncertaintyBlocked() || incomingPreparations > 0 || !baseReady(nowMillis())) {
+        if (transport == null || quotaBlocked() || uncertaintyBlocked() || incomingPreparations > 0) {
             preparedRoutes.remove(reserved.optString("external_id"));
             active = null; store.putSetting("runtime.lastCode", "preparation_waiting_for_connection"); changed(); return;
         }
@@ -607,6 +607,7 @@ public final class AssistantRuntime {
             }
             String digest=dispatchPayloads.registerPrepared(payload,prepared.evidenceFingerprint,android.os.SystemClock.elapsedRealtime());
             store.withTransaction(db->{
+                store.putSetting("dispatchReplyTextDigest:"+requestId,payload.replyTextDigest);
                 if(store.getSetting("dispatchEvidenceSource:"+requestId,"").isEmpty()) {
                     JSONObject marker=store.addMessage("system",object("type","native_dispatch_evidence","requestId",requestId,
                             "providerResultIncluded",false,"payloadDigest",digest).toString(),requestId);
@@ -943,24 +944,38 @@ public final class AssistantRuntime {
         return ids;
     }
 
+    public synchronized JSONArray recoverableWebRequests() {
+        JSONArray requests=new JSONArray(),ids=recoverableWebRequestIds();
+        for(int i=0;i<ids.length();i++) {
+            String id=ids.optString(i);
+            requests.put(object("requestId",id,"userTextDigest",store.getSetting("dispatchReplyTextDigest:"+id,"")));
+        }
+        return requests;
+    }
+
     /** Archive a provider reply already on screen. Recovery cannot replay tools or
      * promote old memory proposals after their original admission context was lost. */
     public synchronized boolean recoverObservedWebReply(JSONObject proof) {
         if(active!=null||completing||restoringBackup||storageRecoveryBlocked||!receiptsReady
                 ||proof==null||!proof.optBoolean("ok")||!proof.optBoolean("captureComplete"))return false;
-        String id=proof.optString("requestId"),raw=proof.optString("envelope");
-        JSONObject request=store.getRequestByExternalId(id),envelope=parseEnvelope(raw,id);
-        if(request==null||!"uncertain".equals(request.optString("status"))||envelope==null
+        String id=proof.optString("requestId"),structured=proof.optString("envelope");
+        JSONObject request=store.getRequestByExternalId(id),envelope=parseEnvelope(structured,id);
+        String expected=store.getSetting("dispatchReplyTextDigest:"+id,"");
+        boolean boundText="active_user_exact".equals(proof.optString("requestBinding"))
+                ||(!expected.isEmpty()&&expected.equals(proof.optString("userTextDigest")));
+        if(request==null||!"uncertain".equals(request.optString("status"))||(envelope==null&&!boundText)
                 ||!proof.optString("conversationId").matches("[A-Za-z0-9_-]{8,128}"))return false;
+        final String raw=envelope==null?proof.optString("text"):structured;
+        if(raw.trim().isEmpty()||raw.length()>900_000)return false;
         boolean contextCurrent=false;
         try {contextCurrent=store.getPrivacyLedger().fingerprint().equals(store.getSetting("requestPrivacyFingerprint:"+id,""))
                     &&identity.snapshot().optString("revision").equals(store.getSetting("dispatchIdentityRevision:"+id,""));}
         catch(IOException unavailable){ }
         final boolean release=contextCurrent;
-        final String message=envelope.optString("message");
-        final boolean deferred=(envelope.optJSONArray("actions")!=null&&envelope.optJSONArray("actions").length()>0)
+        final String message=envelope==null?raw:envelope.optString("message");
+        final boolean deferred=envelope!=null&&((envelope.optJSONArray("actions")!=null&&envelope.optJSONArray("actions").length()>0)
                 ||(envelope.optJSONArray("memories")!=null&&envelope.optJSONArray("memories").length()>0)
-                ||envelope.has("reaction")||envelope.has("routing");
+                ||envelope.has("reaction")||envelope.has("routing"));
         JSONObject saved=store.withTransaction(db->{
             store.markRequest(request.optLong("id"),deferred?"blocked":"completed",raw);
             JSONObject answer=release&&!message.trim().isEmpty()?store.addMessage("assistant","[복구한 이전 답변]\n"+message,id):null;

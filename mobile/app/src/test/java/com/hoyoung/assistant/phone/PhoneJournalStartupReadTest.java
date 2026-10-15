@@ -49,7 +49,7 @@ public class PhoneJournalStartupReadTest {
             for(int i=0;i<200;i++)assertTrue(spool.readState("state","invalid").matches("v[0-9]+"));
             written.get(3,TimeUnit.SECONDS);assertEquals("v40",spool.readState("state","invalid"));
             File file=new File(new File(spool.directory(),"state"),PhoneEventJournal.hash("state")+".json");
-            Files.writeString(file.toPath(),Files.readString(file.toPath()).replace("v40","bad"));
+            Files.write(file.toPath(),new String(Files.readAllBytes(file.toPath()),java.nio.charset.StandardCharsets.UTF_8).replace("v40","bad").getBytes(java.nio.charset.StandardCharsets.UTF_8));
             assertEquals("invalid",spool.readState("state","invalid"));
         } finally {writer.shutdownNow();writer.awaitTermination(2,TimeUnit.SECONDS);}
     }

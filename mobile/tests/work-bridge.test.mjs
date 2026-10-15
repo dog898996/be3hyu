@@ -1259,7 +1259,7 @@ test('plain whole JSON remains an untouched original; quoted, partial, ambiguous
     const rendered = await renderedCodeAnswer(page, controlEnvelope, variation);
     await advance(page, 2500);
     const completed = (await events(page)).find(event => event.type === 'completed');
-    assert.equal(completed.text, rendered, variation + ' keeps the visible source');
+    assert.equal(completed.text, rendered + (variation === 'other-content' ? '\n[이미지: 다른 결과]' : ''), variation + ' keeps the visible source and exposed media');
     assert.equal(completed.structuredEnvelope, undefined, variation + ' is output data, not a control envelope');
     assert.equal(completed.structuredEnvelopeSource, undefined);
     assert.equal(completed.rawEnvelopeEligible, false, variation + ' cannot bypass the guard through raw innerText');
@@ -1936,5 +1936,61 @@ test('a different payload digest denies the staged prompt before submission', as
     await advance(page,250);
     assert.equal(await page.evaluate(()=>window.clicks),0);
     assert.equal((await events(page)).some(event=>event.code==='dispatch_payload_digest_mismatch'),true);
+  });
+});
+
+
+test('reply recovery does not require a visible profile control after authenticated sending',async()=>{
+  await pageFixture(async page=>{
+    await send(page);await advance(page,300);
+    await page.evaluate(()=>history.pushState({},'','/c/unrelated-history'));await advance(page,300);
+    await page.evaluate(()=>{history.pushState({},'','/c/owned-fixture-123');document.querySelector('[data-testid="user-menu-button"]').remove();});
+    await page.clock.fastForward(301000);
+    await renderedCodeAnswer(page,controlEnvelope);await advance(page,300);
+    assert.equal((await inspect(page)).state.authenticated,null);
+    const recover=()=>page.evaluate(()=>window.HoyoungWorkBridge.recoverResponse(['request-one']));
+    assert.equal((await recover()).code,'reply_recovery_settling');await advance(page,2200);
+    assert.equal((await recover()).ok,true);assert.equal(await page.evaluate(()=>window.clicks),1);
+  });
+});
+
+test('plain text, code, table and embed-only replies complete without a markdown wrapper',async()=>{
+  for(const html of ['<p>일반 답변이야.</p>','<pre><code>print(2+2)</code></pre>','<table><tr><td>결과</td><td>4</td></tr></table>',
+    '<iframe title="작업 미리보기" src="https://preview.example/result"></iframe>'])await pageFixture(async page=>{
+    await send(page);await advance(page,300);
+    await page.evaluate(html=>{const answer=window.answer('');answer.replaceChildren();answer.innerHTML=html;},html);
+    await advance(page,2600);
+    const completed=(await events(page)).filter(event=>event.type==='completed');assert.equal(completed.length,1,html);
+    assert.ok(completed[0].text.trim());assert.equal(completed[0].structuredEnvelope,undefined);
+    if(html.includes('iframe'))assert.match(completed[0].text,/임베드: 작업 미리보기.*https:\/\/preview.example\/result/);
+  });
+});
+
+test('plain reply recovery binds the exact original user turn and does not execute quoted JSON',async()=>{
+  await pageFixture(async page=>{
+    await send(page);await advance(page,300);
+    await page.evaluate(()=>history.pushState({},'','/c/unrelated-history'));await advance(page,300);
+    await page.evaluate(()=>history.pushState({},'','/c/owned-fixture-123'));
+    await renderedCodeAnswer(page,controlEnvelope,'quoted');await advance(page,300);
+    const recover=()=>page.evaluate(()=>window.HoyoungWorkBridge.recoverResponse(['request-one']));
+    assert.equal((await recover()).code,'reply_recovery_settling');await advance(page,2200);
+    const proof=await recover();assert.equal(proof.ok,true);assert.equal(proof.requestBinding,'active_user_exact');assert.equal(proof.envelope,undefined);
+    await page.evaluate(()=>document.querySelector('[data-search-result-target]').textContent='다른 사용자의 요청');
+    assert.equal((await recover()).ok,false);assert.equal(await page.evaluate(()=>window.clicks),1);
+  });
+});
+
+test('after a document restart plain replies recover by durable prompt digest without account-sidebar evidence',async()=>{
+  await pageFixture(async page=>{
+    await send(page);await advance(page,300);await page.evaluate(()=>window.answer('JSON이 아닌 실제 답변'));
+    const digest=createHash('sha256').update('우리 작업 이어 해줘').digest('hex');
+    await page.evaluate(()=>{window.HoyoungWorkBridge.__dispose('fixture_restart');delete window.HoyoungWorkBridge;document.querySelector('[data-testid="user-menu-button"]').remove();});
+    await page.addScriptTag({content:source});
+    const recover=(hash=digest)=>page.evaluate(hash=>window.HoyoungWorkBridge.recoverResponse([{requestId:'request-one',userTextDigest:hash}]),hash);
+    assert.equal((await recover()).code,'reply_recovery_settling');
+    // WebCrypto is asynchronous but recovery itself never submits a request.
+    await page.waitForTimeout(30);await recover();await advance(page,2200);
+    const proof=await recover();assert.equal(proof.ok,true);assert.equal(proof.userTextDigest,digest);assert.equal(proof.text,'JSON이 아닌 실제 답변');
+    assert.equal((await recover('0'.repeat(64))).ok,false);assert.equal(await page.evaluate(()=>window.clicks),1);
   });
 });

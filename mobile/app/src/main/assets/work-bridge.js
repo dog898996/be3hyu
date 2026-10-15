@@ -21,6 +21,7 @@
   let suspendedRoute = false;
   let disposalReason = '';
   let recoveryObservation = null;
+  const recoveryDigests = new Map();
   let ownedConversationId = '';
   let verifiedWorkSession = false;
   let cleaningSession = false;
@@ -29,7 +30,7 @@
   const SEND = '[data-testid="send-button"], button[type="submit"]';
   const STOP = '[data-testid="stop-button"], button[aria-label="Stop generating"], button[aria-label="응답 생성 중지"]';
   const ANSWER = '.markdown, [data-markdown-text-style="assistant-message"], .puik-root.not-markdown > [class*="_DilResponseRoot"]';
-  const FOOTER = 'button[data-testid="copy-turn-action-button"], .turn-action-controls button';
+  const FOOTER = 'button[data-testid="copy-turn-action-button"], .turn-action-controls button, button[aria-label="Copy response"], button[aria-label="응답 복사"]';
   const TRANSCRIPT = '[data-turn-key], [data-testid^="conversation-turn-"], [data-turn-id-container], [data-message-author-role], [data-conversation-role], [data-user-message-bubble]';
   const CONTROL = 'button, [role="button"], [role="tab"], [role="switch"], [role="checkbox"], [role="menuitemcheckbox"], [role="menuitemradio"], [role="radio"], [role="option"], [role="menuitem"], a[aria-current]';
   const MODEL_CONTROL = 'button[data-testid="model-switcher-dropdown-button"], button[data-codex-intelligence-trigger], button[data-composer-navigation-target="reasoning"]';
@@ -911,6 +912,11 @@
     snapshot.route={path:location.pathname.slice(0,256),observedPath:initialPath.slice(0,256),suspended:suspendedRoute,disposed,disposalReason};
     const turns=turnSnapshot();snapshot.transcript={valid:turns.valid,users:turns.turns.filter(turn=>turn.role==='user').length,assistants:turns.turns.filter(turn=>turn.role==='assistant').length,
       matchingActiveUsers:active?turns.turns.filter(turn=>turn.role==='user'&&!active.baseline.has(turn.id)&&turn.text===normalized(active.text)).length:0};
+    snapshot.requestObservation=active?{clicked:!!active.clicked,accepted:!!active.acceptedUserId,uncertaintyCode:active.uncertaintyCode||''}:null;
+    snapshot.replyShapes=turns.turns.filter(turn=>turn.role==='assistant').slice(-3).map(turn=>{
+      const answer=answerSnapshot(turn);return {complete:answer.complete,chars:answer.text.length,structured:!!answer.structuredEnvelope,
+        structuredUnavailable:answer.structuredEnvelopeUnavailable||'',rawEnvelopeEligible:!!answer.rawEnvelopeEligible};
+    });
     snapshot.dom={editor:shape(editor),rawComposer:shape(raw),editorWasWrapper:!!raw&&raw!==editor,
       triggers:triggers.slice(0,3).map(trigger=>({...shape(trigger),linked:normalized(trigger.getAttribute('aria-controls')).split(' ')
         .filter(Boolean).slice(0,3).map(id=>shape(document.getElementById(id)))})),
@@ -998,11 +1004,16 @@
     if (turn.content.matches(ANSWER) && transcriptRendered(turn.content)) answers.unshift(turn.content);
     answers = answers.filter(element => !element.parentElement || !element.parentElement.closest(ANSWER)
       || !turn.content.contains(element.parentElement.closest(ANSWER)));
+    // Provider cards/embeds and plain replies need not have a Markdown wrapper.
+    // Fall back only inside the positively identified assistant turn.
+    const fallback = !answers.length && transcriptRendered(turn.content);
+    if(fallback)answers=[turn.content];
     const lastAnswer = answers[answers.length - 1];
     if (!lastAnswer) return { text: '', complete: false, rawEnvelopeEligible: false };
     const footer = transcriptAll(FOOTER, turn.root).find(element => !element.closest('[data-user-message-bubble], [data-message-author-role="user"], [data-conversation-role="user"]')
-      && !lastAnswer.contains(element) && !!(lastAnswer.compareDocumentPosition(element) & Node.DOCUMENT_POSITION_FOLLOWING));
-    const answer = { text: answers.map(element => element.innerText || element.textContent || '').filter(Boolean).join('\n\n'), complete: !!footer, rawEnvelopeEligible: false };
+      && ((!lastAnswer.contains(element) && !!(lastAnswer.compareDocumentPosition(element) & Node.DOCUMENT_POSITION_FOLLOWING))
+        || fallback && lastAnswer.contains(element)));
+    const answer = { text: answers.map(element => renderedReplyText(element,fallback)).filter(Boolean).join('\n\n'), complete: !!footer, rawEnvelopeEligible: false };
     // Markdown rendering removes literal fences. Never turn a quoted example or
     // one block inside a larger reply into a control message: only the whole
     // response may supply a positively identified hoyoung-language block.
@@ -1012,6 +1023,26 @@
       if (answer.structuredEnvelopeUnavailable === 'structured_code_incomplete') answer.complete = false;
     }
     return answer;
+  }
+  function renderedReplyText(element,fallback) {
+    let text=element.innerText||element.textContent||'';
+    if(fallback) {
+      const clone=element.cloneNode(true),originals=Array.from(element.querySelectorAll('*')),copies=Array.from(clone.querySelectorAll('*'));
+      originals.forEach((node,index)=>{if(!transcriptRendered(node)||node.matches('button,[role="button"],script,style,svg,[data-markdown-copy="exclude"],.turn-action-controls'))copies[index].remove();});
+      for(const node of clone.querySelectorAll('br,p,div,pre,li,tr,h1,h2,h3,h4')) {
+        if(node.tagName==='BR')node.replaceWith(document.createTextNode('\n'));
+        else {node.before(document.createTextNode('\n'));node.after(document.createTextNode('\n'));}
+      }
+      text=clone.textContent.replace(/\n{3,}/g,'\n\n').trim();
+    }
+    const media=transcriptAll('img,video,audio,iframe,object,embed,canvas',element).map(node=>{
+      const label=normalized(node.getAttribute('alt')||node.getAttribute('title')||node.getAttribute('aria-label'));
+      const url=node.getAttribute('src')||node.getAttribute('data')||'';
+      // Describe only exposed content. A cross-origin embed's private body is not readable.
+      return '['+({IMG:'이미지',VIDEO:'영상',AUDIO:'오디오',IFRAME:'임베드',OBJECT:'임베드',EMBED:'임베드',CANVAS:'그래픽'}[node.tagName])
+        +(label?': '+label:'')+']'+(/^https?:\/\//i.test(url)?' '+url:'');
+    });
+    return [text,...media].filter(Boolean).join('\n');
   }
   function bareProtocolEligible(answer) {
     // innerText loses quote/code/Markdown syntax. A rendered quotation must not
@@ -1547,23 +1578,49 @@
     if (active || cleaningSession || !/^[A-Za-z0-9_-]{8,128}$/.test(id) || conversationIdFromPath(location.pathname) !== id) return false;
     ownedConversationId = id; verifiedWorkSession = true;initialPath=location.pathname;suspendedRoute=false;return true;
   }
+  function recoveryTextDigest(text) {
+    if(recoveryDigests.has(text))return recoveryDigests.get(text);
+    if(recoveryDigests.size>=200)recoveryDigests.delete(recoveryDigests.keys().next().value);
+    recoveryDigests.set(text,null);
+    try {crypto.subtle.digest('SHA-256',new TextEncoder().encode(text)).then(bytes=>{
+      recoveryDigests.set(text,Array.from(new Uint8Array(bytes),byte=>byte.toString(16).padStart(2,'0')).join(''));
+    }).catch(()=>recoveryDigests.set(text,''));}catch(_){recoveryDigests.set(text,'');}
+    return recoveryDigests.get(text);
+  }
   function recoverResponse(requestIds) {
     // Read-only recovery of an already rendered result. No submit, picker,
     // deletion, clipboard, provider API or tool execution belongs here.
     const state=readState(),id=conversationIdFromPath(location.pathname);
-    if(document!==initialDocument||location.origin!=='https://chatgpt.com'||!id||state.busy||state.needsInput||state.authenticated!==true) {
-      recoveryObservation=null;return {ok:false,code:'reply_recovery_open_conversation',state};
+    if(document!==initialDocument||location.origin!=='https://chatgpt.com'||!id||state.busy||state.needsInput
+        ||state.authenticated===false||authenticationInvalidated) {
+      recoveryObservation=null;return {ok:false,code:state.busy?'reply_recovery_waiting':'reply_recovery_open_conversation',state};
     }
-    const allowed=new Set(Array.isArray(requestIds)?requestIds.filter(value=>typeof value==='string'&&/^[A-Za-z0-9_.:-]{1,128}$/.test(value)).slice(0,100):[]);
+    const requests=(Array.isArray(requestIds)?requestIds:[]).map(value=>typeof value==='string'?{requestId:value}:value)
+      .filter(value=>value&&typeof value.requestId==='string'&&/^[A-Za-z0-9_.:-]{1,128}$/.test(value.requestId)).slice(0,100);
+    const allowed=new Set(requests.map(value=>value.requestId));
     const snapshot=turnSnapshot(),matches=[];
+    let hashing=false;
     if(snapshot.valid)for(const turn of snapshot.turns.filter(item=>item.role==='assistant')) {
-      const answer=answerSnapshot(turn);if(!answer.complete)continue;
+      const answer=answerSnapshot(turn);if(!answer.complete||!answer.text||answer.text.length>MAX_INLINE_EVENT_CHARS)continue;
       const text=answer.structuredEnvelope||(answer.rawEnvelopeEligible?answer.text:'');
-      if(!text||text.length>MAX_STRUCTURED_ENVELOPE_CHARS)continue;
-      let envelope;try{envelope=JSON.parse(text);}catch(_){continue;}
-      if(envelope&&envelope.protocol==='hoyoung.v1'&&allowed.has(envelope.requestId))matches.push({requestId:envelope.requestId,turnId:turn.id,envelope:text,text:answer.text});
+      let envelope;try{if(text&&text.length<=MAX_STRUCTURED_ENVELOPE_CHARS)envelope=JSON.parse(text);}catch(_){}
+      if(envelope&&envelope.protocol==='hoyoung.v1'&&allowed.has(envelope.requestId)) {
+        matches.push({requestId:envelope.requestId,turnId:turn.id,envelope:text,text:answer.text});continue;
+      }
+      const before=snapshot.turns.slice(0,snapshot.turns.indexOf(turn));
+      const users=turn.id.startsWith('group:')?snapshot.turns.filter(item=>item.role==='user'&&item.key===turn.key)
+        :before.filter(item=>item.role==='user').slice(-1);
+      if(users.length!==1)continue;
+      const user=users[0];
+      for(const request of requests) {
+        const exact=active&&active.clicked&&active.requestId===request.requestId&&!active.baseline.has(user.id)&&user.text===normalized(active.text);
+        const digest=/^[a-f0-9]{64}$/.test(request.userTextDigest||'')?recoveryTextDigest(user.text):'';
+        if(digest===null)hashing=true;
+        if(exact||digest&&digest===request.userTextDigest)matches.push({requestId:request.requestId,turnId:turn.id,text:answer.text,
+          requestBinding:exact?'active_user_exact':'user_text_sha256',userTextDigest:digest||''});
+      }
     }
-    if(matches.length!==1) {recoveryObservation=null;return {ok:false,code:matches.length?'reply_recovery_ambiguous':'reply_recovery_open_conversation',state};}
+    if(matches.length!==1||hashing) {recoveryObservation=null;return {ok:false,code:hashing?'reply_recovery_settling':matches.length?'reply_recovery_ambiguous':'reply_recovery_open_conversation',state};}
     const match=matches[0],key=JSON.stringify([id,match.requestId,match.turnId,match.envelope,match.text]);
     if(!recoveryObservation||recoveryObservation.key!==key){recoveryObservation={key,requestId:match.requestId,conversationId:id,at:Date.now()};return {ok:false,code:'reply_recovery_settling',state};}
     if(Date.now()-recoveryObservation.at<COMPLETION_SETTLE_MS)return {ok:false,code:'reply_recovery_settling',state};

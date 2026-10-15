@@ -16,9 +16,9 @@ public final class DispatchPayloadRegistry {
     private final Map<String, Entry> pending = new LinkedHashMap<>();
     /** Only native preparation can construct a digest; callers keep its source payload unchanged. */
     static final class PreparedDigest {
-        final String requestId, digest;
-        private PreparedDigest(String requestId, String digest) {
-            this.requestId=requestId; this.digest=digest;
+        final String requestId, digest, replyTextDigest;
+        private PreparedDigest(String requestId, String digest, String replyTextDigest) {
+            this.requestId=requestId; this.digest=digest; this.replyTextDigest=replyTextDigest;
         }
     }
     private static final class Entry {
@@ -38,7 +38,7 @@ public final class DispatchPayloadRegistry {
                 !(finalPayload.opt("requestId") instanceof String) || !requestId.equals(finalPayload.opt("requestId")))
             throw new IllegalArgumentException("Unbound dispatch payload");
         if (finalPayload.has("nativePayloadDigest")) throw new IllegalArgumentException("Digest must be computed before adding its envelope field");
-        return new PreparedDigest(requestId,digest(finalPayload));
+        return new PreparedDigest(requestId,digest(finalPayload),replyTextDigest(finalPayload.optString("text")));
     }
     /** Call after validating live native control/memory state; this method only registers a small entry. */
     synchronized String registerPrepared(PreparedDigest prepared, String memoryFingerprint, long now) {
@@ -136,6 +136,16 @@ public final class DispatchPayloadRegistry {
             else out.append(c);
         }
         return out.toString();
+    }
+    /** Same normalization as authoredUserText in the browser; stores no extra prompt copy. */
+    public static String replyTextDigest(String value) {
+        // Work rejects larger composer text. Do not duplicate an attachment-sized
+        // string when this generic registry is used with other payloads.
+        if(value.length()>250_000)return "";
+        String normalized=java.text.Normalizer.normalize(value,java.text.Normalizer.Form.NFKC)
+                .replaceAll("[\\u200b-\\u200f\\u202a-\\u202e\\u2060-\\u206f\\ufeff]", "")
+                .replaceAll("[\\u0009-\\u000d\\u0020\\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000]+", " ").trim();
+        return hash(normalized);
     }
     public static String hash(String value) {
         try {return hex(MessageDigest.getInstance("SHA-256").digest(value.getBytes(StandardCharsets.UTF_8)));}

@@ -152,9 +152,9 @@ try:
           'requestedPixels': [width, height], 'requestedFontScale': font, 'requestedLocale': locale,
           'configurationMustBeReadFromActualTestProof': True}), flush=True)
     if args.scope == 'work-recovery':
-        instrument('work-recovery', app + '.WorkCompatibilityExplorerDeviceTest', 7, 300)
+        instrument('work-recovery', app + '.WorkCompatibilityExplorerDeviceTest', 10, 360)
     else:
-        instrument('product', ','.join(classes), 28, 720)
+        instrument('product', ','.join(classes), 31, 720)
 finally:
     if emulator is not None:
         try:

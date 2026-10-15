@@ -61,6 +61,33 @@ public final class WorkReplyRecoveryTest {
         assertTrue(runtime.recoverObservedWebReply(proof(request,false)));
         assertFalse(store.listMessages(100).toString().contains("안녕! 반가워."));assertTrue(store.getRequest(request.optLong("id")).optString("result").contains("안녕! 반가워."));
     }
+    @Test public void nonJsonReplyImportsByPersistedPromptBindingAndNeverPromotesQuotedCommands() {
+        JSONObject request=interrupted();String id=request.optString("external_id");
+        String digest=DispatchPayloadRegistry.replyTextDigest("우리 작업\n 이어 해줘");
+        store.putSetting("dispatchReplyTextDigest:"+id,digest);
+        String text="일반 답변과 표\n[임베드: 미리보기] https://example.org/preview\n"+proof(request,true).optString("envelope");
+        JSONObject p=object("ok",true,"captureComplete",true,"requestId",id,"conversationId","recovered-conversation-123",
+            "requestBinding","user_text_sha256","userTextDigest",digest,"text",text);
+        assertTrue(runtime.recoverObservedWebReply(p));assertEquals(text,store.getRequest(request.optLong("id")).optString("result"));
+        assertTrue(store.listMessages(100).toString().contains("일반 답변과 표"));
+        assertNull(store.getSetting("actionReceipt:"+id+":never-replay",null));assertEquals(1,sent.size());
+        assertFalse(runtime.recoverObservedWebReply(p));
+    }
+    @Test public void plainReplyWithNoOriginalTurnBindingOrWrongDigestCannotUnlockTheQueue() {
+        JSONObject request=interrupted();String id=request.optString("external_id");
+        JSONObject p=object("ok",true,"captureComplete",true,"requestId",id,"conversationId","recovered-conversation-123","text","다른 대화의 답변");
+        assertFalse(runtime.recoverObservedWebReply(p));store.putSetting("dispatchReplyTextDigest:"+id,"a".repeat(64));
+        put(p,"userTextDigest","b".repeat(64));assertFalse(runtime.recoverObservedWebReply(p));
+        assertTrue(runtime.state().optBoolean("uncertaintyBlocked"));
+    }
+    @Test public void existingBrowserRequestCanRecoverPlainReplyFromBeforeDigestMigration() {
+        JSONObject request=interrupted();JSONObject p=object("ok",true,"captureComplete",true,"requestId",request.optString("external_id"),
+            "conversationId","recovered-conversation-123","requestBinding","active_user_exact","text","기존 요청의 일반 답변");
+        assertTrue(runtime.recoverObservedWebReply(p));assertEquals(1,sent.size());
+    }
+    @Test public void recoveryDigestMatchesBrowserWhitespaceAndUnicodeNormalization() {
+        assertEquals(DispatchPayloadRegistry.hash("ABC 우리 작업"),DispatchPayloadRegistry.replyTextDigest("ＡＢＣ\u200b\u00a0우리\n\t작업 "));
+    }
     private static JSONObject object(Object...pairs){JSONObject o=new JSONObject();for(int i=0;i<pairs.length;i+=2)put(o,String.valueOf(pairs[i]),pairs[i+1]);return o;}
     private static void put(JSONObject o,String key,Object value){try{o.put(key,value);}catch(Exception e){throw new IllegalArgumentException(e);}}
 }
