@@ -8,6 +8,7 @@ const asset = name => readFile(new URL('../app/src/main/assets/' + name, import.
 const source = '(function(){\n' + await asset('vendor/chat-on-steroids/chatgpt-dom.js') + '\n' + await asset('cos-dom-adapter.js') + '\n})();\n' + await asset('work-session-cleanup.js') + '\n' + await asset('work-bridge.js');
 const capturedWorkTurn=await readFile(new URL('./fixtures/chatgpt-power-complete.html',import.meta.url),'utf8');
 const capturedCodeMirror=await readFile(new URL('./fixtures/chatgpt-codemirror-reply-2026-10-11.html',import.meta.url),'utf8');
+const capturedActivity=await readFile(new URL('./fixtures/chatgpt-power-activity.html',import.meta.url),'utf8');
 let browser;
 before(async () => { browser = await chromium.launch({ headless: true, executablePath: '/usr/bin/chromium', args: ['--no-sandbox'] }); });
 after(async () => { await browser?.close(); });
@@ -1992,5 +1993,88 @@ test('after a document restart plain replies recover by durable prompt digest wi
     await page.waitForTimeout(30);await recover();await advance(page,2200);
     const proof=await recover();assert.equal(proof.ok,true);assert.equal(proof.userTextDigest,digest);assert.equal(proof.text,'JSON이 아닌 실제 답변');
     assert.equal((await recover('0'.repeat(64))).ok,false);assert.equal(await page.evaluate(()=>window.clicks),1);
+  });
+});
+
+test('upstream benchmark excludes commentary before status and cot panels from the final answer', async()=>{
+  await pageFixture(async page=>{
+    await send(page);await advance(page,300);
+    await page.evaluate(()=>{
+      const answer=window.answer('');
+      answer.innerHTML='<div class="markdown">진행 설명</div><div data-streaming-response-status="complete"><div class="markdown">도구 실행 상태</div></div><div data-testid="cot-v5-panel"><div class="markdown">접힌 과정 설명</div></div><div class="markdown">실제 최종 답변</div>';
+    });
+    await advance(page,2600);
+    const completed=(await events(page)).filter(e=>e.type==='completed');
+    assert.equal(completed.length,1);assert.equal(completed[0].text,'실제 최종 답변');
+  });
+});
+
+test('upstream benchmark keeps answer chunks between status blocks and excludes nested commentary', async()=>{
+  await pageFixture(async page=>{
+    await send(page);await advance(page,300);
+    await page.evaluate(()=>{
+      const answer=window.answer('');
+      answer.innerHTML='<div data-streaming-response-status="complete"><div class="markdown">진행 상태</div></div><div class="markdown">첫 결과</div><div data-streaming-response-status="complete"><div class="markdown">두 번째 진행 상태</div></div><div class="markdown">마지막 결과</div>';
+    });
+    await advance(page,2600);
+    const completed=(await events(page)).find(e=>e.type==='completed');
+    assert.equal(completed?.text,'첫 결과\n\n마지막 결과');
+  });
+});
+
+test('upstream benchmark does not complete a commentary-only turn using its copy control', async()=>{
+  await pageFixture(async page=>{
+    await send(page);await advance(page,300);
+    await page.evaluate(()=>{
+      const answer=window.answer('');
+      answer.innerHTML='<div data-testid="cot-v5-panel"><div class="markdown">아직 진행 설명만 있음</div></div>';
+    });
+    await advance(page,3000);
+    assert.equal((await events(page)).filter(e=>e.type==='completed').length,0);
+    await page.evaluate(()=>{const text=document.createElement('div');text.className='markdown';text.textContent='완료 답변';window.lastGroup.querySelector('[data-conversation-role="assistant"]').append(text);});
+    await advance(page,2600);
+    assert.equal((await events(page)).find(e=>e.type==='completed')?.text,'완료 답변');
+  });
+});
+
+test('upstream benchmark waits for CSS-visible completion controls even without DOM mutation', async()=>{
+  await pageFixture(async page=>{
+    await send(page);await advance(page,300);
+    await page.evaluate(()=>{
+      const style=document.createElement('style');style.id='footer-style';style.textContent='.turn-action-controls{opacity:0}';document.head.append(style);window.answer('아직 공개되지 않은 답변');
+    });
+    await advance(page,3000);
+    assert.equal((await events(page)).filter(e=>e.type==='completed').length,0);
+    await page.evaluate(()=>{document.querySelector('#footer-style').sheet.cssRules[0].style.opacity='1';});
+    await advance(page,2600);
+    assert.equal((await events(page)).filter(e=>e.type==='completed').length,1);
+  });
+});
+
+
+test('upstream benchmark captured Activity after an answer unit does not contaminate its result', async()=>{
+  await pageFixture(async page=>{
+    await send(page);await advance(page,300);
+    await page.evaluate(html=>{
+      const holder=document.createElement('div');holder.innerHTML=html;
+      const marker=holder.querySelector('[data-chatgpt-agent-turn-start]');
+      marker.insertAdjacentHTML('afterend','<div data-content-search-unit-key="final-answer"><h4 data-conversation-role="assistant"></h4><div data-markdown-text-style="assistant-message">실제 답변만</div></div>');
+      holder.querySelector('[data-user-message-bubble]').remove();
+      window.lastGroup.append(...holder.firstElementChild.childNodes);window.footer();document.querySelector('[data-testid="stop-button"]').hidden=true;
+    },capturedActivity);
+    await advance(page,2600);
+    assert.equal((await events(page)).find(e=>e.type==='completed')?.text,'실제 답변만');
+  });
+});
+
+test('upstream benchmark plain final text remains readable beside non-Markdown progress panels',async()=>{
+  await pageFixture(async page=>{
+    await send(page);await advance(page,300);
+    await page.evaluate(()=>{
+      const reply=window.answer('');
+      reply.innerHTML='<div data-testid="cot-v5-panel">진행 중 설명</div><p>일반 글로 온 최종 답변</p>';
+    });
+    await advance(page,2600);
+    assert.equal((await events(page)).find(e=>e.type==='completed')?.text,'일반 글로 온 최종 답변');
   });
 });

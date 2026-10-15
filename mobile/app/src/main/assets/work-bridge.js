@@ -2,6 +2,7 @@
  * DOM-only ChatGPT Work transport for Hoyoung's Android WebView.
  * Composer, stable turn identities and answer/footer observation are adapted from
  * miuuyy/codex-chatgpt-web (MIT), pinned 0b6087c5307c7a58adda9c420358f3f70d2035f5.
+ * Response/commentary boundaries rechecked at f137c2f84da5df214c1e228d74f5ff43e7641c48.
  * This is not that project's desktop terminal bridge or an official Work API.
  * It deliberately fails closed when Work/model selection cannot be
  * proven from the current UI. It never reads cookies, passwords or web storage.
@@ -949,6 +950,11 @@
     return true; // Modal aria-hidden and off-screen/virtualized layout do not change authorship.
   }
   function transcriptAll(selector,root) {return Array.from((root||document).querySelectorAll(selector)).filter(transcriptRendered);}
+  function replyRendered(element) {
+    if(!transcriptRendered(element))return false;
+    for(let node=element;node;node=node.parentElement)if(getComputedStyle(node).opacity==='0')return false;
+    return true; // No geometry requirement: detached/off-screen WebViews still own their replies.
+  }
   function turnSnapshot() {
     const turns = [];
     const known = new Set();
@@ -999,43 +1005,55 @@
     return { turns, known, valid };
   }
   function answerSnapshot(turn) {
-    let answers = transcriptAll(ANSWER, turn.root).filter(element => !element.closest('[data-user-message-bubble], [data-message-author-role="user"], [data-conversation-role="user"]')
+    const progressSelector='[data-streaming-response-status], [data-testid^="cot-v5"]';
+    // Activity markers themselves can be hidden; their parent owns the public
+    // progress section. A final answer in its own search unit is separate.
+    const activityContainers=Array.from(turn.root.querySelectorAll('[data-chatgpt-agent-turn-start]')).map(node=>node.parentElement);
+    const firstStatus=Array.from(turn.root.querySelectorAll('[data-streaming-response-status]')).find(replyRendered);
+    const commentary=element=>!!element.closest(progressSelector)
+      || !element.closest('[data-content-search-unit-key], [data-chatgpt-search-unit-key]') && activityContainers.some(root=>root.contains(element))
+      || !!firstStatus && !element.contains(firstStatus) && !!(element.compareDocumentPosition(firstStatus)&Node.DOCUMENT_POSITION_FOLLOWING);
+    let candidates = transcriptAll(ANSWER, turn.root).filter(element => !element.closest('[data-user-message-bubble], [data-message-author-role="user"], [data-conversation-role="user"]')
       && (turn.content.contains(element) || !!(turn.content.compareDocumentPosition(element) & Node.DOCUMENT_POSITION_FOLLOWING)));
-    if (turn.content.matches(ANSWER) && transcriptRendered(turn.content)) answers.unshift(turn.content);
-    answers = answers.filter(element => !element.parentElement || !element.parentElement.closest(ANSWER)
+    if (turn.content.matches(ANSWER) && transcriptRendered(turn.content)) candidates.unshift(turn.content);
+    candidates = candidates.filter(element => !element.parentElement || !element.parentElement.closest(ANSWER)
       || !turn.content.contains(element.parentElement.closest(ANSWER)));
+    const excluded=candidates.filter(commentary);
+    let answers=candidates.filter(element=>!excluded.includes(element)&&replyRendered(element));
     // Provider cards/embeds and plain replies need not have a Markdown wrapper.
     // Fall back only inside the positively identified assistant turn.
-    const fallback = !answers.length && transcriptRendered(turn.content);
+    const fallback = !answers.length && !candidates.some(element=>!excluded.includes(element))
+      && replyRendered(turn.content) && !commentary(turn.content);
     if(fallback)answers=[turn.content];
     const lastAnswer = answers[answers.length - 1];
     if (!lastAnswer) return { text: '', complete: false, rawEnvelopeEligible: false };
-    const footer = transcriptAll(FOOTER, turn.root).find(element => !element.closest('[data-user-message-bubble], [data-message-author-role="user"], [data-conversation-role="user"]')
+    const footer = transcriptAll(FOOTER, turn.root).find(element => replyRendered(element) && !commentary(element)
+      && !element.closest('[data-user-message-bubble], [data-message-author-role="user"], [data-conversation-role="user"]')
       && ((!lastAnswer.contains(element) && !!(lastAnswer.compareDocumentPosition(element) & Node.DOCUMENT_POSITION_FOLLOWING))
         || fallback && lastAnswer.contains(element)));
-    const answer = { text: answers.map(element => renderedReplyText(element,fallback)).filter(Boolean).join('\n\n'), complete: !!footer, rawEnvelopeEligible: false };
+    const answer = { text: answers.map(element => renderedReplyText(element,fallback,excluded,progressSelector)).filter(Boolean).join('\n\n'), complete: !!footer, rawEnvelopeEligible: false };
     // Markdown rendering removes literal fences. Never turn a quoted example or
     // one block inside a larger reply into a control message: only the whole
     // response may supply a positively identified hoyoung-language block.
-    if (answers.length === 1) {
+    if (answers.length === 1 && !(fallback && (excluded.length || turn.content.querySelector(progressSelector)))) {
       answer.rawEnvelopeEligible = bareProtocolEligible(answers[0]);
       Object.assign(answer, wholeStructuredEnvelope(answers[0]));
       if (answer.structuredEnvelopeUnavailable === 'structured_code_incomplete') answer.complete = false;
     }
     return answer;
   }
-  function renderedReplyText(element,fallback) {
+  function renderedReplyText(element,fallback,excluded=[],progressSelector='[data-streaming-response-status], [data-testid^="cot-v5"]') {
     let text=element.innerText||element.textContent||'';
     if(fallback) {
       const clone=element.cloneNode(true),originals=Array.from(element.querySelectorAll('*')),copies=Array.from(clone.querySelectorAll('*'));
-      originals.forEach((node,index)=>{if(!transcriptRendered(node)||node.matches('button,[role="button"],script,style,svg,[data-markdown-copy="exclude"],.turn-action-controls'))copies[index].remove();});
+      originals.forEach((node,index)=>{if(!replyRendered(node)||excluded.includes(node)||node.matches(progressSelector+',button,[role="button"],script,style,svg,[data-markdown-copy="exclude"],.turn-action-controls'))copies[index].remove();});
       for(const node of clone.querySelectorAll('br,p,div,pre,li,tr,h1,h2,h3,h4')) {
         if(node.tagName==='BR')node.replaceWith(document.createTextNode('\n'));
         else {node.before(document.createTextNode('\n'));node.after(document.createTextNode('\n'));}
       }
       text=clone.textContent.replace(/\n{3,}/g,'\n\n').trim();
     }
-    const media=transcriptAll('img,video,audio,iframe,object,embed,canvas',element).map(node=>{
+    const media=transcriptAll('img,video,audio,iframe,object,embed,canvas',element).filter(node=>replyRendered(node)&&!node.closest(progressSelector)&&!excluded.some(root=>root.contains(node))).map(node=>{
       const label=normalized(node.getAttribute('alt')||node.getAttribute('title')||node.getAttribute('aria-label'));
       const url=node.getAttribute('src')||node.getAttribute('data')||'';
       // Describe only exposed content. A cross-origin embed's private body is not readable.

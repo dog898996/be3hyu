@@ -131,6 +131,32 @@ public final class WorkStartupRecoveryTest {
         advance(30_001);assertEquals("authentication_required",runtime.state().optString("readinessCode"));
     }
 
+    @Test public void visibleDocumentStartsBeforeSlowResourcesFinishAndLateFinishDoesNotResetReadiness() throws Exception {
+        List<RecordingView> views=new ArrayList<>();WorkWebController controller=controller(c->{RecordingView v=new RecordingView(c);views.add(v);return v;});
+        controller.start();idle();RecordingView view=views.get(0);WebViewClient client=view.getWebViewClient();
+        client.onPageStarted(view,WorkWebController.HOME_URL,null);
+        client.onPageCommitVisible(view,WorkWebController.HOME_URL);idle();
+        assertTrue(field(WorkWebController.class,"documentEverLoaded").getBoolean(controller));
+        assertTrue(field(WorkWebController.class,"loaded").getBoolean(controller));
+        assertFalse(field(WorkWebController.class,"pageAwaitingFinish").getBoolean(controller));
+        ready();advance(30_001);
+        assertEquals("ready",runtime.state().optString("readinessCode"));
+        client.onPageFinished(view,WorkWebController.HOME_URL);idle();
+        assertEquals("ready",runtime.state().optString("readinessCode"));assertEquals(1,view.urlLoads);
+    }
+
+    @Test public void staleOrFailedVisibleCommitCannotStartAutomationOnAnotherDocument() throws Exception {
+        List<RecordingView> views=new ArrayList<>();WorkWebController controller=controller(c->{RecordingView v=new RecordingView(c);views.add(v);return v;});
+        controller.start();idle();RecordingView view=views.get(0);WebViewClient client=view.getWebViewClient();
+        client.onPageStarted(view,"https://auth.openai.com/",null);
+        client.onPageCommitVisible(view,WorkWebController.HOME_URL);idle();
+        assertFalse(field(WorkWebController.class,"loaded").getBoolean(controller));assertTrue(view.scripts.isEmpty());
+        client.onPageStarted(view,WorkWebController.HOME_URL,null);
+        field(WorkWebController.class,"pageLoadFailure").set(controller,"page_load_failed");
+        client.onPageCommitVisible(view,WorkWebController.HOME_URL);idle();
+        assertFalse(field(WorkWebController.class,"loaded").getBoolean(controller));assertTrue(view.scripts.isEmpty());
+    }
+
     @Test public void repeatedStartsUseOneMonotonicOneFiveThirtySixtySecondBackoff() throws Exception {
         runtime.receive("대기 원문은 startup 실패해도 보존", new JSONArray());
         int[] calls = {0}; WorkWebController controller = controller(c -> { calls[0]++; throw new IllegalStateException("Injected missing provider"); });

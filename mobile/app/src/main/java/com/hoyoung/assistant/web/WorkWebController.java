@@ -269,6 +269,27 @@ public final class WorkWebController implements AssistantRuntime.Transport {
         try { discarded.destroy(); } catch (RuntimeException | LinkageError ignored) { }
     }
 
+    private void initializeDocument(WebView destination, String url) {
+        if (destination != view || loaded) return;
+        try {
+            pageAwaitingFinish = false;
+            if (!pageLoadFailure.isEmpty()) { publishUnavailableState(pageLoadFailure, false, 0, null); return; }
+            documentEverLoaded = true;
+            startupRetry.reset();
+            currentOrigin = url;
+            loaded = isChatGptOrigin(Uri.parse(url));
+            if (loaded && script != null && WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
+                int epoch = documentEpoch;
+                String restore = conversations.id().isEmpty() ? "" : "\nwindow.HoyoungWorkBridge.restoreOwnedConversation(" + JSONObject.quote(conversations.id()) + ");";
+                destination.evaluateJavascript(script + restore, ignored -> {
+                    if (destination != view || !loaded || epoch != documentEpoch) return;
+                    if (conversations.cleaning()) runConversationCleanup(); else inspect(true);
+                });
+            } else if (loaded) publishUnavailableState("bridge_script_unavailable", false, 0, null);
+            else publishUnavailableState("authentication_required", false, 0, null);
+        } catch (RuntimeException | LinkageError failure) { startupFailed(failure); }
+    }
+
     private void createView() {
         WebView candidate = null;
         documentEverLoaded = false;
@@ -357,26 +378,13 @@ public final class WorkWebController implements AssistantRuntime.Transport {
                 try { state.put("loading", true).put("workSelected", false).put("temporary", false).put("authenticated", JSONObject.NULL); } catch (Exception ignored) { }
                 emitState(state, "page_loading");
             }
-            @Override public void onPageFinished(WebView v, String url) {
-                if (v != view) return;
-                try {
-                pageAwaitingFinish=false;
-                if (!pageLoadFailure.isEmpty()) { publishUnavailableState(pageLoadFailure, false, 0, null); return; }
-                documentEverLoaded = true;
-                startupRetry.reset();
-                currentOrigin = url;
-                loaded = isChatGptOrigin(Uri.parse(url));
-                if (loaded && script != null && WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
-                    int epoch = documentEpoch;
-                    String restore = conversations.id().isEmpty() ? "" : "\nwindow.HoyoungWorkBridge.restoreOwnedConversation(" + JSONObject.quote(conversations.id()) + ");";
-                    v.evaluateJavascript(script + restore, ignored -> {
-                        if (v != view || !loaded || epoch != documentEpoch) return;
-                        if (conversations.cleaning()) runConversationCleanup(); else inspect(true);
-                    });
-                } else if (loaded) publishUnavailableState("bridge_script_unavailable", false, 0, null);
-                else publishUnavailableState("authentication_required", false, 0, null);
-                } catch (RuntimeException | LinkageError failure) { startupFailed(failure); }
+            @Override public void onPageCommitVisible(WebView v, String url) {
+                // Like upstream DOM-ready automation: a slow image must not
+                // hold a usable composer until onPageFinished. The bridge
+                // observes hydration and verifies controls before any send.
+                if (url != null && url.equals(currentOrigin) && isChatGptOrigin(Uri.parse(url))) initializeDocument(v, url);
             }
+            @Override public void onPageFinished(WebView v, String url) { initializeDocument(v, url); }
             @Override public void onReceivedError(WebView v, WebResourceRequest request, android.webkit.WebResourceError error) {
                 if (v != view || !request.isForMainFrame()) return;
                 pageAwaitingFinish=false; loaded = false; emitActiveTransportError("WORK_PAGE_LOAD_FAILED");

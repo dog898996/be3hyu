@@ -295,6 +295,56 @@ public final class WorkCompatibilityExplorerDeviceTest {
         proof("native-Work-actions; connection-reconnection-details; Work-and-chat-help-accessible; offline-no-paid-request");
     }
 
+    @Test public void finalAnswerExcludesProgressAndWaitsForCssVisibleCompletion() throws Exception {
+        open("");assertEquals("dispatch_pending",send("benchmark-response","진행 설명과 최종 답을 구분해 줘").getString("code"));
+        awaitEvent("accepted","benchmark-response",30_000);
+        eval("const style=document.createElement('style');style.id='footer-style';style.textContent='.turn-action-controls{opacity:0}';document.head.append(style);answerPlain('');"
+            +"window.lastGroup.querySelector('[data-conversation-role=assistant]').innerHTML='<div class=markdown>진행 설명</div><div data-streaming-response-status=complete><div class=markdown>작업 상태</div></div><div data-testid=cot-v5-panel><div class=markdown>과정 설명</div></div><div class=markdown>최종 답변</div>';true");
+        SystemClock.sleep(2_700);assertEquals(0,count("completed","benchmark-response"));
+        eval("document.querySelector('#footer-style').sheet.cssRules[0].style.opacity='1';true");
+        awaitEvent("completed","benchmark-response",30_000);
+        assertEquals("최종 답변",event("completed","benchmark-response").getString("text"));assertEquals(1,intValue("clicks"));
+        proof("actual-WebView; progress-excluded; invisible-footer-not-complete; stylesheet-only-reveal; one-completion");
+    }
+
+    @Test public void productionControllerConnectsBeforeAnImageFinishesLoading() throws Exception {
+        CountDownLatch releaseImage=new CountDownLatch(1),imageRequested=new CountDownLatch(1),finished=new CountDownLatch(1);
+        byte[] page=PAGE.replace("/* SETUP */", "const image=document.createElement('img');image.src='/benchmark-slow.png';document.body.append(image);").getBytes(StandardCharsets.UTF_8);
+        scenario=ActivityScenario.launch(MainActivity.class);
+        try {
+            scenario.onActivity(activity->{
+                com.hoyoung.assistant.runtime.HoyoungApplication app=(com.hoyoung.assistant.runtime.HoyoungApplication)activity.getApplication();
+                com.hoyoung.assistant.web.WorkWebController controller=new com.hoyoung.assistant.web.WorkWebController(context,app.getRuntime(),app.getFiles());
+                web=controller.getView();WebViewClient production=web.getWebViewClient();
+                web.setWebViewClient(new WebViewClient(){
+                    @Override public WebResourceResponse shouldInterceptRequest(WebView view,WebResourceRequest request){
+                        if(request.isForMainFrame()){mainRequests.incrementAndGet();return new WebResourceResponse("text/html","UTF-8",new ByteArrayInputStream(page));}
+                        if(request.getUrl().getPath().equals("/benchmark-slow.png"))return new WebResourceResponse("image/png",null,new InputStream(){
+                            @Override public int read(){imageRequested.countDown();try{releaseImage.await(20,TimeUnit.SECONDS);}catch(InterruptedException interrupted){Thread.currentThread().interrupt();}return -1;}
+                        });
+                        return new WebResourceResponse("text/plain","UTF-8",new ByteArrayInputStream(new byte[0]));
+                    }
+                    @Override public void onPageStarted(WebView view,String url,android.graphics.Bitmap icon){production.onPageStarted(view,url,icon);}
+                    @Override public void onPageCommitVisible(WebView view,String url){production.onPageCommitVisible(view,url);}
+                    @Override public void onPageFinished(WebView view,String url){production.onPageFinished(view,url);finished.countDown();}
+                    @Override public void onReceivedError(WebView view,WebResourceRequest request,android.webkit.WebResourceError error){production.onReceivedError(view,request,error);}
+                    @Override public void onReceivedHttpError(WebView view,WebResourceRequest request,WebResourceResponse response){production.onReceivedHttpError(view,request,response);}
+                });
+                activity.addContentView(web,new FrameLayout.LayoutParams(-1,-1));controller.start();
+            });
+            assertTrue(imageRequested.await(15,TimeUnit.SECONDS));
+            awaitJs("!!window.HoyoungWorkBridge",15_000);
+            assertEquals("The real image request is still pending",1,finished.getCount());
+            assertTrue(bool("document.readyState!=='complete'"));
+            eval("window.benchmarkBridge=window.HoyoungWorkBridge;HoyoungWorkBridge.connect("+PREFS+");true");
+            awaitJs("HoyoungWorkBridge.inspect().code==='ready'",15_000);
+            assertEquals(0,intValue("clicks"));releaseImage.countDown();
+            assertTrue(finished.await(15,TimeUnit.SECONDS));
+            assertTrue(bool("window.HoyoungWorkBridge===window.benchmarkBridge"));assertEquals(1,mainRequests.get());
+            proof("production-controller; actual-WebView; pending-image; ready-before-load-completion; late-finish-no-reinstall; no-submit");
+        } finally {releaseImage.countDown();}
+    }
+
     private void open(String setup) throws Exception {
         String page = PAGE.replace("/* SETUP */", setup);
         byte[] bytes = page.getBytes(StandardCharsets.UTF_8);
