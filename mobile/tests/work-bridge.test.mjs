@@ -172,7 +172,6 @@ test('mobile combined model and effort label remains readable with a collapsed s
   }, { setup: `document.querySelector('[data-testid="model-switcher-dropdown-button"]').textContent='GPT-6.1 Sol Medium'; document.querySelector('#effort').remove(); document.querySelector('[data-testid="user-menu-button"]').hidden=true;` });
 });
 
-test('mobile Fast switch is read explicitly, may turn off, and survives closing its observed model menu', async () => {
   const mobileMenu = `
     document.querySelector('#effort').remove(); document.querySelector('#speed').remove();
     const picker = document.querySelector('[data-testid="model-switcher-dropdown-button"]');
@@ -185,6 +184,8 @@ test('mobile Fast switch is read explicitly, may turn off, and survives closing 
     });
     document.querySelector('#prompt-textarea').addEventListener('focus',()=>document.querySelector('#mobile-menu')?.remove());
   `;
+
+test('mobile Fast switch is read explicitly, may turn off, and survives closing its observed model menu', async () => {
   await pageFixture(async page => {
     assert.equal((await inspect(page)).code, 'speed_unverified');
     await page.evaluate(() => window.HoyoungWorkBridge.ensurePreferences({requiredModel:'gpt-6.1-sol', requiredEffort:'medium', requiredSpeed:'standard'}));
@@ -203,6 +204,78 @@ test('mobile Fast switch is read explicitly, may turn off, and survives closing 
     assert.equal(await page.evaluate(() => window.fastChanges), 0);
     assert.equal(await page.evaluate(() => window.modelMenuOpens), 1);
   }, { setup: mobileMenu });
+});
+
+const mobileSidebar = `
+document.querySelector('[data-testid="user-menu-button"]').remove();
+window.sidebarOpens=0; window.sidebarCloses=0;
+const sidebarOpen=document.createElement('button');sidebarOpen.setAttribute('aria-label','Open sidebar');document.querySelector('header').append(sidebarOpen);
+sidebarOpen.onclick=()=>{window.sidebarOpens++;sidebarOpen.hidden=true;const nav=document.createElement('nav');nav.id='mobile-sidebar';nav.setAttribute('role','dialog');nav.setAttribute('aria-label','Sidebar');
+  const close=document.createElement('button');close.setAttribute('aria-label','Close sidebar');nav.append(close);
+  if(!window.omitAccount){const profile=document.createElement('button');profile.dataset.testid='accounts-profile-button';profile.textContent='Private fixture owner';nav.append(profile);}
+  close.onclick=()=>{window.sidebarCloses++;nav.remove();sidebarOpen.hidden=false;};document.body.append(nav);
+};
+`;
+const connect = page => page.evaluate(() => window.HoyoungWorkBridge.connect({requiredModel:'gpt-6.1-sol',requiredEffort:'medium',requiredSpeed:'fast'}));
+
+test('mobile connect discovers an unmounted account once, closes its sidebar and verifies actual Fast without sending', async () => {
+  await pageFixture(async page => {
+    assert.equal((await inspect(page)).code, 'authentication_unverified');
+    await connect(page); await connect(page); await advance(page, 1500);
+    const state=await inspect(page);assert.equal(state.code,'ready');
+    assert.equal(state.state.authenticationEvidence,'recent_account_control_same_document');
+    assert.equal(state.state.speed,'fast');
+    assert.deepEqual(await page.evaluate(()=>[window.sidebarOpens,window.sidebarCloses,window.modelMenuOpens,window.fastChanges,window.clicks]),[1,1,1,0,0]);
+    assert.equal(JSON.stringify(await events(page)).includes('Private fixture owner'),false);
+    await advance(page,300_100);assert.equal((await inspect(page)).code,'authentication_unverified');
+    await page.evaluate(()=>window.HoyoungWorkBridge.ensurePreferences({requiredModel:'gpt-6.1-sol',requiredEffort:'medium',requiredSpeed:'fast'}));
+    await advance(page,1000);assert.equal((await inspect(page)).code,'ready');
+    assert.equal(await page.evaluate(()=>window.sidebarOpens),2);
+  },{setup:mobileMenu+mobileSidebar});
+});
+
+test('mobile account detection supports modern collapsed profile controls but a visible login overrides them',async()=>{
+  await pageFixture(async page=>{
+    assert.equal((await inspect(page)).state.authenticated,true);
+    await page.evaluate(()=>{const a=document.createElement('a');a.href='/auth/login';a.textContent='로그인';document.body.append(a);});
+    assert.equal((await inspect(page)).code,'authentication_required');
+  },{setup:`const profile=document.querySelector('[data-testid="user-menu-button"]');profile.dataset.testid='accounts-profile-button';profile.removeAttribute('aria-label');profile.hidden=true;`});
+});
+
+test('mobile connection never guesses login from Work or repeatedly opens an unverified sidebar',async()=>{
+  await pageFixture(async page=>{
+    await connect(page);await advance(page,7000);
+    assert.equal((await inspect(page)).code,'authentication_unverified');
+    await page.evaluate(()=>window.HoyoungWorkBridge.ensurePreferences({requiredModel:'gpt-6.1-sol',requiredEffort:'medium',requiredSpeed:'fast'}));
+    await advance(page,7000);assert.equal(await page.evaluate(()=>window.sidebarOpens),1);
+    assert.equal(await page.evaluate(()=>window.modelMenuOpens),0);
+  },{setup:mobileMenu+mobileSidebar+`window.omitAccount=true;`});
+});
+
+test('mobile connect preserves drafts, attachments, busy and dispatched work',async()=>{
+  for(const block of [`document.querySelector('#prompt-textarea').value='작성 중인 메시지'`,
+    `document.querySelector('#attachments').innerHTML='<div data-testid="attachment">photo.jpg</div>'`,
+    `document.querySelector('[data-testid="stop-button"]').hidden=false`]) {
+    await pageFixture(async page=>{
+      const draft=await page.locator('#prompt-textarea').inputValue();await connect(page);await advance(page,1000);
+      assert.equal(await page.evaluate(()=>window.sidebarOpens),0);assert.equal(await page.locator('#prompt-textarea').inputValue(),draft);
+      assert.equal(await page.evaluate(()=>window.clicks),0);
+    },{setup:mobileSidebar+block});
+  }
+  await pageFixture(async page=>{
+    await connect(page);await advance(page,1000);await send(page);await advance(page,500);
+    await connect(page);await advance(page,1000);
+    assert.equal(await page.evaluate(()=>window.clicks),1);assert.equal(await page.evaluate(()=>window.sidebarOpens),1);
+  },{setup:mobileSidebar});
+});
+
+test('mobile connect selects Work only after account proof and invalidates cached login on account switching',async()=>{
+  await pageFixture(async page=>{
+    await connect(page);await advance(page,1200);assert.equal((await inspect(page)).code,'ready');
+    await page.evaluate(()=>{const button=document.createElement('button');button.textContent='계정 전환';document.body.append(button);button.click();});
+    assert.equal((await inspect(page)).state.authenticated,null);
+    assert.equal((await send(page)).ok,false);assert.equal(await page.evaluate(()=>window.clicks),0);
+  },{setup:mobileSidebar+`document.querySelector('#work').setAttribute('aria-selected','false');`});
 });
 
 test('mobile combined labels never infer speed, temporary mode or Work selection from the desired settings', async () => {

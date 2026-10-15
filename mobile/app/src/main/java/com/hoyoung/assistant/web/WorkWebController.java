@@ -342,7 +342,7 @@ public final class WorkWebController implements AssistantRuntime.Transport {
                     String restore = conversations.id().isEmpty() ? "" : "\nwindow.HoyoungWorkBridge.restoreOwnedConversation(" + JSONObject.quote(conversations.id()) + ");";
                     v.evaluateJavascript(script + restore, ignored -> {
                         if (v != view || !loaded || epoch != documentEpoch) return;
-                        if (conversations.cleaning()) runConversationCleanup(); else inspect();
+                        if (conversations.cleaning()) runConversationCleanup(); else connect();
                     });
                 } else if (loaded) publishUnavailableState("bridge_script_unavailable", false, 0, null);
                 else publishUnavailableState("authentication_required", false, 0, null);
@@ -411,7 +411,11 @@ public final class WorkWebController implements AssistantRuntime.Transport {
         if (fileCallback != null) { fileCallback.onReceiveValue(uris); fileCallback = null; }
     }
 
-    @Override public void inspect() {
+    @Override public void inspect() { inspect(false); }
+
+    public void connect() { inspect(true); }
+
+    private void inspect(boolean prepareConnection) {
         main.post(() -> {
             if (view == null || !loaded) return;
             if (conversations.cleaning() || conversations.blocked()) { publishUnavailableState("conversation_cleanup_pending", false, 0, null); return; }
@@ -422,7 +426,8 @@ public final class WorkWebController implements AssistantRuntime.Transport {
             // A native preparing request owns immutable preferences but has not
             // been handed to JavaScript. It may select that frozen route before
             // send; dispatched/recovered/uncertain outcomes remain read-only.
-            String operation = canAutomaticallySelectPreferences(runtime.state()) && !ownerRecoveryRequired ? "ensurePreferences" : "configurePreferences";
+            String operation = canAutomaticallySelectPreferences(runtime.state()) && !ownerRecoveryRequired
+                ? (prepareConnection ? "connect" : "ensurePreferences") : "configurePreferences";
             try { destination.evaluateJavascript("window.HoyoungWorkBridge ? JSON.stringify(window.HoyoungWorkBridge." + operation + "(" + preferences + ")) : null", raw -> {
                 if (view != destination || !loaded || documentEpoch != epoch) return;
                 try {

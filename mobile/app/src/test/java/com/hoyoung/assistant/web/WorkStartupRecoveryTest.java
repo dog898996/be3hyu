@@ -253,6 +253,21 @@ public final class WorkStartupRecoveryTest {
         assertFalse(runtime.state().optBoolean("ready")); assertEquals("page_loading", runtime.state().optString("readinessCode"));
     }
 
+    @Test public void connectionCanDiscoverAccountWhileIdleButLeavesDispatchedAndAcceptedWorkReadOnly() throws Exception {
+        List<RecordingView> views = new ArrayList<>();
+        WorkWebController controller = controller(c -> { RecordingView result = new RecordingView(c); views.add(result); return result; });
+        controller.start(); idle(); markLoaded(controller);
+        controller.connect(); idle();
+        assertTrue(views.get(0).scripts.get(0).contains("HoyoungWorkBridge.connect("));
+        ready(); JSONObject request=runtime.receive("작업 중 연결 버튼은 모델을 바꾸면 안 돼",new JSONArray());
+        controller.connect(); idle();
+        assertTrue(views.get(0).scripts.get(1).contains("HoyoungWorkBridge.configurePreferences("));
+        runtime.onWebEvent(object("type","accepted","requestId",request.getString("external_id")));
+        controller.connect(); idle();
+        assertTrue(views.get(0).scripts.get(2).contains("HoyoungWorkBridge.configurePreferences("));
+        assertEquals(request.getString("external_id"),runtime.state().getString("activeRequestId"));
+    }
+
     @Test public void onlyAnIdleOrPreWirePreparingLedgerMayEnsureUiPreferencesAndDispatchedInspectionIsReadOnly() throws Exception {
         List<RecordingView> views = new ArrayList<>();
         WorkWebController controller = controller(c -> { RecordingView result = new RecordingView(c); views.add(result); return result; });

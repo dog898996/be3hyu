@@ -68,6 +68,11 @@
   let quotaLatched = false;
   let observedSpeed = null;
   let lastInputRequiredKey = '';
+  let authenticationObservedAt = 0;
+  let authenticationInvalidated = false;
+  let connectionPreparation = null;
+  const ACCOUNT_EVIDENCE_TTL_MS = 5 * 60_000;
+  const ACCOUNT_CONTROL = '[data-testid="user-menu-button"], [data-testid="profile-button"], [data-testid="accounts-profile-button"], [data-testid="account-menu-button"]';
   const receipts = new Map();
   const seenRequestIds = new Set();
 
@@ -276,6 +281,7 @@
     if (!preferenceConfigurationValid) return 'unsupported_preferences';
     if (active) return active.phase === 'uncertain' ? 'dispatch_uncertain' : 'busy';
     if (state.authenticated !== true) return state.authenticated === false ? 'authentication_required' : 'authentication_unverified';
+    if (connectionPreparation && connectionPreparation.enabled) return 'connection_preparing';
     if (!state.workSelected) return 'work_unverified';
     if (cleaningSession) return 'conversation_cleanup_pending';
     if (state.conversationOwned !== true) return 'unowned_conversation';
@@ -388,6 +394,10 @@
     const key = JSON.stringify(preferences);
     if (!preferenceSelection || preferenceSelection.key !== key) preferenceSelection = { key, clicks: 0, enabled: true, failed: false, status: 'pending' };
     else preferenceSelection.enabled = true;
+    if (connectionPreparation && connectionPreparation.status === 'verified' && readState().authenticated === null) {
+      connectionPreparation = { enabled: true, status: 'pending', accountAttempted: false, sidebarOpened: false, workAttempted: false };
+      advanceConnectionPreparation();
+    }
     advancePreferenceSelection();
     return inspectAndEmit();
   }
@@ -482,18 +492,102 @@
     }
     return null;
   }
+  function authenticationEvidence(editor, selectable) {
+    const logIn = /^(?:Log in|Login|Sign in|로그인)$/i;
+    const loggedOut = selectable.some(element => logIn.test(labelOf(element)))
+      || all('a[href]').some(element => !element.closest(TRANSCRIPT) && logIn.test(labelOf(element)));
+    if (loggedOut) { authenticationObservedAt = 0; authenticationInvalidated = false; return { authenticated: false, authenticationEvidence: 'signed_out_control' }; }
+    if (authenticationInvalidated) return { authenticated: null, authenticationEvidence: 'account_change_pending' };
+    // Account controls can be mounted in a collapsed sidebar, or rendered only
+    // after opening it. Never infer authentication from a model, Work tab, task
+    // recommendation, avatar image, or absence of a login button.
+    const account = Array.from(document.querySelectorAll(ACCOUNT_CONTROL)).some(element =>
+      element.isConnected && element.matches('button,[role="button"]') && !element.closest(TRANSCRIPT))
+      || selectable.some(element => /^(?:Open (?:profile|account|user) menu|(?:프로필|계정|사용자) 메뉴(?: 열기)?|프로필 열기|계정 설정 열기)$/i.test(labelOf(element)))
+      || selectable.some(element => element.closest('[role="menu"],[role="dialog"],nav,aside')
+        && /^(?:Log out|Logout|Sign out|로그아웃)$/i.test(labelOf(element)));
+    if (editor && account) authenticationObservedAt = Date.now();
+    const age = Date.now() - authenticationObservedAt;
+    const cached = authenticationObservedAt > 0 && age >= 0 && age < ACCOUNT_EVIDENCE_TTL_MS;
+    return { authenticated: editor && (account || cached) ? true : null,
+      authenticationEvidence: account ? 'account_control' : cached ? 'recent_account_control_same_document' : 'unobserved' };
+  }
+  function invalidateAccountEvidence(event) {
+    const element = event.target && event.target.closest && event.target.closest('button,[role="button"],[role="menuitem"],a[href]');
+    if (element && !element.closest(TRANSCRIPT) && /^(?:Log out|Logout|Sign out|로그아웃|Switch account|계정 전환)$/i.test(labelOf(element))) {
+      authenticationObservedAt = 0; authenticationInvalidated = true;
+    }
+  }
+  function sidebarControls(open) {
+    const labels = open ? /^(?:Open sidebar|Expand sidebar|Open navigation menu|사이드바 열기|사이드바 펼치기|탐색 메뉴 열기)$/i
+      : /^(?:Close sidebar|Collapse sidebar|Close navigation menu|사이드바 닫기|사이드바 접기|탐색 메뉴 닫기)$/i;
+    const testIds = open ? ['open-sidebar-button','sidebar-open-button'] : ['close-sidebar-button','sidebar-close-button'];
+    return controls().filter(element => element.matches('button,[role="button"]') && (!open || !element.closest('[role="menu"],[role="dialog"]'))
+      && (labels.test(labelOf(element)) || testIds.includes(element.getAttribute('data-testid'))));
+  }
+  function connectionCanChangeUi(state) {
+    if (disposed || active || cleaningSession || document !== initialDocument || location.pathname !== initialPath
+      || state.busy || state.quota || state.needsInput) return false;
+    const editor = composer(), scope = composerScope(editor);
+    return !!(editor && scope && !editorText(editor)
+      && !all('[data-testid="attachment"], [data-file-name], [role="group"][aria-label], [role="progressbar"], progress',scope).length
+      && !Array.from(scope.querySelectorAll('input[type="file"]')).some(input=>input.files && input.files.length));
+  }
+  function advanceConnectionPreparation() {
+    const preparation = connectionPreparation;
+    if (!preparation || !preparation.enabled) return;
+    const state = readState();
+    if (!connectionCanChangeUi(state)) { preparation.enabled = false; preparation.status = 'preserved_existing_work'; return; }
+    if (state.authenticated === false) { preparation.status = 'login_required'; return; }
+    if (state.authenticated !== true) {
+      if (preparation.accountAttempted) {
+        if (performance.now() >= preparation.accountDeadline) { preparation.enabled = false; preparation.status = 'account_unverified'; }
+        return;
+      }
+      const controls = sidebarControls(true);
+      if (controls.length !== 1 || !enabled(controls[0])) { preparation.enabled = false; preparation.status = 'account_unverified'; return; }
+      preparation.accountAttempted = true; preparation.accountDeadline = performance.now() + 5_000;
+      preparation.sidebarOpened = true; preparation.status = 'account_opening';
+      try { controls[0].click(); } catch (_) { preparation.enabled = false; preparation.status = 'account_unverified'; }
+      return;
+    }
+    if (preparation.sidebarOpened) {
+      // Close only a sidebar this attempt opened, never an owner's menu.
+      const close = sidebarControls(false);
+      if (close.length === 1 && enabled(close[0])) {
+        preparation.sidebarOpened = false;
+        try { close[0].click(); } catch (_) { preparation.enabled = false; preparation.status = 'account_menu_review'; return; }
+        return; // Let the layout settle before locating Work/model controls.
+      }
+      if (performance.now() < preparation.accountDeadline) return;
+      preparation.enabled = false; preparation.status = 'account_menu_review'; return;
+    }
+    if (!state.workSelected) {
+      // Mode switching is allowed only in an empty, unsubmitted home composer.
+      if (location.pathname !== '/' || turnSnapshot().turns.length) { preparation.enabled = false; preparation.status = 'work_unverified'; return; }
+      if (preparation.workAttempted) {
+        if (performance.now() >= preparation.workDeadline) { preparation.enabled = false; preparation.status = 'work_unverified'; }
+        return;
+      }
+      const work = controls().filter(isWork);
+      if (work.length !== 1 || !enabled(work[0])) { preparation.enabled = false; preparation.status = 'work_unverified'; return; }
+      preparation.workAttempted = true; preparation.workDeadline = performance.now() + 5_000; preparation.status = 'work_selecting';
+      try { work[0].click(); } catch (_) { preparation.enabled = false; preparation.status = 'work_unverified'; }
+      return;
+    }
+    preparation.enabled = false; preparation.status = 'verified';
+  }
+  function connect(payload) {
+    if (!connectionCanChangeUi(readState())) return inspectAndEmit();
+    if (connectionPreparation && connectionPreparation.enabled) return ensurePreferences(payload);
+    connectionPreparation = { enabled: true, status: 'pending', accountAttempted: false, sidebarOpened: false, workAttempted: false };
+    advanceConnectionPreparation();
+    return ensurePreferences(payload);
+  }
   function readState() {
     const selectable = controls();
     const editor = composer();
-    const loggedOut = selectable.some(element => /^(?:Log in|Login|Sign in|로그인)$/i.test(labelOf(element)));
-    const accountControl = selectable.some(element => element.matches('[data-testid="user-menu-button"]')
-      || /^(?:Open (?:profile|account|user) menu|(?:프로필|계정|사용자) 메뉴 열기)$/i.test(labelOf(element)));
-    // A mobile sidebar may keep the signed-in account control mounted but hidden.
-    // Only the account-specific marker counts; arbitrary hidden labels do not.
-    const responsiveAccount = Array.from(document.querySelectorAll('button[data-testid="user-menu-button"]'))
-      .some(element => !element.closest(TRANSCRIPT));
-    // A guest composer alone is not proof of an authenticated subscription.
-    const authenticated = loggedOut ? false : editor && (accountControl || responsiveAccount) ? true : null;
+    const authentication = authenticationEvidence(editor, selectable);
     const temporaryBanner = all('header [role="status"], main > [role="status"], header h1, main > h1')
       .some(element => isTemporary(element) && !element.closest(TRANSCRIPT));
     const selectedWork = selectable.some(element => isWork(element) && selected(element));
@@ -503,7 +597,9 @@
     const ownPath = ownedConversationId && location.pathname === '/c/' + ownedConversationId;
     const fresh = location.pathname === '/' && turnSnapshot().turns.length === 0;
     return Object.assign({
-      authenticated,
+      authenticated: authentication.authenticated,
+      authenticationEvidence: authentication.authenticationEvidence,
+      connectionStatus: connectionPreparation ? connectionPreparation.status : null,
       workSelected: selectedWork || !!(ownPath && verifiedWorkSession && !selectedChat),
       conversationId: ownPath ? ownedConversationId : null,
       conversationOwned: !!ownPath || fresh,
@@ -519,6 +615,7 @@
     if (disposed || document !== initialDocument || location.origin !== 'https://chatgpt.com') return 'unsupported_origin';
     if (!preferenceConfigurationValid) return 'unsupported_preferences';
     if (state.authenticated === false) return 'authentication_required';
+    if (connectionPreparation && connectionPreparation.enabled && /^(?:pending|account_opening|work_selecting)$/.test(connectionPreparation.status)) return 'connection_preparing';
     if (state.authenticated !== true) return 'authentication_unverified';
     if (!state.workSelected) return 'work_unverified';
     if (cleaningSession) return 'conversation_cleanup_pending';
@@ -731,6 +828,7 @@
         remember({ requestId: active.requestId, text: active.text, phase: 'uncertain', code: 'quota_exhausted', knownNotSent });
       }
     }
+    advanceConnectionPreparation();
     advancePreferenceSelection();
     inspectAndEmit();
     const needsInput = inputRequiredStatus();
@@ -1095,6 +1193,7 @@
     if (interval) clearInterval(interval);
     window.removeEventListener('pagehide', onPageHide);
     document.removeEventListener('click', invalidatePopupEvidence, true);
+    document.removeEventListener('click', invalidateAccountEvidence, true);
   }
   function onPageHide() { dispose('navigation_uncertain'); }
   function restoreOwnedConversation(id) {
@@ -1113,7 +1212,7 @@
     // receipt and explicitly loads a fresh document. Failure needs owner review.
     return event;
   }
-  const api = { inspect, selectWork, send, cancel, inspectAndEmit, prepareOwnerRetry, authorizeDispatch, configurePreferences, ensurePreferences, captureUsageObservation, restoreOwnedConversation, deleteOwnedConversation };
+  const api = { inspect, connect, selectWork, send, cancel, inspectAndEmit, prepareOwnerRetry, authorizeDispatch, configurePreferences, ensurePreferences, captureUsageObservation, restoreOwnedConversation, deleteOwnedConversation };
   Object.defineProperty(api, '__document', { value: document });
   Object.defineProperty(api, '__dispose', { value: dispose });
   window.HoyoungWorkBridge = api;
@@ -1126,5 +1225,6 @@
   interval = setInterval(tick, 250);
   window.addEventListener('pagehide', onPageHide);
   document.addEventListener('click', invalidatePopupEvidence, true);
+  document.addEventListener('click', invalidateAccountEvidence, true);
   tick();
 })();

@@ -68,6 +68,7 @@ public final class MainActivity extends Activity {
     private TextView ownerFolderState;
     private TextView usageBudgetState;
     private TextView workConnectionDetails;
+    private ImageButton headerOptions;
     private final Handler main = new Handler(Looper.getMainLooper());
     private final ExecutorService io = Executors.newSingleThreadExecutor();
     private final ExecutorService commands = Executors.newSingleThreadExecutor();
@@ -189,7 +190,8 @@ public final class MainActivity extends Activity {
         statusDot=new View(this);statusDot.setBackground(round(Color.rgb(177,171,191)));LinearLayout.LayoutParams dot=new LinearLayout.LayoutParams(dp(5),dp(5));dot.setMargins(0,0,dp(5),0);status.addView(statusDot,dot);
         connection=label("연결 준비 중",11,SUBTLE);connection.setSingleLine(true);connection.setEllipsize(android.text.TextUtils.TruncateAt.END);status.addView(connection,new LinearLayout.LayoutParams(-1,-2));titles.addView(status);
         header.addView(titles,new LinearLayout.LayoutParams(0,-2,1));titles.setOnClickListener(v->showConnectionDetails());
-        header.addView(icon(LineIconDrawable.Icon.MORE,"대화 옵션",this::showConversationOptions),new LinearLayout.LayoutParams(dp(44),dp(48)));
+        headerOptions=icon(LineIconDrawable.Icon.MORE,"대화 옵션",this::showConversationOptions);
+        header.addView(headerOptions,new LinearLayout.LayoutParams(dp(44),dp(48)));
         root.addView(header);View divider=new View(this);divider.setBackgroundColor(Color.rgb(237,234,243));root.addView(divider,new LinearLayout.LayoutParams(-1,dp(1)));
     }
 
@@ -238,6 +240,7 @@ public final class MainActivity extends Activity {
 
     private void showConversationOptions() {
         if(permissionBlocked){showPermissionOnboarding();return;}
+        if("Work".equals(tab)){showWorkOptions();return;}
         new ObservedDialogBuilder(this).setTitle("대화 옵션").setItems(new String[]{"모델·응답 설정","Work 연결 상태","현재 작업 중지"},(dialog,which)->{
             if(which==0)showTab("설정");else if(which==1)showTab("Work");else commands.execute(()->{app.getRuntime().pauseCurrentWork("사용자가 대화 옵션에서 현재 작업 중지 선택");main.post(this::refreshStatus);});
         }).setNegativeButton("닫기",null).show();
@@ -246,6 +249,14 @@ public final class MainActivity extends Activity {
     private void showConnectionDetails() {
         if(permissionBlocked){showPermissionOnboarding();return;}
         JSONObject state=app.getRuntime().state();
+        if("Work".equals(tab)) {
+            JSONObject web=state.optJSONObject("webState");if(web==null)web=state.optJSONObject("web");
+            String code=state.optBoolean("ready")?"ready":state.optString("readinessCode",state.optString("lastCode"));
+            new ObservedDialogBuilder(this).setTitle("Work 연결 상세")
+                .setMessage(com.hoyoung.assistant.ui.WorkConnectionStatus.describe(code,web))
+                .setPositiveButton("진단 복사",(d,w)->copyConnectionDiagnosis()).setNegativeButton("닫기",null).show();
+            return;
+        }
         new ObservedDialogBuilder(this).setTitle(assistantName()+"의 현재 상태").setMessage(connection.getContentDescription()+"\n\n모델 "+state.optString("model")+"\n추론 "+state.optString("effort")+" · 응답 "+state.optString("speed"))
                 .setPositiveButton("Work 열기",(d,w)->showTab("Work")).setNegativeButton("닫기",null).show();
     }
@@ -424,6 +435,7 @@ public final class MainActivity extends Activity {
         detachWebView(); content.removeAllViews(); composer = null; modelSelector=null; sendButton=null;attachmentLabel=null;tab = name;
         screenTitle.setText("대화".equals(name)?assistantName():name);
         headerAvatar.setVisibility("대화".equals(name)?View.VISIBLE:View.GONE);
+        headerOptions.setContentDescription("Work".equals(name)?"연결 옵션":"대화 옵션");
         if (app.getReplyNotifications() != null) app.getReplyNotifications().setConversationVisible(resumed && "대화".equals(name));
         switch (name) {
             case "Work": showWork(); break;
@@ -704,47 +716,63 @@ public final class MainActivity extends Activity {
             if (clipboard != null) { clipboard.setPrimaryClip(android.content.ClipData.newPlainText("호영이 연결 진단", diagnosis.toString())); notice("연결·권한 상태만 복사했어. 비밀번호·대화·알림 본문은 포함하지 않아."); }
     }
 
-    private void showWork() {
-        TextView help = label("① ChatGPT 로그인  ② 일반 Work 선택  ③ 연결 확인. 새 대화로 바꿀 때 이전 호영 대화를 삭제해. 폰의 기억·지침은 유지돼. 계정 메모리 기능 자체를 끄는 방식은 아니야.", 13, SUBTLE);
-        help.setPadding(dp(16), dp(14), dp(16), dp(14)); content.addView(help);
-        workConnectionDetails=label("연결 상태 확인 중",12,SUBTLE);workConnectionDetails.setPadding(dp(16),0,dp(16),dp(8));
-        workConnectionDetails.setContentDescription("Work 연결 상세");content.addView(workConnectionDetails);
-        LinearLayout controls = row();
-        controls.addView(button("연결 확인", () -> app.getWebController().inspect()), new LinearLayout.LayoutParams(0, dp(46), 1));
-        controls.addView(button("Work 선택", () -> app.getWebController().selectWork()), new LinearLayout.LayoutParams(0, dp(46), 1));
-        controls.addView(button("검증 요청", () -> {
-            if(!app.getRuntime().state().optBoolean("ready")){app.getWebController().inspect();notice("아직 연결 준비가 안 됐어. Work 탭의 상세 안내부터 확인해 줘.");return;}
-            app.getRuntime().receive("연결 검증만 수행해. Work의 실제 클라우드 코드 실행 도구가 있다면 Python으로 2+2를 계산하고 임시 작업 파일 hoyoung-connection-check.txt에 그 결과를 기록해. 실제 실행 결과와 사용한 도구를 보고하고, 클라우드 도구가 없으면 없다고 정확히 말해. 폰 연결은 phone_device_info 도구로 최소 상태만 확인해. 로그인 계정 변경·외부 메시지·결제·개인 연락처나 알림 읽기는 하지 마. 실제 도구 결과 없이 검증 통과라고 만들지 마.", new JSONArray());
-            showTab("대화");
-        }), new LinearLayout.LayoutParams(0, dp(46), 1));
-        controls.addView(button("새 Work 대화", () -> {
-            JSONObject state = app.getRuntime().state();
-            if (!state.isNull("activeRequestId") && !state.optString("activeRequestId").isEmpty()) {
-                notice("진행 중인 작업의 결과가 보관된 뒤 새 대화로 바꿀 수 있어."); return;
+    private void showWorkOptions() {
+        java.util.ArrayList<String> items=new java.util.ArrayList<>(java.util.List.of("새 Work 대화","연결 상세","연결 진단 복사","연결 동작 테스트"));
+        if(!app.getWebController().pendingConversationDeletion().isEmpty() || !app.getWebController().unresolvedConversationCreation().isEmpty()) items.add("삭제 확인 복구");
+        new ObservedDialogBuilder(this).setTitle("Work 연결").setItems(items.toArray(new String[0]),(dialog,which)->{
+            switch(items.get(which)) {
+                case "새 Work 대화" -> startNewWorkConversation();
+                case "연결 상세" -> showConnectionDetails();
+                case "연결 진단 복사" -> copyConnectionDiagnosis();
+                case "연결 동작 테스트" -> new ObservedDialogBuilder(this).setTitle("연결 동작 테스트")
+                    .setMessage("실제 Work 요청을 보내 사용량이 발생해. 평소 연결에는 이 테스트가 필요하지 않아.")
+                    .setPositiveButton("테스트",(d,w)->verifyWorkConnection()).setNegativeButton("취소",null).show();
+                case "삭제 확인 복구" -> recoverWorkConversationDeletion();
             }
-            try { app.getRuntime().openTemporary(); }
-            catch (Exception e) { notice("기존 작업의 결과를 먼저 확인하거나 설정에서 해당 작업을 제외해 줘."); }
-        }), new LinearLayout.LayoutParams(0, dp(46), 1));
-        controls.addView(button("삭제 확인 복구", () -> {
-            String id = app.getWebController().pendingConversationDeletion();
-            String unresolved = app.getWebController().unresolvedConversationCreation();
-            if (id.isEmpty() && !unresolved.isEmpty()) {
-                new android.app.AlertDialog.Builder(this).setTitle("대화 생성 결과 확인")
-                    .setMessage("연결이 끊겨 앱이 만든 대화 주소를 확인하지 못했어. 기존 작업의 결과를 먼저 확인하고, 웹에서 해당 호영 대화를 직접 삭제한 뒤에만 확인해 줘. 확인되지 않은 진행 중 작업은 먼저 설정의 작업 복구에서 정리해야 해.")
-                    .setNegativeButton("돌아가기", null)
-                    .setPositiveButton("확인·삭제했음", (dialog, which) -> app.getWebController().confirmUnknownConversationDeletedByOwner(unresolved)).show();
-                return;
-            }
-            if (id.isEmpty()) { notice("확인이 필요한 이전 대화 삭제가 없어."); return; }
-            new android.app.AlertDialog.Builder(this).setTitle("이전 대화 삭제 확인")
-                .setMessage("자동 삭제 확인이 실패했을 때만 사용해. 아래 Work 화면에서 이 대화를 직접 삭제한 것이 확실할 때 확인해 줘.\n\n대화 ID: " + id + "\n\n폰의 기억·설정은 삭제하지 않아. ChatGPT 계정에 별도로 저장된 메모리도 지우지 않아.")
+        }).setNegativeButton("닫기",null).show();
+    }
+
+    private void verifyWorkConnection() {
+        if(!app.getRuntime().state().optBoolean("ready")){app.getWebController().connect();notice("아직 연결 준비가 안 됐어. ⋯의 연결 상세를 확인해 줘.");return;}
+        app.getRuntime().receive("연결 검증만 수행해. Work의 실제 클라우드 코드 실행 도구가 있다면 Python으로 2+2를 계산하고 임시 작업 파일 hoyoung-connection-check.txt에 그 결과를 기록해. 실제 실행 결과와 사용한 도구를 보고하고, 클라우드 도구가 없으면 없다고 정확히 말해. 폰 연결은 phone_device_info 도구로 최소 상태만 확인해. 로그인 계정 변경·외부 메시지·결제·개인 연락처나 알림 읽기는 하지 마. 실제 도구 결과 없이 검증 통과라고 만들지 마.", new JSONArray());
+        showTab("대화");
+    }
+
+    private void startNewWorkConversation() {
+        JSONObject state = app.getRuntime().state();
+        if (!state.isNull("activeRequestId") && !state.optString("activeRequestId").isEmpty()) {
+            notice("진행 중인 작업의 결과가 보관된 뒤 새 대화로 바꿀 수 있어."); return;
+        }
+        try { app.getRuntime().openTemporary(); }
+        catch (Exception e) { notice("기존 작업의 결과를 먼저 확인하거나 설정에서 해당 작업을 제외해 줘."); }
+    }
+
+    private void recoverWorkConversationDeletion() {
+        String id = app.getWebController().pendingConversationDeletion();
+        String unresolved = app.getWebController().unresolvedConversationCreation();
+        if (id.isEmpty() && !unresolved.isEmpty()) {
+            new android.app.AlertDialog.Builder(this).setTitle("대화 생성 결과 확인")
+                .setMessage("연결이 끊겨 앱이 만든 대화 주소를 확인하지 못했어. 기존 작업의 결과를 먼저 확인하고, 웹에서 해당 호영 대화를 직접 삭제한 뒤에만 확인해 줘. 확인되지 않은 진행 중 작업은 먼저 설정의 작업 복구에서 정리해야 해.")
                 .setNegativeButton("돌아가기", null)
-                .setPositiveButton("직접 삭제했음", (dialog, which) -> app.getWebController().confirmConversationDeletedByOwner(id)).show();
-        }));
-        controls.addView(button("연결 진단 복사",this::copyConnectionDiagnosis));
-        android.widget.HorizontalScrollView controlsScroll=new android.widget.HorizontalScrollView(this);controlsScroll.setHorizontalScrollBarEnabled(false);controlsScroll.setPadding(dp(12),0,dp(12),dp(10));
-        for(int i=0;i<controls.getChildCount();i++){View control=controls.getChildAt(i);LinearLayout.LayoutParams params=new LinearLayout.LayoutParams(-2,dp(48));params.rightMargin=dp(8);control.setLayoutParams(params);}
-        controlsScroll.addView(controls);content.addView(controlsScroll);
+                .setPositiveButton("확인·삭제했음", (dialog, which) -> app.getWebController().confirmUnknownConversationDeletedByOwner(unresolved)).show();
+            return;
+        }
+        if (id.isEmpty()) { notice("확인이 필요한 이전 대화 삭제가 없어."); return; }
+        new android.app.AlertDialog.Builder(this).setTitle("이전 대화 삭제 확인")
+            .setMessage("자동 삭제 확인이 실패했을 때만 사용해. 아래 Work 화면에서 이 대화를 직접 삭제한 것이 확실할 때 확인해 줘.\n\n대화 ID: " + id + "\n\n폰의 기억·설정은 삭제하지 않아. ChatGPT 계정에 별도로 저장된 메모리도 지우지 않아.")
+            .setNegativeButton("돌아가기", null)
+            .setPositiveButton("직접 삭제했음", (dialog, which) -> app.getWebController().confirmConversationDeletedByOwner(id)).show();
+    }
+
+    private void showWork() {
+        LinearLayout bar=row();bar.setGravity(Gravity.CENTER_VERTICAL);bar.setPadding(dp(16),dp(6),dp(12),dp(6));
+        workConnectionDetails=label("연결 상태 확인 중…",13,SUBTLE);
+        workConnectionDetails.setMaxLines(2);workConnectionDetails.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        workConnectionDetails.setPadding(0,dp(4),dp(12),dp(4));workConnectionDetails.setContentDescription("Work 연결 상세");
+        workConnectionDetails.setOnClickListener(v->showConnectionDetails());
+        bar.addView(workConnectionDetails,new LinearLayout.LayoutParams(0,-2,1));
+        bar.addView(button("연결",()->app.getWebController().connect()),new LinearLayout.LayoutParams(dp(84),dp(48)));
+        content.addView(bar,new LinearLayout.LayoutParams(-1,-2));
         try {
             WebView web = app.getWebController().getView();
             content.addView(web, new LinearLayout.LayoutParams(-1, 0, 1));
@@ -1558,7 +1586,8 @@ public final class MainActivity extends Activity {
         else if (web != null && web.optBoolean("loading")) connection.setText("Work 페이지 로딩 중");
         else connection.setText(switch (code) {
             case "authentication_required" -> "ChatGPT 로그인 필요";
-            case "authentication_unverified" -> "로그인 상태를 확인하지 못했어";
+            case "authentication_unverified" -> "계정 표시 확인 필요";
+            case "connection_preparing" -> "연결 확인 중";
             case "page_load_failed" -> "Work 페이지 로드 실패";
             case "work_control_unverified", "work_unverified" -> "Work 선택을 확인해 줘";
             case "temporary_control_unverified", "temporary_unverified" -> "임시 채팅 선택을 확인해 줘";
@@ -1580,7 +1609,7 @@ public final class MainActivity extends Activity {
         else if(active)connection.setText("preparing".equals(state.optString("activePhase"))?"답변을 준비하고 있어":"응답을 기다리고 있어");
         else if(state.optBoolean("ready"))connection.setText("연결됨 · "+("true".equals(app.getStore().getSetting("autonomy.enabled","false"))?"자율 모드":"대화 준비 완료"));
         else connection.setText("Work".equals(tab)?detail:(web!=null&&web.optBoolean("loading")?"Work 연결 중":"Work 연결 확인 필요"));
-        if("Work".equals(tab)&&workConnectionDetails!=null)workConnectionDetails.setText(com.hoyoung.assistant.ui.WorkConnectionStatus.describe(code,web));
+        if("Work".equals(tab)&&workConnectionDetails!=null)workConnectionDetails.setText(com.hoyoung.assistant.ui.WorkConnectionStatus.compact(code,web));
         statusDot.setBackground(round(blocked?Color.rgb(203,146,81):state.optBoolean("ready")?Color.rgb(80,161,128):Color.rgb(177,171,191)));
         if(typingDots!=null&&typingRow!=null){boolean show=active&&state.optBoolean("activeOwnerReply")&&!blocked&&"대화".equals(tab);typingRow.setVisibility(show?View.VISIBLE:View.GONE);typingDots.setActive(show&&resumed);typingLabel.setText("preparing".equals(state.optString("activePhase"))?"기억을 살펴보고 있어":"답변을 기다리고 있어");}
     }

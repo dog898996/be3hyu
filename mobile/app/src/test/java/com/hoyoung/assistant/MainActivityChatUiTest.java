@@ -195,6 +195,26 @@ public final class MainActivityChatUiTest {
         assertEquals("설정에서 돌아올 때도 보관",((EditText)MainActivityUiTestSupport.description(root(),"메시지 입력")).getText().toString());
     }
 
+    @Test public void workConnectionKeepsOneActionAndMovesDiagnosticsBehindOverflowWithoutModelCalls() throws Exception {
+        start(true);MainActivityUiTestSupport.navigate(activity,"Work");
+        assertNotNull(MainActivityUiTestSupport.text(root(),"연결"));
+        for(String hidden:new String[]{"새 Work 대화","삭제 확인 복구","연결 진단 복사","검증 요청","Work 선택"})
+            assertNull(hidden,MainActivityUiTestSupport.text(root(),hidden));
+        android.widget.TextView status=(android.widget.TextView)MainActivityUiTestSupport.description(root(),"Work 연결 상세");
+        assertEquals(2,status.getMaxLines());assertFalse(status.getText().toString().contains("상태:"));
+        assertTrue(MainActivityUiTestSupport.description(root(),"연결 옵션").performClick());
+        AlertDialog options=ShadowAlertDialog.getLatestAlertDialog();
+        assertEquals(4,options.getListView().getAdapter().getCount());
+        assertEquals("연결 상세",options.getListView().getAdapter().getItem(1));
+        options.getListView().performItemClick(null,1,1);
+        AlertDialog details=ShadowAlertDialog.getLatestAlertDialog();
+        assertTrue(((android.widget.TextView)details.findViewById(android.R.id.message)).getText().toString().contains("상태:"));
+        assertEquals("진단 복사",details.getButton(AlertDialog.BUTTON_POSITIVE).getText().toString());details.dismiss();
+        assertEquals(0,store.lastChatMessageId());
+        MainActivityUiTestSupport.navigate(activity,"대화");
+        assertNotNull(MainActivityUiTestSupport.description(root(),"대화 옵션"));
+    }
+
     private void start(boolean grants) throws Exception {
         if(grants)PermissionTestGrants.allowAll(app);
         controller=Robolectric.buildActivity(MainActivity.class).setup().visible();activity=controller.get();
