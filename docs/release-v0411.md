@@ -7,3 +7,5 @@
 기존 설정 UI 검사 **8/8**, 서명 릴리스 빌드·필수 lint·APK 신원·서명·권한·패키징 검사를 통과했다. UI 변경에 관련 없는 전체 시뮬레이션과 브라우저 검사는 반복하지 않았다.
 
 [UI 검사 기록](benchmarks/android-v0411-focused.json) · [APK 검사 기록](benchmarks/android-v0411-apk.json) · [설치 파일](https://github.com/dog898996/be3hyu/releases/tag/v0.4.11)
+
+[APK 직접 다운로드](https://raw.githubusercontent.com/dog898996/be3hyu/cd2458a9a0282cc2007de4720d4f55a6ed70ebb0/release-assets/v0.4.11/hoyoung-v0.4.11.apk) · [공개 다운로드 검사](benchmarks/android-v0411-downloads.json). APK·소스·검증 JSON·체크섬을 인증 없이 내려받아 크기와 SHA-256 일치를 확인했다. 소스 커밋: `7be15b42b96be568c92cf244e56de7f115cf6dd0`.
