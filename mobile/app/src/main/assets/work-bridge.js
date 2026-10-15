@@ -49,6 +49,7 @@
   let preferenceSelectionFlight = null;
   let preferenceSelectionUncertain = false;
   let openedPreferenceTrigger = null;
+  let observedModelTrigger = null;
   let preferenceCloseFlight = null;
   const ACCEPT_TIMEOUT_MS = 30_000;
   const SEND_ENABLE_TIMEOUT_MS = 5_000;
@@ -87,28 +88,39 @@
   function textOf(element) { return normalized(element && (element.innerText || element.textContent)); }
   // Accessibility names such as "추론 수준 선택" describe the action, not the
   // current GPT-6.1 Sol / Medium value. Read rendered text independently.
-  function renderedWords(element) {
-    if (!element || !visible(element)) return '';
+  function renderedWords(element, editor = false) {
+    const readable=node=>{
+      if(!editor)return visible(node);
+      if(!rendered(node,false))return false;
+      // A modal can aria-hide the composer outside the editor. Decorations
+      // inside the editable still must not count as the owner's draft.
+      for(let ancestor=node;ancestor&&element.contains(ancestor);ancestor=ancestor.parentElement) {
+        if(ancestor.getAttribute('aria-hidden')==='true')return false;
+      }
+      return true;
+    };
+    if (!element || !readable(element)) return '';
     const words = [], walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
     for (let node = walker.nextNode(); node; node = walker.nextNode()) {
       const parent = node.parentElement;
-      if (parent && visible(parent) && !parent.closest('svg,script,style,[data-lexical-placeholder],.ProseMirror-widget,[data-testid="composer-placeholder"]')) {
+      if (parent && readable(parent) && !parent.closest('svg,script,style,[data-lexical-placeholder],.ProseMirror-widget,[data-testid="composer-placeholder"]')) {
         const word = normalized(node.textContent); if (word) words.push(word);
       }
     }
     return normalized(words.join(' '));
   }
-  function controlLabels(element) { return [...new Set([labelOf(element), renderedWords(element)].filter(Boolean))]; }
+  function controlLabels(element) { return [...new Set([labelOf(element), normalized(element && element.getAttribute('title')), renderedWords(element)].filter(Boolean))]; }
   function labelOf(element) { return normalized(element && (element.getAttribute('aria-label') || element.getAttribute('title') || element.innerText || element.textContent)); }
-  function visible(element) {
+  function rendered(element, accessibility = true, opacity = true) {
     if (!element || !element.isConnected) return false;
     for (let parent = element; parent; parent = parent.parentElement) {
-      if (parent.matches('[hidden], [inert], [aria-hidden="true"]')) return false;
+      if (parent.matches('[hidden], [inert]') || accessibility && parent.getAttribute('aria-hidden') === 'true') return false;
       const style = getComputedStyle(parent);
-      if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') return false;
+      if (style.display === 'none' || /^(hidden|collapse)$/.test(style.visibility) || opacity && style.opacity === '0') return false;
     }
     return element.getClientRects().length > 0;
   }
+  function visible(element) { return rendered(element); }
   function all(selector, scope) {
     try { return Array.from((scope || document).querySelectorAll(selector)).filter(visible); }
     catch (_) { return []; }
@@ -124,7 +136,16 @@
   function isTemporary(element) { return /^(?:Temporary(?: chat)?|임시 (?:채팅|대화)|Turn (?:on|off) temporary chat|임시 (?:채팅|대화) (?:켜기|끄기))$/i.test(labelOf(element)); }
   function temporaryOn(element) { return isTemporary(element) && (selected(element) || /^(?:Turn off temporary chat|임시 (?:채팅|대화) 끄기)$/i.test(labelOf(element))); }
   function composer() {
-    return cos ? cos.composer() : null;
+    // Some layouts place the historic ID on the composer shell. Never read or
+    // fill its toolbar/help text as if it were the editable message body.
+    const raw = cos ? cos.composer() : null;
+    const editable = node => node && node.matches('textarea,input:not([type="hidden"]),[contenteditable="true"]')
+      && !node.closest(TRANSCRIPT) && rendered(node,false);
+    if (editable(raw)) return raw;
+    const nested = raw ? Array.from(raw.querySelectorAll('textarea,[contenteditable="true"]')).filter(editable) : [];
+    if (nested.length) return nested.length === 1 ? nested[0] : null;
+    const candidates = Array.from(document.querySelectorAll(COMPOSER)).filter(editable);
+    return candidates.length === 1 ? candidates[0] : null;
   }
   function composerScope(element) { return element && (element.closest('form') || element.closest('[data-chatgpt-composer]')); }
   function stopButtons() {
@@ -222,25 +243,63 @@
     return match ? { model: 'gpt-' + match[1] + '-' + match[2].toLowerCase(), effort: parseEffort(match[3]), speed: match[4] ? parseSpeed(match[4]) : null } : null;
   }
   function modelTriggers() {
-    return controls().filter(element => !element.closest('[role="menu"], [role="listbox"], [data-model-picker-view]')
+    const candidates=controls();
+    // A modal popup can aria-hide its still rendered owner. Keep only the exact
+    // button already identified in this document, not arbitrary hidden controls.
+    if(observedModelTrigger && rendered(observedModelTrigger,false) && !candidates.includes(observedModelTrigger))candidates.push(observedModelTrigger);
+    const triggers=candidates.filter(element => !element.closest('[role="menu"], [role="listbox"], [data-model-picker-view], '+TRANSCRIPT)
       && (element.matches(MODEL_CONTROL) || element.matches('button[aria-haspopup="menu"], button[aria-haspopup="dialog"]')
-        && !!element.closest('form, [data-chatgpt-composer]') && controlLabels(element).some(label => !!parseCombinedModel(label))));
+        && !!element.closest('form, [data-chatgpt-composer]') && (element===observedModelTrigger
+          || controlLabels(element).some(label => !!parseCombinedModel(label)
+            || /^(?:추론 수준 선택|추론 강도 선택|모델 선택|Select (?:model|reasoning effort|thinking effort)|Thinking effort)$/i.test(label)))));
+    if(triggers.length===1)observedModelTrigger=triggers[0];
+    return triggers;
   }
-  function ownedMenus(triggers) {
+  function pickerVisible(element, animating = false) {
+    if(rendered(element,true,!animating))return true;
+    // display:contents is common on portal wrappers and has no own layout box.
+    return !!(element && element.isConnected && getComputedStyle(element).display==='contents'
+      && Array.from(element.children).some(child=>pickerVisible(child,animating)));
+  }
+  function ownedMenus(triggers, animating = false) {
     if (triggers.length !== 1) return [];
     const trigger = triggers[0];
     if (trigger.getAttribute('aria-expanded') === 'false' || trigger.getAttribute('data-state') === 'closed') return [];
+    const eligible=menu=>menu && !menu.matches('html,body,main,form,textarea,input,[contenteditable="true"]')
+      && !menu.contains(trigger) && !menu.closest(TRANSCRIPT+', [data-state="closed"]') && pickerVisible(menu,animating);
+    const roots=nodes=>[...new Set(nodes)].filter(menu=>!nodes.some(other=>other!==menu&&other.contains(menu)));
     const ids = normalized([trigger.getAttribute('aria-controls'), trigger.getAttribute('aria-owns')].filter(Boolean).join(' ')).split(' ').filter(Boolean);
-    const linked = all('[role="menu"], [role="listbox"], [role="dialog"], ' + PICKER_CONTENT).filter(menu => !menu.closest(TRANSCRIPT)
-      && menu.getAttribute('data-state') !== 'closed'
-      && (menu.id && ids.includes(menu.id) || trigger.id && normalized(menu.getAttribute('aria-labelledby')).split(' ').includes(trigger.id)));
-    if (linked.length) return linked.filter(menu => !linked.some(other => other !== menu && other.contains(menu)));
-    // Some mobile popovers omit aria-controls but expose the provider's exact
-    // intelligence picker marker. Never bind an arbitrary dialog or Theme menu.
-    if (!trigger.matches(MODEL_CONTROL)) return [];
-    const panels = all(PICKER_CONTENT).filter(panel => !panel.closest(TRANSCRIPT) && !panel.closest('[data-state="closed"]'));
-    const roots = [...new Set(panels.map(panel => panel.closest('[role="menu"], [role="dialog"]') || panel))];
-    return roots.length === 1 ? roots : [];
+    // aria-controls points to an element ID, not necessarily a role=menu node.
+    const linked=ids.map(id=>document.getElementById(id)).concat(Array.from(document.querySelectorAll('[aria-labelledby]'))
+      .filter(menu=>trigger.id&&normalized(menu.getAttribute('aria-labelledby')).split(' ').includes(trigger.id))).filter(eligible);
+    if(linked.length)return roots(linked);
+    if(!trigger.matches(MODEL_CONTROL) && trigger!==observedModelTrigger && trigger!==openedPreferenceTrigger)return [];
+    const panels=Array.from(document.querySelectorAll(PICKER_CONTENT)).filter(eligible);
+    // Older/current mobile builds also expose a header plus power slider without
+    // the picker wrapper marker. Bind their smallest shared non-composer surface.
+    for(const header of Array.from(document.querySelectorAll('[data-model-picker-view-toggle]'))) {
+      if(!pickerVisible(header,animating) || header.closest(TRANSCRIPT))continue;
+      for(let panel=header.parentElement;panel&&!panel.matches('html,body,main,form');panel=panel.parentElement) {
+        if(panel.contains(trigger))break;
+        if(Array.from(panel.querySelectorAll(EFFORT_SLIDER)).some(slider=>pickerVisible(slider,animating))) {
+          if(eligible(panel))panels.push(panel.closest('[role="menu"],[role="dialog"]')||panel);
+          break;
+        }
+      }
+    }
+    const unique=roots(panels.filter(eligible));
+    return unique.length===1?unique:[];
+  }
+  function finishOwnedPickerAnimations() {
+    if(!openedPreferenceTrigger)return;
+    // A hidden WebView may suspend the popup entrance/exit animation. Finish only
+    // finite animations on the explicitly owned, open picker; other UI is untouched.
+    const closing=preferenceCloseFlight&&preferenceCloseFlight.surface;
+    const menus=closing&&closing.isConnected?[closing]:ownedMenus([openedPreferenceTrigger],true);
+    if(menus.length!==1)return;
+    for(const animation of menus[0].getAnimations ? menus[0].getAnimations({subtree:true}) : []) {
+      try {if(animation.playState!=='finished' && Number.isFinite(animation.effect.getComputedTiming().endTime))animation.finish();}catch(_){}
+    }
   }
   function pickerHeaders() {
     return ownedMenus(modelTriggers()).flatMap(menu => all('[data-model-picker-view-toggle]',menu));
@@ -275,7 +334,7 @@
   }
   function fastControlState(element) {
     const labels=controlLabels(element).concat(normalized(element.getAttribute('aria-describedby')).split(' ').map(id=>document.getElementById(id))
-      .filter(node=>node && visible(node) && !node.closest(TRANSCRIPT)).map(renderedWords));
+      .filter(node=>node && visible(node) && !node.closest(TRANSCRIPT)).map(node=>renderedWords(node)));
     const name=/^(?:Fast(?: mode| responses?| response mode)?|빠름|빠른 (?:응답|모드)|빠른 응답 모드)$/i;
     const onAction=/^(?:Disable|Turn off) (?:fast(?: mode| responses?| response mode)?)$|^(?:빠름|빠른 (?:응답|모드)|빠른 응답 모드) (?:끄기|해제)$/i;
     const offAction=/^(?:Enable|Turn on) (?:fast(?: mode| responses?| response mode)?)$|^(?:빠름|빠른 (?:응답|모드)|빠른 응답 모드) (?:켜기|활성화)$/i;
@@ -460,12 +519,17 @@
   function closeOwnedPicker() {
     if(!openedPreferenceTrigger)return false;
     const menus=ownedMenus([openedPreferenceTrigger]);
-    if(!menus.length){openedPreferenceTrigger=null;preferenceCloseFlight=null;return false;}
+    if(!menus.length){
+      // aria-expanded=false may precede removal of the modal's focus scope.
+      // Wait for the exact previously observed surface to stop rendering.
+      if(preferenceCloseFlight && pickerVisible(preferenceCloseFlight.surface))return true;
+      openedPreferenceTrigger=null;preferenceCloseFlight=null;return false;
+    }
     if(preferenceCloseFlight) {
       if(performance.now()>=preferenceCloseFlight.deadline) {preferenceSelectionUncertain=true;preferenceSelection.status='preference_selection_uncertain';}
       return true;
     }
-    preferenceCloseFlight={deadline:performance.now()+PREFERENCE_SELECTION_TIMEOUT_MS};
+    preferenceCloseFlight={deadline:performance.now()+PREFERENCE_SELECTION_TIMEOUT_MS,surface:menus[0]};
     preferenceSelection.status='preference_selection_pending';
     const target=menus[0].contains(document.activeElement)?document.activeElement:menus[0];
     target.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',code:'Escape',bubbles:true,cancelable:true}));
@@ -474,6 +538,7 @@
   function advancePreferenceSelection() {
     const selection = preferenceSelection;
     if (!selection || !selection.enabled || selection.failed || !preferenceConfigurationValid) return;
+    finishOwnedPickerAnimations();
     // Deadlines are evaluated BEFORE draft/model gates. An unmounted value or a
     // newly typed draft must never turn a five-second attempt into infinite loading.
     if((preferenceSelectionFlight && performance.now()>=preferenceSelectionFlight.deadline)
@@ -763,7 +828,8 @@
       authenticated: authentication.authenticated,
       authenticationEvidence: authentication.authenticationEvidence,
       connectionStatus: connectionPreparation ? connectionPreparation.status : null,
-      workSelected: selectedWork || !!(ownPath && verifiedWorkSession && !selectedChat),
+      workSelected: selectedWork || !!(verifiedWorkSession && !selectedChat && (ownPath
+        || openedPreferenceTrigger && ownedMenus([openedPreferenceTrigger]).length===1)),
       conversationId: ownPath ? ownedConversationId : null,
       conversationOwned: !!ownPath || fresh,
       temporary: selectable.some(temporaryOn) || temporaryBanner,
@@ -808,6 +874,23 @@
     return { ok: code === 'ready', code, state, requiredPreferences: Object.assign({}, configuredPreferences),
       preferenceSelection: preferenceSelection ? { status: preferenceSelection.status, clicks: preferenceSelection.clicks, enabled: preferenceSelection.enabled } : null,
       activeRequestId: active ? active.requestId : null, phase: active ? active.phase : null };
+  }
+  function connectionDiagnostics() {
+    const snapshot=inspect(), triggers=modelTriggers(), menus=ownedMenus(triggers), editor=composer(), raw=cos&&cos.composer();
+    const shape=node=>node?{
+      tag:node.tagName.toLowerCase(),role:node.getAttribute('role'),expanded:node.getAttribute('aria-expanded'),state:node.getAttribute('data-state'),
+      editable:node.getAttribute('contenteditable'),visible:visible(node),rendered:rendered(node,false),display:getComputedStyle(node).display,
+      opacity:getComputedStyle(node).opacity,ariaHidden:!!node.closest('[aria-hidden="true"]'),inert:!!node.closest('[inert]'),
+      knownTrigger:node.matches(MODEL_CONTROL),knownPanel:node.matches(PICKER_CONTENT),slider:node.matches(EFFORT_SLIDER)
+    }:null;
+    // Only control structure and model-picker labels. Never serialize the page,
+    // draft body, transcript, input values, storage, tokens, or account menu.
+    snapshot.dom={editor:shape(editor),rawComposer:shape(raw),editorWasWrapper:!!raw&&raw!==editor,
+      triggers:triggers.slice(0,3).map(trigger=>({...shape(trigger),linked:normalized(trigger.getAttribute('aria-controls')).split(' ')
+        .filter(Boolean).slice(0,3).map(id=>shape(document.getElementById(id)))})),
+      panels:Array.from(document.querySelectorAll(PICKER_CONTENT+', '+EFFORT_SLIDER)).filter(node=>!node.closest(TRANSCRIPT)).slice(0,8).map(shape),
+      pickerControls:menus.length===1?all(CONTROL,menus[0]).slice(0,12).map(node=>({...shape(node),label:controlLabels(node).join(' | ').slice(0,160),pressed:node.getAttribute('aria-pressed'),checked:node.getAttribute('aria-checked')})):[]};
+    return snapshot;
   }
 
   function turnSnapshot() {
@@ -1078,7 +1161,7 @@
     }
     return inspection;
   }
-  function editorText(editor) { return editor.matches('textarea, input') ? normalized(editor.value) : renderedWords(editor); }
+  function editorText(editor) { return editor.matches('textarea, input') ? normalized(editor.value) : renderedWords(editor,true); }
   function fillEditor(editor, text) {
     editor.focus();
     if (editor.matches('textarea, input')) {
@@ -1383,7 +1466,7 @@
     // receipt and explicitly loads a fresh document. Failure needs owner review.
     return event;
   }
-  const api = { inspect, connect, selectWork, send, cancel, inspectAndEmit, prepareOwnerRetry, authorizeDispatch, configurePreferences, ensurePreferences, captureUsageObservation, restoreOwnedConversation, deleteOwnedConversation };
+  const api = { inspect, connectionDiagnostics, connect, selectWork, send, cancel, inspectAndEmit, prepareOwnerRetry, authorizeDispatch, configurePreferences, ensurePreferences, captureUsageObservation, restoreOwnedConversation, deleteOwnedConversation };
   Object.defineProperty(api, '__document', { value: document });
   Object.defineProperty(api, '__dispose', { value: dispose });
   window.HoyoungWorkBridge = api;

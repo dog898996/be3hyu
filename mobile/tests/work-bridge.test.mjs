@@ -345,6 +345,93 @@ test('phone power picker finishes and releases focus when the owner already open
   },{setup:phonePowerPicker+`window.phoneDialog=${dialog};window.openPhonePicker();`});
 });
 
+test('phone picker keeps its composer trigger when opening replaces the model label with the action label',async()=>{
+  await pageFixture(async page=>{
+    await connect(page);await advance(page,1800);
+    assert.equal((await inspect(page)).code,'ready');
+    assert.deepEqual(await page.evaluate(()=>[window.phoneOpens,window.phoneFastChanges,window.phoneCloses]),[1,1,1]);
+  },{setup:phonePowerPicker+`phoneTrigger.removeAttribute('data-codex-intelligence-trigger');phoneTrigger.removeAttribute('data-composer-navigation-target');`});
+});
+
+test('phone picker follows the linked surface without requiring a menu role or provider wrapper marker',async()=>{
+  for(const layout of ['group','contents','structural'])await pageFixture(async page=>{
+    await connect(page);await advance(page,2000);
+    const state=await inspect(page);assert.equal(state.code,'ready',layout);
+    assert.deepEqual(await page.evaluate(()=>[window.phoneOpens,window.phoneFastChanges,window.phoneCloses]),[1,1,1]);
+  },{setup:phonePowerPicker+`
+  const originalOpen=window.openPhonePicker;window.openPhonePicker=()=>{
+   originalOpen();const panel=document.querySelector('#phone-picker');panel.removeAttribute('data-testid');panel.querySelector('[data-model-picker-view]').removeAttribute('data-model-picker-view');
+   panel.setAttribute('role','group');
+   ${layout==='contents'?`panel.style.display='contents';`:''}
+   ${layout==='structural'?`phoneTrigger.removeAttribute('aria-controls');panel.removeAttribute('role');`:''}
+  };`});
+});
+
+test('phone picker ignores only a surrounding composer wrapper, preserving the real editor and its draft',async()=>{
+  for(const draft of ['', '보존해야 하는 실제 초안'])await pageFixture(async page=>{
+    assert.equal((await inspect(page)).state.pickerUi.composerChars,draft.length);
+    await connect(page);await advance(page,1800);
+    assert.equal((await inspect(page)).code,draft?'composer_has_draft':'ready');
+    assert.equal(await page.locator('#actual-editor').innerText(),draft);
+    assert.equal(await page.locator('#prompt-textarea [role="note"]').innerText(),'주변 안내 '.repeat(40).trim());
+    assert.equal(await page.evaluate(()=>window.phoneOpens),draft?0:1);
+  },{setup:phonePowerPicker+`
+  const shell=document.createElement('div');shell.id='prompt-textarea';shell.innerHTML='<div role="note">'+'주변 안내 '.repeat(40)+'</div><div id="actual-editor" data-composer-markdown contenteditable="true" role="textbox" style="min-height:30px"></div>';
+  shell.querySelector('#actual-editor').textContent=${JSON.stringify(draft)};document.querySelector('#prompt-textarea').replaceWith(shell);`});
+});
+
+test('phone picker can finish its own paused entrance animation while unrelated dialogs stay untouched',async()=>{
+  await pageFixture(async page=>{
+    await connect(page);await advance(page,1800);assert.equal((await inspect(page)).code,'ready');
+    assert.equal(await page.evaluate(()=>getComputedStyle(document.querySelector('#unrelated-dialog')).opacity),'0');
+    assert.equal(await page.evaluate(()=>window.phoneFastChanges),1);
+  },{setup:phonePowerPicker+`
+  const style=document.createElement('style');style.textContent='@keyframes phoneEntrance {from{opacity:0}to{opacity:1}} #phone-picker,#unrelated-dialog {animation:phoneEntrance 100s both paused}';document.head.append(style);
+  const unrelated=document.createElement('div');unrelated.id='unrelated-dialog';unrelated.setAttribute('role','dialog');unrelated.textContent='계정 설정';document.body.append(unrelated);`});
+});
+
+test('phone picker retains the verified Work surface while its modal aria-hides the composer',async()=>{
+  await pageFixture(async page=>{
+    await connect(page);await advance(page,1800);assert.equal((await inspect(page)).code,'ready');
+    assert.equal(await page.evaluate(()=>window.phoneFastChanges),1);
+  },{setup:phonePowerPicker+`
+  const originalOpen=window.openPhonePicker;window.openPhonePicker=()=>{originalOpen();document.querySelector('form').setAttribute('aria-hidden','true');document.querySelector('header').setAttribute('aria-hidden','true');};
+  document.addEventListener('keydown',event=>{if(event.key==='Escape'){document.querySelector('form').removeAttribute('aria-hidden');document.querySelector('header').removeAttribute('aria-hidden');}});`});
+});
+
+test('phone picker releases a paused closing focus scope before sending',async()=>{
+  await pageFixture(async page=>{
+    await connect(page);await advance(page,2000);assert.equal((await inspect(page)).code,'ready');
+    assert.equal(await page.locator('#phone-picker').count(),0);
+    assert.equal((await send(page)).ok,true);await advance(page,500);
+    assert.equal((await events(page)).filter(event=>event.type==='accepted').length,1);
+    assert.equal(await page.evaluate(()=>window.phoneFastChanges),1);
+  },{setup:phonePowerPicker+`
+  window.phoneIgnoreClose=true;
+  document.addEventListener('keydown',event=>{
+   if(event.key!=='Escape')return;const panel=document.querySelector('#phone-picker');if(!panel)return;
+   phoneTrigger.setAttribute('aria-expanded','false');panel.setAttribute('data-state','closed');
+   phoneTrigger.innerHTML='<span>'+window.phoneModel+'</span> <span>'+window.phoneEfforts[window.phoneIndex]+'</span>';
+   const animation=panel.animate([{opacity:1},{opacity:0}],{duration:100000,fill:'forwards'});animation.pause();
+   animation.finished.then(()=>{panel.remove();window.phoneCloses++;});
+  });`});
+});
+
+test('phone picker does not bind unrelated or multiple popovers, and diagnostics omit message text',async()=>{
+  for(const variant of ['unrelated','ambiguous'])await pageFixture(async page=>{
+    await connect(page);await advance(page,6500);assert.notEqual((await inspect(page)).code,'ready');
+    assert.equal(await page.evaluate(()=>window.phoneFastChanges),0);assert.equal(await page.evaluate(()=>window.clicks),0);
+    await page.evaluate(()=>{document.querySelector('#prompt-textarea').value='PRIVATE-DRAFT-NEVER-COPY';const turn=document.createElement('div');turn.setAttribute('data-message-author-role','user');turn.textContent='PRIVATE-TRANSCRIPT-NEVER-COPY';document.body.append(turn);});
+    const diagnosis=await page.evaluate(()=>window.HoyoungWorkBridge.connectionDiagnostics());
+    assert.equal(JSON.stringify(diagnosis).includes('PRIVATE-'),false);assert.equal(diagnosis.dom.editor.tag,'textarea');
+  },{setup:phonePowerPicker+`
+  const originalOpen=window.openPhonePicker;window.openPhonePicker=()=>{
+   originalOpen();phoneTrigger.removeAttribute('aria-controls');const panel=document.querySelector('#phone-picker');
+   ${variant==='ambiguous'?`const duplicate=panel.cloneNode(true);duplicate.id='unowned-picker';document.body.append(duplicate);`:
+     `panel.removeAttribute('data-testid');panel.innerHTML='<button type="button">Theme</button>';`}
+  };`});
+});
+
 test('phone power picker changes model and steps the observed slider before freezing the exact requested route',async()=>{
   await pageFixture(async page=>{
     const prefs={requiredModel:'gpt-6-astra',requiredEffort:'xhigh',requiredSpeed:'standard'};

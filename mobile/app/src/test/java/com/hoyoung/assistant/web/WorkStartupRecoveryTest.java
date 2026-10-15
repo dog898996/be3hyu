@@ -66,6 +66,25 @@ public final class WorkStartupRecoveryTest {
         for (int i = 0; i < 10; i++) { assertNull(controller.getExistingView()); controller.inspect(); controller.unbindActivity(null); }
         idle(); assertEquals(0, calls[0]);
     }
+    @Test public void connectionDiagnosticsReadsTheCurrentDocumentOnceWithoutSelectingOrSending() throws Exception {
+        List<RecordingView> views=new ArrayList<>();
+        WorkWebController controller=controller(c->{RecordingView result=new RecordingView(c);views.add(result);return result;});
+        controller.start();idle();markLoaded(controller);RecordingView view=views.get(0);
+        List<JSONObject> results=new ArrayList<>();int before=view.scripts.size();
+        controller.readConnectionDiagnostics(results::add);idle();
+        assertEquals(before+1,view.scripts.size());
+        assertTrue(view.scripts.get(before).contains("connectionDiagnostics()"));
+        assertFalse(view.scripts.get(before).contains("ensurePreferences("));assertFalse(view.scripts.get(before).contains(".send("));
+        ValueCallback<String> callback=view.callbacks.get(view.callbacks.size()-1);
+        callback.onReceiveValue(JSONObject.quote(object("code","speed_unverified","state",object("model","gpt-6.1-sol")).toString()));
+        advance(3_000);assertEquals(1,results.size());assertTrue(results.get(0).getBoolean("fresh"));
+        assertEquals("gpt-6.1-sol",results.get(0).getJSONObject("state").getString("model"));
+        results.clear();controller.readConnectionDiagnostics(results::add);idle();
+        callback=view.callbacks.get(view.callbacks.size()-1);advance(2_001);
+        assertEquals(1,results.size());assertEquals("diagnostic_timeout",results.get(0).getString("code"));
+        callback.onReceiveValue(JSONObject.quote(object("state",object("model","gpt-6.1-sol")).toString()));
+        assertEquals(1,results.size());
+    }
     @Test public void workSelectionFailureKeepsTheActualStepInsteadOfDiscardingItsReceipt() throws Exception {
         List<RecordingView> views=new ArrayList<>();WorkWebController controller=controller(c->{RecordingView result=new RecordingView(c);views.add(result);return result;});
         controller.start();idle();markLoaded(controller);RecordingView view=views.get(0);

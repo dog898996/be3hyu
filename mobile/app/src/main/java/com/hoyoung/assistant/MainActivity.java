@@ -702,6 +702,8 @@ public final class MainActivity extends Activity {
     private void resolveGoal(String rootId, String stage) { io.execute(() -> { app.getRuntime().getGoalLedger().resolve(rootId, stage, "사용자가 앱 목표 목록에서 직접 정리"); main.post(() -> { notice("추적 상태를 정리했어. 원문과 영수증은 보관돼."); showMemory(); }); }); }
 
     private void copyConnectionDiagnosis() {
+        app.getWebController().readConnectionDiagnostics(snapshot -> {
+            if (isFinishing() || isDestroyed()) return;
             JSONObject diagnosis = app.getRuntime().state();
             // Progress can contain a streamed answer; diagnostics are state flags only.
             diagnosis.remove("progress");
@@ -710,10 +712,11 @@ public final class MainActivity extends Activity {
                 budget.remove("observation"); budget.remove("latestProviderObservation");
                 budget.remove("accountScope"); budget.remove("poolId"); budget.remove("evidenceRef");
             }
-            try { diagnosis.put("androidSdk", android.os.Build.VERSION.SDK_INT).put("appVersion", getPackageManager().getPackageInfo(getPackageName(), 0).versionName).put("permissions", new PermissionCatalog(this).snapshot()); }
+            try { diagnosis.put("liveConnection", snapshot).put("androidSdk", android.os.Build.VERSION.SDK_INT).put("appVersion", getPackageManager().getPackageInfo(getPackageName(), 0).versionName).put("permissions", new PermissionCatalog(this).snapshot()); }
             catch (Exception ignored) { }
             android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
             if (clipboard != null) { clipboard.setPrimaryClip(android.content.ClipData.newPlainText("호영이 연결 진단", diagnosis.toString())); notice("연결·권한 상태만 복사했어. 비밀번호·대화·알림 본문은 포함하지 않아."); }
+        });
     }
 
     private void showWorkOptions() {

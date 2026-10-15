@@ -415,6 +415,41 @@ public final class WorkWebController implements AssistantRuntime.Transport {
 
     public void connect() { inspect(true); }
 
+    /** Fresh read-only snapshot: copying diagnostics must not open menus or send a request. */
+    public void readConnectionDiagnostics(ValueCallback<JSONObject> callback) {
+        main.post(() -> {
+            boolean[] finished = {false};
+            ValueCallback<JSONObject> finish = result -> {
+                if (finished[0]) return;
+                finished[0] = true;
+                callback.onReceiveValue(result);
+            };
+            java.util.function.Function<String, JSONObject> unavailable = code -> {
+                JSONObject result = new JSONObject();
+                try { result.put("fresh", false).put("code", code); } catch (Exception ignored) { }
+                return result;
+            };
+            if (view == null || !loaded) { finish.onReceiveValue(unavailable.apply("webview_not_ready")); return; }
+            WebView destination = view; int epoch = documentEpoch;
+            Runnable timeout = () -> finish.onReceiveValue(unavailable.apply("diagnostic_timeout"));
+            main.postDelayed(timeout, 2_000);
+            try {
+                destination.evaluateJavascript("window.HoyoungWorkBridge && window.HoyoungWorkBridge.connectionDiagnostics ? JSON.stringify(window.HoyoungWorkBridge.connectionDiagnostics()) : null", raw -> {
+                    main.removeCallbacks(timeout);
+                    if (view != destination || !loaded || documentEpoch != epoch) { finish.onReceiveValue(unavailable.apply("document_changed")); return; }
+                    try {
+                        JSONObject result = decodeResult(raw);
+                        if (result.optJSONObject("state") == null) { finish.onReceiveValue(unavailable.apply("diagnostic_unavailable")); return; }
+                        result.put("fresh", true).put("capturedAt", System.currentTimeMillis());
+                        finish.onReceiveValue(result);
+                    } catch (Exception ignored) { finish.onReceiveValue(unavailable.apply("diagnostic_unavailable")); }
+                });
+            } catch (RuntimeException | LinkageError failure) {
+                main.removeCallbacks(timeout); finish.onReceiveValue(unavailable.apply("diagnostic_unavailable"));
+            }
+        });
+    }
+
     private void inspect(boolean prepareConnection) {
         main.post(() -> {
             if (view == null || !loaded) return;
