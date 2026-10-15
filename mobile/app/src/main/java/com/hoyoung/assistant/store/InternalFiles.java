@@ -467,6 +467,25 @@ public final class InternalFiles {
         destination.flush();
     }
 
+    @FunctionalInterface public interface ExportDestination { OutputStream open() throws IOException; }
+
+    /** Verify and open the source before a provider can truncate the destination. Owns both streams. */
+    public synchronized void exportFileToDestination(String fileId, ExportDestination destination) throws IOException {
+        if (destination == null) throw new IllegalArgumentException("A destination is required");
+        File source = resolve(projects, fileId);
+        if (!source.isFile() || Files.isSymbolicLink(source.toPath()) || AttachmentOriginals.sidecar(source))
+            throw new IOException("No such saved file");
+        if (source.length() > MAX_FILE_BYTES) throw new IOException("Working file exceeds the 512 MiB limit");
+        if (AttachmentOriginals.reserved(fileId)) attachmentOriginals.describe(fileId, true);
+        try (InputStream input = new BufferedInputStream(new FileInputStream(source))) {
+            try (OutputStream output = destination.open()) {
+                if (output == null) throw new IOException("The export destination is unavailable");
+                copy(input, output, MAX_FILE_BYTES);
+                output.flush();
+            }
+        }
+    }
+
     /**
      * Snapshot originals, all memory revisions, requests/settings/events, and working files.
      * OutputStream ownership stays with the caller. Export this outside the app before uninstall.
@@ -555,6 +574,7 @@ public final class InternalFiles {
                     // Publish a conservative union before swapping any authoritative originals.
                     // A crash/rollback may leave stricter controls, never a privacy rollback.
                     if(prepared.ownerControls!=null)OwnerPolicyBackup.merge(context,store,prepared.ownerControls);
+                    com.hoyoung.assistant.ui.PrivateFormState.deleteAll(context);
                     writeRestoreJournal(token, staging, oldProjects, oldOriginals, oldDeviceJournal);
                     journalWritten = true;
                     atomicMove(projects, oldProjects);
@@ -564,6 +584,7 @@ public final class InternalFiles {
                     atomicMove(prepared.originalsDirectory, new File(privateRoot, "originals"));
                     atomicMove(stagedDeviceJournal, deviceJournal);
                     store.importStagedDatabase(prepared.databaseFile, token,space);
+                    com.hoyoung.assistant.ui.PrivateFormState.deleteAll(context);
                     // Recovery uses the transaction token to finish cleanup after either a
                     // successful commit or a process death in the directory-swap window.
                     recoverRestore();

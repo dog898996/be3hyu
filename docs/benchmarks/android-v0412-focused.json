@@ -1,0 +1,62 @@
+{
+  "version": "0.4.12",
+  "recordedAt": "2026-10-15T08:48:19.689820+00:00",
+  "jvm": {
+    "finalRelatedBatch": {
+      "tests": 152,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "followupActualAccountDeletion": {
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "oneRepeatedCapacityTest": true
+    },
+    "uniqueRelatedPassingTests": 153,
+    "kind": "Robolectric plus native SQLite; not an Android device"
+  },
+  "browser": {
+    "priorWholeSuitePassing": 96,
+    "finalRelatedTestsPassing": 8,
+    "currentWholeSuiteCount": 97,
+    "currentWholeSuiteRepeated": false,
+    "realWorkAccount": false
+  },
+  "localAndroid": {
+    "api": 35,
+    "acceleration": "software TCG",
+    "separateAvdsAttempted": 5,
+    "productPassingProfiles": 1,
+    "productTestsPassing": 6,
+    "frameworkOfflinePreflightPassing": 1,
+    "initialSettingsForegroundFailures": 4,
+    "failureEvidence": "System UI ANR dialog above the app; retained separately",
+    "observedFontScale": 1.0,
+    "requestedFontScale": 1.6,
+    "fiveProfileValidationComplete": false,
+    "finalCandidateRemainingUiScenarios": "pending"
+  },
+  "githubFiveProfileMatrix": {
+    "status": "prepared_not_yet_dispatched",
+    "paidRunnersAllowed": false,
+    "publicRepositoryOnly": true
+  },
+  "paidModelCalls": 0,
+  "longTermMemorySimulationRepeated": false,
+  "physicalPhoneTested": false,
+  "realChatGPTAccountTested": false,
+  "build": {
+    "release": true,
+    "requiredLint": true,
+    "stableSigner": true
+  },
+  "knownReproducedRootCauses": 7,
+  "unverifiedClaims": [
+    "No claim of perfect correctness",
+    "No 5-device pass claim",
+    "No live Work or Galaxy OneUI validation"
+  ]
+}

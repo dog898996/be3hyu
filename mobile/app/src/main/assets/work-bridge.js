@@ -1024,6 +1024,14 @@
       const editor=editors[0],lines=Array.from(editor.children);
       if(!lines.length||lines.some(line=>!line.matches('.cm-line'))||surface.querySelector('.cm-gap'))
         return {structuredEnvelopeUnavailable:'structured_code_incomplete'};
+      // CodeMirror keeps source text inside decorated line spans. Hidden lines
+      // or decorations must not contribute unobserved protocol fields merely
+      // because textContent includes them, even whitespace in JSON strings.
+      // Wait for the complete rendered code,
+      // as we already do for virtualized gaps, before completion or recovery.
+      for(const element of editor.querySelectorAll('*'))
+        if(!transcriptRendered(element)&&element.textContent)
+          return {structuredEnvelopeUnavailable:'structured_code_incomplete'};
       const walker=document.createTreeWalker(answer,NodeFilter.SHOW_TEXT);
       for(let node=walker.nextNode();node;node=walker.nextNode())
         if(transcriptRendered(node.parentElement)&&normalized(node.textContent)&&!surface.contains(node))return {};
@@ -1059,7 +1067,7 @@
       if (!code.contains(element) && !(pre.contains(element) && element.closest('button'))) return {};
     }
     for (const element of code.querySelectorAll('*')) {
-      if (!transcriptRendered(element) && normalized(element.textContent)) return {};
+      if (!transcriptRendered(element) && element.textContent) return {};
     }
     const walker = document.createTreeWalker(answer, NodeFilter.SHOW_TEXT);
     for (let node = walker.nextNode(); node; node = walker.nextNode()) {

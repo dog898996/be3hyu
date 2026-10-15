@@ -2,7 +2,7 @@
 
 추가 서버 비용 0원, 사설 VM·상시 PC 없이 **Android 전용 앱 → ChatGPT 일반 Work 대화**으로 작업하고 원문·기억·파일은 폰에 보관한다. [Android 설치·연결·백업 안내](mobile/README.md)를 먼저 참고한다. 아래 Node/사설 VM 코드는 이전 구현으로 보존한다.
 
-**최신 0.4.11**: 설정에서 불필요한 백업 용량 입력칸을 제거했다. 0.4.10의 Work 답변 복구·재연결 개선을 포함한다. [설치 파일](https://github.com/dog898996/be3hyu/releases/tag/v0.4.11) · [변경·검증 범위](docs/release-v0411.md).
+**0.4.12 검증 후보**: 화면 복원·중복 첨부·내보내기·권한 복귀와 웹 답변 수집을 개선하고 설정을 정리했다. 관련 JVM 회귀 153개 통과, 실제 Android 일부 시나리오 통과. 다섯 환경 전체 검증은 별도 진행 상태를 확인한다. [설치 파일](https://github.com/dog898996/be3hyu/releases/tag/v0.4.12) · [변경·검증 범위](docs/release-v0412.md).
 
 **0.4.3**: 모델은 **6 Sol / 6.1 Sol / Astra**, 대화·설정에서 Fast를 켜거나 끌 수 있다. [변경 기록](docs/release-v043.md).
 

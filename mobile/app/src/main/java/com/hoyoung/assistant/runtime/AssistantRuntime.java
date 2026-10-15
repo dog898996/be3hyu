@@ -213,7 +213,9 @@ public final class AssistantRuntime {
     public JSONObject assistantIdentity() { return identity.snapshot(); }
     public synchronized JSONObject updateAssistantIdentity(String name,String fileId,boolean useDefault,String expectedRevision)throws IOException {
         if(isRestoringBackup())throw new IOException("복원 완료 후 프로필을 변경해 줘.");
-        JSONObject result=identity.update(name,fileId,useDefault,expectedRevision);changed();return result;
+        JSONObject result=identity.update(name,fileId,useDefault,expectedRevision);
+        if(result.optBoolean("ok"))phoneTools.refreshAssistantIdentity();
+        changed();return result;
     }
 
     /** A durable client cohort makes process recreation and repeated taps one owner intent. */

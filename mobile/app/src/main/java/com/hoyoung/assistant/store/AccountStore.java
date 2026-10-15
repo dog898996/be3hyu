@@ -277,10 +277,15 @@ public final class AccountStore {
             } catch (IOException | RuntimeException | Error failure) {
                 primaryFailure = failure; throw failure;
             } finally {
+                // Outside the store monitor: form-state I/O never acquires account/database locks.
+                IOException cleanupFailure=null;
+                try{com.hoyoung.assistant.ui.PrivateFormState.deleteAccountSnapshots(context,accountId);}
+                catch(IOException failure){cleanupFailure=failure;}
                 // Account UI/tool deletion bypasses the ordinary source-control UI wrapper.
                 // Queue this union too, including a partly completed deletion, for its mirror.
                 if (!originals.isEmpty()) try { new ExternalOwnerPolicyFolder(context).markPendingDurably(); }
-                catch (IOException failure) { if (primaryFailure != null) primaryFailure.addSuppressed(failure); else throw failure; }
+                catch (IOException failure) { if(cleanupFailure==null)cleanupFailure=failure;else cleanupFailure.addSuppressed(failure); }
+                if(cleanupFailure!=null){if(primaryFailure!=null)primaryFailure.addSuppressed(cleanupFailure);else throw cleanupFailure;}
             }
             JSONObject result = object("accountId", accountId, "inputActor", inputActor,
                     "affectedSourceCount", originals.size(), "sourceScope", "dedicated_account_copies_and_tracked_derivatives",

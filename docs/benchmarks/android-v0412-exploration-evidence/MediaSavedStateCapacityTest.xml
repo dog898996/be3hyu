@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.hoyoung.assistant.MediaSavedStateCapacityTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-10-15T08:38:43" hostname="4e43b7d4e048" time="0.519">
+  <properties/>
+  <testcase name="supportedLargeAccountEditsSurviveRecreationWithinBinderStateBudget" classname="com.hoyoung.assistant.MediaSavedStateCapacityTest" time="0.519"/>
+  <system-out><![CDATA[savedState parcel.dataSize=524, Robolectric marshall bytes=617, top-level String UTF-16 payload lower bound=68
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

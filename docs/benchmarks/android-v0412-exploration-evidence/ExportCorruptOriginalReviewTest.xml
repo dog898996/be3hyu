@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.hoyoung.assistant.ExportCorruptOriginalReviewTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-10-15T08:38:28" hostname="4e43b7d4e048" time="4.718">
+  <properties/>
+  <testcase name="validOriginalExportsExactBytesAndClosesDestination" classname="com.hoyoung.assistant.ExportCorruptOriginalReviewTest" time="3.178"/>
+  <testcase name="corruptOriginalMustNotTruncateExistingExportDestination" classname="com.hoyoung.assistant.ExportCorruptOriginalReviewTest" time="1.54"/>
+  <system-out><![CDATA[describeBeforeDestinationOpen=not_checked_on_list
+destinationBeforeBytes=39;destinationAfterBytes=39
+notice=저장·복원을 완료하지 못했어. 기존 폰 데이터를 확인해.
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1180,6 +1180,26 @@ test('a whole rendered hoyoung pre/code reply forwards a separate exact envelope
   });
 });
 
+test('hidden pre/code whitespace cannot change structured JSON string values', async () => {
+  await pageFixture(async page => {
+    await send(page); await advance(page, 250);
+    await renderedCodeAnswer(page, controlEnvelope);
+    const rendered = await page.evaluate(() => {
+      const code = document.querySelector('pre code'), source = code.textContent, split = source.indexOf(' 상태');
+      const hidden = document.createElement('span'); hidden.hidden = true; hidden.textContent = ' ';
+      code.replaceChildren(document.createTextNode(source.slice(0, split)), hidden, document.createTextNode(source.slice(split + 1)));
+      return code.innerText;
+    });
+    assert.equal(JSON.parse(rendered).message, '폰상태를 확인할게.');
+    await advance(page, 2500);
+    const completed = (await events(page)).find(event => event.type === 'completed');
+    assert.equal(completed.text, rendered);
+    assert.equal(completed.structuredEnvelope, undefined, 'Unobserved whitespace must not alter JSON strings');
+    assert.equal(completed.rawEnvelopeEligible, false);
+    assert.equal((await page.evaluate(() => window.HoyoungWorkBridge.recoverResponse(['request-one']))).ok, false);
+  });
+});
+
 test('whole hoyoung code keeps Markdown-looking JSON values and exact source quotes; rendered bare formatting is ineligible', async () => {
   const quote = '나는 **강조된 말**과 `백틱`, "인용"을 그대로 좋아해.';
   const json = JSON.stringify({ protocol: 'hoyoung.v1', requestId: 'request-one', message: '**완료**가 아니라 `확인 중`', memories: [{ key: 'literal-preference', content: quote, kind: 'preference', sourceRefs: [{ type: 'message', id: 101, offsetChars: 0, quote }] }] }, null, 2);
@@ -1469,6 +1489,39 @@ test('virtualized CodeMirror code waits for all lines before completing or recov
     await page.evaluate(()=>document.querySelector('.cm-gap').remove());await advance(page,2600);
     const completed=(await events(page)).find(event=>event.type==='completed');assert.ok(completed);assert.equal(completed.structuredEnvelope,controlEnvelope);
   });
+});
+
+test('hidden CodeMirror code never becomes a structured command until every source line is rendered',async()=>{
+  for(const concealment of ['line-hidden','child-hidden','child-display-none','child-visibility-hidden','child-whitespace']) {
+    await pageFixture(async page=>{
+      await send(page);await advance(page,300);
+      await page.evaluate(({json,concealment})=>{
+        const answer=window.answer(''),markdown=answer.querySelector('.markdown');
+        markdown.innerHTML='<div data-markdown-copy="code-block"><div class="cm-content" data-language="hoyoung"></div></div>';
+        const editor=markdown.querySelector('.cm-content');
+        for(const text of json.split('\n')) {
+          const line=document.createElement('div');line.className='cm-line';editor.append(line);
+          if(concealment==='child-whitespace'&&text.includes('"message":')) {
+            const split=text.indexOf(' 상태'),span=document.createElement('span');
+            span.id='concealed-source';span.textContent=' ';span.style.display='none';
+            line.append(document.createTextNode(text.slice(0,split)),span,document.createTextNode(text.slice(split+1)));continue;
+          }
+          if(concealment==='child-whitespace'||!text.includes('"name":')){line.textContent=text;continue;}
+          if(concealment==='line-hidden'){line.hidden=true;line.textContent=text;line.id='concealed-source';}
+          else {const span=document.createElement('span');span.id='concealed-source';span.textContent=text;line.append(span);
+            if(concealment==='child-hidden')span.hidden=true;
+            if(concealment==='child-display-none')span.style.display='none';
+            if(concealment==='child-visibility-hidden')span.style.visibility='hidden';}
+        }
+      },{json:controlEnvelope,concealment});await advance(page,2600);
+      assert.equal((await events(page)).filter(event=>event.type==='completed').length,0,concealment);
+      assert.equal((await page.evaluate(()=>window.HoyoungWorkBridge.recoverResponse(['request-one']))).ok,false,concealment);
+      await page.evaluate(()=>{const source=document.querySelector('#concealed-source');source.hidden=false;source.style.display='';source.style.visibility='';});
+      await advance(page,2600);
+      const completed=(await events(page)).filter(event=>event.type==='completed');
+      assert.equal(completed.length,1,concealment);assert.equal(completed[0].structuredEnvelope,controlEnvelope,concealment);
+    });
+  }
 });
 
 test('owned Work route aliases and an open account menu do not lose a received answer',async()=>{

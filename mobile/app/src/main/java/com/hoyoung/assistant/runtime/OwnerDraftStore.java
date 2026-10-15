@@ -108,6 +108,7 @@ public final class OwnerDraftStore {
 
     /** Import completion belongs to durable storage, independent of the originating Activity. */
     public Snapshot appendAttachments(JSONArray imported,String inputActor){
+        final String importingActor=UiAutomationProvenance.normalize(inputActor);
         final JSONArray additions;
         try{additions=new JSONArray(imported==null?"[]":imported.toString());}
         catch(Exception invalid){throw new IllegalArgumentException("Invalid imported attachments",invalid);}
@@ -116,10 +117,25 @@ public final class OwnerDraftStore {
             Snapshot current=readInside(db);
             if(current.recoveryRequired)throw new IllegalStateException(current.recoveryReason);
             JSONArray merged=current.attachments();
-            if(merged.length()+additions.length()>8)throw new IllegalArgumentException("A message supports at most eight attachments");
+            String before=merged.toString();
             for(int i=0;i<additions.length();i++)merged.put(additions.opt(i));
-            return edit(current.text,merged,inputActor);
+            merged=uniqueIdReferences(merged);
+            if(merged.length()>8)throw new IllegalArgumentException("A message supports at most eight attachments");
+            // Choosing the same original again does not edit the input or its authorship.
+            if(before.equals(merged.toString()))return current;
+            return edit(current.text,merged,importingActor);
         });
+    }
+
+    /** Picker imports are bare IDs. Never discard an object's separate integrity claims. */
+    private static JSONArray uniqueIdReferences(JSONArray values){
+        java.util.Set<String> seen=new java.util.HashSet<>();JSONArray unique=new JSONArray();
+        for(int i=0;i<values.length();i++){
+            Object value=values.opt(i);
+            if(value instanceof String&&!seen.add((String)value))continue;
+            unique.put(value);
+        }
+        return unique.length()==values.length()?values:unique;
     }
 
     /** CAS the entire tuple, including attachments. Call inside the successful enqueue transaction.
@@ -136,11 +152,21 @@ public final class OwnerDraftStore {
         String raw=store.getSetting(STATE_KEY,null);
         if(raw==null){
             String legacyText=store.getSetting("ui.draft",""),legacyAttachments=store.getSetting("ui.attachments","[]");
-            try{validateLength(legacyText);validateLength(legacyAttachments);validateAttachments(legacyAttachments);Snapshot migrated=fresh(legacyText,legacyAttachments,0,false,"","");write(db,migrated,true);return migrated;}
+            try{validateLength(legacyText);validateLength(legacyAttachments);validateAttachments(legacyAttachments);Snapshot migrated=fresh(legacyText,legacyAttachments,0,false,"","");
+                JSONArray before=migrated.attachments(),unique=uniqueIdReferences(before);if(unique!=before)migrated=fresh(legacyText,unique.toString(),0,false,"","");
+                write(db,migrated,true);return migrated;}
             catch(IllegalArgumentException malformed){return recover(db,null,legacyText,legacyAttachments,"legacy_draft_invalid");}
         }
-        try{return parse(readPayload(raw));}
+        Snapshot saved;
+        try{saved=parse(readPayload(raw));}
         catch(RuntimeException malformed){return recover(db,raw,store.getSetting("ui.draft",""),store.getSetting("ui.attachments","[]"),"draft_state_invalid_or_integrity_failed");}
+        if(saved.recoveryRequired)return saved;
+        JSONArray before=saved.attachments(),unique=uniqueIdReferences(before);
+        if(unique==before)return saved;
+        // Earlier picker versions persisted duplicate IDs that the immutable send path rejects.
+        // Repair only that redundant selection; preserve the exact text and original actor.
+        Snapshot repaired=fresh(saved.text,unique.toString(),nextRevision(saved.revision),false,"","",saved.inputActor);
+        write(db,repaired,true);return repaired;
     }
 
     private String readPayload(String raw){

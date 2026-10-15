@@ -1,0 +1,149 @@
+{
+  "verifiedAt": "2026-10-15T08:39:55.962348+00:00",
+  "kind": "Robolectric JVM regression with native SQLite, not Android device execution",
+  "totals": {
+    "tests": 152,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "suites": [
+    {
+      "name": "com.hoyoung.assistant.ExportCorruptOriginalReviewTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-15T08:38:28"
+    },
+    {
+      "name": "com.hoyoung.assistant.MainActivityAccountsUiTest",
+      "tests": "13",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-15T08:38:33"
+    },
+    {
+      "name": "com.hoyoung.assistant.MainActivityFinalAuditTest",
+      "tests": "9",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-15T08:38:39"
+    },
+    {
+      "name": "com.hoyoung.assistant.MainActivityRoutingProfileTest",
+      "tests": "8",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-15T08:38:41"
+    },
+    {
+      "name": "com.hoyoung.assistant.MediaSavedStateCapacityTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-15T08:38:43"
+    },
+    {
+      "name": "com.hoyoung.assistant.PermissionReturnReviewTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-15T08:38:43"
+    },
+    {
+      "name": "com.hoyoung.assistant.SettingsRecreationExplorerTest",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-15T08:38:43"
+    },
+    {
+      "name": "com.hoyoung.assistant.TabletRotationExplorerTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-15T08:38:45"
+    },
+    {
+      "name": "com.hoyoung.assistant.phone.AssistantIdentitySurfaceExplorerTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-15T08:38:46"
+    },
+    {
+      "name": "com.hoyoung.assistant.phone.PhoneOverlayToolsTest",
+      "tests": "8",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-15T08:38:49"
+    },
+    {
+      "name": "com.hoyoung.assistant.runtime.OwnerDraftAttachmentImportTest",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-15T08:38:52"
+    },
+    {
+      "name": "com.hoyoung.assistant.runtime.OwnerDraftStoreTest",
+      "tests": "27",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-15T08:38:52"
+    },
+    {
+      "name": "com.hoyoung.assistant.runtime.VoiceCaptureServiceTest",
+      "tests": "15",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-15T08:38:53"
+    },
+    {
+      "name": "com.hoyoung.assistant.store.AccountStoreTest",
+      "tests": "22",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-15T08:38:58"
+    },
+    {
+      "name": "com.hoyoung.assistant.store.AttachmentOriginalsTest",
+      "tests": "8",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-15T08:39:00"
+    },
+    {
+      "name": "com.hoyoung.assistant.store.InternalFilesTest",
+      "tests": "13",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-15T08:39:00"
+    },
+    {
+      "name": "com.hoyoung.assistant.ui.PrivateFormStateTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "timestamp": "2026-10-15T08:39:00"
+    }
+  ],
+  "log": "final-focused-retry.log"
+}

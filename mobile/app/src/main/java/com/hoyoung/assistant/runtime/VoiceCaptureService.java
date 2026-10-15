@@ -20,6 +20,7 @@ import android.os.PowerManager;
 import android.os.SystemClock;
 import com.hoyoung.assistant.phone.PermissionCatalog;
 import com.hoyoung.assistant.phone.PhoneEventJournal;
+import com.hoyoung.assistant.store.AssistantIdentity;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.io.File;
@@ -222,8 +223,10 @@ public final class VoiceCaptureService extends Service {
     private Notification notification(String id) {
         PendingIntent stop = PendingIntent.getService(this, 2424, new Intent(this, VoiceCaptureService.class).setAction(ACTION_STOP).putExtra("requestId", id), PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         Intent launch = getPackageManager().getLaunchIntentForPackage(getPackageName());
+        HoyoungApplication app = getApplication() instanceof HoyoungApplication ? (HoyoungApplication) getApplication() : null;
+        String name = app != null && app.getStore() != null ? AssistantIdentity.name(app.getStore()) : AssistantIdentity.DEFAULT_NAME;
         Notification.Builder builder = new Notification.Builder(this, CHANNEL).setSmallIcon(android.R.drawable.ic_btn_speak_now)
-                .setContentTitle("호영이 녹음 중").setContentText("요청한 마이크 녹음을 저장하고 있어 · 눌러서 중지할 수 있어")
+                .setContentTitle(name + " 녹음 중").setContentText("요청한 마이크 녹음을 저장하고 있어 · 눌러서 중지할 수 있어")
                 .setOngoing(true).setOnlyAlertOnce(true).addAction(new Notification.Action.Builder(android.R.drawable.ic_media_pause, "녹음 중지", stop).build());
         if (launch != null) builder.setContentIntent(PendingIntent.getActivity(this, 2424, launch, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE));
         return builder.build();

@@ -1,0 +1,65 @@
+[
+  {
+    "name": "com.hoyoung.assistant.MainActivityFinalAuditTest",
+    "tests": "9",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0"
+  },
+  {
+    "name": "com.hoyoung.assistant.runtime.OwnerDraftAttachmentImportTest",
+    "tests": "7",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0"
+  },
+  {
+    "name": "com.hoyoung.assistant.runtime.OwnerDraftStoreTest",
+    "tests": "27",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0"
+  },
+  {
+    "name": "com.hoyoung.assistant.SettingsRecreationExplorerTest",
+    "tests": "5",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0"
+  },
+  {
+    "name": "com.hoyoung.assistant.runtime.VoiceCaptureServiceTest",
+    "tests": "15",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0"
+  },
+  {
+    "name": "com.hoyoung.assistant.TabletRotationExplorerTest",
+    "tests": "2",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0"
+  },
+  {
+    "name": "com.hoyoung.assistant.phone.PhoneOverlayToolsTest",
+    "tests": "8",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0"
+  },
+  {
+    "name": "com.hoyoung.assistant.phone.AssistantIdentitySurfaceExplorerTest",
+    "tests": "3",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0"
+  },
+  {
+    "name": "com.hoyoung.assistant.store.AttachmentOriginalsTest",
+    "tests": "8",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0"
+  }
+]

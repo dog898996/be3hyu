@@ -33,6 +33,7 @@ import com.hoyoung.assistant.ui.ChatPalette;
 import com.hoyoung.assistant.ui.LineIconDrawable;
 import com.hoyoung.assistant.ui.HoyoungAvatarView;
 import com.hoyoung.assistant.ui.TypingIndicatorView;
+import com.hoyoung.assistant.ui.PrivateFormState;
 import com.hoyoung.assistant.phone.PermissionOnboarding;
 import com.hoyoung.assistant.store.EmojiReactionReply;
 import com.hoyoung.assistant.store.AccountStore;
@@ -100,6 +101,11 @@ public final class MainActivity extends Activity {
     private EditText composer;
     private TextView attachmentLabel, modelSelector;
     private String renderedIdentity = "", pendingProfileRevision;
+    private JSONObject restoredSettingsForm, restoredAccountForm, settingsIdentityOpening;
+    private java.util.function.Supplier<JSONObject> settingsFormSnapshot, accountFormSnapshot;
+    private AlertDialog accountEditor;
+    private String privateFormStateToken;
+    private boolean privateFormStateUnavailable;
     private boolean screenReceiverRegistered;
     private final android.content.BroadcastReceiver screenReceiver = new android.content.BroadcastReceiver() {
         @Override public void onReceive(android.content.Context context,Intent intent) {
@@ -123,7 +129,21 @@ public final class MainActivity extends Activity {
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
         app = (HoyoungApplication) getApplication();
-        if(state!=null)pendingProfileRevision=state.getString("pendingProfileRevision");
+        if(state!=null){
+            pendingProfileRevision=state.getString("pendingProfileRevision");exportFileId=state.getString("exportFileId");
+            tab=state.getString("selectedTab","대화");
+            if(!java.util.Arrays.asList("대화","Work","기억","계정","파일","권한","설정").contains(tab))tab="대화";
+            privateFormStateToken=state.getString("privateFormStateToken");
+            privateFormStateUnavailable=state.getBoolean("privateFormStateUnavailable",false);
+            if(privateFormStateToken!=null){
+                try{JSONObject forms=PrivateFormState.read(this,privateFormStateToken);restoredSettingsForm=forms.optJSONObject("settings");restoredAccountForm=forms.optJSONObject("account");}
+                catch(java.io.IOException failure){privateFormStateUnavailable=true;}
+            }else{
+                restoredSettingsForm=state.containsKey("settingsForm")?parseObject(state.getString("settingsForm","{}")):null;
+                restoredAccountForm=state.containsKey("accountForm")?parseObject(state.getString("accountForm","{}")):null;
+            }
+        }
+        PrivateFormState.prune(this,privateFormStateToken);
         android.content.IntentFilter screenFilter=new android.content.IntentFilter(Intent.ACTION_SCREEN_OFF);
         if(android.os.Build.VERSION.SDK_INT>=33)registerReceiver(screenReceiver,screenFilter,android.content.Context.RECEIVER_NOT_EXPORTED);
         else registerReceiver(screenReceiver,screenFilter);
@@ -176,7 +196,8 @@ public final class MainActivity extends Activity {
             app.getWebController().start();
             if (!app.getRuntime().isRestoringBackup() && "true".equals(app.getStore().getSetting("autonomy.enabled", "false"))) startAutonomy();
         }
-        showTab("대화"); openReplyIntent(getIntent());
+        if(!java.util.Arrays.asList("대화","Work","기억","계정","파일","권한","설정").contains(tab))tab="대화";
+        showTab(tab); openReplyIntent(getIntent());
     }
 
     private void buildHeader() {
@@ -185,7 +206,7 @@ public final class MainActivity extends Activity {
         header.addView(icon(LineIconDrawable.Icon.MENU, "메뉴 열기", this::openDrawer), new LinearLayout.LayoutParams(dp(44), dp(48)));
         headerAvatar = new HoyoungAvatarView(this);
         LinearLayout.LayoutParams avatarParams = new LinearLayout.LayoutParams(dp(42), dp(42)); avatarParams.setMargins(dp(6),0,dp(12),0); header.addView(headerAvatar,avatarParams);
-        LinearLayout titles=column(); screenTitle=identityLabel("",19,INK);screenTitle.setTypeface(android.graphics.Typeface.create("sans-serif-medium",Typeface.NORMAL));titles.addView(screenTitle);
+        LinearLayout titles=column(); screenTitle=identityLabel("",19,INK);screenTitle.setSingleLine(true);screenTitle.setTypeface(android.graphics.Typeface.create("sans-serif-medium",Typeface.NORMAL));titles.addView(screenTitle);
         LinearLayout status=row();status.setGravity(Gravity.CENTER_VERTICAL);
         statusDot=new View(this);statusDot.setBackground(round(Color.rgb(177,171,191)));LinearLayout.LayoutParams dot=new LinearLayout.LayoutParams(dp(5),dp(5));dot.setMargins(0,0,dp(5),0);status.addView(statusDot,dot);
         connection=label("연결 준비 중",11,SUBTLE);connection.setSingleLine(true);connection.setEllipsize(android.text.TextUtils.TruncateAt.END);status.addView(connection,new LinearLayout.LayoutParams(-1,-2));titles.addView(status);
@@ -386,6 +407,7 @@ public final class MainActivity extends Activity {
         if (!app.getRuntime().isRestoringBackup()) { app.getPhoneContext().reconcilePermissions(); app.maintainMemory(); }
         if ("권한".equals(tab)) showPermissions();
         if(app.getRuntime().autonomyEnabled()&&!app.getRuntime().state().optBoolean("serviceRunning")&&!app.getRuntime().isRestoringBackup())startAutonomy();
+        notifyPrivateFormStateFailure();
     }
 
     @Override protected void onNewIntent(Intent intent) { super.onNewIntent(intent); setIntent(intent); openReplyIntent(intent); }
@@ -431,6 +453,26 @@ public final class MainActivity extends Activity {
 
     @Override protected void onSaveInstanceState(Bundle state) {
         super.onSaveInstanceState(state);state.putString("pendingProfileRevision",pendingProfileRevision);
+        state.putString("selectedTab",tab);state.putString("exportFileId",exportFileId);
+        JSONObject settings=settingsFormSnapshot==null?restoredSettingsForm:settingsFormSnapshot.get();
+        JSONObject account=accountFormSnapshot==null?restoredAccountForm:accountFormSnapshot.get();
+        state.remove("settingsForm");state.remove("accountForm");state.remove("privateFormStateToken");state.remove("privateFormStateUnavailable");
+        // Database checks stay outside the file lock. Recheck after publishing so a
+        // deletion/restore that finishes during the write cannot leave a stale copy.
+        if(settings!=null&&!mayRestoreForm(settings,false)){settings=null;privateFormStateUnavailable=true;}
+        if(account!=null&&!mayRestoreForm(account,true)){account=null;privateFormStateUnavailable=true;}
+        if(settings!=null||account!=null){
+            try{
+                String next=PrivateFormState.write(this,settingsObject("settings",settings,"account",account));
+                if((settings!=null&&!mayRestoreForm(settings,false))||(account!=null&&!mayRestoreForm(account,true))){
+                    PrivateFormState.delete(this,next);discardUnavailableForm();
+                }else{
+                    state.putString("privateFormStateToken",next);
+                    PrivateFormState.delete(this,privateFormStateToken);privateFormStateToken=next;
+                }
+            }catch(java.io.IOException failure){privateFormStateUnavailable=true;}
+        }else{PrivateFormState.delete(this,privateFormStateToken);privateFormStateToken=null;}
+        if(privateFormStateUnavailable)state.putBoolean("privateFormStateUnavailable",true);
     }
 
     @Override protected void onDestroy() {
@@ -438,6 +480,8 @@ public final class MainActivity extends Activity {
         main.removeCallbacks(refresh);
         if (app.getRuntime() != null) app.getRuntime().clearListener(runtimeRefreshListener);
         if (photoPreviews != null) photoPreviews.close();
+        if(accountEditor!=null)accountEditor.dismiss();
+        if(isFinishing())PrivateFormState.delete(this,privateFormStateToken);
         for (AlertDialog dialog : new java.util.ArrayList<>(expandedPhotos.keySet())) dialog.dismiss();
         replyViews.clear();
         if (app.getWebController() != null) { app.getWebController().unbindActivity(this); detachWebView(); }
@@ -457,6 +501,9 @@ public final class MainActivity extends Activity {
             return;
         }
         chatGeneration++;
+        settingsFormSnapshot=null;settingsIdentityOpening=null;
+        if(!"설정".equals(name))restoredSettingsForm=null;
+        if(!"계정".equals(name))restoredAccountForm=null;
         if (photoPreviews != null) photoPreviews.clear();
         replyViews.clear(); messageRows.clear(); messageSignatures.clear();
         if(typingDots!=null)typingDots.setActive(false);typingDots=null;typingRow=null;
@@ -475,6 +522,28 @@ public final class MainActivity extends Activity {
             default: showChat();
         }
         refreshStatus();
+        notifyPrivateFormStateFailure();
+    }
+
+    private void notifyPrivateFormStateFailure(){
+        if(resumed&&privateFormStateUnavailable){privateFormStateUnavailable=false;notice("저장 전 입력 내용을 보관하거나 복원하지 못했어. 이미 저장한 계정과 설정은 그대로야. 입력 내용을 확인한 뒤 저장해 줘.");}
+    }
+
+    private boolean mayRestoreForm(JSONObject saved,boolean account){
+        if(saved==null)return false;
+        try{
+            if(!saved.optString("restoreToken").equals(app.getStore().getSetting("internal.files.restoreToken","")))return false;
+            if(account){
+                JSONObject record=saved.optJSONObject("record");if(record==null)return false;
+                String id=record.optString("accountId");
+                if(!id.isEmpty()&&(accounts().get(id)==null||!app.getStore().getPrivacyLedger().capture().allowedSourceRefs(record.optJSONArray("sourceRefs"))))return false;
+            }
+            return true;
+        }catch(java.io.IOException unavailable){return false;}
+    }
+
+    private void discardUnavailableForm(){
+        privateFormStateUnavailable=true;PrivateFormState.delete(this,privateFormStateToken);privateFormStateToken=null;
     }
 
     private void detachWebView() {
@@ -1125,6 +1194,8 @@ public final class MainActivity extends Activity {
         EditText search=accountField(panel,"서비스·아이디 검색","",false);search.setSingleLine(true);
         LinearLayout rows=column();panel.addView(button("검색",()->loadAccounts(rows,search.getText().toString())));panel.addView(rows);
         loadAccounts(rows,"");
+        JSONObject restored=restoredAccountForm;restoredAccountForm=null;
+        if(restored!=null){if(mayRestoreForm(restored,true))editAccount(restored.optJSONObject("record"),restored);else discardUnavailableForm();}
     }
     private void loadAccounts(LinearLayout rows,String query){
         rows.removeAllViews();rows.addView(label("계정을 불러오는 중…",13,SUBTLE));
@@ -1148,8 +1219,11 @@ public final class MainActivity extends Activity {
         EditText input=new EditText(this);input.setText(value);input.setHint(hint);input.setContentDescription(hint);input.setTextSize(15);input.setSingleLine(!multiline);if(multiline){input.setMinLines(2);input.setMaxLines(5);}
         input.setPadding(dp(12),dp(11),dp(12),dp(11));input.setBackground(ChatPalette.outlined(this,Color.WHITE,Color.rgb(225,220,236),12));form.addView(input,new LinearLayout.LayoutParams(-1,-2));return input;
     }
-    private void editAccount(JSONObject record){
+    private void editAccount(JSONObject record){editAccount(record,null);}
+    private void editAccount(JSONObject record,JSONObject restored){
         LinearLayout form=column();form.setPadding(dp(18),dp(6),dp(18),dp(18));ScrollView scroll=new ScrollView(this);scroll.addView(form);
+        form.setSaveFromParentEnabled(false);
+        final String restoreToken=app.getStore().getSetting("internal.files.restoreToken","");
         EditText service=accountField(form,"서비스",record.optString("service"),false);
         EditText labelInput=accountField(form,"표시 이름",record.optString("label"),false);
         EditText username=accountField(form,"아이디·이메일",record.optString("username"),false);
@@ -1167,7 +1241,13 @@ public final class MainActivity extends Activity {
             io.execute(()->{try{app.getFiles().withExclusiveStorageMaintenance(()->accounts().delete(record.optString("accountId"),actor));main.post(()->{if(editor[0]!=null)editor[0].dismiss();notice("계정 보관함의 복사본과 이전 값을 삭제했어. 일반 대화 원문은 그대로야.");showAccounts();});}catch(Exception failure){main.post(()->notice("계정 삭제를 완료하지 못했어."));}});
         }));}
         AlertDialog dialog=new ObservedDialogBuilder(this).setTitle(existing?"계정 수정":"새 계정").setView(scroll).setPositiveButton("저장",null).setNegativeButton("닫기",null).create();
-        editor[0]=dialog;
+        editor[0]=dialog;accountEditor=dialog;
+        // Keep the original account revision and MFA comparison values. Restoring only
+        // the visible edits would silently accept concurrent changes as a new baseline.
+        if(restored!=null)restoreEditableForm(form,restored.optJSONObject("form"),true);
+        accountFormSnapshot=()->dialog.isShowing()&&dialog.getButton(AlertDialog.BUTTON_POSITIVE).isEnabled()
+                ?settingsObject("record",record,"restoreToken",restoreToken,"form",captureEditableForm(form,true),"scrollY",scroll.getScrollY()):null;
+        dialog.setOnDismissListener(unused->{if(accountEditor==dialog){accountEditor=null;accountFormSnapshot=null;}});
         dialog.setOnShowListener(unused->dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v->{
             try{JSONObject supplied=new JSONObject().put("service",service.getText().toString()).put("username",username.getText().toString()).put("password",password.getText().toString())
                     .put("label",labelInput.getText().toString()).put("loginUrl",url.getText().toString()).put("notes",notes.getText().toString()).put("extra",authentication.apply(new JSONObject(extra.getText().toString())));
@@ -1176,6 +1256,7 @@ public final class MainActivity extends Activity {
                 io.execute(()->{try{accounts().saveFromUi(supplied,actor,existing?record:null);main.post(()->{dialog.dismiss();showAccounts();notice("계정의 최신 값을 저장했어. 실제 로그인 성공은 별도 확인해.");});}catch(AccountStore.AccountChangedException conflict){main.post(()->{dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);notice("다른 화면이나 대화에서 계정이 바뀌었어. 최신 계정을 다시 열고 수정해 줘. 이전 값으로 덮어쓰지 않았어.");});}catch(Exception failure){main.post(()->{dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);notice("계정 저장을 완료하지 못했어. 서비스·아이디와 추가 필드 형식을 확인해.");});}});
             }catch(Exception invalid){notice("추가 필드의 JSON과 2단계 인증의 숫자 설정을 확인해 줘.");}
         }));dialog.show();UiAutomationProvenance.observeWindow(this,dialog.getWindow());
+        if(restored!=null)scroll.post(()->scroll.scrollTo(0,restored.optInt("scrollY")));
     }
     /** Friendly MFA fields overlay only explicit edits; unrelated advanced values stay exact. */
     private final class AccountMfaFields {
@@ -1315,8 +1396,14 @@ public final class MainActivity extends Activity {
 
     private void showSettings() {
         content.removeAllViews(); LinearLayout panel = scrollPanel();
-        JSONObject baseline=app.getRuntime().personalSettingsBaseline();
+        panel.setSaveFromParentEnabled(false);
+        JSONObject restored=restoredSettingsForm;restoredSettingsForm=null;
+        if(restored!=null&&!mayRestoreForm(restored,false)){restored=null;discardUnavailableForm();}
+        final String restoreToken=app.getStore().getSetting("internal.files.restoreToken","");
+        JSONObject baseline=restored!=null&&restored.optJSONObject("baseline")!=null?restored.optJSONObject("baseline"):app.getRuntime().personalSettingsBaseline();
+        settingsIdentityOpening=restored==null?null:restored.optJSONObject("identityOpening");
         addIdentitySettings(panel);
+        final JSONObject identityOpening=settingsIdentityOpening;
         panel.addView(label("자율 모드", 20, INK));
         panel.addView(label("폰이 켜져 있고 인터넷과 Work 연결이 준비된 동안 주기적으로 판단해. 화면이 꺼져도 호출을 이어가려면 배터리 최적화 예외를 켜야 해. 자율 모드는 배터리 사용을 늘릴 수 있어.", 14, SUBTLE));
         panel.addView(button("자율 모드 켜기", this::startAutonomy));
@@ -1338,17 +1425,17 @@ public final class MainActivity extends Activity {
         android.widget.RadioGroup wakeGroup = new android.widget.RadioGroup(this);
         String[] wakeModes = {"continuous", "while_working", "charging"}, wakeLabels = {"계속 실행 · 자율 판단 우선", "작업 중 실행 · 배터리 우선", "충전 중 계속 실행"};
         String currentWake = app.getStore().getSetting("wakeMode", "continuous");
-        for (int i = 0; i < wakeModes.length; i++) { android.widget.RadioButton option = new android.widget.RadioButton(this); option.setId(6000 + i); option.setText(wakeLabels[i]); wakeGroup.addView(option); if (wakeModes[i].equals(currentWake)) option.setChecked(true); }
+        for (int i = 0; i < wakeModes.length; i++) { android.widget.RadioButton option = new android.widget.RadioButton(this); option.setId(6000 + i);option.setSaveEnabled(false); option.setText(wakeLabels[i]); wakeGroup.addView(option); if (wakeModes[i].equals(currentWake)) option.setChecked(true); }
         wakeGroup.setOnCheckedChangeListener((group, id) -> { int choice = id - 6000; if (choice >= 0 && choice < wakeModes.length) { saveImmediateSetting("wakeMode",wakeModes[choice]); AutonomyService.reevaluateActiveService(); } }); panel.addView(wakeGroup);
         panel.addView(label("기억과 백업",17,INK));
         panel.addView(label("전체 백업에 대화·기억·계정뿐 아니라 이름·프사 원본·영구 라우팅·사용자 지침·개인 설정을 함께 담아. 현재 화면의 임시 선택은 복원하지 않아.",12,SUBTLE));
         panel.addView(button("백업과 복원 열기",()->showTab("파일")));
         addSettingToggle(panel, "자동 기억 검토", "memoryReviewEnabled", true);
         addSettingToggle(panel, "허용한 휴대폰 정보 활용", "phoneContextEnabled", true);
-        addSettingToggle(panel, "폰 내부 의미 검색", "semanticSearchEnabled", true);
         addSettingToggle(panel, "비서의 답장·선톡 알림", "replyNotificationsEnabled", true);
         panel.addView(label("정기 판단과 기억 모델",17,INK));
         android.widget.Spinner autonomyEffortChoice = new android.widget.Spinner(this), memoryEffortChoice = new android.widget.Spinner(this), backgroundSpeedChoice = new android.widget.Spinner(this);
+        autonomyEffortChoice.setContentDescription("정기 판단 추론 강도");memoryEffortChoice.setContentDescription("기억 검토 최소 추론 강도");backgroundSpeedChoice.setContentDescription("백그라운드 작업 속도");
         String[] autonomyEfforts = {"low", "medium", "high", "xhigh", "max", "ultra"}, memoryEfforts = {"medium", "high", "xhigh", "max", "ultra"}, backgroundSpeeds = {"standard", "fast"};
         panel.addView(label("정기 판단 추론 강도 · Low는 Work의 Light", 12, SUBTLE));
         autonomyEffortChoice.setAdapter(new android.widget.ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, autonomyEfforts));
@@ -1377,7 +1464,7 @@ public final class MainActivity extends Activity {
             "requiredModel",com.hoyoung.assistant.ui.ModelChoices.id(modelChoice.getSelectedItemPosition()),"requiredEffort",efforts[effortChoice.getSelectedItemPosition()],"requiredSpeed",fastChoice.isChecked()?"fast":"standard",
             "autonomousEffort",autonomyEfforts[autonomyEffortChoice.getSelectedItemPosition()],
             "memoryMinimumEffort",memoryEfforts[memoryEffortChoice.getSelectedItemPosition()],"backgroundSpeed",backgroundSpeeds[backgroundSpeedChoice.getSelectedItemPosition()]);
-        JSONObject initialForm=formValues.get();
+        JSONObject initialForm=restored!=null&&restored.optJSONObject("initialForm")!=null?restored.optJSONObject("initialForm"):formValues.get();
         panel.addView(button("설정 저장", () -> {
             try {
                 int seconds = Integer.parseInt(interval.getText().toString()); if (seconds < 60 || seconds > 86400) throw new IllegalArgumentException();
@@ -1428,6 +1515,13 @@ public final class MainActivity extends Activity {
             } catch (Exception ignored) { }
         }));
         organizeSettings(panel,instructions);
+        if(restored!=null){
+            restoreEditableForm(panel,restored.optJSONObject("form"),false);
+            int restoredScrollY=restored.optInt("scrollY");
+            panel.post(()->{if(panel.getParent() instanceof ScrollView)((ScrollView)panel.getParent()).scrollTo(0,restoredScrollY);});
+        }
+        settingsFormSnapshot=()->settingsObject("baseline",baseline,"initialForm",initialForm,"identityOpening",identityOpening,"restoreToken",restoreToken,
+                "form",captureEditableForm(panel,false),"scrollY",panel.getParent() instanceof View?((View)panel.getParent()).getScrollY():0);
     }
 
     private void startAutonomy() {
@@ -1469,7 +1563,7 @@ public final class MainActivity extends Activity {
     }
 
     private String assistantName(){return AssistantIdentity.name(app.getStore());}
-    private TextView identityLabel(String suffix,int size,int color){TextView view=label(assistantName()+suffix,size,color);view.setTag("assistant-name:"+suffix);return view;}
+    private TextView identityLabel(String suffix,int size,int color){TextView view=label(assistantName()+suffix,size,color);view.setTag("assistant-name:"+suffix);view.setMaxLines(2);view.setEllipsize(android.text.TextUtils.TruncateAt.END);return view;}
     private void refreshIdentityViews(View view,String name){
         if(view instanceof HoyoungAvatarView)((HoyoungAvatarView)view).refreshIdentity();
         if(view instanceof TextView&&view.getTag() instanceof String&&((String)view.getTag()).startsWith("assistant-name:"))
@@ -1507,7 +1601,8 @@ public final class MainActivity extends Activity {
         effort.setSelection(Math.max(0,java.util.Arrays.asList(efforts).indexOf(opening.optBoolean("selected")?opening.optString("effort"):app.getStore().getSetting("requiredEffort","medium"))));panel.addView(effort);
         android.widget.Switch fast=fastChoice(opening.optBoolean("selected")?opening.optString("speed","fast"):app.getStore().getSetting("requiredSpeed","fast"),"이번 화면 Fast");panel.addView(fast);
         panel.addView(label("Fast를 끄면 Standard · UltraFast는 사용하지 않아",12,SUBTLE));
-        AlertDialog dialog=new ObservedDialogBuilder(this).setTitle("이번 화면의 모델").setView(panel).setPositiveButton("적용",null).setNeutralButton("기본 설정으로",null).setNegativeButton("닫기",null).create();
+        ScrollView scroll=new ScrollView(this);scroll.addView(panel);
+        AlertDialog dialog=new ObservedDialogBuilder(this).setTitle("이번 화면의 모델").setView(scroll).setPositiveButton("적용",null).setNeutralButton("기본 설정으로",null).setNegativeButton("닫기",null).create();
         dialog.show();UiAutomationProvenance.observeWindow(this,dialog.getWindow());
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v->applyForegroundChoice(dialog,opening,com.hoyoung.assistant.ui.ModelChoices.id(model.getSelectedItemPosition()),efforts[effort.getSelectedItemPosition()],fast.isChecked()?"fast":"standard",false));
         dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(v->applyForegroundChoice(dialog,opening,"","","",true));
@@ -1610,7 +1705,7 @@ public final class MainActivity extends Activity {
             java.util.ArrayList<Uri> items = selectedUris(result, data);
             app.getWebController().receiveFileChooser(items.isEmpty() ? null : items.toArray(new Uri[0])); return;
         }
-        if (result != RESULT_OK || data == null) return;
+        if (result != RESULT_OK || data == null) {if(code==EXPORT_FILE)exportFileId=null;return;}
         if(code==OWNER_FOLDER){
             Uri tree=data.getData();if(tree==null)return;int flags=data.getFlags();
             notice("보존 폴더의 삭제·제외 기록을 확인하고 있어.");
@@ -1631,7 +1726,7 @@ public final class MainActivity extends Activity {
         }
         if (code == PICK_FILES) {
             java.util.ArrayList<Uri> uris = selectedUris(result, data);
-            if (uris.size() > 8 || attachments.length() + uris.size() > 8) {
+            if (uris.size() > 8) {
                 notice("대화 첨부는 한 번에 최대 8개야. 선택을 나누거나 기존 첨부 선택을 지워 줘. 이번 파일은 일부만 추가하지 않았어.");
                 return;
             }
@@ -1659,13 +1754,21 @@ public final class MainActivity extends Activity {
             }); return;
         }
         Uri uri = data.getData(); if (uri == null) return;
+        final String selectedExportId=exportFileId;
+        if(code==EXPORT_FILE){
+            exportFileId=null;
+            if(selectedExportId==null||selectedExportId.isEmpty()){notice("내보낼 파일 선택을 다시 열어 줘. 저장 위치의 파일은 변경하지 않았어.");return;}
+        }
         io.execute(() -> {
             try {
                 if (code == EXPORT_BACKUP) try (OutputStream output = getContentResolver().openOutputStream(uri, "wt")) { if (output == null) throw new java.io.IOException(); app.getFiles().exportBackup(output, app.getStore()); }
                 else if (code == IMPORT_BACKUP) {
                     if (isActive()) throw new java.io.IOException("Active job");
                     try (InputStream input = getContentResolver().openInputStream(uri)) { if (input == null) throw new java.io.IOException(); app.getRuntime().restoreBackup(input); }
-                } else if (code == EXPORT_FILE) try (OutputStream output = getContentResolver().openOutputStream(uri, "wt")) { if (output == null) throw new java.io.IOException(); app.getFiles().exportFile(exportFileId, output); }
+                } else if (code == EXPORT_FILE) app.getFiles().withExclusiveStorageMaintenance(()->{
+                    app.getFiles().exportFileToDestination(selectedExportId,()->getContentResolver().openOutputStream(uri,"wt"));
+                    return null;
+                });
                 main.post(() -> { if (isDestroyed()) return; notice(code == IMPORT_BACKUP ? "백업을 복원했어. 불명확한 작업은 자동으로 반복하지 않아." : "선택한 위치에 저장했어."); if (code == IMPORT_BACKUP) { draftState = draftStore.read(); attachments = draftState.attachments(); showTab(tab); } else if ("파일".equals(tab)) showFiles(); });
             } catch (Exception e) {
                 String description = "저장·복원을 완료하지 못했어. 기존 폰 데이터를 확인해.";
@@ -1696,19 +1799,50 @@ public final class MainActivity extends Activity {
         TextView text=label(title,15,INK);text.setTypeface(null,Typeface.BOLD);heading.addView(text,new LinearLayout.LayoutParams(0,-2,1));
         ImageView chevron=new ImageView(this);chevron.setImageDrawable(new LineIconDrawable(LineIconDrawable.Icon.CHEVRON,SUBTLE,getResources().getDisplayMetrics().density));heading.addView(chevron,new LinearLayout.LayoutParams(dp(22),dp(22)));chevron.setRotation(expanded?90:0);
         body.setPadding(dp(16),0,dp(16),dp(12));body.setVisibility(expanded?View.VISIBLE:View.GONE);card.addView(heading);card.addView(body);
-        heading.setContentDescription(title+(expanded?" 접기":" 펼치기"));heading.setOnClickListener(v->{boolean open=body.getVisibility()!=View.VISIBLE;body.setVisibility(open?View.VISIBLE:View.GONE);chevron.animate().rotation(open?90:0).setDuration(ChatPalette.animationsEnabled()?160:0).start();heading.setContentDescription(title+(open?" 접기":" 펼치기"));});return card;
+        heading.setTag("form-section:"+title);heading.setContentDescription(title+(expanded?" 접기":" 펼치기"));heading.setOnClickListener(v->{boolean open=body.getVisibility()!=View.VISIBLE;body.setVisibility(open?View.VISIBLE:View.GONE);chevron.animate().rotation(open?90:0).setDuration(ChatPalette.animationsEnabled()?160:0).start();heading.setContentDescription(title+(open?" 접기":" 펼치기"));});return card;
     }
 
     private static JSONObject settingsObject(Object...pairs){JSONObject value=new JSONObject();try{for(int i=0;i<pairs.length;i+=2)value.put((String)pairs[i],pairs[i+1]);}catch(org.json.JSONException bad){throw new IllegalStateException(bad);}return value;}
+    /** Capture uncommitted editors, not the immediate policy switches. Baselines are saved separately. */
+    private JSONObject captureEditableForm(View root,boolean account){
+        JSONObject state=new JSONObject();transferEditableForm(root,state,account,false);return state;
+    }
+    private void restoreEditableForm(View root,JSONObject state,boolean account){
+        if(state!=null)transferEditableForm(root,state,account,true);
+    }
+    private void transferEditableForm(View view,JSONObject state,boolean account,boolean restore){
+        String description=view.getContentDescription()==null?"":view.getContentDescription().toString();
+        if(description.isEmpty()&&view instanceof EditText&&((EditText)view).getHint()!=null)description=((EditText)view).getHint().toString();
+        if(description.isEmpty()&&view instanceof android.widget.CompoundButton)description=((android.widget.CompoundButton)view).getText().toString();
+        String key="field:"+description;
+        try{
+            if(view.getTag() instanceof String&&((String)view.getTag()).startsWith("form-section:")){
+                String section=(String)view.getTag();boolean expanded=description.endsWith(" 접기");
+                if(restore){if(state.has(section)&&state.optBoolean(section)!=expanded)view.performClick();}
+                else state.put(section,expanded);
+            }else if(!description.isEmpty()&&view instanceof EditText){
+                if(restore){if(state.has(key))((EditText)view).setText(state.optString(key));}
+                else state.put(key,((EditText)view).getText().toString());
+            }else if(!description.isEmpty()&&view instanceof android.widget.Spinner){
+                android.widget.Spinner spinner=(android.widget.Spinner)view;
+                if(restore){int position=state.optInt(key,-1);if(position>=0&&position<spinner.getCount())spinner.setSelection(position);}
+                else state.put(key,spinner.getSelectedItemPosition());
+            }else if(view instanceof android.widget.CompoundButton&&(account||"기본 Fast".equals(description))){
+                if(restore){if(state.has(key))((android.widget.CompoundButton)view).setChecked(state.optBoolean(key));}
+                else state.put(key,((android.widget.CompoundButton)view).isChecked());
+            }
+        }catch(org.json.JSONException invalid){throw new IllegalStateException(invalid);}
+        if(view instanceof ViewGroup)for(int i=0;i<((ViewGroup)view).getChildCount();i++)transferEditableForm(((ViewGroup)view).getChildAt(i),state,account,restore);
+    }
     private void saveImmediateSetting(String key,Object value){
         try{JSONObject result=app.getRuntime().updatePersonalSettings(settingsObject(key,value),null);if(!result.optBoolean("ok"))notice(result.optString("message"));}
         catch(Exception failure){notice("설정을 저장하지 못했어. 현재 값을 다시 확인해 줘.");}
     }
     private void addIdentitySettings(LinearLayout panel){
         panel.addView(label("프로필과 이름",20,INK));
-        JSONObject opening=app.getRuntime().assistantIdentity();
+        JSONObject opening=settingsIdentityOpening==null?app.getRuntime().assistantIdentity():settingsIdentityOpening;settingsIdentityOpening=opening;
         LinearLayout profile=row();profile.setGravity(Gravity.CENTER_VERTICAL);profile.addView(new HoyoungAvatarView(this),new LinearLayout.LayoutParams(dp(64),dp(64)));
-        TextView current=identityLabel("",20,INK);current.setPadding(dp(16),0,0,0);profile.addView(current);panel.addView(profile);
+        TextView current=identityLabel("",20,INK);current.setPadding(dp(16),0,0,0);profile.addView(current,new LinearLayout.LayoutParams(0,-2,1));panel.addView(profile);
         panel.addView(label("현재 이름과 프사가 기억 속 예전 이름보다 우선해. 사진 원본은 폰에 저장하고 비서도 읽을 수 있어.",12,SUBTLE));
         EditText name=new EditText(this);name.setSingleLine(true);name.setHint("비서 이름");name.setContentDescription("비서 이름 편집");name.setText(opening.optString("name"));panel.addView(name);
         panel.addView(button("이름 저장",()->{
@@ -1729,12 +1863,13 @@ public final class MainActivity extends Activity {
 
     private void organizeSettings(LinearLayout panel,EditText instructions){
         java.util.LinkedHashMap<String,LinearLayout> sections=new java.util.LinkedHashMap<>();
-        String current="자율 모드";Button save=null;java.util.ArrayList<View> children=new java.util.ArrayList<>();
+        String current="자율 모드";Button save=null,licenses=null;java.util.ArrayList<View> children=new java.util.ArrayList<>();
         for(int i=0;i<panel.getChildCount();i++)children.add(panel.getChildAt(i));panel.removeAllViews();
         for(View view:children){
             if(view==instructions)continue;
             if(view instanceof Button&&"설정 저장".contentEquals(((Button)view).getText())){save=(Button)view;continue;}
-            if(view instanceof TextView&&!(view instanceof EditText)&&!(view instanceof Button)&&((TextView)view).getTextSize()/getResources().getDisplayMetrics().scaledDensity>=17){current=((TextView)view).getText().toString();continue;}
+            if(view instanceof Button&&"오픈소스 라이선스".contentEquals(((Button)view).getText())){licenses=(Button)view;continue;}
+            if(view instanceof TextView&&!(view instanceof EditText)&&!(view instanceof Button)&&java.util.Arrays.asList("프로필과 이름","자율 모드","맞춤 지침","실행 방식","기억과 백업","정기 판단과 기억 모델","기본 모델과 응답 속도","확인되지 않은 작업").contains(((TextView)view).getText().toString())){current=((TextView)view).getText().toString();continue;}
             if(view instanceof Button&&"한도·연결 상태 다시 확인".contentEquals(((Button)view).getText()))current="연결과 진단";
             sections.computeIfAbsent(current,key->new com.hoyoung.assistant.ui.FormColumn(this)).addView(view);
         }
@@ -1746,6 +1881,7 @@ public final class MainActivity extends Activity {
         for(String title:order){LinearLayout body=sections.remove(title);if(body!=null)panel.addView(disclosure(title,body,"프로필과 이름".equals(title)));}
         for(java.util.Map.Entry<String,LinearLayout> section:sections.entrySet())panel.addView(disclosure(section.getKey(),section.getValue(),false));
         if(save!=null){save.setTextColor(Color.WHITE);save.setBackground(ChatPalette.outgoing(this));panel.addView(save);}
+        if(licenses!=null)panel.addView(licenses);
     }
 
     private Button primaryButton(String title,Runnable action){Button result=button(title,action);result.setTextColor(Color.WHITE);result.setBackground(ChatPalette.outgoing(this));return result;}

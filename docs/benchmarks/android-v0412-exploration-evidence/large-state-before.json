@@ -1,0 +1,22 @@
+{
+  "finding": "Supported large account produces oversized activity saved state",
+  "candidate_status": "JVM reproduction confirmed; no Android Binder transaction executed",
+  "source": "/workspace/be3hyu/mobile/app/src/test/java/com/hoyoung/assistant/MediaSavedStateCapacityTest.java",
+  "test_sha256": "7a501cd62d2b18739c16283fd15d2e6fe71275f68444afd9c99879cae2a4f302",
+  "fixture": "300000 ASCII notes accepted by actual AccountStore, reopened through account list, unsaved Unicode suffix appended",
+  "baseline": {
+    "tests": 1,
+    "failures": 1,
+    "parcel_data_size_bytes": 1202684,
+    "robolectric_marshall_bytes": 601973,
+    "top_level_string_utf16_lower_bound_bytes": 1202248,
+    "test_budget_bytes": 524288
+  },
+  "evidence": "saved-state-capacity-baseline.log; saved-state-capacity-baseline.xml",
+  "limitations": [
+    "Robolectric marshalled bytes differ from native Android Parcel; dataSize and UTF-16 lower bound are separately recorded.",
+    "No emulator-5564 product execution; no device TransactionTooLargeException observation."
+  ],
+  "production_fix_owner": "android_settings_explorer; preserving original record and unsaved edits in private noBackup snapshot reference under review",
+  "other_cross_review": "No additional evidenced integration conflicts found between attachment normalization, form snapshots, overlay identity refresh, and structured transcript visibility changes."
+}

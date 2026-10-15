@@ -14,6 +14,7 @@ import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.hoyoung.assistant.ui.HoyoungAvatarView;
+import com.hoyoung.assistant.store.AssistantIdentity;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -32,7 +33,9 @@ public final class PhoneOverlayTools {
     private volatile boolean restorePaused;
     private LinearLayout panel;
     private TextView title, body;
+    private HoyoungAvatarView avatar;
     private WindowManager.LayoutParams layout;
+    private boolean explicitTitle;
 
     public PhoneOverlayTools(Context context) { this.context = context.getApplicationContext(); windows = (WindowManager) this.context.getSystemService(Context.WINDOW_SERVICE); }
     PhoneOverlayTools(Context context, PhoneEventJournal journal) { this(context); this.journal = journal; }
@@ -74,7 +77,8 @@ public final class PhoneOverlayTools {
         if ("phone_overlay_update".equals(name) && panel == null) return failure("overlay_not_visible");
         boolean existed = panel != null;
         if (!existed) createPanel();
-        if (args.has("title")) title.setText(text(args, "title", 100));
+        if (args.has("title")) { title.setText(text(args, "title", 100)); explicitTitle = true; }
+        else if (!explicitTitle) title.setText(AssistantIdentity.name(journal().canonicalStore()));
         if (args.has("text")) body.setText(text(args, "text", 4000));
         int screenWidth = context.getResources().getDisplayMetrics().widthPixels;
         if (args.has("widthDp")) layout.width = Math.max(dp(120), Math.min(screenWidth, dp(integer(args, "widthDp", 280, 120, 4096))));
@@ -83,7 +87,7 @@ public final class PhoneOverlayTools {
         if (existed) windows.updateViewLayout(panel, layout);
         else {
             try { windows.addView(panel, layout); }
-            catch (RuntimeException failure) { panel = null; title = null; body = null; layout = null; throw failure; }
+            catch (RuntimeException failure) { panel = null; title = null; body = null; avatar = null; layout = null; explicitTitle = false; throw failure; }
         }
         return PhoneEventJournal.object("ok", true, "code", existed ? "overlay_update_applied" : "overlay_window_added", "windowAdded", true,
                 "attachedToWindowObserved", panel.isAttachedToWindow(), "completionConfirmed", true, "ownerSawCardVerified", false,
@@ -91,12 +95,13 @@ public final class PhoneOverlayTools {
                 "xPx", layout.x, "yPx", layout.y, "widthPx", layout.width);
     }
     private void createPanel() {
+        explicitTitle = false;
         panel = new LinearLayout(context); panel.setOrientation(LinearLayout.VERTICAL); panel.setPadding(dp(16), dp(12), dp(14), dp(16));
         GradientDrawable background = new GradientDrawable(); background.setColor(Color.rgb(31, 36, 51)); background.setCornerRadius(dp(22));
         panel.setBackground(background); panel.setElevation(dp(16)); panel.setContentDescription("호영 플로팅 카드");
         LinearLayout header = new LinearLayout(context); header.setGravity(Gravity.CENTER_VERTICAL);
-        HoyoungAvatarView avatar = new HoyoungAvatarView(context); header.addView(avatar, new LinearLayout.LayoutParams(dp(32), dp(32)));
-        title = new TextView(context); title.setText("호영"); title.setTextSize(16); title.setTextColor(Color.WHITE); title.setTypeface(Typeface.DEFAULT, Typeface.BOLD); title.setPadding(dp(10), 0, dp(4), 0);
+        avatar = new HoyoungAvatarView(context); header.addView(avatar, new LinearLayout.LayoutParams(dp(32), dp(32)));
+        title = new TextView(context); title.setTextSize(16); title.setTextColor(Color.WHITE); title.setTypeface(Typeface.DEFAULT, Typeface.BOLD); title.setPadding(dp(10), 0, dp(4), 0);
         header.addView(title, new LinearLayout.LayoutParams(0, WindowManager.LayoutParams.WRAP_CONTENT, 1));
         TextView close = new TextView(context); close.setText("×"); close.setTextSize(26); close.setGravity(Gravity.CENTER); close.setTextColor(Color.rgb(193, 200, 217));
         close.setContentDescription("호영 플로팅 카드 닫기"); close.setOnClickListener(view -> { try { hide(); } catch (RuntimeException ignored) { } });
@@ -123,8 +128,20 @@ public final class PhoneOverlayTools {
     }
     private JSONObject hide() {
         if (panel == null) return PhoneEventJournal.object("ok", true, "code", "overlay_already_hidden", "windowRemoved", false, "completionConfirmed", true);
-        LinearLayout old = panel; windows.removeViewImmediate(old); panel = null; title = null; body = null; layout = null;
+        LinearLayout old = panel; windows.removeViewImmediate(old); panel = null; title = null; body = null; avatar = null; layout = null; explicitTitle = false;
         return PhoneEventJournal.object("ok", true, "code", "overlay_window_removed", "windowRemoved", true, "completionConfirmed", true);
+    }
+    /** Best-effort redraw after saving identity; never waits for the UI while the runtime holds its lock. */
+    public void refreshAssistantIdentity() {
+        try {
+            main.post(() -> {
+                if (panel == null || restorePaused) return;
+                try {
+                    if (!explicitTitle) title.setText(AssistantIdentity.name(journal().canonicalStore()));
+                    if (avatar != null) avatar.refreshIdentity();
+                } catch (RuntimeException unavailable) { /* The identity is already saved. */ }
+            });
+        } catch (RuntimeException unavailable) { /* An unavailable UI must not turn a saved identity into a failed update. */ }
     }
     public void pauseForBackupRestore() {
         restorePaused = true;

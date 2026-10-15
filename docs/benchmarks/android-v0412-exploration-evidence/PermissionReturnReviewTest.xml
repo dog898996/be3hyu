@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.hoyoung.assistant.PermissionReturnReviewTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-10-15T08:38:43" hostname="4e43b7d4e048" time="0.171">
+  <properties/>
+  <testcase name="returningAfterPermissionGrantRestoresARealTab" classname="com.hoyoung.assistant.PermissionReturnReviewTest" time="0.171"/>
+  <system-out><![CDATA[blockedTab=권한 설정
+grantedTab=대화
+grantedTitle=호영
+chatComposerExists=true
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

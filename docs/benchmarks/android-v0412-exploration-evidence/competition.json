@@ -1,0 +1,196 @@
+{
+  "updatedAt": "2026-10-15T08:40:25.138822+00:00",
+  "rules": {
+    "scope": "Every explorer independently explores the whole app.",
+    "severityPoints": {
+      "critical": 10,
+      "high": 6,
+      "medium": 3,
+      "low": 1
+    },
+    "verifiedFixBonus": 2,
+    "deduplication": "One root cause is counted once. First evidenced reproducible report gets discovery credit. Independent reproduction gets 1 validation point. Hypotheses earn no points.",
+    "milestones": [
+      5,
+      10,
+      15,
+      20
+    ],
+    "milestoneMeasure": "Highest individual verified score; severity and verified-fix/reproduction bonuses count. Unverified hypotheses and duplicate root causes earn no discovery points.",
+    "milestoneAction": "At each crossed milestone finish the lowest scored active exploration session after preserving findings; ties use verified fixes, then earliest confirmed report. Continue root integration of every finding.",
+    "completion": "All exploration sessions end when verification is complete, including the highest ranked session. No hidden conditions or survival instructions.",
+    "deviceStatus": "Five actual software QEMU guests attempted; parallel start hit host OOM. One guest reached boot and app APK installation, instrumentation provisioning still pending. No product device pass claims.",
+    "eliminationsSoFar": [
+      {
+        "milestone": 5,
+        "agent": "android_memory_explorer",
+        "score": 1,
+        "reason": "Lowest score after first score milestone; evidence retained",
+        "at": "2026-10-15T08:17:32.664404+00:00"
+      },
+      {
+        "milestone": 10,
+        "agent": "android_connection_explorer",
+        "score": 5,
+        "reason": "Lowest active score tied with B; both have one verified fix, B had the earlier confirmed finding",
+        "at": "2026-10-15T08:26:16.699466+00:00"
+      }
+    ],
+    "deadline": "2026-10-15T09:15:00Z"
+  },
+  "agents": {
+    "android_connection_explorer": {
+      "confirmed": 1,
+      "fixed": 1,
+      "score": 5,
+      "status": "exploration_ended_at_score_milestone_10"
+    },
+    "android_settings_explorer": {
+      "confirmed": 1,
+      "fixed": 3,
+      "score": 9,
+      "status": "active"
+    },
+    "android_media_explorer": {
+      "confirmed": 2,
+      "fixed": 1,
+      "score": 8,
+      "status": "active"
+    },
+    "android_lifecycle_explorer": {
+      "confirmed": 3,
+      "fixed": 2,
+      "score": 14,
+      "status": "active"
+    },
+    "android_memory_explorer": {
+      "confirmed": 0,
+      "fixed": 0,
+      "score": 1,
+      "status": "exploration_ended_at_score_milestone_5"
+    }
+  },
+  "findings": [
+    {
+      "id": "F001",
+      "title": "Activity recreation loses current destination and unsaved form",
+      "discoverer": "android_settings_explorer",
+      "severity": "medium",
+      "status": "fixed_jvm_verified",
+      "points": 3,
+      "evidence": "/tmp/hoyoung-matrix/rotation-baseline.log",
+      "independentReproducer": "android_memory_explorer",
+      "validationPoints": 1,
+      "fixOwner": "android_settings_explorer",
+      "deviceReproduced": false,
+      "fixPoints": 2,
+      "evidenceAfter": "/tmp/hoyoung-matrix/focused-second.log"
+    },
+    {
+      "id": "F002",
+      "title": "Duplicate imported immutable attachment ID makes Send fail",
+      "discoverer": "android_media_explorer",
+      "status": "fixed_jvm_verified",
+      "points": 3,
+      "severity": "medium",
+      "evidence": "/tmp/hoyoung-matrix/focused-second.log",
+      "fixPoints": 2,
+      "evidenceAfter": "/tmp/hoyoung-matrix/focused-fixed.log"
+    },
+    {
+      "id": "H003",
+      "title": "File export loses selected original after recreation and opens destination too early",
+      "discoverer": "android_settings_explorer",
+      "status": "subsumed_by_confirmed_export_validation_F005",
+      "points": 0
+    },
+    {
+      "id": "H004",
+      "title": "Nonlinear font scaling breaks settings section detection",
+      "discoverer": "android_settings_explorer",
+      "status": "hypothesis",
+      "points": 0
+    },
+    {
+      "id": "H005",
+      "title": "Large-font model dialog and long identity labels may clip controls",
+      "discoverer": "android_settings_explorer",
+      "status": "hypothesis",
+      "points": 0
+    },
+    {
+      "id": "H006",
+      "title": "Service permission revocation timing needs observation",
+      "discoverer": "android_lifecycle_explorer",
+      "status": "not_established_expected_documented_timing",
+      "points": 0
+    },
+    {
+      "id": "F003",
+      "title": "Renamed assistant still shows bundled name in floating card and recording notification",
+      "discoverer": "android_lifecycle_explorer",
+      "severity": "low",
+      "status": "fixed_jvm_verified",
+      "points": 1,
+      "evidence": "/tmp/hoyoung-matrix/focused-second.log",
+      "fixPoints": 2,
+      "evidenceAfter": "/tmp/hoyoung-matrix/focused-fixed.log"
+    },
+    {
+      "id": "F004",
+      "title": "Hidden descendants inside CodeMirror lines are promoted into structured protocol output",
+      "discoverer": "android_connection_explorer",
+      "severity": "medium",
+      "status": "fixed_chromium_verified",
+      "points": 3,
+      "evidence": "/tmp/hoyoung-matrix/connection/hidden-codemirror-baseline.log",
+      "actualToolExecuted": false,
+      "fixPoints": 2,
+      "evidenceAfter": "/tmp/hoyoung-matrix/connection/work-bridge-full-fixed.log",
+      "browserRegressionCount": 96
+    },
+    {
+      "id": "F005",
+      "title": "Corrupt export source truncates an existing destination before integrity rejection",
+      "discoverer": "android_lifecycle_explorer",
+      "severity": "high",
+      "status": "fixed_jvm_verified",
+      "points": 6,
+      "evidence": "/tmp/hoyoung-matrix/lifecycle/export-corrupt-review.log",
+      "deviceReproduced": false,
+      "fixPoints": 2,
+      "fixOwner": "android_lifecycle_explorer",
+      "evidenceAfter": "/tmp/hoyoung-matrix/final-focused-retry.log"
+    },
+    {
+      "id": "F006",
+      "title": "Supported large account form puts more than 1 MiB of string payload into Activity saved state",
+      "discoverer": "android_media_explorer",
+      "severity": "medium",
+      "status": "fixed_jvm_verified",
+      "points": 3,
+      "evidence": "/tmp/hoyoung-matrix/media/saved-state-capacity-baseline.log",
+      "nativeBinderExceptionObserved": false,
+      "parcelDataSize": 1202684,
+      "utf16PayloadLowerBound": 1202248,
+      "fixPoints": 2,
+      "fixOwner": "android_settings_explorer",
+      "evidenceAfter": "/tmp/hoyoung-matrix/final-focused-retry.log",
+      "fixedParcelDataSize": 524,
+      "fixedUtf16PayloadLowerBound": 68
+    },
+    {
+      "id": "F007",
+      "title": "Completing permissions retains onboarding sentinel tab and disables normal chat refresh and visibility checks",
+      "discoverer": "android_lifecycle_explorer",
+      "severity": "medium",
+      "status": "fixed_jvm_verified",
+      "points": 3,
+      "evidence": "/tmp/hoyoung-matrix/lifecycle/permission-return-review.log",
+      "deviceReproduced": false,
+      "fixPoints": 2,
+      "fixOwner": "android_settings_explorer",
+      "evidenceAfter": "/tmp/hoyoung-matrix/final-focused-retry.log"
+    }
+  ]
+}

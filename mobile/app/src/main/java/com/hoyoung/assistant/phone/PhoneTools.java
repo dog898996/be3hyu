@@ -57,6 +57,7 @@ public final class PhoneTools {
     void setActivityTracker(PhoneActivityTracker tracker) { activityTracker = tracker; }
     private PhoneEventJournal journal() { if (eventJournal == null) eventJournal = PhoneEventJournal.forContext(context); return eventJournal; }
     public void applyPermissionPolicyFromOwner(String toolPermissionsJson, boolean phoneContextEnabled) { journal().applyPermissionPolicyFromOwner(toolPermissionsJson, phoneContextEnabled); }
+    public void refreshAssistantIdentity() { overlayTools.refreshAssistantIdentity(); }
     public void pauseForBackupRestore() {
         if (!com.hoyoung.assistant.runtime.VoiceCaptureService.stopAndAwaitForRestore()) throw new IllegalStateException("Microphone capture did not finish before backup restore");
         if (screenCapture != null) screenCapture.cancelAll("backup_restore");
