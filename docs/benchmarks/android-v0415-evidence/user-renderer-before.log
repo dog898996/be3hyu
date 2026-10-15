@@ -1,0 +1,60 @@
+TAP version 13
+# Subtest: upstream benchmark rendered user code fences still acknowledge the original request
+not ok 1 - upstream benchmark rendered user code fences still acknowledge the original request
+  ---
+  duration_ms: 546.606506
+  type: 'test'
+  location: '/workspace/be3hyu/mobile/tests/work-bridge.test.mjs:2082:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    0 !== 1
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 1
+  actual: 0
+  operator: 'strictEqual'
+  stack: |-
+    file:///workspace/be3hyu/mobile/tests/work-bridge.test.mjs:2087:12
+    runNextTicks (node:internal/process/task_queues:65:5)
+    process.processImmediate (node:internal/timers:502:9)
+    async pageFixture (file:///workspace/be3hyu/mobile/tests/work-bridge.test.mjs:87:5)
+    async TestContext.<anonymous> (file:///workspace/be3hyu/mobile/tests/work-bridge.test.mjs:2083:3)
+    async Test.run (node:internal/test_runner/test:1389:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)
+  ...
+# Subtest: upstream benchmark expands a DOM-truncated new user bubble once and requires its whole text
+not ok 2 - upstream benchmark expands a DOM-truncated new user bubble once and requires its whole text
+  ---
+  duration_ms: 317.112607
+  type: 'test'
+  location: '/workspace/be3hyu/mobile/tests/work-bridge.test.mjs:2094:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    0 !== 1
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 1
+  actual: 0
+  operator: 'strictEqual'
+  stack: |-
+    file:///workspace/be3hyu/mobile/tests/work-bridge.test.mjs:2103:12
+    async pageFixture (file:///workspace/be3hyu/mobile/tests/work-bridge.test.mjs:87:5)
+    async TestContext.<anonymous> (file:///workspace/be3hyu/mobile/tests/work-bridge.test.mjs:2095:37)
+    async Test.run (node:internal/test_runner/test:1389:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:960:7)
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 0
+# fail 2
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1310.174544

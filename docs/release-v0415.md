@@ -21,6 +21,8 @@
 
 ## 검증 범위
 
-관련 JVM 검사 44개가 통과했고 release/debug/Android test APK를 빌드했다. Chromium 전체 Work bridge 회귀와 실제 Android WebView 검사의 최종 수치는 함께 제공하는 검증 기록에 기재한다. 추가 Android 시나리오는 완료 표시의 CSS 변화와, 실제로 지연시킨 이미지 응답이 끝나기 전에 production controller가 연결을 준비하는지를 확인한다.
+관련 JVM 44/44, Chromium 전체 Work bridge 회귀 110/110이 통과했고 release/debug/Android test APK를 빌드했다. Android 35 독립 가상 기기 5환경(작은 화면·큰 글자·영어/회전·태블릿·백그라운드)의 13개 시나리오씩 **65/65**도 통과했다. [실행 원본](https://github.com/dog898996/be3hyu/actions/runs/38730806196) · [검증 기록](benchmarks/android-v0415-verification.json). 추가 Android 시나리오는 완료 표시의 CSS 변화와, 실제로 지연시킨 이미지 응답이 끝나기 전에 production controller가 연결을 준비하는지를 확인한다.
+
+추가 Android 원문 잘림 검사에서는 재현 코드가 기존 더 보기 버튼 글자를 원문에 포함한 오류로 5환경의 해당 1개 검사씩 실패했다. production 코드는 바꾸지 않고 fixture에서 버튼 글자를 제거한 뒤 동일 Android 페이지를 Chromium에서도 재확인했다. 최초 실패와 수정 내역은 검증 기록에 보존한다.
 
 유료 모델 호출 없이 로컬 fixture와 Android 가상 기기로 검증한다. 실제 사용자 Galaxy(Android 36)·로그인한 최신 ChatGPT 계정 실행을 대신하지 않으며, 이번 Work 한정 검사가 [0.4.13의 다른 기능 검사 제한](release-v0413.md)을 해소했다는 의미도 아니다.

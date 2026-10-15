@@ -1,0 +1,94 @@
+✖ upstream benchmark excludes commentary before status and cot panels from the final answer (718.491958ms)
+✖ upstream benchmark keeps answer chunks between status blocks and excludes nested commentary (407.194837ms)
+✖ upstream benchmark does not complete a commentary-only turn using its copy control (440.844691ms)
+✖ upstream benchmark waits for CSS-visible completion controls even without DOM mutation (454.83835ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 0
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2501.167355
+
+✖ failing tests:
+
+test at mobile/tests/work-bridge.test.mjs:1998:1
+✖ upstream benchmark excludes commentary before status and cot panels from the final answer (718.491958ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '진행 설명\n\n도구 실행 상태\n\n접힌 과정 설명\n\n실제 최종 답변'
+  - '실제 최종 답변'
+  
+      at file:///workspace/be3hyu/mobile/tests/work-bridge.test.mjs:2007:45
+      at async pageFixture (file:///workspace/be3hyu/mobile/tests/work-bridge.test.mjs:86:5)
+      at async TestContext.<anonymous> (file:///workspace/be3hyu/mobile/tests/work-bridge.test.mjs:1999:3)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '진행 설명\n\n도구 실행 상태\n\n접힌 과정 설명\n\n실제 최종 답변',
+    expected: '실제 최종 답변',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at mobile/tests/work-bridge.test.mjs:2011:1
+✖ upstream benchmark keeps answer chunks between status blocks and excludes nested commentary (407.194837ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '진행 상태\n\n첫 결과\n\n두 번째 진행 상태\n\n마지막 결과'
+  - '첫 결과\n\n마지막 결과'
+  
+      at file:///workspace/be3hyu/mobile/tests/work-bridge.test.mjs:2020:12
+      at async pageFixture (file:///workspace/be3hyu/mobile/tests/work-bridge.test.mjs:86:5)
+      at async TestContext.<anonymous> (file:///workspace/be3hyu/mobile/tests/work-bridge.test.mjs:2012:3)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '진행 상태\n\n첫 결과\n\n두 번째 진행 상태\n\n마지막 결과',
+    expected: '첫 결과\n\n마지막 결과',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at mobile/tests/work-bridge.test.mjs:2024:1
+✖ upstream benchmark does not complete a commentary-only turn using its copy control (440.844691ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  1 !== 0
+  
+      at file:///workspace/be3hyu/mobile/tests/work-bridge.test.mjs:2032:12
+      at async pageFixture (file:///workspace/be3hyu/mobile/tests/work-bridge.test.mjs:86:5)
+      at async TestContext.<anonymous> (file:///workspace/be3hyu/mobile/tests/work-bridge.test.mjs:2025:3)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at mobile/tests/work-bridge.test.mjs:2039:1
+✖ upstream benchmark waits for CSS-visible completion controls even without DOM mutation (454.83835ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  1 !== 0
+  
+      at file:///workspace/be3hyu/mobile/tests/work-bridge.test.mjs:2046:12
+      at async pageFixture (file:///workspace/be3hyu/mobile/tests/work-bridge.test.mjs:86:5)
+      at async TestContext.<anonymous> (file:///workspace/be3hyu/mobile/tests/work-bridge.test.mjs:2040:3)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
