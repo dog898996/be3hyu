@@ -30,3 +30,5 @@
 기존 앱 위에 업데이트하고 **Work → 연결**을 누른다. 실제 Galaxy에서의 최종 연결 성공은 아직 확인하지 못했으며, 로컬 재현 검사와 구분한다.
 
 [설치 파일](https://github.com/dog898996/be3hyu/releases/tag/v0.4.8) · [관련 검사 기록](benchmarks/android-v048-focused.json) · [APK 검사](benchmarks/android-v048-apk.json).
+
+[APK 직접 다운로드](https://raw.githubusercontent.com/dog898996/be3hyu/ee188afac2bd54aa0b9f77ea93a25d41ad5b62d2/release-assets/v0.4.8/hoyoung-v0.4.8.apk) · [공개 다운로드 확인](benchmarks/android-v048-downloads.json). APK·전체 소스 ZIP·검증 JSON·체크섬 4개를 인증 없이 다운로드해 HTTP 200, 전체 크기와 SHA-256 일치를 확인했다. 소스 커밋은 `b3c460449b2157139db728193878b5f47091f2aa`이며 APK SHA-256은 `2d2f8ec18eed6b18cee8cccfd6949824cccabf569c0a512c755fc8a2ab06c54c`다. 기존 앱과 같은 서명이다.
