@@ -21,3 +21,5 @@
 실제 Galaxy의 DOM은 이 환경에서 직접 접근할 수 없으므로, 재현 검사 통과를 사용자 기기의 연결 성공으로 보고하지 않는다. 이 수정은 코드에서 재현한 감지 결함을 해결하며, 사용자 화면에서 발생한 모든 세부 DOM 차이를 확정했다는 의미는 아니다. 유료 모델 호출과 전체 장기기억 시뮬레이션은 수행하지 않는다.
 
 [설치 파일](https://github.com/dog898996/be3hyu/releases/tag/v0.4.7) · [연결 검사 기록](benchmarks/android-v047-focused.json) · [APK 검사](benchmarks/android-v047-apk.json).
+
+[APK 직접 다운로드](https://raw.githubusercontent.com/dog898996/be3hyu/d05dbca3e32fc82056b17ef62e0ddf1a4c1a4ae8/release-assets/v0.4.7/hoyoung-v0.4.7.apk) · [공개 다운로드 확인](benchmarks/android-v047-downloads.json). APK·소스 ZIP·검증 JSON·체크섬 4개를 인증 없이 다운로드해 HTTP 200, 전체 크기와 SHA-256 일치를 확인했다. 소스 커밋은 `033d4690cb55ccf63073a2447f47790aa29a8650`이며 APK SHA-256은 `0c17dc3501b95f6cd04211b3621bd11432839adc044697759000f958afb5b057`다.
