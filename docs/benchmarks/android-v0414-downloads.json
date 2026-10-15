@@ -1,0 +1,41 @@
+{
+  "version": "0.4.14",
+  "verifiedAt": "2026-10-15T11:15:44.993715+00:00",
+  "sourceCommit": "719d13e95435f28737c152c0191fac2bb9a6dbd3",
+  "artifactCommit": "301ef690b69f7be4f25071f60210a50a79e0eb5f",
+  "authenticatedDownload": false,
+  "files": [
+    {
+      "name": "hoyoung-v0.4.14.apk",
+      "url": "https://raw.githubusercontent.com/dog898996/be3hyu/301ef690b69f7be4f25071f60210a50a79e0eb5f/release-assets/v0.4.14/hoyoung-v0.4.14.apk",
+      "httpStatus": 200,
+      "bytes": 79147182,
+      "sha256": "bb6b9cd8a0873d6d057738ee310cf34000d5eaaa93463308bb2d6a6daad51939",
+      "matchesLocal": true
+    },
+    {
+      "name": "hoyoung-v0.4.14-source.zip",
+      "url": "https://raw.githubusercontent.com/dog898996/be3hyu/301ef690b69f7be4f25071f60210a50a79e0eb5f/release-assets/v0.4.14/hoyoung-v0.4.14-source.zip",
+      "httpStatus": 200,
+      "bytes": 56894816,
+      "sha256": "4d14359bef1e07f83d09edc993a40142a1a4a18886d7b97d7aeeaf766c1bfea1",
+      "matchesLocal": true
+    },
+    {
+      "name": "hoyoung-v0.4.14-verification.json",
+      "url": "https://raw.githubusercontent.com/dog898996/be3hyu/301ef690b69f7be4f25071f60210a50a79e0eb5f/release-assets/v0.4.14/hoyoung-v0.4.14-verification.json",
+      "httpStatus": 200,
+      "bytes": 11991,
+      "sha256": "e37f2fb684b51e5a67802e7584b7ea900745d452cb72eb2cd694d8578aa1ff93",
+      "matchesLocal": true
+    },
+    {
+      "name": "SHA256SUMS.txt",
+      "url": "https://raw.githubusercontent.com/dog898996/be3hyu/301ef690b69f7be4f25071f60210a50a79e0eb5f/release-assets/v0.4.14/SHA256SUMS.txt",
+      "httpStatus": 200,
+      "bytes": 279,
+      "sha256": "b4cd557e7b69c0235df67d585c590ebdc441a0407872b617618c2b60582afa80",
+      "matchesLocal": true
+    }
+  ]
+}
