@@ -1,0 +1,501 @@
+{
+  "sourceCommit": "0a63cc7b3fe6de063f6c79d7e97a23d344cf599c",
+  "testedProductionCommit": "e190d256d3d219b0d452aed88d5d8ad138df6963",
+  "apk": {
+    "scope": "Static APK signature, source identity, complete manifest permissions, and native packaging only.",
+    "applicationId": "com.hoyoung.assistant",
+    "label": "호영",
+    "versionName": "0.4.16",
+    "versionCode": 23,
+    "targetSdk": 35,
+    "debuggable": false,
+    "releaseIdentityVerified": true,
+    "certificateSha256": "5b634dac5d4538f871ff0bfdbe1b31b2baa02dbe4390d11d7f6af235b2df1e3e",
+    "apkSha256": "5c25636b945fcb848b1577f1956ede61b5fcd44419d46c301263c0f460759c79",
+    "apkBytes": 79164669,
+    "sourcePermissionDeclarationsExactlyMatch": true,
+    "permissionCount": 48,
+    "permissions": [
+      {
+        "name": "android.permission.ACCESS_BACKGROUND_LOCATION",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.ACCESS_COARSE_LOCATION",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.ACCESS_FINE_LOCATION",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.ACCESS_NETWORK_STATE",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.ACCESS_NOTIFICATION_POLICY",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.ACCESS_WIFI_STATE",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.ACTIVITY_RECOGNITION",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.BLUETOOTH",
+        "maxSdkVersion": "30",
+        "flags": null
+      },
+      {
+        "name": "android.permission.BLUETOOTH_ADMIN",
+        "maxSdkVersion": "30",
+        "flags": null
+      },
+      {
+        "name": "android.permission.BLUETOOTH_CONNECT",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.BLUETOOTH_SCAN",
+        "maxSdkVersion": null,
+        "flags": "neverForLocation"
+      },
+      {
+        "name": "android.permission.CALL_PHONE",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.CAMERA",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.CHANGE_WIFI_STATE",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.FOREGROUND_SERVICE",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.FOREGROUND_SERVICE_MICROPHONE",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.FOREGROUND_SERVICE_SPECIAL_USE",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.INTERNET",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.MANAGE_EXTERNAL_STORAGE",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.MODIFY_AUDIO_SETTINGS",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.NEARBY_WIFI_DEVICES",
+        "maxSdkVersion": null,
+        "flags": "neverForLocation"
+      },
+      {
+        "name": "android.permission.PACKAGE_USAGE_STATS",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.POST_NOTIFICATIONS",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.QUERY_ALL_PACKAGES",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.READ_CALENDAR",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.READ_CALL_LOG",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.READ_CONTACTS",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.READ_EXTERNAL_STORAGE",
+        "maxSdkVersion": "32",
+        "flags": null
+      },
+      {
+        "name": "android.permission.READ_MEDIA_AUDIO",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.READ_MEDIA_IMAGES",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.READ_MEDIA_VIDEO",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.READ_MEDIA_VISUAL_USER_SELECTED",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.READ_PHONE_NUMBERS",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.READ_PHONE_STATE",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.READ_SMS",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.RECEIVE_BOOT_COMPLETED",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.RECEIVE_SMS",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.RECORD_AUDIO",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.SCHEDULE_EXACT_ALARM",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.SEND_SMS",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.SYSTEM_ALERT_WINDOW",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.VIBRATE",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.WAKE_LOCK",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.WRITE_CALENDAR",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.WRITE_CALL_LOG",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.WRITE_CONTACTS",
+        "maxSdkVersion": null,
+        "flags": null
+      },
+      {
+        "name": "android.permission.WRITE_EXTERNAL_STORAGE",
+        "maxSdkVersion": "29",
+        "flags": null
+      },
+      {
+        "name": "android.permission.WRITE_SETTINGS",
+        "maxSdkVersion": null,
+        "flags": null
+      }
+    ],
+    "nativeLibraries": [
+      {
+        "name": "lib/arm64-v8a/libhoyoung_ann.so",
+        "bytes": 1051000,
+        "elfLoadAlignments": [
+          16384,
+          16384,
+          16384
+        ],
+        "zip16KiBAligned": true
+      },
+      {
+        "name": "lib/arm64-v8a/libonnxruntime.so",
+        "bytes": 34208672,
+        "elfLoadAlignments": [
+          16384,
+          16384,
+          16384
+        ],
+        "zip16KiBAligned": true
+      },
+      {
+        "name": "lib/arm64-v8a/libonnxruntime4j_jni.so",
+        "bytes": 92064,
+        "elfLoadAlignments": [
+          16384,
+          16384
+        ],
+        "zip16KiBAligned": true
+      },
+      {
+        "name": "lib/x86_64/libhoyoung_ann.so",
+        "bytes": 1040008,
+        "elfLoadAlignments": [
+          16384,
+          16384,
+          16384
+        ],
+        "zip16KiBAligned": true
+      },
+      {
+        "name": "lib/x86_64/libonnxruntime.so",
+        "bytes": 40827936,
+        "elfLoadAlignments": [
+          16384,
+          16384,
+          16384
+        ],
+        "zip16KiBAligned": true
+      },
+      {
+        "name": "lib/x86_64/libonnxruntime4j_jni.so",
+        "bytes": 88584,
+        "elfLoadAlignments": [
+          16384,
+          16384
+        ],
+        "zip16KiBAligned": true
+      }
+    ],
+    "modelWeightsBundled": false,
+    "physicalPhoneInstallationMeasured": false,
+    "realChatGPTAccountMeasured": false,
+    "continuous24HourRuntimeMeasured": false
+  },
+  "verification": {
+    "version": "0.4.16",
+    "productionCommit": "e190d256d3d219b0d452aed88d5d8ad138df6963",
+    "reportedFailure": {
+      "installedVersion": "0.4.15",
+      "webReady": true,
+      "lastCode": "conversation_journal_unavailable",
+      "requestPhase": "idle",
+      "acceptedRequests": 0
+    },
+    "native": {
+      "tests": 99,
+      "failures": 0,
+      "suites": [
+        {
+          "name": "com.hoyoung.assistant.runtime.WorkReplyRecoveryTest",
+          "tests": "8",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "com.hoyoung.assistant.web.WorkConversationRecoveryTest",
+          "tests": "7",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "com.hoyoung.assistant.web.WorkConversationJournalTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "com.hoyoung.assistant.runtime.AssistantRuntimeTest",
+          "tests": "56",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "com.hoyoung.assistant.web.WorkStartupRecoveryTest",
+          "tests": "25",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        }
+      ]
+    },
+    "reproduction": {
+      "beforeTests": 4,
+      "beforeFailures": 3,
+      "visibleNoticeAssertionStrengthened": true,
+      "retiredCreationClaimedDeleted": false,
+      "unknownOutcomeAutomaticallyRetried": false
+    },
+    "android": {
+      "status": "completed",
+      "run": "https://github.com/dog898996/be3hyu/actions/runs/38737665972",
+      "scope": "production runtime-controller-journal-WebView dispatch and native reply publication",
+      "fixture": "Offline synthetic provider page, production native classes and actual API35 WebView",
+      "profiles": [
+        "ko-compact",
+        "ko-large-text",
+        "en-rotation",
+        "ko-tablet",
+        "ko-background"
+      ],
+      "attempt1": [
+        {
+          "profile": "ko-compact",
+          "nativeRoundTripVerified": true,
+          "passCounters": [
+            "1",
+            "1"
+          ]
+        },
+        {
+          "profile": "ko-large-text",
+          "nativeRoundTripVerified": true,
+          "passCounters": [
+            "1",
+            "1"
+          ]
+        },
+        {
+          "profile": "en-rotation",
+          "nativeRoundTripVerified": true,
+          "passCounters": [
+            "1",
+            "1"
+          ]
+        },
+        {
+          "profile": "ko-tablet",
+          "nativeRoundTripVerified": false,
+          "passCounters": []
+        },
+        {
+          "profile": "ko-background",
+          "nativeRoundTripVerified": true,
+          "passCounters": [
+            "1",
+            "1"
+          ]
+        }
+      ],
+      "retryReason": "Only ko-tablet rerun after an SDK zip download failure before product tests. Attempt 2 log contains ko-tablet; the four other successful profile results are retained from attempt 1 at the same code commit.",
+      "tests": 5,
+      "failures": 0,
+      "finalResults": [
+        {
+          "profile": "ko-compact",
+          "passed": true,
+          "nativeRoundTripTests": 1,
+          "offlinePrerequisiteTests": 1,
+          "attempt": 1
+        },
+        {
+          "profile": "ko-large-text",
+          "passed": true,
+          "nativeRoundTripTests": 1,
+          "offlinePrerequisiteTests": 1,
+          "attempt": 1
+        },
+        {
+          "profile": "en-rotation",
+          "passed": true,
+          "nativeRoundTripTests": 1,
+          "offlinePrerequisiteTests": 1,
+          "attempt": 1
+        },
+        {
+          "profile": "ko-tablet",
+          "passed": true,
+          "nativeRoundTripTests": 1,
+          "offlinePrerequisiteTests": 1,
+          "attempt": 2
+        },
+        {
+          "profile": "ko-background",
+          "passed": true,
+          "nativeRoundTripTests": 1,
+          "offlinePrerequisiteTests": 1,
+          "attempt": 1
+        }
+      ]
+    },
+    "earlierAndroidRun": {
+      "run": "https://github.com/dog898996/be3hyu/actions/runs/38736732123",
+      "commit": "c6916cc923750090923ebe29a8de84c98e7f697c",
+      "failureReason": "New native integration fixture read stale readiness before posted navigation started; it now waits for the specific old reservation retirement receipt as well as readiness.",
+      "compatibilityTests": 65,
+      "compatibilityFailures": 0,
+      "newFixtureTests": 5,
+      "newFixtureFailures": 5
+    },
+    "browser": {
+      "status": "not_rerun",
+      "reason": "No browser JavaScript changed. Actual Android production WebView regressions were used instead."
+    },
+    "paidModelRequests": 0,
+    "physicalGalaxyVerified": false,
+    "liveAuthenticatedChatGPTVerified": false,
+    "evidenceFiles": [
+      "android-v0416-evidence/native.log",
+      "android-v0416-evidence/before.log",
+      "android-v0416-evidence/build.log",
+      "android-v0416-evidence/android-initial.log",
+      "android-v0416-evidence/android-roundtrip-attempt1.log",
+      "android-v0416-evidence/android-tablet-sdk-failure.log",
+      "android-v0416-evidence/android-final.log"
+    ]
+  }
+}
