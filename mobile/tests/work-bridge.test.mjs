@@ -353,6 +353,24 @@ const basePhoneRender=window.renderPhonePicker;window.renderPhonePicker=()=>{
  fast.setAttribute('aria-label','Fast 모드 활성화');fast.removeAttribute('aria-pressed');fast.setAttribute('aria-checked',String(window.phoneFast));
 };`;
 
+test('connection never advertises ready between picker value acknowledgement and modal dismissal',async()=>{
+  await pageFixture(async page=>{
+    await connect(page);
+    let observedOpen=false;
+    for(let elapsed=0;elapsed<2000;elapsed+=25) {
+      await advance(page,25);
+      if(await page.locator('#phone-picker').count()) {
+        observedOpen=true;
+        assert.notEqual((await inspect(page)).code,'ready','An open modal still hides the actual send control');
+      }
+    }
+    assert.equal(observedOpen,true);
+    assert.equal((await inspect(page)).code,'ready');
+    assert.equal((await send(page)).ok,true);await advance(page,400);
+    assert.equal(await page.evaluate(()=>window.clicks),1);
+  },{setup:phonePowerPicker+`window.phoneFast=true;`});
+});
+
 test('reported Korean Work picker reads the complete split model and checkbox state, closes and completes a reply',async()=>{
   for(const marker of [false,true])await pageFixture(async page=>{
     await connect(page);await advance(page,2000);

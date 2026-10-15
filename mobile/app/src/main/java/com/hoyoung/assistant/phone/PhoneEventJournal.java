@@ -10,7 +10,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-import java.util.Locale;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
@@ -27,7 +26,7 @@ public final class PhoneEventJournal {
     private final PhoneObservationSpool spool;
     private final ScheduledExecutorService worker = Executors.newSingleThreadScheduledExecutor(operation -> { Thread thread = new Thread(operation, "hoyoung-phone-journal-ingest"); thread.setDaemon(true); return thread; });
     private final AtomicBoolean scheduled = new AtomicBoolean();
-    private final Map<String, String> localState = new ConcurrentHashMap<>();
+    private volatile Map<String, String> localState = new ConcurrentHashMap<>();
     private final Map<String, String> dirtyState = new ConcurrentHashMap<>();
     private final Object ingestionLock = new Object();
     private final Object callbackLock = new Object();
@@ -199,7 +198,8 @@ public final class PhoneEventJournal {
     /** Called after explicit backup replacement or failure, with the collector already stopped. */
     public void afterBackupRestore() {
         synchronized (callbackLock) {
-            localState.clear(); dirtyState.clear();
+            // In-flight reads retain the old cache and cannot refill this restored generation.
+            localState = new ConcurrentHashMap<>(); dirtyState.clear();
             try { spool.afterRestore(); } catch (IOException unavailable) { failed("phone.backup_restore", unavailable); throw new IllegalStateException("Restored device journal is unavailable; collection remains paused", unavailable); }
             failedEvents = 0; failedSince = 0; lastFailure = ""; restoreFailureMarker();
             archiveFailure = spool.readState("health.archiveFailure", "").isEmpty() ? "" : "prior_archive_failure_pending_reverification"; nextArchiveAttemptAt = 0;
@@ -223,7 +223,12 @@ public final class PhoneEventJournal {
     HoyoungStore canonicalStore() { return store; }
     public JSONObject stats() { return store.deviceEventStats(); }
     /** Local state is fsynced independently; background mirroring is only for backup/index compatibility. */
-    public String get(String key, String fallback) { String cached = localState.get(key); if (cached != null) return cached; String value = spool.readState(key, fallback); localState.put(key, value); return value; }
+    public String get(String key, String fallback) {
+        Map<String,String> cache = localState;
+        String cached = cache.get(key); if (cached != null) return cached;
+        String value = spool.readState(key, fallback), winner = cache.putIfAbsent(key, value);
+        return winner == null ? value : winner;
+    }
     public void put(String key, String value) {
         synchronized (callbackLock) {
             if (restorePaused) return;
@@ -242,6 +247,14 @@ public final class PhoneEventJournal {
     void closeWorker() { closed = true; worker.shutdownNow(); }
     void awaitClosedForTests() { synchronized (ingestionLock) { } }
     File spoolDirectoryForTests() { return spool.directory(); }
-    public static String hash(String value) { try { byte[] digest = MessageDigest.getInstance("SHA-256").digest(value.getBytes(StandardCharsets.UTF_8)); StringBuilder output = new StringBuilder(); for (byte part : digest) output.append(String.format(Locale.ROOT, "%02x", part & 255)); return output.toString(); } catch (Exception impossible) { throw new IllegalStateException(impossible); } }
+    public static String hash(String value) {
+        try {
+            byte[] digest = MessageDigest.getInstance("SHA-256").digest(value.getBytes(StandardCharsets.UTF_8));
+            char[] output = new char[digest.length * 2];
+            String hex = "0123456789abcdef";
+            for (int i = 0; i < digest.length; i++) { int part = digest[i] & 255; output[i * 2] = hex.charAt(part >>> 4); output[i * 2 + 1] = hex.charAt(part & 15); }
+            return new String(output);
+        } catch (Exception impossible) { throw new IllegalStateException(impossible); }
+    }
     public static JSONObject object(Object... values) { JSONObject output = new JSONObject(); try { for (int i = 0; i < values.length; i += 2) output.put((String) values[i], values[i + 1]); } catch (JSONException impossible) { throw new IllegalStateException(impossible); } return output; }
 }

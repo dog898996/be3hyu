@@ -17,6 +17,7 @@ PROFILES = {
 }
 parser = argparse.ArgumentParser()
 parser.add_argument('profile', choices=PROFILES)
+parser.add_argument('--scope', choices=('full', 'work-recovery'), default='full')
 args = parser.parse_args()
 project = Path(__file__).resolve().parents[1]
 tools = Path(os.environ['HOYOUNG_ANDROID_TOOLS_DIR'])
@@ -139,7 +140,10 @@ try:
     print('HOYOUNG_EXPLORER_PROFILE ' + json.dumps({'profile': args.profile, 'api': 35,
           'requestedPixels': [width, height], 'requestedFontScale': font, 'requestedLocale': locale,
           'configurationMustBeReadFromActualTestProof': True}), flush=True)
-    instrument('product', ','.join(classes), 28, 720)
+    if args.scope == 'work-recovery':
+        instrument('work-recovery', app + '.WorkCompatibilityExplorerDeviceTest', 7, 300)
+    else:
+        instrument('product', ','.join(classes), 28, 720)
 finally:
     if emulator is not None:
         try:

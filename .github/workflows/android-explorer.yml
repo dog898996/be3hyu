@@ -2,6 +2,13 @@ name: Android explorer matrix
 
 on:
   workflow_dispatch:
+    inputs:
+      scope:
+        description: 'Full exploratory suite or a focused Work recovery regression'
+        required: true
+        type: choice
+        default: full
+        options: [full, work-recovery]
 
 # Public repository, standard free runners only. No paid models or signing secrets.
 permissions:
@@ -99,4 +106,4 @@ jobs:
 
       - name: Explore all areas on the independent real Android profile
         timeout-minutes: 16
-        run: python3 mobile/tools/run-explorer-matrix.py '${{ matrix.profile }}'
+        run: python3 mobile/tools/run-explorer-matrix.py '${{ matrix.profile }}' --scope '${{ inputs.scope }}'

@@ -874,6 +874,10 @@
     if(preferenceSelection && /^(?:composer_has_draft|composer_has_attachments)$/.test(preferenceSelection.status))return preferenceSelection.status;
     if(preferenceCloseFlight)return 'preference_selection_pending';
     if (preferenceSelectionFlight) return preferenceSelectionUncertain ? 'preference_selection_uncertain' : 'preference_selection_pending';
+    // Observing the requested value is not enough: the opening acknowledgement
+    // can precede the next tick that releases the modal focus/aria-hidden scope.
+    // Never expose a sendable state while our observed picker is still open.
+    if(openedPreferenceTrigger && ownedMenus([openedPreferenceTrigger]).length)return 'preference_selection_pending';
     if (state.model !== (preferences || configuredPreferences).model) return 'model_unverified';
     if (state.effort !== (preferences || configuredPreferences).effort) return 'effort_unverified';
     if (state.speed !== (preferences || configuredPreferences).speed) return 'speed_unverified';

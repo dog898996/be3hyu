@@ -81,7 +81,9 @@ final class PhoneObservationSpool {
         if (file.exists()) { Files.move(file.toPath(), new File(bucket, file.getName()).toPath(), StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING); archiveWrites++; }
     }
     synchronized void quarantine(File file) throws IOException { Files.move(file.toPath(), new File(quarantine, UUID.randomUUID() + ".json").toPath(), StandardCopyOption.ATOMIC_MOVE); }
-    synchronized String readState(String key, String fallback) {
+    // State writers publish complete fsynced files by atomic rename. A reader can
+    // verify one old/new inode without waiting for unrelated spool/archive work.
+    String readState(String key, String fallback) {
         File file = new File(state, PhoneEventJournal.hash(key) + ".json"); if (!file.exists()) return fallback;
         try { JSONObject row = readJson(file); verify(row); return key.equals(row.optString("key")) && row.opt("value") instanceof String ? row.getString("value") : fallback; }
         catch (IOException | JSONException invalid) { return fallback; }
