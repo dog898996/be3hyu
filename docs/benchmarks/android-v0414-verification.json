@@ -1,0 +1,137 @@
+{
+  "version": "0.4.14",
+  "productionCommit": "4eacf82feccc40d01a8db075161f9ddad5691c54",
+  "native": {
+    "tests": 80,
+    "failures": 0,
+    "suites": [
+      {
+        "name": "com.hoyoung.assistant.runtime.AssistantRuntimeRoutingTest",
+        "tests": "24",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.hoyoung.assistant.runtime.DispatchPayloadRegistryTest",
+        "tests": "11",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.hoyoung.assistant.runtime.WorkReplyRecoveryTest",
+        "tests": "8",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.hoyoung.assistant.store.AccountMfaToolsTest",
+        "tests": "0",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.hoyoung.assistant.store.AccountMutationConsistencyTest",
+        "tests": "0",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.hoyoung.assistant.store.AccountReceiptSourcesTest",
+        "tests": "0",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.hoyoung.assistant.store.AccountStoreTest",
+        "tests": "0",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.hoyoung.assistant.web.WorkConversationJournalTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.hoyoung.assistant.web.WorkResponseCaptureLifecycleTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.hoyoung.assistant.web.WorkStartupRecoveryTest",
+        "tests": "23",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.hoyoung.assistant.web.WorkTransportIntegrityTest",
+        "tests": "9",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      }
+    ]
+  },
+  "browser": {
+    "tests": 102,
+    "passed": 102,
+    "failed": 0,
+    "usesProductionBridge": true,
+    "liveAccount": false
+  },
+  "android": {
+    "runId": 38725259172,
+    "status": "completed",
+    "scope": "WorkCompatibilityExplorerDeviceTest",
+    "profiles": 5,
+    "testsPerProfile": 10,
+    "realAndroidEmulators": true,
+    "liveAccount": false,
+    "conclusion": "success",
+    "tests": 50,
+    "passed": 50,
+    "failed": 0,
+    "runUrl": "https://github.com/dog898996/be3hyu/actions/runs/38725259172",
+    "jobs": [
+      {
+        "name": "explore (en-rotation)",
+        "id": 116389396280,
+        "conclusion": "success"
+      },
+      {
+        "name": "explore (ko-compact)",
+        "id": 116389396523,
+        "conclusion": "success"
+      },
+      {
+        "name": "explore (ko-background)",
+        "id": 116389396530,
+        "conclusion": "success"
+      },
+      {
+        "name": "explore (ko-large-text)",
+        "id": 116389396582,
+        "conclusion": "success"
+      },
+      {
+        "name": "explore (ko-tablet)",
+        "id": 116389396594,
+        "conclusion": "success"
+      }
+    ]
+  },
+  "physicalGalaxyVerified": false,
+  "paidModelRequests": 0
+}

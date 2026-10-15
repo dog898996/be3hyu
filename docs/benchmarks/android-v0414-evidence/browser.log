@@ -1,0 +1,622 @@
+TAP version 13
+# Subtest: CoS connection preserves the first normal Work turn across its new conversation URL
+ok 1 - CoS connection preserves the first normal Work turn across its new conversation URL
+  ---
+  duration_ms: 1024.489813
+  type: 'test'
+  ...
+# Subtest: a pre-existing personal conversation cannot become app-owned or be deleted
+ok 2 - a pre-existing personal conversation cannot become app-owned or be deleted
+  ---
+  duration_ms: 545.73863
+  type: 'test'
+  ...
+# Subtest: session change deletes only the verified owned conversation and requires a provider result
+ok 3 - session change deletes only the verified owned conversation and requires a provider result
+  ---
+  duration_ms: 1602.319361
+  type: 'test'
+  ...
+# Subtest: session deletion cannot interrupt a running request
+ok 4 - session deletion cannot interrupt a running request
+  ---
+  duration_ms: 766.1524
+  type: 'test'
+  ...
+# Subtest: CoS recognizes the mobile primary Send control that appears only after typing
+ok 5 - CoS recognizes the mobile primary Send control that appears only after typing
+  ---
+  duration_ms: 608.392658
+  type: 'test'
+  ...
+# Subtest: mobile combined model and effort label remains readable with a collapsed signed-in sidebar
+ok 6 - mobile combined model and effort label remains readable with a collapsed signed-in sidebar
+  ---
+  duration_ms: 589.737106
+  type: 'test'
+  ...
+# Subtest: mobile Fast switch is read explicitly, may turn off, and survives closing its observed model menu
+ok 7 - mobile Fast switch is read explicitly, may turn off, and survives closing its observed model menu
+  ---
+  duration_ms: 1493.39616
+  type: 'test'
+  ...
+# Subtest: mobile connect discovers an unmounted account once, closes its sidebar and verifies actual Fast without sending
+ok 8 - mobile connect discovers an unmounted account once, closes its sidebar and verifies actual Fast without sending
+  ---
+  duration_ms: 9461.105484
+  type: 'test'
+  ...
+# Subtest: mobile account detection supports modern collapsed profile controls but a visible login overrides them
+ok 9 - mobile account detection supports modern collapsed profile controls but a visible login overrides them
+  ---
+  duration_ms: 638.287846
+  type: 'test'
+  ...
+# Subtest: mobile connection never guesses login from Work or repeatedly opens an unverified sidebar
+ok 10 - mobile connection never guesses login from Work or repeatedly opens an unverified sidebar
+  ---
+  duration_ms: 1100.88557
+  type: 'test'
+  ...
+# Subtest: mobile connect preserves drafts, attachments, busy and dispatched work
+ok 11 - mobile connect preserves drafts, attachments, busy and dispatched work
+  ---
+  duration_ms: 3218.450105
+  type: 'test'
+  ...
+# Subtest: mobile connect selects Work only after account proof and invalidates cached login on account switching
+ok 12 - mobile connect selects Work only after account proof and invalidates cached login on account switching
+  ---
+  duration_ms: 804.287577
+  type: 'test'
+  ...
+# Subtest: phone power picker opens automatically from a generic label, confirms Fast, closes and sends without manual setup
+ok 13 - phone power picker opens automatically from a generic label, confirms Fast, closes and sends without manual setup
+  ---
+  duration_ms: 1076.957059
+  type: 'test'
+  ...
+# Subtest: connection never advertises ready between picker value acknowledgement and modal dismissal
+ok 14 - connection never advertises ready between picker value acknowledgement and modal dismissal
+  ---
+  duration_ms: 1754.347012
+  type: 'test'
+  ...
+# Subtest: reported Korean Work picker reads the complete split model and checkbox state, closes and completes a reply
+ok 15 - reported Korean Work picker reads the complete split model and checkbox state, closes and completes a reply
+  ---
+  duration_ms: 1887.496861
+  type: 'test'
+  ...
+# Subtest: reported Korean Fast checkbox has a constant activation label while checked, and supports turning off
+ok 16 - reported Korean Fast checkbox has a constant activation label while checked, and supports turning off
+  ---
+  duration_ms: 1907.206033
+  type: 'test'
+  ...
+# Subtest: device Fast to Standard action label transition is acknowledged once and completes a reply
+ok 17 - device Fast to Standard action label transition is acknowledged once and completes a reply
+  ---
+  duration_ms: 2573.919357
+  type: 'test'
+  ...
+# Subtest: device Standard action label on an already checked Fast control supports both requested speeds
+ok 18 - device Standard action label on an already checked Fast control supports both requested speeds
+  ---
+  duration_ms: 2385.455177
+  type: 'test'
+  ...
+# Subtest: phone power picker finishes and releases focus when the owner already opened it
+ok 19 - phone power picker finishes and releases focus when the owner already opened it
+  ---
+  duration_ms: 1821.959024
+  type: 'test'
+  ...
+# Subtest: phone picker keeps its composer trigger when opening replaces the model label with the action label
+ok 20 - phone picker keeps its composer trigger when opening replaces the model label with the action label
+  ---
+  duration_ms: 1210.292069
+  type: 'test'
+  ...
+# Subtest: phone picker follows the linked surface without requiring a menu role or provider wrapper marker
+ok 21 - phone picker follows the linked surface without requiring a menu role or provider wrapper marker
+  ---
+  duration_ms: 2960.171909
+  type: 'test'
+  ...
+# Subtest: phone picker ignores only a surrounding composer wrapper, preserving the real editor and its draft
+ok 22 - phone picker ignores only a surrounding composer wrapper, preserving the real editor and its draft
+  ---
+  duration_ms: 1750.720372
+  type: 'test'
+  ...
+# Subtest: phone picker can finish its own paused entrance animation while unrelated dialogs stay untouched
+ok 23 - phone picker can finish its own paused entrance animation while unrelated dialogs stay untouched
+  ---
+  duration_ms: 745.921796
+  type: 'test'
+  ...
+# Subtest: phone picker retains the verified Work surface while its modal aria-hides the composer
+ok 24 - phone picker retains the verified Work surface while its modal aria-hides the composer
+  ---
+  duration_ms: 1014.5182
+  type: 'test'
+  ...
+# Subtest: phone picker releases a paused closing focus scope before sending
+ok 25 - phone picker releases a paused closing focus scope before sending
+  ---
+  duration_ms: 724.221904
+  type: 'test'
+  ...
+# Subtest: phone picker does not bind unrelated or multiple popovers, and diagnostics omit message text
+ok 26 - phone picker does not bind unrelated or multiple popovers, and diagnostics omit message text
+  ---
+  duration_ms: 1088.680474
+  type: 'test'
+  ...
+# Subtest: phone power picker changes model and steps the observed slider before freezing the exact requested route
+ok 27 - phone power picker changes model and steps the observed slider before freezing the exact requested route
+  ---
+  duration_ms: 511.749789
+  type: 'test'
+  ...
+# Subtest: phone power picker ignores hidden placeholder decorations but preserves genuine editable text
+ok 28 - phone power picker ignores hidden placeholder decorations but preserves genuine editable text
+  ---
+  duration_ms: 739.419509
+  type: 'test'
+  ...
+# Subtest: phone power picker ends a stalled check despite missing model evidence or a draft appearing after opening
+ok 29 - phone power picker ends a stalled check despite missing model evidence or a draft appearing after opening
+  ---
+  duration_ms: 4255.972286
+  type: 'test'
+  ...
+# Subtest: phone power picker retries an observation failure once the real controls hydrate
+ok 30 - phone power picker retries an observation failure once the real controls hydrate
+  ---
+  duration_ms: 518.121529
+  type: 'test'
+  ...
+# Subtest: mobile combined labels never infer speed, temporary mode or Work selection from the desired settings
+ok 31 - mobile combined labels never infer speed, temporary mode or Work selection from the desired settings
+  ---
+  duration_ms: 322.191493
+  type: 'test'
+  ...
+# Subtest: ordinary Work needs selected Work evidence but no temporary-chat control
+ok 32 - ordinary Work needs selected Work evidence but no temporary-chat control
+  ---
+  duration_ms: 312.894243
+  type: 'test'
+  ...
+# Subtest: selectWork never tries to enable temporary chat in ordinary Work
+ok 33 - selectWork never tries to enable temporary chat in ordinary Work
+  ---
+  duration_ms: 299.763014
+  type: 'test'
+  ...
+# Subtest: a guest composer, a signed-out page and unverified preference settings cannot dispatch
+ok 34 - a guest composer, a signed-out page and unverified preference settings cannot dispatch
+  ---
+  duration_ms: 710.998293
+  type: 'test'
+  ...
+# Subtest: configured future model, effort and speed require exact visible choices and never fall back to defaults
+ok 35 - configured future model, effort and speed require exact visible choices and never fall back to defaults
+  ---
+  duration_ms: 693.427977
+  type: 'test'
+  ...
+# Subtest: Light is verified as low; guarded request routing switches observed Light/Standard back to Medium/Fast without sending
+ok 36 - Light is verified as low; guarded request routing switches observed Light/Standard back to Medium/Fast without sending
+  ---
+  duration_ms: 479.3577
+  type: 'test'
+  ...
+# Subtest: guarded selection supports explicit future model and Extra High only after actual selected DOM acknowledgements
+ok 37 - guarded selection supports explicit future model and Extra High only after actual selected DOM acknowledgements
+  ---
+  duration_ms: 331.332809
+  type: 'test'
+  ...
+# Subtest: read-only configuration does not select settings; unknown selected evidence and unsupported choices never fall back or repeatedly toggle
+ok 38 - read-only configuration does not select settings; unknown selected evidence and unsupported choices never fall back or repeatedly toggle
+  ---
+  duration_ms: 1326.900131
+  type: 'test'
+  ...
+# Subtest: preference selection preserves owner drafts, attachments, busy/unauthenticated/non-Work state and active uncertain outcomes
+ok 39 - preference selection preserves owner drafts, attachments, busy/unauthenticated/non-Work state and active uncertain outcomes
+  ---
+  duration_ms: 2765.77731
+  type: 'test'
+  ...
+# Subtest: an active dispatch keeps immutable request preferences while next-route requirements change
+ok 40 - an active dispatch keeps immutable request preferences while next-route requirements change
+  ---
+  duration_ms: 451.643656
+  type: 'test'
+  ...
+# Subtest: a delayed preference acknowledgement is clicked once and blocks sending; a changed next route waits for the prior click
+ok 41 - a delayed preference acknowledgement is clicked once and blocks sending; a changed next route waits for the prior click
+  ---
+  duration_ms: 935.494357
+  type: 'test'
+  ...
+# Subtest: a draft appearing while a setting changes stops further selection and preserves the draft despite a late acknowledgement
+ok 42 - a draft appearing while a setting changes stops further selection and preserves the draft despite a late acknowledgement
+  ---
+  duration_ms: 384.76141
+  type: 'test'
+  ...
+# Subtest: Theme Light and unrelated menu Standard cannot be clicked or prove preference choices
+ok 43 - Theme Light and unrelated menu Standard cannot be clicked or prove preference choices
+  ---
+  duration_ms: 796.229237
+  type: 'test'
+  ...
+# Subtest: inline Appearance Light/Standard radios cannot prove effort/speed or override explicit picker evidence
+ok 44 - inline Appearance Light/Standard radios cannot prove effort/speed or override explicit picker evidence
+  ---
+  duration_ms: 331.096135
+  type: 'test'
+  ...
+# Subtest: read-only usage capture binds one visible Pro weekly Work/Codex pool, display precision and timezone reset to native owner scope
+ok 45 - read-only usage capture binds one visible Pro weekly Work/Codex pool, display precision and timezone reset to native owner scope
+  ---
+  duration_ms: 324.406114
+  type: 'test'
+  ...
+# Subtest: usage words in transcripts/body, hidden panels, unknown authentication and different document paths never become verified readings
+ok 46 - usage words in transcripts/body, hidden panels, unknown authentication and different document paths never become verified readings
+  ---
+  duration_ms: 1849.552714
+  type: 'test'
+  ...
+# Subtest: multiple weekly pools, percentages/resets, model-specific pools, five-hour mixes and imprecise reset dates fail unknown
+ok 47 - multiple weekly pools, percentages/resets, model-specific pools, five-hour mixes and imprecise reset dates fail unknown
+  ---
+  duration_ms: 3314.130335
+  type: 'test'
+  ...
+# Subtest: normal usage-limit information and a positive remaining allowance never latch quota; explicit exhaustion still does
+ok 48 - normal usage-limit information and a positive remaining allowance never latch quota; explicit exhaustion still does
+  ---
+  duration_ms: 1563.061463
+  type: 'test'
+  ...
+# Subtest: menu offers, assistant text and promotional labels cannot prove a configured future selection
+ok 49 - menu offers, assistant text and promotional labels cannot prove a configured future selection
+  ---
+  duration_ms: 702.907135
+  type: 'test'
+  ...
+# Subtest: invalid explicit preferences fail closed without restoring prior/default choices; configured missing request fields use exact current requirements
+ok 50 - invalid explicit preferences fail closed without restoring prior/default choices; configured missing request fields use exact current requirements
+  ---
+  duration_ms: 701.315741
+  type: 'test'
+  ...
+# Subtest: one request dispatches once; matching stable user evidence acknowledges it and duplicates cannot dispatch again
+ok 51 - one request dispatches once; matching stable user evidence acknowledges it and duplicates cannot dispatch again
+  ---
+  duration_ms: 401.532219
+  type: 'test'
+  ...
+# Subtest: 250k prompt dispatches exactly once intact; one character over rejects before editor or send side effects
+ok 52 - 250k prompt dispatches exactly once intact; one character over rejects before editor or send side effects
+  ---
+  duration_ms: 1348.119602
+  type: 'test'
+  ...
+# Subtest: production dispatch requires a matching native before-click authorization; denial submits nothing
+ok 53 - production dispatch requires a matching native before-click authorization; denial submits nothing
+  ---
+  duration_ms: 717.218423
+  type: 'test'
+  ...
+# Subtest: authorization occurs after upload readiness, so a permission revoked during upload blocks the prompt
+ok 54 - authorization occurs after upload readiness, so a permission revoked during upload blocks the prompt
+  ---
+  duration_ms: 705.289261
+  type: 'test'
+  ...
+# Subtest: wrong request/nonces cannot authorize; a matching nonce is consumed once and cannot replay another request
+ok 55 - wrong request/nonces cannot authorize; a matching nonce is consumed once and cannot replay another request
+  ---
+  duration_ms: 431.399107
+  type: 'test'
+  ...
+# Subtest: missing or late native acknowledgment times out before click and cannot grant a stale request
+ok 56 - missing or late native acknowledgment times out before click and cannot grant a stale request
+  ---
+  duration_ms: 384.591636
+  type: 'test'
+  ...
+# Subtest: a manual submission during authorization prevents false known-not-sent cancellation or replay
+ok 57 - a manual submission during authorization prevents false known-not-sent cancellation or replay
+  ---
+  duration_ms: 657.514728
+  type: 'test'
+  ...
+# Subtest: idle state and a footer before the answer are not completion; a following assistant footer settles the answer
+ok 58 - idle state and a footer before the answer are not completion; a following assistant footer settles the answer
+  ---
+  duration_ms: 498.715182
+  type: 'test'
+  ...
+# Subtest: completion waits for the final rendered answer rather than an earlier answer or an ongoing generation
+ok 59 - completion waits for the final rendered answer rather than an earlier answer or an ongoing generation
+  ---
+  duration_ms: 463.392532
+  type: 'test'
+  ...
+# Subtest: a whole rendered hoyoung pre/code reply forwards a separate exact envelope and retains the unfenced visible original
+ok 60 - a whole rendered hoyoung pre/code reply forwards a separate exact envelope and retains the unfenced visible original
+  ---
+  duration_ms: 802.01407
+  type: 'test'
+  ...
+# Subtest: hidden pre/code whitespace cannot change structured JSON string values
+ok 61 - hidden pre/code whitespace cannot change structured JSON string values
+  ---
+  duration_ms: 395.97738
+  type: 'test'
+  ...
+# Subtest: whole hoyoung code keeps Markdown-looking JSON values and exact source quotes; rendered bare formatting is ineligible
+ok 62 - whole hoyoung code keeps Markdown-looking JSON values and exact source quotes; rendered bare formatting is ineligible
+  ---
+  duration_ms: 792.783212
+  type: 'test'
+  ...
+# Subtest: plain whole JSON remains an untouched original; quoted, partial, ambiguous and unknown-language rendered code never becomes an envelope
+ok 63 - plain whole JSON remains an untouched original; quoted, partial, ambiguous and unknown-language rendered code never becomes an envelope
+  ---
+  duration_ms: 3559.098122
+  type: 'test'
+  ...
+# Subtest: rendered envelope metadata must settle and oversized structured code is reported explicitly without clipping the original
+ok 64 - rendered envelope metadata must settle and oversized structured code is reported explicitly without clipping the original
+  ---
+  duration_ms: 854.343821
+  type: 'test'
+  ...
+# Subtest: quoted limit text in the answer does not consume quota; an actual service alert blocks and reports quota
+ok 65 - quoted limit text in the answer does not consume quota; an actual service alert blocks and reports quota
+  ---
+  duration_ms: 433.625407
+  type: 'test'
+  ...
+# Subtest: a click with no acknowledgement becomes uncertain and never automatically repeats
+ok 66 - a click with no acknowledgement becomes uncertain and never automatically repeats
+  ---
+  duration_ms: 1249.769313
+  type: 'test'
+  ...
+# Subtest: tracking query/hash changes preserve the same document while actual conversation path replacement stays guarded
+ok 67 - tracking query/hash changes preserve the same document while actual conversation path replacement stays guarded
+  ---
+  duration_ms: 447.506416
+  type: 'test'
+  ...
+# Subtest: a throwing click can already have caused a side effect and is not retried
+ok 68 - a throwing click can already have caused a side effect and is not retried
+  ---
+  duration_ms: 316.594754
+  type: 'test'
+  ...
+# Subtest: quota never automatically unlatches; owner retry requires a disappeared banner and does not claim quota recovery
+ok 69 - quota never automatically unlatches; owner retry requires a disappeared banner and does not claim quota recovery
+  ---
+  duration_ms: 379.772721
+  type: 'test'
+  ...
+# Subtest: owner retry cannot discard or repeat a clicked uncertain request after quota
+ok 70 - owner retry cannot discard or repeat a clicked uncertain request after quota
+  ---
+  duration_ms: 362.065546
+  type: 'test'
+  ...
+# Subtest: owner may explicitly replay a preserved proven-before-click quota receipt, never by automatic banner disappearance
+ok 71 - owner may explicitly replay a preserved proven-before-click quota receipt, never by automatic banner disappearance
+  ---
+  duration_ms: 363.485299
+  type: 'test'
+  ...
+# Subtest: only proven preflight rejections flag knownNotSent; editor side effects and existing receipts retain uncertainty
+ok 72 - only proven preflight rejections flag knownNotSent; editor side effects and existing receipts retain uncertainty
+  ---
+  duration_ms: 822.033893
+  type: 'test'
+  ...
+# Subtest: bounded response receipts keep ID tombstones so long-running pages accept new IDs without replaying old ones
+ok 73 - bounded response receipts keep ID tombstones so long-running pages accept new IDs without replaying old ones
+  ---
+  duration_ms: 1649.292611
+  type: 'test'
+  ...
+# Subtest: reinjection does not create another worker; route changes invalidate outstanding observation and dispatch
+ok 74 - reinjection does not create another worker; route changes invalidate outstanding observation and dispatch
+  ---
+  duration_ms: 442.469218
+  type: 'test'
+  ...
+# Subtest: captured Work turn with collapse controls survives first route transition and a second owner message
+ok 75 - captured Work turn with collapse controls survives first route transition and a second owner message
+  ---
+  duration_ms: 888.911852
+  type: 'test'
+  ...
+# Subtest: captured CodeMirror hoyoung reply yields exact JSON rather than language or copy controls
+ok 76 - captured CodeMirror hoyoung reply yields exact JSON rather than language or copy controls
+  ---
+  duration_ms: 455.973074
+  type: 'test'
+  ...
+# Subtest: virtualized CodeMirror code waits for all lines before completing or recovering
+ok 77 - virtualized CodeMirror code waits for all lines before completing or recovering
+  ---
+  duration_ms: 535.433999
+  type: 'test'
+  ...
+# Subtest: hidden CodeMirror code never becomes a structured command until every source line is rendered
+ok 78 - hidden CodeMirror code never becomes a structured command until every source line is rendered
+  ---
+  duration_ms: 2659.893051
+  type: 'test'
+  ...
+# Subtest: owned Work route aliases and an open account menu do not lose a received answer
+ok 79 - owned Work route aliases and an open account menu do not lose a received answer
+  ---
+  duration_ms: 475.052504
+  type: 'test'
+  ...
+# Subtest: a mismatched user turn cannot be accepted by ignoring collapse controls or matching only a prefix
+ok 80 - a mismatched user turn cannot be accepted by ignoring collapse controls or matching only a prefix
+  ---
+  duration_ms: 899.672342
+  type: 'test'
+  ...
+# Subtest: recovering a completed reply after navigation is read-only, settled, request-bound and cannot replay send
+ok 81 - recovering a completed reply after navigation is read-only, settled, request-bound and cannot replay send
+  ---
+  duration_ms: 479.017594
+  type: 'test'
+  ...
+# Subtest: recovery rejects edited or ambiguous response captures and waits for the final reply
+ok 82 - recovery rejects edited or ambiguous response captures and waits for the final reply
+  ---
+  duration_ms: 442.899846
+  type: 'test'
+  ...
+# Subtest: unknown stable turn identity cannot dispatch; virtualized old groups cannot acknowledge a new request
+ok 83 - unknown stable turn identity cannot dispatch; virtualized old groups cannot acknowledge a new request
+  ---
+  duration_ms: 740.150368
+  type: 'test'
+  ...
+# Subtest: photos are forwarded through the real composer file input and prompt waits for positive attachment readiness
+ok 84 - photos are forwarded through the real composer file input and prompt waits for positive attachment readiness
+  ---
+  duration_ms: 773.472064
+  type: 'test'
+  ...
+# Subtest: a derived JPEG is forwarded as its exact wire bytes and name without claiming the original was inspected
+ok 85 - a derived JPEG is forwarded as its exact wire bytes and name without claiming the original was inspected
+  ---
+  duration_ms: 414.762279
+  type: 'test'
+  ...
+# Subtest: configured and observed models remain distinct; changing the selected model during upload blocks the prepared request
+ok 86 - configured and observed models remain distinct; changing the selected model during upload blocks the prepared request
+  ---
+  duration_ms: 463.281406
+  type: 'test'
+  ...
+# Subtest: video, audio, PDF, ZIP and opaque binary attachments preserve exact bytes, SHA, MIME and order through the file input
+ok 87 - video, audio, PDF, ZIP and opaque binary attachments preserve exact bytes, SHA, MIME and order through the file input
+  ---
+  duration_ms: 650.734676
+  type: 'test'
+  ...
+# Subtest: a restrictive composer refuses unsupported file types before any draft or upload; advertised MIME and extension options are honored
+ok 88 - a restrictive composer refuses unsupported file types before any draft or upload; advertised MIME and extension options are honored
+  ---
+  duration_ms: 773.36157
+  type: 'test'
+  ...
+# Subtest: empty files are explicitly rejected before file or composer effects rather than silently removed from a mixed upload
+ok 89 - empty files are explicitly rejected before file or composer effects rather than silently removed from a mixed upload
+  ---
+  duration_ms: 702.938201
+  type: 'test'
+  ...
+# Subtest: missing file inputs, unknown upload activation and oversized attachments never send a text-only replacement
+ok 90 - missing file inputs, unknown upload activation and oversized attachments never send a text-only replacement
+  ---
+  duration_ms: 6346.686733
+  type: 'test'
+  ...
+# Subtest: over 400k observed characters are delivered exactly, including code indentation and trailing whitespace
+ok 91 - over 400k observed characters are delivered exactly, including code indentation and trailing whitespace
+  ---
+  duration_ms: 1396.405788
+  type: 'test'
+  ...
+# Subtest: large replies use ordered bounded pieces with intact Unicode and a completion manifest, never a truncated reply
+ok 92 - large replies use ordered bounded pieces with intact Unicode and a completion manifest, never a truncated reply
+  ---
+  duration_ms: 914.382699
+  type: 'test'
+  ...
+# Subtest: capture overflow and missing native delivery remain uncertain instead of declaring a clipped reply complete
+ok 93 - capture overflow and missing native delivery remain uncertain instead of declaring a clipped reply complete
+  ---
+  duration_ms: 2032.515689
+  type: 'test'
+  ...
+# Subtest: service input requests pause completion and report queued input without clicking approvals; quoted text does not
+ok 94 - service input requests pause completion and report queued input without clicking approvals; quoted text does not
+  ---
+  duration_ms: 857.852456
+  type: 'test'
+  ...
+# Subtest: an accepted multi-hour task is observed until actual completion without periodic duplicate submissions
+ok 95 - an accepted multi-hour task is observed until actual completion without periodic duplicate submissions
+  ---
+  duration_ms: 385.670309
+  type: 'test'
+  ...
+# Subtest: DOM drift cannot mistake unrelated forms or a manual different turn for this dispatch
+ok 96 - DOM drift cannot mistake unrelated forms or a manual different turn for this dispatch
+  ---
+  duration_ms: 897.964496
+  type: 'test'
+  ...
+# Subtest: native final payload digest is required and returned in before-click authorization
+ok 97 - native final payload digest is required and returned in before-click authorization
+  ---
+  duration_ms: 327.646194
+  type: 'test'
+  ...
+# Subtest: a different payload digest denies the staged prompt before submission
+ok 98 - a different payload digest denies the staged prompt before submission
+  ---
+  duration_ms: 372.241419
+  type: 'test'
+  ...
+# Subtest: reply recovery does not require a visible profile control after authenticated sending
+ok 99 - reply recovery does not require a visible profile control after authenticated sending
+  ---
+  duration_ms: 428.730914
+  type: 'test'
+  ...
+# Subtest: plain text, code, table and embed-only replies complete without a markdown wrapper
+ok 100 - plain text, code, table and embed-only replies complete without a markdown wrapper
+  ---
+  duration_ms: 1581.730965
+  type: 'test'
+  ...
+# Subtest: plain reply recovery binds the exact original user turn and does not execute quoted JSON
+ok 101 - plain reply recovery binds the exact original user turn and does not execute quoted JSON
+  ---
+  duration_ms: 399.514032
+  type: 'test'
+  ...
+# Subtest: after a document restart plain replies recover by durable prompt digest without account-sidebar evidence
+ok 102 - after a document restart plain replies recover by durable prompt digest without account-sidebar evidence
+  ---
+  duration_ms: 435.716421
+  type: 'test'
+  ...
+1..102
+# tests 102
+# suites 0
+# pass 102
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 116091.632795
