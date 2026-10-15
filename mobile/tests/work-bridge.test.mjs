@@ -371,6 +371,41 @@ test('reported Korean Fast checkbox has a constant activation label while checke
   },{setup:reportedKoreanPicker()+`window.phoneFast=true;`});
 });
 
+// The next device report showed the SAME checked Fast toggle relabelled
+// "Standard 모드 활성화" after enabling Fast. Model both sides of that transition,
+// including a fresh page that starts with Fast already enabled.
+const changingKoreanSpeedPicker = reportedKoreanPicker(false)+`
+const renderReportedPicker=window.renderPhonePicker;window.renderPhonePicker=()=>{
+ renderReportedPicker();let fast=document.querySelector('#phone-fast');if(!fast)return;
+ if(window.remountFastControl){const replacement=fast.cloneNode(true);replacement.onclick=fast.onclick;fast.replaceWith(replacement);fast=replacement;}
+ fast.setAttribute('aria-label',window.phoneFast?'Standard 모드 활성화':'Fast 모드 활성화');
+};`;
+
+test('device Fast to Standard action label transition is acknowledged once and completes a reply',async()=>{
+  for(const remount of [false,true])await pageFixture(async page=>{
+    await connect(page);await advance(page,1800);
+    const connected=await inspect(page);assert.equal(connected.code,'ready');
+    assert.deepEqual([connected.state.model,connected.state.effort,connected.state.speed],['gpt-6.1-sol','medium','fast']);
+    assert.deepEqual(await page.evaluate(()=>[window.phoneOpens,window.phoneFastChanges,window.phoneCloses]),[1,1,1]);
+    await connect(page);await advance(page,6000);
+    assert.equal((await inspect(page)).code,'ready');assert.equal(await page.evaluate(()=>window.phoneFastChanges),1);
+    assert.equal((await send(page)).ok,true);await advance(page,350);
+    await page.evaluate(()=>window.answer('속도 확인 후 답변 완료'));await advance(page,2500);
+    assert.equal((await events(page)).filter(event=>event.type==='completed').length,1);assert.equal(await page.evaluate(()=>window.clicks),1);
+  },{setup:changingKoreanSpeedPicker+`window.remountFastControl=${remount};`});
+});
+
+test('device Standard action label on an already checked Fast control supports both requested speeds',async()=>{
+  for(const speed of ['fast','standard'])await pageFixture(async page=>{
+    await page.evaluate(speed=>window.HoyoungWorkBridge.connect({requiredModel:'gpt-6.1-sol',requiredEffort:'medium',requiredSpeed:speed}),speed);
+    await advance(page,1800);const connected=await inspect(page);assert.equal(connected.code,'ready');assert.equal(connected.state.speed,speed);
+    assert.equal(await page.evaluate(()=>window.phoneFastChanges),speed==='fast'?0:1);
+    await page.evaluate(speed=>window.HoyoungWorkBridge.connect({requiredModel:'gpt-6.1-sol',requiredEffort:'medium',requiredSpeed:speed}),speed);
+    await advance(page,6000);assert.equal((await inspect(page)).code,'ready');
+    assert.equal(await page.evaluate(()=>window.phoneFastChanges),speed==='fast'?0:1);
+  },{setup:changingKoreanSpeedPicker+`window.phoneFast=true;`});
+});
+
 test('phone power picker finishes and releases focus when the owner already opened it',async()=>{
   for(const dialog of [false,true])await pageFixture(async page=>{
     assert.equal((await inspect(page)).state.model,'gpt-6.1-sol');

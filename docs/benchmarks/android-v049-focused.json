@@ -1,0 +1,66 @@
+{
+  "version": "0.4.9",
+  "recordedAt": "2026-10-15T06:05:55.040648+00:00",
+  "scope": "Recognize the Fast checkbox after its action label changes to Standard 모드 활성화.",
+  "inputEvidence": {
+    "userLiveDiagnosticReviewed": true,
+    "actualPhoneDirectAccess": false,
+    "offLabel": "Fast 모드 활성화",
+    "offChecked": false,
+    "onLabel": "Standard 모드 활성화",
+    "onChecked": true,
+    "role": "menuitemcheckbox",
+    "reportedModel": "gpt-6.1-sol",
+    "reportedEffort": "medium",
+    "reportedSpeed": null,
+    "reportedSelectionClicks": 2
+  },
+  "browser": {
+    "file": "mobile/tests/work-bridge.test.mjs",
+    "tests": 88,
+    "pass": 88,
+    "fail": 0,
+    "fixtureOnly": true,
+    "beforeFixNewTests": {
+      "tests": 2,
+      "pass": 0,
+      "fail": 2
+    },
+    "focusedAfterFix": {
+      "tests": 4,
+      "pass": 4,
+      "fail": 0
+    },
+    "scenarios": [
+      "Initial Standard -> one click -> Fast with changed action label -> close picker -> submit -> collect reply",
+      "Fast control replaced with a new DOM node after change",
+      "Fresh page already on Fast needs zero speed clicks",
+      "Fast -> Standard needs exactly one speed click",
+      "Repeated connect never flips the already confirmed speed",
+      "Constant Fast label with explicit checked state remains supported"
+    ]
+  },
+  "release": {
+    "assembleRelease": "passed",
+    "lintVitalRelease": "passed",
+    "apkSha256": "534072a26130a562c2a8ba44d77abb820285b38980cfb43983699012f1b89ac9",
+    "certificateSha256": "5b634dac5d4538f871ff0bfdbe1b31b2baa02dbe4390d11d7f6af235b2df1e3e",
+    "packagedAssetsMatchSource": {
+      "work-bridge.js": "d4146016b90ce16b8b7325cedbdd04fc837423aca9ce3fe0f123c811af1af912",
+      "work-session-cleanup.js": "821cbdeafa51486eedab1efa1961ebf7369cbe19baa4d5813f15e56dec0d3640",
+      "cos-dom-adapter.js": "3378b1584682455884f13244b510cc1821770b7621c85b443f32bf4cdcef6c4c",
+      "vendor/chat-on-steroids/chatgpt-dom.js": "9c0bda471bf5ca9a000f678f04360df72447379e9ecee127c74c912bd4ce74a6",
+      "vendor/chat-on-steroids/LICENSE": "4e179d05b8808d9b19fd6f6f7a22f5912410c13aefb01f19e569afe8cf6d2fbe",
+      "vendor/chat-on-steroids/source.json": "c6d5cda69ac585c4c543708b816b04283b58a89d33e39c1421047e856b7217b4"
+    }
+  },
+  "nativeTestsRepeated": false,
+  "nativeCodeChanged": false,
+  "fullMemorySimulationRepeated": false,
+  "memoryRetrievalAndBackupFormatModified": false,
+  "paidModelCalls": 0,
+  "notMeasured": [
+    "End-to-end connection in the owner Galaxy WebView",
+    "Live provider response or Fast selection acknowledgment"
+  ]
+}

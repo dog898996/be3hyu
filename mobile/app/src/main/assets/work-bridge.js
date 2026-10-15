@@ -345,7 +345,7 @@
     const labels=controlLabels(element).concat(normalized(element.getAttribute('aria-describedby')).split(' ').map(id=>document.getElementById(id))
       .filter(node=>node && visible(node) && !node.closest(TRANSCRIPT)).map(node=>renderedWords(node)));
     const name=/^(?:Fast(?: mode| responses?| response mode| 모드)?|빠름|빠른 (?:응답|모드)|빠른 응답 모드)$/i;
-    const onAction=/^(?:Disable|Turn off) (?:fast(?: mode| responses?| response mode)?)$|^(?:Fast(?: 모드)?|빠름|빠른 (?:응답|모드)|빠른 응답 모드) (?:끄기|해제|비활성화)$/i;
+    const onAction=/^(?:(?:Disable|Turn off) fast(?: mode| responses?| response mode)?|(?:Enable|Turn on) standard(?: mode| responses?| response mode)?)$|^(?:Fast(?: 모드)?|빠름|빠른 (?:응답|모드)|빠른 응답 모드) (?:끄기|해제|비활성화)$|^Standard(?: 모드)? (?:켜기|활성화)$/i;
     const offAction=/^(?:Enable|Turn on) (?:fast(?: mode| responses?| response mode)?)$|^(?:Fast(?: 모드)?|빠름|빠른 (?:응답|모드)|빠른 응답 모드) (?:켜기|활성화)$/i;
     const values=[];
     if(labels.some(label=>name.test(label)||onAction.test(label)||offAction.test(label))) {
@@ -355,7 +355,10 @@
       const state=element.getAttribute('data-state');
       if(/^(on|checked)$/.test(state||''))values.push('fast');if(/^(off|unchecked)$/.test(state||''))values.push('standard');
     }
-    // Checkbox labels such as "Fast 모드 활성화" remain constant when checked.
+    // Work's Fast checkbox is checked=true when Fast is ON, but its action
+    // label then becomes "Standard 모드 활성화" (the mode a click would enable).
+    // Also accept versions with a constant Fast label. Read both sides without
+    // retaining a DOM node: the provider may replace it after the click.
     // Explicit ARIA state wins over whether the caption sounds like an action.
     if(values.length)return uniqueValue(values);
     for(const label of labels) {if(onAction.test(label))values.push('fast');if(offAction.test(label))values.push('standard');}
