@@ -157,6 +157,24 @@ public final class MemoryGatewayTest {
         assertTrue(p.context.contains("invalidated means an erroneous assertion"));gateway.assertFresh(p,1_000_001);
     }
 
+    @Test public void ownerBurstIncludesMiddleCorrectionInOrderButNeverAnExcludedMiddleSource()throws Exception{
+        long root=source("원래 파일 작성 요청"),first=source("추가: 제목은 A"),middle=source("정정: 파일 쓰기 전부 취소"),secret=source("EXCLUDED-BURST-2391"),last=source("마지막으로 말투는 짧게");
+        store.putSetting("ownerInputRevision",String.valueOf(last));
+        store.getPrivacyLedger().excludeSource("message",secret,store.getMessage(secret).getString("content_hash"),"retrieval_exclude","owner excludes middle source");
+        MemoryGateway.Prepared p=gateway.prepare("dispatch-1","root-1","user",root,"원래 파일 작성 요청",null,80_000,1_000_000);
+        assertTrue(p.context.contains("ORDERED_OWNER_UPDATES"));assertTrue(p.context.contains("정정: 파일 쓰기 전부 취소"));assertFalse(p.context.contains("EXCLUDED-BURST-2391"));
+        assertTrue(p.context.indexOf("추가: 제목은 A")<p.context.indexOf("정정: 파일 쓰기 전부 취소"));
+        assertTrue(p.context.indexOf("정정: 파일 쓰기 전부 취소")<p.context.indexOf("LATEST_OWNER_INPUT"+" (takes precedence"));
+        assertTrue(p.context.contains(store.getMessage(middle).getString("content_hash")));gateway.assertFresh(p,1_000_001);
+        store.getPrivacyLedger().excludeSource("message",first,store.getMessage(first).getString("content_hash"),"retrieval_exclude","late deletion");blocked(p,"memory_privacy_changed");
+    }
+
+    @Test public void oversizedOwnerBurstBlocksInsteadOfDroppingTheMiddleCancellation()throws Exception{
+        long root=source("파일 작성"),middle=source("중간 취소 지시 ".repeat(1500)),last=source("마지막은 잡담");store.putSetting("ownerInputRevision",String.valueOf(last));
+        try{gateway.prepare("dispatch-1","root-1","user",root,"파일 작성",null,4096,1_000_000);fail("Mandatory middle correction must not be ranked away");}
+        catch(MemoryGateway.Blocked expected){assertEquals("mandatory_memory_context_overflow",expected.reason);}
+    }
+
     @Test public void supersededFactRetainsItsLegitimateEarlierValidityWithoutBecomingCurrent()throws Exception{
         long old=source("I lived in Seoul in 2021.");memory("address","Seoul was the valid residence in 2021.","fact",old);
         store.putMemoryMetadata("address",new JSONObject().put("status","superseded").put("validFrom",10).put("validTo",100));

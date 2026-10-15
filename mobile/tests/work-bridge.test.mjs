@@ -4,7 +4,8 @@ import { readFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { chromium } from 'playwright';
 
-const source = await readFile(new URL('../app/src/main/assets/work-bridge.js', import.meta.url), 'utf8');
+const asset = name => readFile(new URL('../app/src/main/assets/' + name, import.meta.url), 'utf8');
+const source = '(function(){\n' + await asset('vendor/chat-on-steroids/chatgpt-dom.js') + '\n' + await asset('cos-dom-adapter.js') + '\n})();\n' + await asset('work-session-cleanup.js') + '\n' + await asset('work-bridge.js');
 let browser;
 before(async () => { browser = await chromium.launch({ headless: true, executablePath: '/usr/bin/chromium', args: ['--no-sandbox'] }); });
 after(async () => { await browser?.close(); });
@@ -42,7 +43,7 @@ form.addEventListener('submit', event => {
  const user = document.createElement('div'); user.setAttribute('data-user-message-bubble', '');
  const content = document.createElement('p'); content.setAttribute('data-search-result-target', ''); content.textContent = editor.value;
  user.append(content); group.append(user); document.querySelector('#turns').append(group);
- window.lastGroup = group; editor.value = ''; stop.hidden = false;
+ window.lastGroup = group; editor.value = ''; stop.hidden = false; if(location.pathname==='/') history.pushState({},'', '/c/owned-fixture-123');
 });
 window.answer = function(text, footer = true) {
  const assistant = document.createElement('section'); assistant.setAttribute('data-conversation-role', 'assistant');
@@ -69,7 +70,7 @@ document.querySelector('input[type="file"]').addEventListener('change', function
 });
 </script></body></html>`;
 
-async function pageFixture(callback, { setup = '', url = 'https://chatgpt.com/?temporary-chat=true' } = {}) {
+async function pageFixture(callback, { setup = '', url = 'https://chatgpt.com/', owned = false } = {}) {
   const context = await browser.newContext();
   const page = await context.newPage();
   await context.route('**/*', route => route.fulfill({ status: 200, contentType: 'text/html', body: fixture }));
@@ -77,7 +78,9 @@ async function pageFixture(callback, { setup = '', url = 'https://chatgpt.com/?t
   try {
     await page.goto(url);
     if (setup) await page.evaluate(setup);
+    if (owned) await page.evaluate(() => history.replaceState({},'', '/c/owned-existing-123'));
     await page.addScriptTag({ content: source });
+    if (owned) await page.evaluate(() => window.HoyoungWorkBridge.restoreOwnedConversation('owned-existing-123'));
     await callback(page);
   } finally { await context.close(); }
 }
@@ -85,6 +88,75 @@ const inspect = page => page.evaluate(() => window.HoyoungWorkBridge.inspect());
 const send = (page, extra = {}) => page.evaluate(payload => window.HoyoungWorkBridge.send(payload), { requestId: 'request-one', text: '우리 작업 이어 해줘', requiredModel: 'gpt-6.1-sol', requiredEffort: 'medium', requiredSpeed: 'fast', ...extra });
 const advance = (page, milliseconds) => page.clock.runFor(milliseconds);
 const events = page => page.evaluate(() => window.events);
+
+test('CoS connection preserves the first normal Work turn across its new conversation URL', async () => {
+  await pageFixture(async page => {
+    assert.equal(await page.evaluate(() => window.HoyoungCoSDom.version), '2.1.37');
+    assert.equal((await send(page)).ok, true); await advance(page, 400);
+    const accepted = (await events(page)).filter(e => e.type === 'accepted');
+    assert.equal(accepted.length, 1); assert.equal(accepted[0].conversationId, 'owned-fixture-123');
+    assert.equal(accepted[0].freshConversation, true);
+    await page.evaluate(() => { document.querySelector('#work').remove(); window.answer('완료'); });
+    await advance(page, 2500);
+    assert.equal((await events(page)).filter(e => e.type === 'completed').length, 1);
+    assert.equal((await inspect(page)).state.workSelected, true);
+    assert.equal((await inspect(page)).state.conversationOwned, true);
+  }, {setup: `document.querySelector('#temporary').remove()`});
+});
+
+test('a pre-existing personal conversation cannot become app-owned or be deleted', async () => {
+  await pageFixture(async page => {
+    assert.equal((await inspect(page)).code, 'unowned_conversation');
+    assert.equal((await send(page)).ok, false);
+    const deletion = await page.evaluate(() => window.HoyoungWorkBridge.deleteOwnedConversation('personal-fixture-789'));
+    assert.equal(deletion.code, 'conversation_cleanup_busy');
+    assert.equal(await page.evaluate(() => window.clicks), 0);
+  }, {url:'https://chatgpt.com/c/personal-fixture-789'});
+});
+
+const deletionFixture = `
+const historyLink = document.createElement('a'); historyLink.href='/c/owned-fixture-123'; historyLink.textContent='Owned conversation'; document.body.append(historyLink);
+const options = document.createElement('button'); options.dataset.testid='conversation-options-button'; options.textContent='Conversation options'; document.querySelector('header').append(options);
+window.deleteClicks=0;window.confirmClicks=0;
+options.onclick=()=>{const menu=document.createElement('div');menu.setAttribute('role','menu');const remove=document.createElement('button');remove.setAttribute('role','menuitem');remove.textContent='Delete';menu.append(remove);document.body.append(menu);
+ remove.onclick=()=>{window.deleteClicks++;menu.remove();const dialog=document.createElement('div');dialog.setAttribute('role','dialog');dialog.textContent='Delete this chat?';const confirm=document.createElement('button');confirm.textContent='Delete';dialog.append(confirm);document.body.append(dialog);
+ confirm.onclick=()=>{window.confirmClicks++; if(window.failDeletion)return;dialog.remove();historyLink.remove();document.querySelector('#turns').replaceChildren();history.pushState({},'', '/');const toast=document.createElement('div');toast.setAttribute('role','status');toast.textContent='Chat deleted';document.body.append(toast);};};};
+`;
+
+test('session change deletes only the verified owned conversation and requires a provider result', async () => {
+  for (const fails of [false, true]) await pageFixture(async page => {
+    await send(page);await advance(page, 400);await page.evaluate(() => window.answer('saved locally'));await advance(page,2500);
+    await page.evaluate(fails => {window.failDeletion=fails;void window.HoyoungWorkBridge.deleteOwnedConversation('owned-fixture-123');}, fails);
+    await advance(page,6000);
+    const cleanup = (await events(page)).filter(e => e.type==='session_cleanup');
+    assert.equal(cleanup.length,1);
+    assert.equal(cleanup[0].code, fails?'conversation_cleanup_unconfirmed':'conversation_deleted');
+    assert.equal(await page.evaluate(()=>window.confirmClicks),1);
+    assert.notEqual((await inspect(page)).code,'ready');
+    assert.equal((await send(page,{requestId:'next'})).ok,false);
+  },{setup:deletionFixture});
+});
+
+test('session deletion cannot interrupt a running request', async () => {
+  await pageFixture(async page => {
+    await send(page);await advance(page,400);
+    const result=await page.evaluate(()=>window.HoyoungWorkBridge.deleteOwnedConversation('owned-fixture-123'));
+    assert.equal(result.code,'conversation_cleanup_busy');
+    assert.equal(await page.evaluate(()=>window.deleteClicks),0);
+  },{setup:deletionFixture});
+});
+
+test('CoS recognizes the mobile primary Send control that appears only after typing', async () => {
+  await pageFixture(async page => {
+    assert.equal(await page.evaluate(()=>window.HoyoungCoSDom.sendButton()),null);
+    assert.equal((await send(page)).ok,true);await advance(page,400);
+    assert.equal(await page.evaluate(()=>window.clicks),1);
+    assert.equal((await events(page)).filter(e=>e.type==='accepted').length,1);
+  },{setup:`
+const mobileForm=document.querySelector('form');mobileForm.innerHTML='<div id="prompt-textarea" contenteditable="true" role="textbox"></div><button type="button" class="size-token-button-composer bg-composer-primary"><svg><path d="M5 10L10 5L15 10"/></svg></button>';
+mobileForm.querySelector('button').onclick=()=>{window.clicks++;const group=document.createElement('article');group.dataset.turnKey='mobile-1';const user=document.createElement('div');user.setAttribute('data-user-message-bubble','');const content=document.createElement('p');content.setAttribute('data-search-result-target','');content.textContent=document.querySelector('#prompt-textarea').innerText;user.append(content);group.append(user);document.querySelector('#turns').append(group);window.lastGroup=group;document.querySelector('#prompt-textarea').innerText='';history.pushState({},'', '/c/owned-mobile-123');};
+`});
+});
 
 test('mobile combined model and effort label remains readable with a collapsed signed-in sidebar', async () => {
   await pageFixture(async page => {
@@ -135,7 +207,7 @@ test('mobile Fast switch is read explicitly, may turn off, and survives closing 
 
 test('mobile combined labels never infer speed, temporary mode or Work selection from the desired settings', async () => {
   await pageFixture(async page => {
-    assert.equal((await inspect(page)).code, 'temporary_unverified');
+    assert.equal((await inspect(page)).code, 'speed_unverified');
     assert.equal((await send(page)).ok, false);
     await page.evaluate(() => document.querySelector('#temporary').setAttribute('aria-pressed','true'));
     assert.equal((await inspect(page)).code, 'speed_unverified');
@@ -203,28 +275,22 @@ async function nativeAuthorization(page, mode) {
   }, mode);
 }
 
-test('Work and Temporary require positive selected DOM evidence, not URL parameters or unrelated transcript words', async () => {
+test('ordinary Work needs selected Work evidence but no temporary-chat control', async () => {
   await pageFixture(async page => {
     assert.equal((await inspect(page)).code, 'work_unverified');
     assert.equal((await send(page)).ok, false);
-    await page.evaluate(() => document.querySelector('#work').setAttribute('aria-selected', 'true'));
-    assert.equal((await inspect(page)).code, 'temporary_unverified');
-    await page.evaluate(() => document.querySelector('#temporary').setAttribute('aria-pressed', 'true'));
+    const selected = await page.evaluate(() => window.HoyoungWorkBridge.selectWork());
+    assert.equal(selected.code, 'work_selection_pending');
     assert.equal((await inspect(page)).code, 'ready');
-    assert.equal(await page.evaluate(() => window.clicks), 0);
-  }, { setup: `document.querySelector('#work').setAttribute('aria-selected', 'false'); document.querySelector('#temporary').setAttribute('aria-pressed', 'false'); document.querySelector('#turns').innerHTML='<article data-turn-key="old"><div data-user-message-bubble>Work Temporary chat</div></article>'` });
+    assert.equal((await inspect(page)).state.temporary, false);
+  }, {setup: `document.querySelector('#temporary').remove();document.querySelector('#work').setAttribute('aria-selected','false');`});
 });
 
-test('selectWork clicks only identifiable Work/Temporary controls and observes their real selected state', async () => {
+test('selectWork never tries to enable temporary chat in ordinary Work', async () => {
   await pageFixture(async page => {
-    const work = await page.evaluate(() => window.HoyoungWorkBridge.selectWork());
-    assert.equal(work.code, 'work_selection_pending');
-    assert.equal(work.state.workSelected, true);
-    const temporary = await page.evaluate(() => window.HoyoungWorkBridge.selectWork());
-    assert.equal(temporary.code, 'temporary_selection_pending');
-    assert.equal(temporary.state.temporary, true);
-    assert.equal((await inspect(page)).ok, true);
-  }, { setup: `document.querySelector('#work').setAttribute('aria-selected', 'false'); document.querySelector('#temporary').setAttribute('aria-pressed', 'false')` });
+    assert.equal((await page.evaluate(() => window.HoyoungWorkBridge.selectWork())).code, 'ready');
+    assert.equal((await inspect(page)).state.temporary, false);
+  }, {setup: `document.querySelector('#temporary').setAttribute('aria-pressed','false')`});
 });
 
 test('a guest composer, a signed-out page and unverified preference settings cannot dispatch', async () => {
@@ -324,8 +390,7 @@ test('preference selection preserves owner drafts, attachments, busy/unauthentic
     `document.querySelector('#attachments').innerHTML='<div role="group" aria-label="photo.jpg">photo.jpg</div>'`,
     `document.querySelector('[data-testid="stop-button"]').hidden=false`,
     `document.querySelector('[data-testid="user-menu-button"]').remove()`,
-    `document.querySelector('#work').setAttribute('aria-selected','false')`,
-    `document.querySelector('#temporary').setAttribute('aria-pressed','false')`
+    `document.querySelector('#work').setAttribute('aria-selected','false')`
   ];
   for (const setup of blockedSetups) await pageFixture(async page => {
     const original = await page.locator('#prompt-textarea').inputValue();
@@ -491,7 +556,7 @@ test('menu offers, assistant text and promotional labels cannot prove a configur
     await page.evaluate(() => document.querySelector('#effort').textContent = 'High');
     assert.equal((await send(page, preferences)).code, 'speed_unverified');
     assert.equal(await page.evaluate(() => window.clicks), 0);
-  }, { setup: `document.querySelector('#turns').innerHTML='<article data-turn-key="old-offer"><section data-conversation-role="assistant"><div class="markdown">GPT-6.2 Sol High Standard</div></section></article>'; const menu=document.createElement('div');menu.setAttribute('role','menu'); for(const label of ['GPT-6.2 Sol','High','Standard']) {const offer=document.createElement('button');offer.setAttribute('role','menuitemradio');offer.setAttribute('aria-checked','false');offer.textContent=label;menu.append(offer)} document.querySelector('header').append(menu)` });
+  }, { owned:true, setup: `document.querySelector('#turns').innerHTML='<article data-turn-key="old-offer"><section data-conversation-role="assistant"><div class="markdown">GPT-6.2 Sol High Standard</div></section></article>'; const menu=document.createElement('div');menu.setAttribute('role','menu'); for(const label of ['GPT-6.2 Sol','High','Standard']) {const offer=document.createElement('button');offer.setAttribute('role','menuitemradio');offer.setAttribute('aria-checked','false');offer.textContent=label;menu.append(offer)} document.querySelector('header').append(menu)` });
   await pageFixture(async page => {
     const preferences = { requiredModel: 'gpt-6.2-sol', requiredEffort: 'medium', requiredSpeed: 'fast' };
     await page.evaluate(prefs => window.HoyoungWorkBridge.configurePreferences(prefs), preferences);
@@ -668,8 +733,9 @@ test('a manual submission during authorization prevents false known-not-sent can
     await page.evaluate(() => document.querySelector('[data-testid="send-button"]').click());
     const denial = await page.evaluate(args => window.HoyoungWorkBridge.authorizeDispatch(...args), [auth.requestId, auth.nonce, false]);
     assert.equal(denial.knownNotSent, false);
-    assert.equal((await events(page)).find(event => event.code === 'dispatch_authorization_denied').knownNotSent, false);
-    assert.equal((await page.evaluate(() => window.HoyoungWorkBridge.prepareOwnerRetry())).code, 'outcome_uncertain');
+    const failure=(await events(page)).find(event=>event.type==='error');
+    assert.equal(failure.knownNotSent,false);assert.equal(failure.mayHaveBeenAccepted,true);
+    assert.ok(['outcome_uncertain','bridge_stale'].includes((await page.evaluate(() => window.HoyoungWorkBridge.prepareOwnerRetry())).code));
     assert.equal(await page.evaluate(() => window.clicks), 1, 'only the manual submission occurred');
   });
   await pageFixture(async page => {
@@ -870,7 +936,7 @@ test('a click with no acknowledgement becomes uncertain and never automatically 
 test('tracking query/hash changes preserve the same document while actual conversation path replacement stays guarded', async () => {
   await pageFixture(async page => {
     await send(page); await advance(page, 250);
-    await page.evaluate(() => history.replaceState({}, '', '/?temporary-chat=true&tracking=changed#message'));
+    await page.evaluate(() => history.replaceState({}, '', location.pathname + '?tracking=changed#message'));
     await advance(page, 250);
     assert.equal((await inspect(page)).phase, 'accepted');
     assert.equal((await events(page)).some(event => event.code === 'navigation_uncertain'), false);

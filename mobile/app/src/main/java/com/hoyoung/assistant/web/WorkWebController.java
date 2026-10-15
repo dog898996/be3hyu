@@ -47,7 +47,9 @@ import java.util.Collections;
 
 /** Only DOM events cross the web boundary. No privileged native API is exposed to a page. */
 public final class WorkWebController implements AssistantRuntime.Transport {
-    public static final String TEMPORARY_URL = "https://chatgpt.com/?temporary-chat=true";
+    public static final String HOME_URL = "https://chatgpt.com/";
+    /** Kept as a source-compatible alias for older callers; normal Work is used. */
+    public static final String TEMPORARY_URL = HOME_URL;
     private final Context context;
     private final AssistantRuntime runtime;
     private final InternalFiles files;
@@ -67,6 +69,8 @@ public final class WorkWebController implements AssistantRuntime.Transport {
     private int safetyWaits;
     private final Runnable retryStartup = () -> { retryScheduled = false; attemptStart(); };
     private String script;
+    private final WorkConversationJournal conversations;
+    private boolean cleanupRunning;
     private ValueCallback<Uri[]> fileCallback;
     private String currentOrigin = "";
     private String pageLoadFailure = "";
@@ -90,8 +94,12 @@ public final class WorkWebController implements AssistantRuntime.Transport {
         this.runtime = runtime;
         this.files = files;
         this.viewFactory = viewFactory;
-        try (var input = this.context.getAssets().open("work-bridge.js")) {
-            script = readUtf8(input);
+        this.conversations = new WorkConversationJournal(this.context);
+        try (var dom = this.context.getAssets().open("vendor/chat-on-steroids/chatgpt-dom.js");
+             var adapter = this.context.getAssets().open("cos-dom-adapter.js");
+             var cleanup = this.context.getAssets().open("work-session-cleanup.js");
+             var input = this.context.getAssets().open("work-bridge.js")) {
+            script = "(function(){\n" + readUtf8(dom) + "\n" + readUtf8(adapter) + "\n})();\n" + readUtf8(cleanup) + "\n" + readUtf8(input);
         } catch (Exception e) { script = null; }
     }
 
@@ -124,6 +132,7 @@ public final class WorkWebController implements AssistantRuntime.Transport {
     }
 
     private void attemptStart() {
+        if (conversations.blocked()) { publishUnavailableState("conversation_journal_unreadable", false, 0, null); return; }
         if (view != null && started) return;
         if (ownerRecoveryRequired || !canAutomaticallyOpen(runtime.state())) {
             publishUnavailableState("work_recovery_review_required", false, 0, null);
@@ -142,7 +151,7 @@ public final class WorkWebController implements AssistantRuntime.Transport {
         try {
             loaded = false; currentOrigin = ""; advanceDocumentEpoch();
             publishLoadingState();
-            destination.loadUrl(TEMPORARY_URL);
+            destination.loadUrl(conversations.id().isEmpty() ? HOME_URL : HOME_URL + "c/" + conversations.id());
             // Queuing a URL is not proof that the initial renderer survived.
             // Retain failure history until an actual document finishes loading.
             started = true; cancelStartupRetry();
@@ -263,7 +272,20 @@ public final class WorkWebController implements AssistantRuntime.Transport {
                     try {
                         JSONObject event = new JSONObject(payload);
                         String type = event.optString("type");
+                        if ("session_cleanup".equals(type)) { finishConversationCleanup(event); return; }
                         if (!Arrays.asList("state", "accepted", "progress", "completed", "quota", "error").contains(type)) return;
+                        if ("accepted".equals(type) && "user_turn_confirmed".equals(event.optString("code"))) {
+                            String requestId = event.optString("requestId");
+                            if (!requestId.equals(runtime.state().optString("activeRequestId"))) return;
+                            if (!conversations.accept(requestId, event.optString("conversationId"))) {
+                                emitError("CONVERSATION_OWNERSHIP_UNVERIFIED", requestId); return;
+                            }
+                        }
+                        if (("error".equals(type) || "quota".equals(type)) && event.optBoolean("knownNotSent"))
+                            conversations.notSent(event.optString("requestId"));
+                        if ("state".equals(type) && (conversations.cleaning() || conversations.blocked())) {
+                            publishUnavailableState("conversation_cleanup_pending", false, 0, null); return;
+                        }
                         if ("progress".equals(type) && "dispatch_authorization_requested".equals(event.optString("code"))) {
                             authorizePreparedDispatch(webView, event);
                             return; // This handshake is not an ordinary progress message.
@@ -298,6 +320,7 @@ public final class WorkWebController implements AssistantRuntime.Transport {
             }
             @Override public void onPageStarted(WebView v, String url, Bitmap favicon) {
                 if (v != view) return;
+                cleanupRunning = false; // A replaced document cannot prove its deletion click completed.
                 advanceDocumentEpoch();
                 if (loaded) emitActiveTransportError("WORK_DOCUMENT_REPLACED");
                 loaded = false;
@@ -316,7 +339,11 @@ public final class WorkWebController implements AssistantRuntime.Transport {
                 loaded = isChatGptOrigin(Uri.parse(url));
                 if (loaded && script != null && WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
                     int epoch = documentEpoch;
-                    v.evaluateJavascript(script, ignored -> { if (v == view && loaded && epoch == documentEpoch) inspect(); });
+                    String restore = conversations.id().isEmpty() ? "" : "\nwindow.HoyoungWorkBridge.restoreOwnedConversation(" + JSONObject.quote(conversations.id()) + ");";
+                    v.evaluateJavascript(script + restore, ignored -> {
+                        if (v != view || !loaded || epoch != documentEpoch) return;
+                        if (conversations.cleaning()) runConversationCleanup(); else inspect();
+                    });
                 } else if (loaded) publishUnavailableState("bridge_script_unavailable", false, 0, null);
                 else publishUnavailableState("authentication_required", false, 0, null);
                 } catch (RuntimeException | LinkageError failure) { startupFailed(failure); }
@@ -387,6 +414,7 @@ public final class WorkWebController implements AssistantRuntime.Transport {
     @Override public void inspect() {
         main.post(() -> {
             if (view == null || !loaded) return;
+            if (conversations.cleaning() || conversations.blocked()) { publishUnavailableState("conversation_cleanup_pending", false, 0, null); return; }
             final JSONObject preferences;
             try { preferences = bridgePreferences(); }
             catch (Exception invalidPreferences) { emitState(new JSONObject(), "unsupported_preferences"); return; }
@@ -549,6 +577,14 @@ public final class WorkWebController implements AssistantRuntime.Transport {
                 // during that interval; recheck immediately before any JS wire
                 // send, without reclassifying an already accepted cloud outcome.
                 if (!runtime.preparedDispatchStillAllowed(requestId)) { emitPreflight("PREPARED_DISPATCH_POLICY_CHANGED", requestId); return; }
+                if (conversations.cleaning() || conversations.blocked()) { emitPreflight("conversation_cleanup_pending", requestId); return; }
+                try {
+                    String path = Uri.parse(destination.getUrl()).getPath();
+                    if (conversations.id().isEmpty() ? !"/".equals(path) : !("/c/" + conversations.id()).equals(path)) {
+                        emitPreflight("unowned_conversation", requestId); return;
+                    }
+                    conversations.begin(requestId);
+                } catch (Exception ownershipFailure) { emitPreflight("conversation_journal_unavailable", requestId); return; }
                 try { destination.evaluateJavascript(call, raw -> {
                     try {
                         if (raw == null || "null".equals(raw)) { emitError("BRIDGE_NOT_READY", requestId); return; }
@@ -907,14 +943,78 @@ public final class WorkWebController implements AssistantRuntime.Transport {
             try {
                 WebView destination = getView();
                 if (!canAutomaticallyOpen(runtime.state())) { publishUnavailableState("work_recovery_review_required", false, 0, null); return; }
+                conversations.requestCleanup();
+                if (conversations.cleaning()) {
+                    publishUnavailableState("conversation_cleanup_pending", false, 0, null);
+                    String path = Uri.parse(destination.getUrl() == null ? HOME_URL : destination.getUrl()).getPath();
+                    if (loaded && ("/c/" + conversations.id()).equals(path) && !cleanupRunning) runConversationCleanup();
+                    else if (!cleanupRunning) destination.loadUrl(HOME_URL + "c/" + conversations.id());
+                    return;
+                }
                 loaded = false; currentOrigin = ""; advanceDocumentEpoch();
                 publishLoadingState();
                 destination.loadUrl(TEMPORARY_URL); started = true;
+            } catch (IOException unresolved) {
+                publishUnavailableState("conversation_ownership_unresolved", false, 0, null);
             } catch (RuntimeException | LinkageError failure) {
                 // getView() already records construction/setup failures. A URL
                 // load failure is recorded here only when a view was published.
                 if (view != null) startupFailed(failure);
             }
+        });
+    }
+
+    private void runConversationCleanup() {
+        if (cleanupRunning || !conversations.cleaning() || view == null || !loaded) return;
+        if (!canAutomaticallyOpen(runtime.state())) { publishUnavailableState("work_recovery_review_required", false, 0, null); return; }
+        if (conversations.deletionAttempted()) { publishUnavailableState("conversation_cleanup_unconfirmed", false, 0, null); return; }
+        try { conversations.beginDeletion(); }
+        catch (IOException failure) { publishUnavailableState("conversation_cleanup_unconfirmed", false, 0, null); return; }
+        cleanupRunning = true;
+        final WebView target = view; final int epoch = documentEpoch;
+        String call = "window.HoyoungWorkBridge && window.HoyoungWorkBridge.deleteOwnedConversation(" + JSONObject.quote(conversations.id()) + ")";
+        try { target.evaluateJavascript(call, ignored -> {}); }
+        catch (RuntimeException failure) { cleanupRunning = false; publishUnavailableState("conversation_cleanup_unconfirmed", false, 0, null); }
+        main.postDelayed(() -> {
+            if (target == view && epoch == documentEpoch && cleanupRunning) {
+                cleanupRunning = false;
+                publishUnavailableState("conversation_cleanup_unconfirmed", false, 0, null);
+            }
+        }, 17_000);
+    }
+
+    private void finishConversationCleanup(JSONObject event) throws IOException {
+        if (!conversations.cleaning() || !conversations.id().equals(event.optString("conversationId"))) return;
+        cleanupRunning = false;
+        if (!"conversation_deleted".equals(event.optString("code"))) {
+            publishUnavailableState(event.optString("code", "conversation_cleanup_unconfirmed"), false, 0, null); return;
+        }
+        conversations.deleted(event.optString("conversationId"), false);
+        runtime.localNotice("conversation_deleted", "이전 호영 Work 대화를 삭제했어. 폰의 기억과 설정은 그대로 보관돼.");
+        loadFreshConversation();
+    }
+
+    private void loadFreshConversation() {
+        if (!canAutomaticallyOpen(runtime.state()) || view == null) return;
+        loaded = false; currentOrigin = ""; advanceDocumentEpoch(); publishLoadingState();
+        view.loadUrl(HOME_URL); started = true;
+    }
+
+    /** Only the owner's explicit recovery UI can attest a deletion not observed by the bridge. */
+    public String pendingConversationDeletion() { return conversations.cleaning() ? conversations.id() : ""; }
+    public String unresolvedConversationCreation() { return conversations.id().isEmpty() ? conversations.pendingRequest() : ""; }
+    public void confirmUnknownConversationDeletedByOwner(String expectedRequestId) {
+        main.post(() -> {
+            if (!canAutomaticallyOpen(runtime.state()) || cleanupRunning) return;
+            try { conversations.unknownCreationDeletedByOwner(expectedRequestId); loadFreshConversation(); }
+            catch (IOException mismatch) { publishUnavailableState("conversation_ownership_unresolved", false, 0, null); }
+        });
+    }
+    public void confirmConversationDeletedByOwner(String expectedId) {
+        main.post(() -> {
+            if (!canAutomaticallyOpen(runtime.state()) || cleanupRunning) return;
+            try { conversations.deleted(expectedId, true); loadFreshConversation(); }
+            catch (IOException mismatch) { publishUnavailableState("conversation_cleanup_unconfirmed", false, 0, null); }
         });
     }
 
@@ -951,6 +1051,7 @@ public final class WorkWebController implements AssistantRuntime.Transport {
     }
 
     private void emitState(JSONObject state, String code) {
+        if ((conversations.cleaning() || conversations.blocked()) && "ready".equals(code)) code = "conversation_cleanup_pending";
         try { runtime.onWebEvent(new JSONObject().put("type", "state").put("code", code).put("state", state)); } catch (Exception ignored) { }
     }
 
@@ -969,6 +1070,7 @@ public final class WorkWebController implements AssistantRuntime.Transport {
     }
 
     private void emitPreflight(String code, String requestId) {
+        try { conversations.notSent(requestId); } catch (IOException unresolved) { /* Keep the durable ownership ambiguity. */ }
         try { runtime.onWebEvent(new JSONObject().put("type", "error").put("code", code).put("knownNotSent", true).put("requestId", requestId)); } catch (Exception ignored) { }
     }
 

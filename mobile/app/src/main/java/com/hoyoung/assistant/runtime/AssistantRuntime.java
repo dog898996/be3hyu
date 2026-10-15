@@ -974,6 +974,7 @@ public final class AssistantRuntime {
                 "activeRequestId", active == null ? JSONObject.NULL : active.optString("external_id"),
                 "activeStoreId", active == null ? JSONObject.NULL : active.optLong("id"),
                 "steeringVerified", false, "cloudPermanent", false, "receiptIndexReady", receiptsReady, "resources", AutonomyService.resourceState(),
+                "steeringMode", "queued_rebase", "queuedOwnerInputs", store.queuedOwnerRequestCount(),
                 "model", store.getSetting("requiredModel", "gpt-6.1-sol"), "effort", store.getSetting("requiredEffort", "medium"), "speed", store.getSetting("requiredSpeed", "fast"),
                 "foregroundRouting",foregroundRouting.snapshot(),"assistantIdentity",identity.snapshot(),"requestModelPreferences",preferencesForState(),"usageBudget",usageBudget.snapshot(nowMillis()),
                 "selectionFieldsAreRequiredChoices", true, "activeOwnerReply", active == null ? completing && completingOwnerReply : ownerPurpose(active),
@@ -1010,7 +1011,7 @@ public final class AssistantRuntime {
         if (transport == null || webStateAt == 0 || now - webStateAt > STATE_FRESH_MS) return false;
         if (!readinessCode.isEmpty() && !"ready".equals(readinessCode)) return false;
         if (!Boolean.TRUE.equals(webState.opt("authenticated")) || !Boolean.TRUE.equals(webState.opt("workSelected"))
-                || !Boolean.TRUE.equals(webState.opt("temporary")) || !Boolean.FALSE.equals(webState.opt("busy"))
+                || !Boolean.FALSE.equals(webState.opt("busy"))
                 || !Boolean.FALSE.equals(webState.opt("quota"))) return false;
         return true;
     }
@@ -1213,6 +1214,9 @@ public final class AssistantRuntime {
         // Stable instructions and complete schemas precede request IDs/time.
         // They remain present on every request; server cache hits are not assumed.
         StringBuilder responseContract = new StringBuilder();
+        prompt.append("APP_MEMORY_AUTHORITY v1 — 이 작업의 개인화 기준:\n")
+                .append("ChatGPT 계정의 저장 메모리·맞춤 지침·다른 대화에서 온 사용자 정보는 이 앱의 개인화 근거로 사용하지 않는다. 현재 요청에 제공한 앱 지침, CURRENT_ASSISTANT_IDENTITY, 출처가 검증된 앱 기억과 원문을 기준으로 답하고 행동한다. 서로 충돌하면 현재 앱 설정과 최신 정정·삭제·제외 기록이 우선이다. 이전 Work 턴에 등장했어도 현재 앱에서 삭제·제외되거나 정정된 정보는 되살리거나 새 기억에 복사하지 않는다.\n")
+                .append("개인 정보가 앱 근거에 없으면 모른다고 말하고 필요할 때 앱 기억 검색·원문 도구로 확인한다. 계정에서 떠오르는 내용을 확인된 사용자 사실이나 인용으로 바꾸지 않는다. 기억 저장은 앱 도구로만 요청하고 ChatGPT 계정 메모리 저장·갱신을 요청하지 않는다. 이는 앱의 출처·우선순위 지침이며 계정 메모리 기능 자체가 꺼졌다는 뜻은 아니다.\n");
         prompt.append("기본 운영 지침:\n").append(readAsset("core-identity.txt"));
         JSONObject currentIdentity=identity.snapshot();
         store.putSetting("preparedIdentityRevision:"+externalId,currentIdentity.optString("revision"));
@@ -1232,7 +1236,7 @@ public final class AssistantRuntime {
                 .append("이전 명령을 새로 실행하지 않는다. blocked/quota/uncertain/abandoned 작업은 사용자의 명시적 새 요청 없이 반복하지 않는다. ")
                 .append("기억은 실제 원문을 인용하며 추론·관찰·생성 답변을 사용자 확인 사실로 바꾸지 않는다. 최신 정정은 같은 안정적인 key/factKey의 새 revision으로 저장하고 옛 기록을 삭제하지 않는다. ")
                 .append("nativeOwnerControl이 있는 원문은 사용자가 앱 화면에서 한 제어 동작의 생성 영수증이다. 자연어 발언으로 꾸미거나 새 작업·개인 선호를 추론하지 않는다. 삭제·제외 정책은 네이티브 저장소에서 적용되며 startsNewWork:false는 새 작업 지시가 아니다. ")
-                .append("앱 새 입력은 즉시 보관되고 제출 직전·각 폰 도구 직전에 최신 입력을 검사한다. 제출 이후 새 입력이 오면 이전 응답의 아직 시작하지 않은 폰·앱 실행을 보류하고 새 요청을 먼저 처리한다. 이미 실행한 클라우드 도구를 되돌리거나 실제 웹 steer가 됐다고 주장하지 마. 할당량 부족 시 유료 API·자동 결제로 전환하지 않는다. ")
+                .append("앱 새 입력은 즉시 보관되고 제출 직전·각 폰 도구 직전에 최신 입력을 검사한다. 제출 이후 새 입력이 오면 이전 응답의 아직 시작하지 않은 폰·앱 실행을 보류하고 새 요청을 먼저 처리한다. ORDERED_OWNER_UPDATES와 LATEST_OWNER_INPUT을 시간순으로 함께 대조해 중간의 수정·추가·취소 지시도 빠뜨리지 마. 나중의 무관한 메시지가 앞선 정정을 취소하는 것은 아니다. 별도 대기 작업은 그 요청 ID가 담당하므로 현재 요청에서 중복 실행하지 마. 이미 실행한 클라우드 도구를 되돌리거나 실제 웹 steer가 됐다고 주장하지 마. 할당량 부족 시 유료 API·자동 결제로 전환하지 않는다. ")
                 .append("action이 있으면 status=working이다. 도구 initiated/accepted/completionConfirmed:false는 실제 완료가 아니다. 결과와 후속 확인을 받은 뒤에만 completed를 표시한다. idle이면 message는 빈 문자열로 남긴다.\n");
         if(decisionOnly) {
             prompt.append("이번 턴은 Light 판단 전용이다. Work의 브라우저·코딩·클라우드 도구와 폰·앱 도구를 실행하지 말고 기억 저장·첨부 분석·기억 검토 완료도 하지 마. 아래 이름 목록은 기능 발견을 위한 전체 목록이며 권한 제한이 아니다. 행동·추가 원문·응답·기억 정리가 필요하거나 판단이 모호하면 HANDLE_MEDIUM, 복잡한 계획·추론이 필요하면 ESCALATE_HIGH로 넘겨 실제 실행은 다음 턴에 맡긴다. 변경 이벤트가 없다는 이유로 판단을 건너뛰지 않는다.\n")

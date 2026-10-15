@@ -1,0 +1,96 @@
+{
+  "version": "0.4.4",
+  "recordedAt": "2026-10-15T00:39:08.065832+00:00",
+  "scope": "Changed Work browser transport, app memory authority and ordered owner input only. Local fixtures/native tests; no real account or paid model calls.",
+  "android": {
+    "tests": 14,
+    "passed": 14,
+    "suites": [
+      {
+        "class": "com.hoyoung.assistant.runtime.AssistantRuntimePreparingSteeringTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "cases": [
+          "rejectedEmptyInputReleasesPreparationGateWithoutInventingNewOwnerOrReplayingEffect",
+          "preparingSteeringHoldsOldEffectBeforeNewOwnerSourceExistsAndThenPrioritizesOwner"
+        ]
+      },
+      {
+        "class": "com.hoyoung.assistant.runtime.AssistantRuntimeTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "cases": [
+          "appMemoryAuthorityUsesCurrentIdentityInstructionsAndExcludesDeletedSources",
+          "ordinaryWorkRequiresVerifiedSubscriptionAndModelButNotTemporaryChat",
+          "burstOwnerInputsKeepMiddleCorrectionsWithoutReplayingOldEffectsOrChangingTheActiveModel"
+        ]
+      },
+      {
+        "class": "com.hoyoung.assistant.store.MemoryGatewayTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "cases": [
+          "oversizedOwnerBurstBlocksInsteadOfDroppingTheMiddleCancellation",
+          "invalidatedAssertionIsMarkedWrongAndCurrentOwnerCorrectionIsMandatory",
+          "ownerBurstIncludesMiddleCorrectionInOrderButNeverAnExcludedMiddleSource",
+          "excludedOriginalCannotReturnThroughCurrentOrHistoricalMemory"
+        ]
+      },
+      {
+        "class": "com.hoyoung.assistant.web.WorkConversationJournalTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "cases": [
+          "unknownCreationAndCorruptReceiptsNeverAuthorizeDeletion",
+          "ownerCanResolveUnknownCreationOnlyAfterReviewingThatExactRequest",
+          "onlyMatchingCreationCanOwnConversationAndDeletionSurvivesRestart"
+        ]
+      },
+      {
+        "class": "com.hoyoung.assistant.web.WorkStartupRecoveryTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "cases": [
+          "workSelectionFailureKeepsTheActualStepInsteadOfDiscardingItsReceipt",
+          "finalPostedRecoveryGuardRejectsAnOperationThatBecameActiveAfterTheOwnerClicked"
+        ]
+      }
+    ]
+  },
+  "browser": {
+    "tests": 66,
+    "passed": 66,
+    "failed": 0,
+    "file": "mobile/tests/work-bridge.test.mjs",
+    "fixtureOnly": true
+  },
+  "release": {
+    "assembleRelease": "passed",
+    "lintVitalRelease": "passed",
+    "apkSha256": "b7cbf4b9e778d49a1009a2e185143019e3af1b939e273a6bf7443d539a148e3c",
+    "packagedAssetsMatchSource": {
+      "work-bridge.js": "7df500b8826d61289d444a4958bb4ac136b5f4908a99f4bd0d616c64841e54fc",
+      "work-session-cleanup.js": "821cbdeafa51486eedab1efa1961ebf7369cbe19baa4d5813f15e56dec0d3640",
+      "cos-dom-adapter.js": "3378b1584682455884f13244b510cc1821770b7621c85b443f32bf4cdcef6c4c",
+      "vendor/chat-on-steroids/chatgpt-dom.js": "9c0bda471bf5ca9a000f678f04360df72447379e9ecee127c74c912bd4ce74a6",
+      "vendor/chat-on-steroids/LICENSE": "4e179d05b8808d9b19fd6f6f7a22f5912410c13aefb01f19e569afe8cf6d2fbe",
+      "vendor/chat-on-steroids/source.json": "c6d5cda69ac585c4c543708b816b04283b58a89d33e39c1421047e856b7217b4"
+    }
+  },
+  "notMeasured": [
+    "Real ChatGPT Work login/send/delete",
+    "Account-memory conflict model answers",
+    "Immediate steering inside a running remote Work inference",
+    "Physical Galaxy S24 Ultra installation",
+    "Continuous 24-hour execution"
+  ],
+  "fullProductSimulationRepeated": false,
+  "providerMemoryFeatureDisabled": false,
+  "providerMemoryDeletionPerformed": false,
+  "steeringMode": "queued_rebase_with_ordered_owner_updates"
+}

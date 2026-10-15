@@ -1,8 +1,10 @@
 # 호영이 자율 에이전트
 
-추가 서버 비용 0원, 사설 VM·상시 PC 없이 **Android 전용 앱 → ChatGPT Work 임시채팅**으로 작업하고 원문·기억·파일은 폰에 보관한다. [Android 설치·연결·백업 안내](mobile/README.md)를 먼저 참고한다. 아래 Node/사설 VM 코드는 이전 구현으로 보존한다.
+추가 서버 비용 0원, 사설 VM·상시 PC 없이 **Android 전용 앱 → ChatGPT 일반 Work 대화**으로 작업하고 원문·기억·파일은 폰에 보관한다. [Android 설치·연결·백업 안내](mobile/README.md)를 먼저 참고한다. 아래 Node/사설 VM 코드는 이전 구현으로 보존한다.
 
-**최신 0.4.3**: 모델 선택을 **6 Sol / 6.1 Sol / Astra**로 고정하고, 대화·설정의 **Fast 켜기/끄기**를 연결했다. 모바일 Work 모델·강도 표시와 Fast 스위치 감지를 보완하고, 연결이 막힌 단계를 화면에 표시한다. 관련 Android **71/71**, 브라우저 fixture **13/13** 통과. 실계정 연결 성공은 아직 미확인이다. [설치 파일](https://github.com/dog898996/be3hyu/releases/tag/v0.4.3) · [변경·검증 기록](docs/release-v043.md).
+**최신 0.4.4**: 임시 채팅 요구를 제거하고 CoS의 브라우저 DOM 연결 모듈을 통합했다. 세션 교체 시 앱이 만든 이전 Work 대화만 삭제하며, 앱 기억·지침을 개인화 근거로 사용하도록 명시한다. 연속 입력의 중간 수정·취소 지시를 보존해 후속 동작에 반영한다. 실계정 메모리 기능 자체를 끄거나 실행 중 웹 모델에 즉시 입력을 주입하는 방식은 아니다. [설치 파일](https://github.com/dog898996/be3hyu/releases/tag/v0.4.4) · [변경·검증 범위](docs/release-v044.md).
+
+**0.4.3**: 모델은 **6 Sol / 6.1 Sol / Astra**, 대화·설정에서 Fast를 켜거나 끌 수 있다. [변경 기록](docs/release-v043.md).
 
 **0.4.2**: 여섯 분야 코드 감사와 통합 담당자의 최종 재검토로 장기기억·설정 충돌·새 지시·한도 복구·첨부·알림·응답 캡처 오류를 수정했다. 변경 관련 검사 **227/227 통과**, signed release·lint 오류 0. [설치 파일](https://github.com/dog898996/be3hyu/releases/tag/v0.4.2) · [변경·검증 기록](docs/release-v042.md) · [지속가능성·복원 범위](docs/final-code-audit-v042.md) · [모델·프로필 설정](docs/routing-and-identity-v041.md). 아래 전체·Android 에뮬레이터 검증은 이전 버전의 이력이다.
 

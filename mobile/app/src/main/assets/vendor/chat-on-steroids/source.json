@@ -1,0 +1,8 @@
+{
+  "repository": "https://github.com/totec448-spec/chat-on-steroids",
+  "commit": "2d1c86efed698ed759e17efded4e12ca2d78b28e",
+  "version": "2.1.37",
+  "path": "extension/chatgpt-dom.js",
+  "sha256": "9c0bda471bf5ca9a000f678f04360df72447379e9ecee127c74c912bd4ce74a6",
+  "usage": "Unmodified DOM module; only composer, Send, Stop and busy observation are exposed to the Android adapter. MCP/Electron/Chrome extension runtime is not bundled."
+}

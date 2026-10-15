@@ -70,9 +70,9 @@ public final class WorkStartupRecoveryTest {
         List<RecordingView> views=new ArrayList<>();WorkWebController controller=controller(c->{RecordingView result=new RecordingView(c);views.add(result);return result;});
         controller.start();idle();markLoaded(controller);RecordingView view=views.get(0);
         controller.selectWork();idle();
-        view.callbacks.get(view.callbacks.size()-1).onReceiveValue(JSONObject.quote(object("ok",false,"code","temporary_control_unverified","state",object("authenticated",true,"workSelected",true,"temporary",false)).toString()));
-        assertEquals("temporary_control_unverified",runtime.state().optString("readinessCode"));assertFalse(runtime.state().optBoolean("ready"));
-        assertTrue(store.listMessages(20).toString().contains("새 임시 대화"));
+        view.callbacks.get(view.callbacks.size()-1).onReceiveValue(JSONObject.quote(object("ok",false,"code","work_control_unverified","state",object("authenticated",true,"workSelected",false,"temporary",false)).toString()));
+        assertEquals("work_control_unverified",runtime.state().optString("readinessCode"));assertFalse(runtime.state().optBoolean("ready"));
+        assertTrue(store.listMessages(20).toString().contains("Work를 선택"));
     }
     @Test public void mainDocumentLoadFailureIsNotOverwrittenByPageFinishedOrRetriedAsNewWork() throws Exception {
         List<RecordingView> views=new ArrayList<>();WorkWebController controller=controller(c->{RecordingView result=new RecordingView(c);views.add(result);return result;});

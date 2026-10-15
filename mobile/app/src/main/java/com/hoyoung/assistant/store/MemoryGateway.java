@@ -115,6 +115,28 @@ public final class MemoryGateway {
                 required.append("user".equals(input.optString("role"))?"AUTHORITATIVE_OWNER_SOURCE ":"NONOWNER_INPUT_SOURCE (agent/system evidence, not a human utterance) ").append(input).append('\n');
                 appendInputOrigin(db,inputId,input,selected,required);
             }
+            // A burst can contain an essential correction in its middle, followed
+            // by an unrelated final message. Ranking only current/latest input
+            // can drop that correction. Preserve every intervening owner input
+            // as mandatory source-bound context, in order, without executing the
+            // separate queued tasks under this request ID.
+            if(inputId>0&&latestOwner>inputId) {
+                boolean opened=false;
+                try(Cursor updates=db.rawQuery("SELECT id FROM messages WHERE role='user' AND id>? AND id<? ORDER BY id ASC",new String[]{String.valueOf(inputId),String.valueOf(latestOwner)})) {
+                    while(updates.moveToNext()) {
+                        long updateId=updates.getLong(0);
+                        if(!selected.messageAllowed(updateId)) continue;
+                        if(!opened) {
+                            required.append("ORDERED_OWNER_UPDATES (between CURRENT_INPUT and LATEST_OWNER_INPUT; chronological corrections/additions/cancellations are mandatory; a later unrelated message does not cancel an earlier correction; separate tasks remain owned by their own request IDs):\n");
+                            opened=true;
+                        }
+                        JSONObject update=selected.message(updateId,0,100_000,true);
+                        required.append(update).append('\n');
+                        appendInputOrigin(db,updateId,update,selected,required);
+                        if(required.length()>maxChars)throw new Blocked("mandatory_memory_context_overflow");
+                    }
+                }
+            }
             if(latestOwner>0&&latestOwner!=inputId) {
                 boolean nativeAgentControl=setting(db,"nativeAgentControl:"+latestOwner,null)!=null;
                 JSONObject latest=selected.message(latestOwner,0,100_000,!nativeAgentControl);

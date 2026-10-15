@@ -620,6 +620,12 @@ public final class HoyoungStore extends SQLiteOpenHelper {
         return one(getReadableDatabase(), "SELECT * FROM requests WHERE status = 'queued' ORDER BY CASE WHEN kind='user' THEN 0 ELSE 1 END,id ASC LIMIT 1", null);
     }
 
+    public synchronized long queuedOwnerRequestCount() {
+        try (Cursor count=getReadableDatabase().rawQuery("SELECT COUNT(*) FROM requests WHERE status='queued' AND kind='user'",null)) {
+            return count.moveToFirst()?count.getLong(0):0;
+        }
+    }
+
     public synchronized void markRequest(long id, String status, String resultNullable) {
         requireStatus(status);
         if (resultNullable != null && resultNullable.length() > OriginalTextFiles.MAX_ORIGINAL_CHARS) throw new IllegalArgumentException("result is too long");

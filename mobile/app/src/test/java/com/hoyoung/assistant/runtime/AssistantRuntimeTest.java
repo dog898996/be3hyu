@@ -50,7 +50,7 @@ public class AssistantRuntimeTest {
         deleteTree(new java.io.File(context.getFilesDir(), "projects"));
     }
 
-    @Test public void requiresVerifiedSubscriptionWorkTemporaryAndModel() throws Exception {
+    @Test public void ordinaryWorkRequiresVerifiedSubscriptionAndModelButNotTemporaryChat() throws Exception {
         JSONObject request = runtime.receive("작업을 맡길게", new JSONArray());
         runtime.onWebEvent(object("type", "state", "code", "authentication_required", "state", readyState().put("authenticated", false)));
         assertEquals(0, transport.ids.size());
@@ -59,14 +59,54 @@ public class AssistantRuntimeTest {
         runtime.onWebEvent(object("type", "state", "state", readyState().put("model", "gpt-6.10-sol")));
         assertEquals(0, transport.ids.size());
         runtime.onWebEvent(object("type", "state", "state", readyState().put("temporary", false)));
-        assertEquals(0, transport.ids.size());
-        ready();
         assertEquals(1, transport.ids.size());
         assertEquals(request.optString("external_id"), transport.ids.get(0));
         assertEquals("dispatching", store.getRequest(request.optLong("id")).optString("status"));
         assertTrue(transport.persistedBeforeSend);
         runtime.tick(); runtime.tick();
         assertEquals(1, transport.ids.size());
+    }
+
+    @Test public void appMemoryAuthorityUsesCurrentIdentityInstructionsAndExcludesDeletedSources() throws Exception {
+        store.putSetting("assistant.identity",object("name","새이름","revision","test-current").toString());
+        store.putSetting("customInstructions","앱의 최신 지침: 주소는 확인한 원문만 사용해.");
+        JSONObject stale=store.addMessage("user","EXCLUDED-ADDRESS-9531",null);
+        store.upsertMemory("owner.address","EXCLUDED-ADDRESS-9531","fact",new JSONArray().put(stale.getLong("id")));
+        JSONObject current=store.addMessage("user","정정: 주소는 CURRENT-ADDRESS-8442",null);
+        store.upsertMemory("owner.address","CURRENT-ADDRESS-8442","fact",new JSONArray().put(current.getLong("id")));
+        store.getPrivacyLedger().excludeSource("message",stale.getLong("id"),stale.getString("content_hash"),"retrieval_exclude","owner deletion");
+        ready();runtime.receive("주소와 네 이름을 알려줘",new JSONArray());
+        assertEquals(1,transport.prompts.size());String prompt=transport.prompts.get(0);
+        assertTrue(prompt.contains("APP_MEMORY_AUTHORITY v1"));
+        assertTrue(prompt.contains("ChatGPT 계정의 저장 메모리·맞춤 지침·다른 대화에서 온 사용자 정보는 이 앱의 개인화 근거로 사용하지 않는다"));
+        assertTrue(prompt.contains("최신 정정·삭제·제외 기록이 우선"));
+        assertTrue(prompt.contains("\"name\":\"새이름\""));assertTrue(prompt.contains("앱의 최신 지침"));
+        assertTrue(prompt.contains("CURRENT-ADDRESS-8442"));assertFalse(prompt.contains("EXCLUDED-ADDRESS-9531"));
+    }
+
+    @Test public void burstOwnerInputsKeepMiddleCorrectionsWithoutReplayingOldEffectsOrChangingTheActiveModel() throws Exception {
+        store.putSetting("requiredEffort","xhigh");
+        runtime.onWebEvent(object("type","state","code","ready","state",readyState().put("effort","xhigh")));
+        JSONObject first=runtime.receive("기존 파일을 새로 작성해",new JSONArray());accept(first);
+        JSONObject second=runtime.receive("참 파일 이름은 보고서로",new JSONArray());
+        String correction="중간 정정: 파일 쓰기는 전부 취소해. 기존 파일도 건드리지 마.";
+        JSONObject third=runtime.receive(correction,new JSONArray());
+        JSONObject fourth=runtime.receive("그리고 말투는 간결하게 해",new JSONArray());
+        assertEquals(3,runtime.state().getLong("queuedOwnerInputs"));assertEquals(1,transport.ids.size());
+        String raw=envelope("변경 전 계획",new JSONArray().put(action("old-write","files.write",object("relativePath","burst-cancelled.txt","content","must not run"))),null).replace("__CURRENT_REQUEST__",first.getString("external_id"));
+        complete(first,raw);
+        assertEquals(0,files.listFiles().length());assertNull(store.getSetting("actionReceipt:"+first.getString("external_id")+":old-write",null));
+        assertEquals(second.getString("external_id"),transport.ids.get(1));
+        String prompt=transport.prompts.get(1);assertTrue(prompt.contains("ORDERED_OWNER_UPDATES"));assertTrue(prompt.contains(correction));
+        long middleSource=Long.parseLong(store.getSetting("requestSource:"+third.getString("external_id"),"0"));assertTrue(prompt.contains(store.getMessage(middleSource).getString("content_hash")));
+        assertTrue(prompt.contains("그리고 말투는 간결하게 해"));
+        complete(second,"파일 작성 취소를 확인했어.");assertEquals(third.getString("external_id"),transport.ids.get(2));
+        complete(third,"파일을 건드리지 않을게.");assertEquals(fourth.getString("external_id"),transport.ids.get(3));
+        complete(fourth,"간결하게 답할게.");
+        JSONObject continuation=store.getRequest(runtime.state().getLong("activeStoreId"));
+        assertEquals(first.getString("external_id"),store.getSetting("requestRoot:"+continuation.getString("external_id"),""));
+        assertEquals("xhigh",runtime.requiredModelPreferences().getString("effort"));
+        assertTrue(transport.prompts.get(4).contains(correction));assertEquals(0,transport.cancels);assertEquals(0,files.listFiles().length());
     }
 
     @Test public void statePreflightComposerFailureDoesNotDispatch() throws Exception {

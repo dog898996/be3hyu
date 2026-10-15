@@ -3,7 +3,7 @@
  * Composer, stable turn identities and answer/footer observation are adapted from
  * miuuyy/codex-chatgpt-web (MIT), pinned 0b6087c5307c7a58adda9c420358f3f70d2035f5.
  * This is not that project's desktop terminal bridge or an official Work API.
- * It deliberately fails closed when Work/Temporary/model selection cannot be
+ * It deliberately fails closed when Work/model selection cannot be
  * proven from the current UI. It never reads cookies, passwords or web storage.
  */
 (function installHoyoungWorkBridge() {
@@ -17,7 +17,11 @@
   }
 
   const initialDocument = document;
-  const initialPath = location.pathname;
+  let initialPath = location.pathname;
+  let ownedConversationId = '';
+  let verifiedWorkSession = false;
+  let cleaningSession = false;
+  const cos = window.HoyoungCoSDom;
   const COMPOSER = '[data-testid="prompt-textarea"], #prompt-textarea, [contenteditable="true"][data-lexical-editor="true"], form[data-chatgpt-composer] [data-composer-markdown][contenteditable="true"][role="textbox"]';
   const SEND = '[data-testid="send-button"], button[type="submit"]';
   const STOP = '[data-testid="stop-button"], button[aria-label="Stop generating"], button[aria-label="응답 생성 중지"]';
@@ -96,13 +100,13 @@
   function isTemporary(element) { return /^(?:Temporary(?: chat)?|임시 (?:채팅|대화)|Turn (?:on|off) temporary chat|임시 (?:채팅|대화) (?:켜기|끄기))$/i.test(labelOf(element)); }
   function temporaryOn(element) { return isTemporary(element) && (selected(element) || /^(?:Turn off temporary chat|임시 (?:채팅|대화) 끄기)$/i.test(labelOf(element))); }
   function composer() {
-    const candidates = all(COMPOSER).filter(element => !element.closest(TRANSCRIPT));
-    return candidates.length === 1 ? candidates[0] : null;
+    return cos ? cos.composer() : null;
   }
   function composerScope(element) { return element && (element.closest('form') || element.closest('[data-chatgpt-composer]')); }
   function stopButtons() {
+    const cosStop = cos && cos.stopButton();
     const scope = composerScope(composer());
-    const buttons = all(STOP, scope || document).filter(element => !element.closest(TRANSCRIPT));
+    const buttons = cosStop && visible(cosStop) ? [cosStop] : all(STOP, scope || document).filter(element => !element.closest(TRANSCRIPT));
     if (scope) for (const button of all('button[type="button"].size-token-button-composer', scope)) {
       if (Array.from(button.querySelectorAll('svg.icon-primary-action > path')).some(path => path.getAttribute('d') === STOP_ICON_PATH)
         && !buttons.includes(button)) buttons.push(button);
@@ -111,7 +115,8 @@
   }
   function sendButtons(editor) {
     const scope = composerScope(editor);
-    return scope ? all(SEND, scope) : [];
+    const button = cos && cos.sendButton();
+    return scope && button && scope.contains(button) && visible(button) ? [button] : [];
   }
   function enabled(element) { return element && !element.disabled && element.getAttribute('aria-disabled') !== 'true'; }
   function notify(event) {
@@ -272,7 +277,8 @@
     if (active) return active.phase === 'uncertain' ? 'dispatch_uncertain' : 'busy';
     if (state.authenticated !== true) return state.authenticated === false ? 'authentication_required' : 'authentication_unverified';
     if (!state.workSelected) return 'work_unverified';
-    if (!state.temporary) return 'temporary_unverified';
+    if (cleaningSession) return 'conversation_cleanup_pending';
+    if (state.conversationOwned !== true) return 'unowned_conversation';
     if (state.busy || state.quota || state.needsInput) return state.quota ? 'quota_exhausted' : state.needsInput ? 'input_required' : 'busy';
     const editor = composer(), scope = composerScope(editor);
     if (!editor || !scope) return 'composer_unverified';
@@ -490,11 +496,19 @@
     const authenticated = loggedOut ? false : editor && (accountControl || responsiveAccount) ? true : null;
     const temporaryBanner = all('header [role="status"], main > [role="status"], header h1, main > h1')
       .some(element => isTemporary(element) && !element.closest(TRANSCRIPT));
+    const selectedWork = selectable.some(element => isWork(element) && selected(element));
+    const selectedChat = selectable.some(element => /^(?:Chat|Chat mode|채팅|Chat 모드)$/i.test(labelOf(element)) && selected(element));
+    if (selectedChat) verifiedWorkSession = false;
+    if (selectedWork && location.pathname === initialPath) verifiedWorkSession = true;
+    const ownPath = ownedConversationId && location.pathname === '/c/' + ownedConversationId;
+    const fresh = location.pathname === '/' && turnSnapshot().turns.length === 0;
     return Object.assign({
       authenticated,
-      workSelected: selectable.some(element => isWork(element) && selected(element)),
+      workSelected: selectedWork || !!(ownPath && verifiedWorkSession && !selectedChat),
+      conversationId: ownPath ? ownedConversationId : null,
+      conversationOwned: !!ownPath || fresh,
       temporary: selectable.some(temporaryOn) || temporaryBanner,
-      busy: stopButtons().length > 0 || !!(composerScope(editor) && composerScope(editor).getAttribute('aria-busy') === 'true'),
+      busy: cleaningSession || !!(cos && cos.generating()) || stopButtons().length > 0 || !!(composerScope(editor) && composerScope(editor).getAttribute('aria-busy') === 'true'),
       quota: quotaLatched || !!quotaBanner(),
       needsInput: !!inputRequiredStatus(),
       steeringVerified: false,
@@ -507,7 +521,8 @@
     if (state.authenticated === false) return 'authentication_required';
     if (state.authenticated !== true) return 'authentication_unverified';
     if (!state.workSelected) return 'work_unverified';
-    if (!state.temporary) return 'temporary_unverified';
+    if (cleaningSession) return 'conversation_cleanup_pending';
+    if (state.conversationOwned !== true) return 'unowned_conversation';
     if (preferenceSelectionFlight) return preferenceSelectionUncertain ? 'preference_selection_uncertain' : 'preference_selection_pending';
     if (state.model !== (preferences || configuredPreferences).model) return 'model_unverified';
     if (state.effort !== (preferences || configuredPreferences).effort) return 'effort_unverified';
@@ -689,6 +704,16 @@
   }
   function tick() {
     if (disposed) return;
+    if (cleaningSession) return;
+    if (location.pathname !== initialPath && initialPath === '/' && active && active.clicked && active.freshConversation
+        && /^\/c\/[A-Za-z0-9_-]{8,128}$/.test(location.pathname)) {
+      const snapshot = turnSnapshot();
+      const users = snapshot.turns.filter(turn => turn.role === 'user' && !active.baseline.has(turn.id));
+      if (snapshot.valid && users.length === 1 && users[0].text === normalized(active.text)) {
+        initialPath = location.pathname;
+        ownedConversationId = initialPath.substring(3);
+      } else if (Date.now() - active.clickedAt < ACCEPT_TIMEOUT_MS) return;
+    }
     if (document !== initialDocument || location.origin !== 'https://chatgpt.com' || location.pathname !== initialPath) {
       dispose('navigation_uncertain'); return;
     }
@@ -720,11 +745,17 @@
     const matches = newUsers.filter(turn => turn.text === normalized(active.text));
     if (matches.length > 1 || newUsers.some(turn => turn.text !== normalized(active.text))) { uncertain('turn_ambiguous'); return; }
     if (!active.acceptedUserId && matches.length === 1) {
+      // A normal Work turn must have an owned conversation address before an
+      // acceptance receipt can be used for future session deletion.
+      if (active.freshConversation && !ownedConversationId) {
+        if (Date.now() - active.clickedAt >= ACCEPT_TIMEOUT_MS) uncertain('conversation_id_unverified');
+        return;
+      }
       active.acceptedUserId = matches[0].id;
       active.acceptedUserKey = matches[0].key;
       active.phase = 'accepted';
       remember({ requestId: active.requestId, text: active.text, phase: 'accepted' });
-      notify({ type: 'accepted', requestId: active.requestId, code: 'user_turn_confirmed', turnId: active.acceptedUserId, uploadObserved: active.uploadObserved === true, attachmentNames: active.attachmentNames, uploadObservationScope: 'composer_reports_uploaded_before_user_turn_confirmation', state: readState() });
+      notify({ type: 'accepted', requestId: active.requestId, code: 'user_turn_confirmed', turnId: active.acceptedUserId, conversationId: ownedConversationId, freshConversation: active.freshConversation, uploadObserved: active.uploadObserved === true, attachmentNames: active.attachmentNames, uploadObservationScope: 'composer_reports_uploaded_before_user_turn_confirmation', state: readState() });
     }
     if (!active.acceptedUserId) {
       if (Date.now() - active.clickedAt >= ACCEPT_TIMEOUT_MS) uncertain('dispatch_uncertain');
@@ -775,12 +806,6 @@
       if (work.length !== 1 || !enabled(work[0])) return result('work_control_unverified');
       try { work[0].click(); } catch (_) { return result('work_selection_uncertain'); }
       return { ok: true, code: 'work_selection_pending', state: readState() };
-    }
-    if (!inspection.state.temporary) {
-      const temporary = selectable.filter(isTemporary);
-      if (temporary.length !== 1 || !enabled(temporary[0])) return result('temporary_control_unverified');
-      try { temporary[0].click(); } catch (_) { return result('temporary_selection_uncertain'); }
-      return { ok: true, code: 'temporary_selection_pending', state: readState() };
     }
     return inspection;
   }
@@ -990,10 +1015,12 @@
     const files = attachmentValidation.files;
     const uploadInput = files.length ? attachmentInput(editor, files) : null;
     if (files.length && !uploadInput) return preflightFailure('attachment_control_unverified', payload.requestId);
-    if (sendButtons(editor).length !== 1) return preflightFailure('send_control_unverified', payload.requestId);
+    // Current mobile UI swaps the voice button for Send only after input. CoS
+    // verifies the resulting control at clickWhenReady, before any submit.
+    if (all(SEND, scope).length > 1) return preflightFailure('send_control_unverified', payload.requestId);
     const snapshot = turnSnapshot();
     if (!snapshot.valid) return preflightFailure('turn_identity_unverified', payload.requestId);
-    active = { requestId: payload.requestId, text: payload.text, preferences, phase: files.length ? 'preparing_attachments' : 'preparing', preparingAt: Date.now(), editor, baseline: snapshot.known, clicked: false, lastText: '', attachmentNames: files.map(file => file.name), requiresNativeAuthorization: payload.requiresNativeAuthorization === true, requiresNativePayloadDigest: payload.requiresNativePayloadDigest === true, payloadDigest: payload.nativePayloadDigest || '', authorizationGranted: false };
+    active = { requestId: payload.requestId, text: payload.text, preferences, freshConversation: initialPath === '/' && snapshot.turns.length === 0, phase: files.length ? 'preparing_attachments' : 'preparing', preparingAt: Date.now(), editor, baseline: snapshot.known, clicked: false, lastText: '', attachmentNames: files.map(file => file.name), requiresNativeAuthorization: payload.requiresNativeAuthorization === true, requiresNativePayloadDigest: payload.requiresNativePayloadDigest === true, payloadDigest: payload.nativePayloadDigest || '', authorizationGranted: false };
     remember({ requestId: active.requestId, text: active.text, phase: 'preparing' });
     let filled = false;
     try { filled = fillEditor(editor, payload.text); } catch (_) { /* An editor implementation changed; do not guess another editing path. */ }
@@ -1062,7 +1089,7 @@
   function dispose(code) {
     if (disposed) return;
     if (active && active.authorizationTimer) clearTimeout(active.authorizationTimer);
-    if (active) emitError(code || 'navigation_uncertain', active.requestId, { mayHaveBeenAccepted: !!active.clicked, retryAllowed: false });
+    if (active) emitError(code || 'navigation_uncertain', active.requestId, { mayHaveBeenAccepted: !!active.clicked || !submissionStillUnobserved(active), retryAllowed: false });
     disposed = true;
     if (observer) observer.disconnect();
     if (interval) clearInterval(interval);
@@ -1070,7 +1097,23 @@
     document.removeEventListener('click', invalidatePopupEvidence, true);
   }
   function onPageHide() { dispose('navigation_uncertain'); }
-  const api = { inspect, selectWork, send, cancel, inspectAndEmit, prepareOwnerRetry, authorizeDispatch, configurePreferences, ensurePreferences, captureUsageObservation };
+  function restoreOwnedConversation(id) {
+    if (active || cleaningSession || !/^[A-Za-z0-9_-]{8,128}$/.test(id) || location.pathname !== '/c/' + id) return false;
+    ownedConversationId = id; verifiedWorkSession = true; return true;
+  }
+  async function deleteOwnedConversation(id) {
+    if (active || readState().busy || !ownedConversationId || id !== ownedConversationId || cleaningSession)
+      return result('conversation_cleanup_busy');
+    cleaningSession = true;
+    let event;
+    try { event = await window.HoyoungDeleteConversation(id); }
+    catch (_) { event = {type:'session_cleanup', code:'conversation_cleanup_unconfirmed', conversationId:id}; }
+    notify(event);
+    // Keep the old document blocked until native has persisted the deletion
+    // receipt and explicitly loads a fresh document. Failure needs owner review.
+    return event;
+  }
+  const api = { inspect, selectWork, send, cancel, inspectAndEmit, prepareOwnerRetry, authorizeDispatch, configurePreferences, ensurePreferences, captureUsageObservation, restoreOwnedConversation, deleteOwnedConversation };
   Object.defineProperty(api, '__document', { value: document });
   Object.defineProperty(api, '__dispose', { value: dispose });
   window.HoyoungWorkBridge = api;

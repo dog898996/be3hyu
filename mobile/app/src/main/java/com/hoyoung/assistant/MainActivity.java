@@ -705,7 +705,7 @@ public final class MainActivity extends Activity {
     }
 
     private void showWork() {
-        TextView help = label("① 아래에서 ChatGPT 로그인  ② Work·임시 채팅 선택  ③ 연결 확인. 모델·강도·속도는 앱에서 정한 값으로 맞춰. 접수가 확인되면 대화에 읽음이 표시돼.", 13, SUBTLE);
+        TextView help = label("① ChatGPT 로그인  ② 일반 Work 선택  ③ 연결 확인. 새 대화로 바꿀 때 이전 호영 대화를 삭제해. 폰의 기억·지침은 유지돼. 계정 메모리 기능 자체를 끄는 방식은 아니야.", 13, SUBTLE);
         help.setPadding(dp(16), dp(14), dp(16), dp(14)); content.addView(help);
         workConnectionDetails=label("연결 상태 확인 중",12,SUBTLE);workConnectionDetails.setPadding(dp(16),0,dp(16),dp(8));
         workConnectionDetails.setContentDescription("Work 연결 상세");content.addView(workConnectionDetails);
@@ -717,14 +717,30 @@ public final class MainActivity extends Activity {
             app.getRuntime().receive("연결 검증만 수행해. Work의 실제 클라우드 코드 실행 도구가 있다면 Python으로 2+2를 계산하고 임시 작업 파일 hoyoung-connection-check.txt에 그 결과를 기록해. 실제 실행 결과와 사용한 도구를 보고하고, 클라우드 도구가 없으면 없다고 정확히 말해. 폰 연결은 phone_device_info 도구로 최소 상태만 확인해. 로그인 계정 변경·외부 메시지·결제·개인 연락처나 알림 읽기는 하지 마. 실제 도구 결과 없이 검증 통과라고 만들지 마.", new JSONArray());
             showTab("대화");
         }), new LinearLayout.LayoutParams(0, dp(46), 1));
-        controls.addView(button("새 임시 대화", () -> {
+        controls.addView(button("새 Work 대화", () -> {
             JSONObject state = app.getRuntime().state();
             if (!state.isNull("activeRequestId") && !state.optString("activeRequestId").isEmpty()) {
-                notice("진행 중인 작업의 결과를 먼저 확인해. 새 대화를 열면 기존 임시 대화를 잃을 수 있어."); return;
+                notice("진행 중인 작업의 결과가 보관된 뒤 새 대화로 바꿀 수 있어."); return;
             }
             try { app.getRuntime().openTemporary(); }
             catch (Exception e) { notice("기존 작업의 결과를 먼저 확인하거나 설정에서 해당 작업을 제외해 줘."); }
         }), new LinearLayout.LayoutParams(0, dp(46), 1));
+        controls.addView(button("삭제 확인 복구", () -> {
+            String id = app.getWebController().pendingConversationDeletion();
+            String unresolved = app.getWebController().unresolvedConversationCreation();
+            if (id.isEmpty() && !unresolved.isEmpty()) {
+                new android.app.AlertDialog.Builder(this).setTitle("대화 생성 결과 확인")
+                    .setMessage("연결이 끊겨 앱이 만든 대화 주소를 확인하지 못했어. 기존 작업의 결과를 먼저 확인하고, 웹에서 해당 호영 대화를 직접 삭제한 뒤에만 확인해 줘. 확인되지 않은 진행 중 작업은 먼저 설정의 작업 복구에서 정리해야 해.")
+                    .setNegativeButton("돌아가기", null)
+                    .setPositiveButton("확인·삭제했음", (dialog, which) -> app.getWebController().confirmUnknownConversationDeletedByOwner(unresolved)).show();
+                return;
+            }
+            if (id.isEmpty()) { notice("확인이 필요한 이전 대화 삭제가 없어."); return; }
+            new android.app.AlertDialog.Builder(this).setTitle("이전 대화 삭제 확인")
+                .setMessage("자동 삭제 확인이 실패했을 때만 사용해. 아래 Work 화면에서 이 대화를 직접 삭제한 것이 확실할 때 확인해 줘.\n\n대화 ID: " + id + "\n\n폰의 기억·설정은 삭제하지 않아. ChatGPT 계정에 별도로 저장된 메모리도 지우지 않아.")
+                .setNegativeButton("돌아가기", null)
+                .setPositiveButton("직접 삭제했음", (dialog, which) -> app.getWebController().confirmConversationDeletedByOwner(id)).show();
+        }));
         controls.addView(button("연결 진단 복사",this::copyConnectionDiagnosis));
         android.widget.HorizontalScrollView controlsScroll=new android.widget.HorizontalScrollView(this);controlsScroll.setHorizontalScrollBarEnabled(false);controlsScroll.setPadding(dp(12),0,dp(12),dp(10));
         for(int i=0;i<controls.getChildCount();i++){View control=controls.getChildAt(i);LinearLayout.LayoutParams params=new LinearLayout.LayoutParams(-2,dp(48));params.rightMargin=dp(8);control.setLayoutParams(params);}
@@ -1530,7 +1546,7 @@ public final class MainActivity extends Activity {
         else if (state.optBoolean("restoringBackup")) connection.setText("백업 복원 중 · 자동 실행을 멈췄어");
         else if (state.optBoolean("quotaBlocked")) connection.setText("사용 한도 대기 · 메시지와 작업은 폰에 저장돼");
         else if (state.optBoolean("uncertaintyBlocked")) connection.setText("이전 작업 결과 확인 필요 · 자동 재전송을 멈췄어");
-        else if (isActive()) connection.setText(("preparing".equals(state.optString("activePhase")) ? "관련 기억·요청 준비 중" : "Work 전송·응답 대기") + " · " + (state.optLong("activeWaitingMillis") / 1000) + "초 · 새 입력은 저장돼");
+        else if (isActive()) connection.setText(("preparing".equals(state.optString("activePhase")) ? "관련 기억·요청 준비 중" : "Work 전송·응답 대기") + " · " + (state.optLong("activeWaitingMillis") / 1000) + "초 · " + (state.optLong("queuedOwnerInputs") > 0 ? "추가 지시 " + state.optLong("queuedOwnerInputs") + "개 저장 · 후속 동작에 반영" : "추가 메시지를 보내도 돼"));
         else if ("prompt_too_large".equals(code)) connection.setText("문맥이 너무 길어 전송을 멈췄어 · 원문은 폰에 남아 있어");
         else if ("ATTACHMENT_NOT_READY".equals(code) || code.startsWith("attachment_")) connection.setText("첨부를 확인하지 못해 전송을 멈췄어");
         else if (state.optBoolean("ready")) {
