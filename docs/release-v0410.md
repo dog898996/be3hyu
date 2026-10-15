@@ -28,3 +28,5 @@ Work 웹에는 답변이 나왔지만 앱에는 도착하지 않는 경로와 �
 [검사 기록](benchmarks/android-v0410-focused.json) · [배포](https://github.com/dog898996/be3hyu/releases/tag/v0.4.10)
 
 서명 릴리스 빌드와 필수 lint, APK 서명·버전·권한·네이티브 패키징 검사, 연결 파일 6개의 원본 일치를 확인했다. 기존 앱과 같은 서명을 유지한다. APK SHA-256: `e68fe8d34df3b8e8ae0ad2b17c8bde3f91a9cbd5eed73198dfc0ca90d8df5b5a`. [APK 검사 기록](benchmarks/android-v0410-apk.json).
+
+[APK 직접 다운로드](https://raw.githubusercontent.com/dog898996/be3hyu/27fc32521a38ad565183ad222f346744597d44f4/release-assets/v0.4.10/hoyoung-v0.4.10.apk) · [공개 다운로드 검사](benchmarks/android-v0410-downloads.json). APK·전체 소스·검증 JSON·체크섬 4개를 인증 없이 내려받아 HTTP 200, 전체 크기와 SHA-256 일치를 확인했다. 소스 커밋: `21ee64afae89869df363479de35ff489739a4bb1`.
