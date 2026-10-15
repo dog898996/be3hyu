@@ -1518,8 +1518,12 @@ public final class MainActivity extends Activity {
             JSONObject request = requests.optJSONObject(i); if (request == null) continue;
             String status = request.optString("status");
             if (!"uncertain".equals(status) && !"blocked".equals(status) && !"quota".equals(status)) continue;
-            panel.addView(label(status + " · " + shorten(request.optString("text"), 120), 13, SUBTLE));
-            if (!"uncertain".equals(status)) panel.addView(button("선택 확인 후 다시 대기", () -> {
+            String stateLabel="uncertain".equals(status)?"결과 확인 필요":"quota".equals(status)?"사용 한도 대기":"처리 중단";
+            panel.addView(label(stateLabel + " · " + shorten(request.optString("text"), 120), 13, SUBTLE));
+            String failure=app.getStore().getSetting("dispatchKnownNotSent:"+request.optString("external_id"),"");
+            if(failure.isEmpty()&&request.optString("result").matches("[A-Za-z_]{3,128}"))failure=request.optString("result");
+            if(!failure.isEmpty())panel.addView(label("중단 이유: "+failure,12,SUBTLE));
+            if (!"uncertain".equals(status)) panel.addView(button("이 요청 다시 시도", () -> {
                 try { app.getRuntime().retryRequest(request.optLong("id")); showSettings(); }
                 catch (Exception e) { notice("이 작업은 지금 다시 시작할 수 없어."); }
             }));

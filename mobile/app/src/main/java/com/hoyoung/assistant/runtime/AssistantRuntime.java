@@ -415,11 +415,20 @@ public final class AssistantRuntime {
             String code = event.optString("code", "unknown");
             if (!"accepted".equals(active.optString("status")) && (event.optBoolean("knownNotSent", false) || "not_sent".equals(code) || "preflight_rejected".equals(code)
                     || (event.has("mayHaveBeenAccepted") && Boolean.FALSE.equals(event.opt("mayHaveBeenAccepted"))))) {
+                boolean notifyOwner=ownerPurpose(active);
                 store.markRequest(id, "blocked", bounded(event.optString("text", code), 4000));
+                store.putSetting("dispatchKnownNotSent:"+requestId,bounded(code,128));
                 releaseRequestResources(requestId,"blocked_memory");
                 active = null;
                 store.putSetting("runtime.progress", "전송 전에 멈춤 (" + bounded(code, 128) + "). 연결 상태를 확인한 후 직접 다시 시도해 줘.");
                 store.putSetting("runtime.lastCode", bounded(code, 128));
+                if(notifyOwner) {
+                    String explanation=code.startsWith("conversation_")||"unowned_conversation".equals(code)
+                            ?com.hoyoung.assistant.ui.WorkConnectionStatus.hint(code):"연결 상태나 요청 준비를 확인하지 못했어.";
+                    JSONObject notice=store.addMessage("system","이 요청은 전송 전에 멈췄어. "+explanation
+                            +" 원문은 보관돼. 설정의 ‘확인되지 않은 작업’에서 이 요청을 다시 시도할 수 있어.",requestId);
+                    publishReply(notice,"blocked");
+                }
             } else makeUncertain("연결 결과를 확인하지 못했어. 같은 작업을 자동으로 다시 보내지는 않을게.");
         }
         changed();
@@ -942,6 +951,31 @@ public final class AssistantRuntime {
         JSONArray requests=store.uncertainRequests(100);
         for(int i=0;i<requests.length();i++)ids.put(requests.optJSONObject(i).optString("external_id"));
         return ids;
+    }
+
+    /** Only native terminal outcomes may retire an orphaned browser creation reservation. */
+    public synchronized JSONObject webCreationReservation(String requestId, boolean recordRetirement) {
+        JSONObject request=store.getRequestByExternalId(requestId);
+        String status=request==null?"missing":request.optString("status");
+        String disposition="";
+        if(receiptsReady&&!restoringBackup&&!storageRecoveryBlocked
+                &&(active==null||!requestId.equals(active.optString("external_id")))
+                &&!requestId.equals(completingRequestId)) {
+            if("completed".equals(status)||"abandoned".equals(status))disposition=status;
+            else if(("blocked".equals(status)||"quota".equals(status))&&!store.getSetting("dispatchKnownNotSent:"+requestId,"").isEmpty())
+                disposition="known_not_sent";
+        }
+        JSONObject result=object("requestId",requestId,"status",status,"disposition",disposition,
+                "retirementAllowed",!disposition.isEmpty(),"providerDeletionVerified",false,"automaticResubmit",false);
+        if(recordRetirement&&!disposition.isEmpty()) {
+            // Keep every retired request in the native history before releasing the
+            // browser slot. A crash between the writes is safe to reconcile again.
+            if(store.getSetting("workCreationRetired:"+requestId,"").isEmpty()) {
+                put(result,"retiredAt",nowMillis());store.putSetting("workCreationRetired:"+requestId,result.toString());
+                store.recordEvent("work_creation_reservation_retired",result);
+            }
+        }
+        return result;
     }
 
     public synchronized JSONArray recoverableWebRequests() {

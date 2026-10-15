@@ -15,6 +15,7 @@ public final class WorkConnectionStatus {
             case "conversation_cleanup_pending" -> "이전 호영 대화의 삭제를 확인 중이야. 확인되면 새 Work 대화를 열어.";
             case "conversation_cleanup_unconfirmed", "conversation_cleanup_control_unverified", "conversation_cleanup_confirmation_unverified", "conversation_cleanup_wrong_target" -> "이전 대화의 자동 삭제를 확인하지 못했어. 아래 웹에서 직접 삭제한 뒤 ‘직접 삭제한 대화 확인’를 눌러 줘.";
             case "conversation_journal_unreadable", "conversation_ownership_unresolved" -> "이전 대화의 소유·접수 기록 확인이 필요해. 삭제하거나 새 작업을 보내지 않고 대기 중이야.";
+            case "conversation_journal_unavailable" -> "앱의 대화 연결 기록을 갱신하지 못했어. ‘재연결’로 이전 요청 상태와 기록을 다시 확인해 줘.";
             case "model_unverified", "effort_unverified", "speed_unverified", "preference_selection_unverified" -> "‘연결’을 누르면 앱이 선택창을 열어 모델·추론·Fast를 확인하고 닫아. 계속 막히면 ⋯에서 연결 진단을 복사해 줘.";
             case "preference_selection_uncertain", "preference_option_unavailable", "preference_option_ambiguous", "preference_selection_limit" -> "자동 선택을 확인하지 못해 대기를 끝냈어. ‘연결’로 확인을 다시 시도할 수 있어. 이미 누른 설정의 결과가 불명확하면 중복으로 바꾸지 않고 멈춰. 메시지는 보관돼.";
             case "composer_has_draft" -> "아래 ChatGPT 웹 입력창에 작성 중인 내용이 있어 자동 선택을 멈췄어. 그 내용을 보관하거나 지운 뒤 연결을 누르면 돼. 앱 대화의 대기 메시지는 그대로 남아 있어.";
@@ -49,7 +50,7 @@ public final class WorkConnectionStatus {
             case "composer_has_draft" -> "웹 입력창에 작성 중인 내용이 있어";
             case "composer_has_attachments" -> "웹 입력창의 첨부 확인이 필요해";
             case "conversation_cleanup_pending" -> "이전 대화 정리 중…";
-            case "conversation_cleanup_unconfirmed", "conversation_cleanup_control_unverified", "conversation_cleanup_confirmation_unverified", "conversation_cleanup_wrong_target", "conversation_journal_unreadable", "conversation_ownership_unresolved" -> "대화 기록 확인 필요 · 상세정보에서 확인";
+            case "conversation_cleanup_unconfirmed", "conversation_cleanup_control_unverified", "conversation_cleanup_confirmation_unverified", "conversation_cleanup_wrong_target", "conversation_journal_unreadable", "conversation_journal_unavailable", "conversation_ownership_unresolved" -> "대화 기록 확인 필요 · 상세정보에서 확인";
             case "busy" -> "작업 중 · 추가 지시는 대화에서";
             case "conversation_changed" -> "기존 호영 대화로 돌아가면 확인할 수 있어";
             case "reply_recovery_open_conversation" -> "이전 답변 확인 중 · 해당 Work 대화를 열어 줘";

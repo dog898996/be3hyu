@@ -331,8 +331,10 @@ public final class WorkWebController implements AssistantRuntime.Transport {
                         }
                         if (("error".equals(type) || "quota".equals(type)) && event.optBoolean("knownNotSent"))
                             conversations.notSent(event.optString("requestId"));
-                        if ("state".equals(type) && (conversations.cleaning() || conversations.blocked())) {
-                            publishUnavailableState("conversation_cleanup_pending", false, 0, null); return;
+                        if ("state".equals(type)) {
+                            JSONObject state=event.optJSONObject("state");
+                            if(state!=null)emitState(state,event.optString("code",state.optString("readinessCode","")));
+                            scheduleReplyRecovery();return;
                         }
                         if ("progress".equals(type) && "dispatch_authorization_requested".equals(event.optString("code"))) {
                             authorizePreparedDispatch(webView, event);
@@ -482,6 +484,7 @@ public final class WorkWebController implements AssistantRuntime.Transport {
             ValueCallback<JSONObject> finish = result -> {
                 if (finished[0]) return;
                 finished[0] = true;
+                try {result.put("conversationJournal",conversationJournalDiagnostics());}catch(Exception ignored){}
                 callback.onReceiveValue(result);
             };
             java.util.function.Function<String, JSONObject> unavailable = code -> {
@@ -515,6 +518,8 @@ public final class WorkWebController implements AssistantRuntime.Transport {
             if (view == null || !loaded) {if(prepareConnection)attemptStart();return;}
             if (conversations.cleaning() || conversations.blocked()) { publishUnavailableState("conversation_cleanup_pending", false, 0, null); return; }
             if(canReadRecovery(runtime.state())&&runtime.recoverableWebRequestIds().length()>0) {recoverRenderedReply();return;}
+            String journalStatus=reconcileConversationCreation();
+            if(!journalStatus.isEmpty()) {emitState(new JSONObject(),journalStatus);return;}
             final JSONObject preferences;
             try { preferences = bridgePreferences(); }
             catch (Exception invalidPreferences) { emitState(new JSONObject(), "unsupported_preferences"); return; }
@@ -716,6 +721,8 @@ public final class WorkWebController implements AssistantRuntime.Transport {
                 if (!runtime.preparedDispatchStillAllowed(requestId)) { emitPreflight("PREPARED_DISPATCH_POLICY_CHANGED", requestId); return; }
                 if (conversations.cleaning() || conversations.blocked()) { emitPreflight("conversation_cleanup_pending", requestId); return; }
                 try {
+                    String journalStatus=reconcileConversationCreation();
+                    if(!journalStatus.isEmpty()){emitPreflight(journalStatus,requestId);emitState(new JSONObject(),journalStatus);return;}
                     String path = Uri.parse(destination.getUrl()).getPath();
                     if (conversations.id().isEmpty() ? !"/".equals(path) : !("/c/" + conversations.id()).equals(path)) {
                         emitPreflight("unowned_conversation", requestId); return;
@@ -1194,8 +1201,31 @@ public final class WorkWebController implements AssistantRuntime.Transport {
     }
 
     private void emitState(JSONObject state, String code) {
-        if ((conversations.cleaning() || conversations.blocked()) && "ready".equals(code)) code = "conversation_cleanup_pending";
+        if("ready".equals(code)) {
+            String journalStatus=reconcileConversationCreation();if(!journalStatus.isEmpty())code=journalStatus;
+        }
         try { runtime.onWebEvent(new JSONObject().put("type", "state").put("code", code).put("state", state)); } catch (Exception ignored) { }
+    }
+
+    private String reconcileConversationCreation() {
+        if(conversations.blocked())return "conversation_journal_unreadable";
+        if(conversations.cleaning())return "conversation_cleanup_pending";
+        String pending=conversations.pendingRequest();
+        if(pending.isEmpty()||pending.equals(runtime.state().optString("activeRequestId")))return "";
+        try {
+            JSONObject proof=runtime.webCreationReservation(pending,true);
+            if(!proof.optBoolean("retirementAllowed"))return "conversation_ownership_unresolved";
+            conversations.retireReviewedCreation(pending,proof.optString("disposition"));return "";
+        }catch(Exception failure){return "conversation_journal_unavailable";}
+    }
+
+    private JSONObject conversationJournalDiagnostics() throws IOException {
+        JSONObject result=conversations.snapshot();String pending=conversations.pendingRequest();
+        try {
+            result.put("nativeReadinessCode",runtime.state().optString("readinessCode"));
+            if(!pending.isEmpty())result.put("pendingRequest",runtime.webCreationReservation(pending,false));
+        }catch(Exception failure){throw new IOException(failure);}
+        return result;
     }
 
     private void emitError(String code, String requestId) {

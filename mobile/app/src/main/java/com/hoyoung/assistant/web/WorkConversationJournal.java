@@ -44,6 +44,16 @@ final class WorkConversationJournal {
         if (!requestId.equals(pendingRequest())) return;
         JSONObject next = copy(); next.remove("pendingRequestId"); save(next);
     }
+    /** Retire a reservation after native request review, without claiming its unknown web chat was deleted. */
+    synchronized void retireReviewedCreation(String requestId, String disposition) throws IOException {
+        if (blocked() || cleaning() || !id().isEmpty() || requestId.isEmpty() || !requestId.equals(pendingRequest())
+                || !("completed".equals(disposition) || "abandoned".equals(disposition) || "known_not_sent".equals(disposition)))
+            throw new IOException("Creation review does not match reservation");
+        JSONObject next=copy();next.remove("pendingRequestId");
+        JSONObject retired=new JSONObject();put(retired,"requestId",requestId);put(retired,"disposition",disposition);
+        put(retired,"providerDeletionVerified",false);put(next,"lastRetiredCreation",retired);save(next);
+    }
+    synchronized JSONObject snapshot() throws IOException { return copy(); }
     synchronized void requestCleanup() throws IOException {
         if (blocked() || !pendingRequest().isEmpty()) throw new IOException("Conversation ownership unresolved");
         if (id().isEmpty()) return;

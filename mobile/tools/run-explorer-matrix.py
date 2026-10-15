@@ -153,8 +153,10 @@ try:
           'configurationMustBeReadFromActualTestProof': True}), flush=True)
     if args.scope == 'work-recovery':
         instrument('work-recovery', app + '.WorkCompatibilityExplorerDeviceTest', 13, 360)
+        instrument('native-dispatch', app + '.WorkNativeDispatchDeviceTest', 1, 120)
     else:
         instrument('product', ','.join(classes), 34, 720)
+        instrument('native-dispatch', app + '.WorkNativeDispatchDeviceTest', 1, 120)
 finally:
     if emulator is not None:
         try:

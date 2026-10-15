@@ -471,7 +471,7 @@ public final class WorkCompatibilityExplorerDeviceTest {
         document.addEventListener('keydown',event=>{if(event.key==='Escape')closePicker();});
         document.querySelector('#prompt-textarea').addEventListener('focus',()=>closePicker());
         """;
-    private static final String PAGE = """
+    static final String PAGE = """
         <!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
         <style>body{margin:0;font:16px sans-serif;color:#111;background:white}button{min-height:40px}header{padding:8px}#turns{padding:8px}form{padding:12px}#prompt-textarea{min-height:70px;white-space:pre-wrap;border:1px solid #888}#picker-menu,nav{position:fixed;left:10px;top:80px;background:white;border:2px solid #555;padding:14px;z-index:20}.cm-line{white-space:pre-wrap}</style></head><body>
         <div id="content"><header>
