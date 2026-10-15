@@ -343,7 +343,8 @@ public final class AssistantRuntime {
             if(active!=null&&"dispatching".equals(active.optString("status"))&&!webState.optString("model").isEmpty()
                     &&!webState.optString("effort").isEmpty()&&!webState.optString("speed").isEmpty())
                 recordUsageSafely(()->usageBudget.recordSelectionObserved(active.optString("external_id"),webState,webStateAt));
-            if("preference_selection_uncertain".equals(readinessCode)&&active!=null&&"preparing".equals(active.optString("status"))) {
+            if(java.util.Set.of("preference_selection_uncertain","preference_option_unavailable","preference_option_ambiguous","preference_selection_limit").contains(readinessCode)
+                    &&active!=null&&"preparing".equals(active.optString("status"))) {
                 String unsent=active.optString("external_id");
                 store.markRequest(active.optLong("id"),"blocked","모델 선택 확인이 끝나지 않아 요청은 전송되지 않았음");
                 finishAutomaticTick(unsent,false,"blocked_memory");

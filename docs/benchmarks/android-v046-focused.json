@@ -1,0 +1,83 @@
+{
+  "version": "0.4.6",
+  "recordedAt": "2026-10-15T01:37:23.165122+00:00",
+  "scope": "Reported mobile Work picker, observed model/Fast state, automatic open/close, bounded selection, native preparation and original-message preservation.",
+  "android": {
+    "tests": 4,
+    "passed": 4,
+    "suites": [
+      {
+        "class": "com.hoyoung.assistant.MainActivityChatUiTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "cases": [
+          "workConnectionKeepsOneActionAndMovesDiagnosticsBehindOverflowWithoutModelCalls"
+        ]
+      },
+      {
+        "class": "com.hoyoung.assistant.runtime.AssistantRuntimeRoutingTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "cases": [
+          "unavailablePickerChoicesEndPreparationWithoutSendingOrDroppingTheOriginal",
+          "uncertainSelectionBeforeWireBlocksOnlyTheUnsentPromptAndAllowsExplicitRecovery"
+        ]
+      },
+      {
+        "class": "com.hoyoung.assistant.web.WorkStartupRecoveryTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "cases": [
+          "connectionCanDiscoverAccountWhileIdleButLeavesDispatchedAndAcceptedWorkReadOnly"
+        ]
+      }
+    ]
+  },
+  "browser": {
+    "tests": 77,
+    "passed": 77,
+    "failed": 0,
+    "fixtureOnly": true,
+    "file": "mobile/tests/work-bridge.test.mjs",
+    "newMobileScenarios": [
+      "generic accessibility name versus rendered value",
+      "pointerdown-only opening and icon Fast",
+      "automatic close and accepted/completed request",
+      "already-open menu or dialog closes before dispatch",
+      "observed model and slider changes",
+      "hidden placeholder versus genuine draft",
+      "missing model/draft/close/toggle stalls terminate",
+      "observation-only retry after hydration"
+    ]
+  },
+  "release": {
+    "assembleRelease": "passed",
+    "lintVitalRelease": "passed",
+    "apkSha256": "678cee201e096d4fd3cd4307d7b9ee1f4e342eca1ba0198f9f2ab88f9b514695",
+    "packagedAssetsMatchSource": {
+      "work-bridge.js": "3f4440286f75a6e8f974e084e039d9c8be3bf9960c3eb482839a215622a82533",
+      "work-session-cleanup.js": "821cbdeafa51486eedab1efa1961ebf7369cbe19baa4d5813f15e56dec0d3640",
+      "cos-dom-adapter.js": "3378b1584682455884f13244b510cc1821770b7621c85b443f32bf4cdcef6c4c",
+      "vendor/chat-on-steroids/chatgpt-dom.js": "9c0bda471bf5ca9a000f678f04360df72447379e9ecee127c74c912bd4ce74a6",
+      "vendor/chat-on-steroids/LICENSE": "4e179d05b8808d9b19fd6f6f7a22f5912410c13aefb01f19e569afe8cf6d2fbe",
+      "vendor/chat-on-steroids/source.json": "c6d5cda69ac585c4c543708b816b04283b58a89d33e39c1421047e856b7217b4"
+    }
+  },
+  "inputEvidence": {
+    "userScreenshotReviewed": true,
+    "userDiagnosticReviewed": true,
+    "actualPhoneDomAvailable": false,
+    "upstreamReferenceCommit": "0b6087c5307c7a58adda9c420358f3f70d2035f5"
+  },
+  "notMeasured": [
+    "Real Galaxy S24 Ultra connection/send",
+    "Provider availability of model/Fast for this account",
+    "Native Android IME focus on the physical phone"
+  ],
+  "fullMemorySimulationRepeated": false,
+  "paidModelCalls": 0,
+  "permissionsMemoryBackupModified": false
+}

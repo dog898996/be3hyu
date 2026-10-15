@@ -183,6 +183,7 @@ test('mobile combined model and effort label remains readable with a collapsed s
       fast.addEventListener('click',()=>{window.fastChanges++;window.isFast=!window.isFast;fast.setAttribute('aria-checked',String(window.isFast));});menu.append(fast);document.body.append(menu);
     });
     document.querySelector('#prompt-textarea').addEventListener('focus',()=>document.querySelector('#mobile-menu')?.remove());
+    document.addEventListener('keydown',event=>{if(event.key==='Escape')document.querySelector('#mobile-menu')?.remove();});
   `;
 
 test('mobile Fast switch is read explicitly, may turn off, and survives closing its observed model menu', async () => {
@@ -276,6 +277,117 @@ test('mobile connect selects Work only after account proof and invalidates cache
     assert.equal((await inspect(page)).state.authenticated,null);
     assert.equal((await send(page)).ok,false);assert.equal(await page.evaluate(()=>window.clicks),0);
   },{setup:mobileSidebar+`document.querySelector('#work').setAttribute('aria-selected','false');`});
+});
+
+// Mobile screenshots + the pinned upstream's captured power-picker structure:
+// generic trigger aria-label, reverse-order model header, pointerdown opening,
+// hidden ARIA slider thumb and a localized icon-only Fast control.
+const phonePowerPicker = `
+document.querySelector('[data-testid="model-switcher-dropdown-button"]').remove();document.querySelector('#effort').remove();document.querySelector('#speed').remove();
+window.phoneOpens=0;window.phoneCloses=0;window.phoneFastChanges=0;window.phoneMoves=0;window.phoneModelChanges=0;
+window.phoneEfforts=['Light','Medium','High','XHigh','Max','Ultra'];window.phoneIndex=1;window.phoneModel='GPT-6.1 Sol';window.phoneFast=false;
+const phoneTrigger=document.createElement('button');phoneTrigger.type='button';phoneTrigger.id='phone-trigger';phoneTrigger.dataset.codexIntelligenceTrigger='true';phoneTrigger.dataset.composerNavigationTarget='reasoning';
+phoneTrigger.setAttribute('aria-haspopup','menu');phoneTrigger.setAttribute('aria-controls','phone-picker');phoneTrigger.setAttribute('aria-expanded','false');phoneTrigger.setAttribute('aria-label','추론 수준 선택');
+phoneTrigger.innerHTML='<span>GPT-6.1 Sol</span> <span>Medium</span>';document.querySelector('form').append(phoneTrigger);
+window.renderPhonePicker=()=>{
+ const panel=document.querySelector('#phone-picker');if(!panel)return;
+ panel.querySelector('#phone-header').innerHTML='<span>'+window.phoneEfforts[window.phoneIndex]+'</span><span>'+window.phoneModel+'</span>';
+ panel.querySelector('#phone-status').textContent=window.phoneEfforts[window.phoneIndex]+', '+(window.phoneIndex+1)+' of 6.';
+ panel.querySelector('[role="slider"]').setAttribute('aria-valuenow',String(window.phoneIndex));
+ const fast=panel.querySelector('#phone-fast');fast.setAttribute('aria-label',window.phoneFast?'빠른 응답 끄기':'빠른 응답 켜기');fast.setAttribute('aria-pressed',String(window.phoneFast));
+};
+window.openPhonePicker=()=>{
+ if(document.querySelector('#phone-picker'))return;
+ window.phoneOpens++;phoneTrigger.setAttribute('aria-expanded','true');phoneTrigger.textContent='추론 수준 선택';
+ const panel=document.createElement('div');panel.id='phone-picker';panel.setAttribute('role',window.phoneDialog?'dialog':'menu');panel.dataset.testid='composer-intelligence-picker-content';
+ panel.innerHTML='<div data-model-picker-view="simple"><button id="phone-fast" type="button"><svg><path d="M1 1L2 2"/></svg></button><div id="phone-header" role="menuitem" data-model-picker-view-toggle="true" tabindex="0" aria-label="모델 선택"></div><span id="phone-status" role="status"></span><span id="phone-hint">Use Left and Right arrow keys</span><div id="phone-power" role="menuitem" tabindex="0" aria-describedby="phone-status phone-hint" aria-keyshortcuts="ArrowLeft ArrowRight"><div data-model-picker-power-slider style="height:30px;width:250px"><span role="slider" aria-hidden="true" aria-valuemin="0" aria-valuemax="5" aria-valuenow="1"></span></div></div><div id="phone-models" hidden></div></div>';
+ panel.querySelector('#phone-fast').onclick=()=>{window.phoneFastChanges++;if(window.phoneIgnoreFast)return;window.phoneFast=!window.phoneFast;window.renderPhonePicker();};
+ panel.querySelector('#phone-power').onkeydown=event=>{
+  if(!['ArrowRight','ArrowLeft'].includes(event.key))return;event.preventDefault();window.phoneMoves++;
+  const apply=()=>{window.phoneIndex=Math.max(0,Math.min(5,window.phoneIndex+(event.key==='ArrowRight'?1:-1)));window.renderPhonePicker();};
+  if(window.phoneSliderDelay)setTimeout(apply,window.phoneSliderDelay);else apply();
+ };
+ panel.querySelector('#phone-header').onclick=()=>{panel.querySelector('#phone-models').hidden=false;};
+ for(const name of ['GPT-6 Sol','GPT-6.1 Sol','GPT-6 Astra']) {
+  const choice=document.createElement('div');choice.setAttribute('role','menuitemradio');choice.setAttribute('aria-checked',String(name===window.phoneModel));choice.textContent=name;
+  choice.onclick=()=>{window.phoneModelChanges++;window.phoneModel=name;panel.querySelector('#phone-models').hidden=true;window.renderPhonePicker();};panel.querySelector('#phone-models').append(choice);
+ }
+ document.body.append(panel);window.renderPhonePicker();
+};
+phoneTrigger.addEventListener('pointerdown',event=>{event.preventDefault();window.openPhonePicker();});
+document.addEventListener('keydown',event=>{
+ if(event.key!=='Escape'||!document.querySelector('#phone-picker')||window.phoneIgnoreClose)return;
+ document.querySelector('#phone-picker').remove();phoneTrigger.setAttribute('aria-expanded','false');phoneTrigger.innerHTML='<span>'+window.phoneModel+'</span> <span>'+window.phoneEfforts[window.phoneIndex]+'</span>';window.phoneCloses++;
+});
+`;
+
+test('phone power picker opens automatically from a generic label, confirms Fast, closes and sends without manual setup',async()=>{
+  await pageFixture(async page=>{
+    const before=await inspect(page);assert.equal(before.state.model,'gpt-6.1-sol');assert.equal(before.state.effort,'medium');assert.equal(before.state.speed,null);
+    await connect(page);await advance(page,1500);
+    const connected=await inspect(page);assert.equal(connected.code,'ready');assert.equal(connected.state.speed,'fast');
+    assert.deepEqual(await page.evaluate(()=>[window.phoneOpens,window.phoneCloses,window.phoneFastChanges]),[1,1,1]);
+    assert.equal(await page.locator('#phone-picker').count(),0);
+    await connect(page);await advance(page,500);assert.equal(await page.evaluate(()=>window.phoneOpens),1);
+    assert.equal((await send(page)).ok,true);await advance(page,300);
+    await page.evaluate(()=>window.answer('자동 연결 뒤 답변 완료'));await advance(page,2500);
+    assert.equal((await events(page)).filter(e=>e.type==='completed').length,1);assert.equal(await page.evaluate(()=>window.clicks),1);
+  },{setup:phonePowerPicker});
+});
+
+test('phone power picker finishes and releases focus when the owner already opened it',async()=>{
+  for(const dialog of [false,true])await pageFixture(async page=>{
+    assert.equal((await inspect(page)).state.model,'gpt-6.1-sol');
+    await connect(page);await advance(page,1000);assert.equal((await inspect(page)).code,'ready');
+    assert.equal(await page.evaluate(()=>window.phoneOpens),1);assert.equal(await page.evaluate(()=>window.phoneCloses),1);
+    assert.equal(await page.locator('#phone-picker').count(),0);
+    assert.equal((await inspect(page)).code,'ready');assert.equal((await inspect(page)).state.speed,'fast');
+  },{setup:phonePowerPicker+`window.phoneDialog=${dialog};window.openPhonePicker();`});
+});
+
+test('phone power picker changes model and steps the observed slider before freezing the exact requested route',async()=>{
+  await pageFixture(async page=>{
+    const prefs={requiredModel:'gpt-6-astra',requiredEffort:'xhigh',requiredSpeed:'standard'};
+    await page.evaluate(p=>window.HoyoungWorkBridge.connect(p),prefs);await advance(page,2500);
+    const state=await inspect(page);assert.equal(state.code,'ready');
+    assert.deepEqual([state.state.model,state.state.effort,state.state.speed],['gpt-6-astra','xhigh','standard']);
+    assert.deepEqual(await page.evaluate(()=>[window.phoneModelChanges,window.phoneMoves,window.phoneFastChanges,window.phoneCloses]),[1,2,0,1]);
+    assert.equal((await send(page,prefs)).ok,true);await advance(page,400);
+    await page.evaluate(()=>window.HoyoungWorkBridge.connect({requiredModel:'gpt-6-sol',requiredEffort:'low',requiredSpeed:'fast'}));await advance(page,1000);
+    assert.deepEqual(await page.evaluate(()=>[window.phoneModelChanges,window.phoneMoves,window.phoneFastChanges]),[1,2,0]);
+  },{setup:phonePowerPicker+`window.phoneSliderDelay=300;`});
+});
+
+test('phone power picker ignores hidden placeholder decorations but preserves genuine editable text',async()=>{
+  for(const draft of ['', '실제 작성한 문장은 보존'])await pageFixture(async page=>{
+    await connect(page);await advance(page,1500);
+    if(draft) {
+      assert.equal((await inspect(page)).code,'composer_has_draft');
+      assert.equal(await page.evaluate(()=>window.phoneOpens),0);assert.equal(await page.locator('#prompt-textarea').textContent(),draft);
+    }else{assert.equal((await inspect(page)).code,'ready');assert.equal(await page.evaluate(()=>window.phoneOpens),1);}
+  },{setup:phonePowerPicker+`const rich=document.createElement('div');rich.id='prompt-textarea';rich.setAttribute('contenteditable','true');rich.setAttribute('role','textbox');rich.style.minHeight='30px';rich.innerHTML=${JSON.stringify(draft||'<p><br></p><span hidden>무엇이든 작업하세요</span><span aria-hidden="true">추천</span><span data-testid="composer-placeholder" contenteditable="false">무엇이든 작업하세요</span>')};document.querySelector('#prompt-textarea').replaceWith(rich);`});
+});
+
+test('phone power picker ends a stalled check despite missing model evidence or a draft appearing after opening',async()=>{
+  for(const stalled of ['model','draft','close','speed'])await pageFixture(async page=>{
+    await connect(page);
+    if(stalled==='model')await page.evaluate(()=>{document.querySelector('#phone-header').textContent='추론 수준 선택';document.querySelector('#phone-status').textContent='';document.querySelector('[role="slider"]').remove();});
+    if(stalled==='draft')await page.evaluate(()=>document.querySelector('#prompt-textarea').value='뒤늦게 쓴 초안');
+    await advance(page,27000);
+    assert.notEqual((await inspect(page)).code,'preference_selection_pending');assert.equal((await inspect(page)).ok,false);
+    assert.equal(await page.evaluate(()=>window.clicks),0);
+    if(stalled==='speed'){assert.equal(await page.evaluate(()=>window.phoneFastChanges),1);await connect(page);await advance(page,1000);assert.equal(await page.evaluate(()=>window.phoneFastChanges),1);}
+    if(stalled==='draft')assert.equal(await page.locator('#prompt-textarea').inputValue(),'뒤늦게 쓴 초안');
+  },{setup:phonePowerPicker+`window.phoneIgnoreClose=${stalled==='close'};window.phoneIgnoreFast=${stalled==='speed'};`});
+});
+
+test('phone power picker retries an observation failure once the real controls hydrate',async()=>{
+  await pageFixture(async page=>{
+    await connect(page);await advance(page,6500);assert.equal((await inspect(page)).ok,false);
+    await page.evaluate(()=>{window.openPhonePicker=window.realPhoneOpen;});
+    await connect(page);await advance(page,1500);assert.equal((await inspect(page)).code,'ready');
+    assert.equal(await page.evaluate(()=>window.phoneFastChanges),1);
+  },{setup:phonePowerPicker+`window.realPhoneOpen=window.openPhonePicker;window.openPhonePicker=()=>{};`});
 });
 
 test('mobile combined labels never infer speed, temporary mode or Work selection from the desired settings', async () => {
@@ -445,7 +557,11 @@ test('read-only configuration does not select settings; unknown selected evidenc
     await advance(page, 2_000); assert.deepEqual(await preferenceClicks(page), []); assert.equal((await inspect(page)).state.effort, 'medium');
     await page.evaluate(() => document.querySelector('#effort').setAttribute('aria-label', 'Thinking setting unavailable'));
     await ensure(page, 'low', 'standard'); await advance(page, 2_000);
-    assert.deepEqual(await preferenceClicks(page), []); assert.equal((await inspect(page)).state.effort, null);
+    // An explicit ensure may open the known picker to discover a missing value;
+    // it must not invent that value, select an unrelated option or reopen forever.
+    assert.deepEqual(await preferenceClicks(page), ['open:model']); assert.equal((await inspect(page)).state.effort, null);
+    await advance(page,6000);assert.deepEqual(await preferenceClicks(page),['open:model']);
+    assert.equal((await inspect(page)).code,'preference_selection_uncertain');
   }, { setup: preferenceMenus });
   await pageFixture(async page => {
     await ensure(page, 'ultra', 'standard'); await advance(page, 8_000);

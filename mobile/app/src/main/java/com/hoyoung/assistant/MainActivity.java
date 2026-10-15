@@ -1595,7 +1595,9 @@ public final class MainActivity extends Activity {
             case "effort_unverified" -> "설정에 지정한 추론 강도 선택을 확인해 줘";
             case "speed_unverified" -> "설정에 지정한 속도 선택을 확인해 줘";
             case "preference_selection_pending" -> "요청에 맞는 모델·속도를 선택하는 중";
-            case "preference_selection_uncertain" -> "모델 선택 결과를 확인해 줘";
+            case "preference_selection_uncertain", "preference_option_unavailable", "preference_option_ambiguous", "preference_selection_limit" -> "자동 선택 확인 중단";
+            case "composer_has_draft" -> "웹 입력창의 초안 확인 필요";
+            case "composer_has_attachments" -> "웹 입력창의 첨부 확인 필요";
             case "composer_unverified" -> "Work 입력창을 확인하지 못했어";
             case "startup_failed" -> "Work 시작 재시도 중 · " + Math.max(1, (web == null ? 0 : web.optLong("startupRetryAfterMs")) / 1000) + "초 후 다시 확인";
             case "work_recovery_review_required", "renderer_lost" -> "이전 Work 화면 확인 필요 · Work 탭에서 복구 상태를 확인해";

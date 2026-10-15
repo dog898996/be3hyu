@@ -162,6 +162,20 @@ public final class AssistantRuntimeRoutingTest {
         store.putSetting("requiredModel","gpt-6.1-sol");ready("medium","fast");assertEquals(1,transport.ids.size());
     }
 
+    @Test public void unavailablePickerChoicesEndPreparationWithoutSendingOrDroppingTheOriginal() {
+        for(String code:new String[]{"preference_option_unavailable","preference_option_ambiguous","preference_selection_limit"}) {
+            ready("low","standard");
+            JSONObject request=runtime.receive("선택 불가능한 상태도 준비 중으로 계속 남기지 마 "+code,new JSONArray());
+            assertEquals("preparing",runtime.state().optString("activePhase"));
+            runtime.onWebEvent(object("type","state","code",code,"state",object("authenticated",true,"workSelected",true,
+                    "model","gpt-6.1-sol","effort","low","speed","standard","busy",false,"quota",false)));
+            JSONObject stored=store.getRequest(request.optLong("id"));
+            assertEquals("blocked",stored.optString("status"));assertEquals(request.optString("text"),stored.optString("text"));
+            assertTrue(runtime.state().isNull("activeRequestId"));assertFalse(runtime.state().optBoolean("uncertaintyBlocked"));
+            ready("medium","fast");runtime.tick();drain();assertEquals(0,transport.ids.size());
+        }
+    }
+
     @Test public void uncertainSelectionBeforeWireBlocksOnlyTheUnsentPromptAndAllowsExplicitRecovery() {
         ready("low","standard");
         JSONObject request=runtime.receive("선택 확인이 끝난 다음 처리해",new JSONArray());

@@ -29,7 +29,9 @@
   const FOOTER = 'button[data-testid="copy-turn-action-button"], .turn-action-controls button';
   const TRANSCRIPT = '[data-turn-key], [data-testid^="conversation-turn-"], [data-turn-id-container], [data-message-author-role], [data-conversation-role], [data-user-message-bubble]';
   const CONTROL = 'button, [role="button"], [role="tab"], [role="switch"], [role="checkbox"], [role="menuitemcheckbox"], [role="menuitemradio"], [role="radio"], [role="option"], [role="menuitem"], a[aria-current]';
-  const MODEL_CONTROL = 'button[data-testid="model-switcher-dropdown-button"], button[data-codex-intelligence-trigger="true"], [data-model-picker-view-toggle="true"]';
+  const MODEL_CONTROL = 'button[data-testid="model-switcher-dropdown-button"], button[data-codex-intelligence-trigger], button[data-composer-navigation-target="reasoning"]';
+  const PICKER_CONTENT = '[data-testid="composer-intelligence-picker-content"], [data-model-picker-view]';
+  const EFFORT_SLIDER = '[data-model-reasoning-effort-slider], [data-model-picker-power-slider]';
   const STOP_ICON_PATH = 'M4.5 5.75C4.5 5.05964 5.05964 4.5 5.75 4.5H14.25C14.9404 4.5 15.5 5.05964 15.5 5.75V14.25C15.5 14.9404 14.9404 15.5 14.25 15.5H5.75C5.05964 15.5 4.5 14.9404 4.5 14.25V5.75Z';
   const DEFAULTS = { model: 'gpt-6.1-sol', effort: 'medium', speed: 'fast' };
   const MODEL_ID = /^gpt-[a-z0-9]+(?:[.-][a-z0-9]+)*$/;
@@ -41,10 +43,13 @@
   // read-only configure/inspect APIs. One observed option is clicked once; an
   // unacknowledged click cannot be replayed by the 250 ms DOM polling loop.
   const PREFERENCE_SELECTION_TIMEOUT_MS = 5_000;
-  const MAX_PREFERENCE_SELECTION_CLICKS = 6;
+  const PREFERENCE_OPERATION_TIMEOUT_MS = 25_000;
+  const MAX_PREFERENCE_SELECTION_CLICKS = 16;
   let preferenceSelection = null;
   let preferenceSelectionFlight = null;
   let preferenceSelectionUncertain = false;
+  let openedPreferenceTrigger = null;
+  let preferenceCloseFlight = null;
   const ACCEPT_TIMEOUT_MS = 30_000;
   const SEND_ENABLE_TIMEOUT_MS = 5_000;
   const ATTACHMENT_READY_TIMEOUT_MS = 60_000;
@@ -80,6 +85,20 @@
     return String(value || '').normalize('NFKC').replace(/[\u200b-\u200f\u202a-\u202e\u2060-\u206f\ufeff]/g, '').replace(/\s+/g, ' ').trim();
   }
   function textOf(element) { return normalized(element && (element.innerText || element.textContent)); }
+  // Accessibility names such as "추론 수준 선택" describe the action, not the
+  // current GPT-6.1 Sol / Medium value. Read rendered text independently.
+  function renderedWords(element) {
+    if (!element || !visible(element)) return '';
+    const words = [], walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+      const parent = node.parentElement;
+      if (parent && visible(parent) && !parent.closest('svg,script,style,[data-lexical-placeholder],.ProseMirror-widget,[data-testid="composer-placeholder"]')) {
+        const word = normalized(node.textContent); if (word) words.push(word);
+      }
+    }
+    return normalized(words.join(' '));
+  }
+  function controlLabels(element) { return [...new Set([labelOf(element), renderedWords(element)].filter(Boolean))]; }
   function labelOf(element) { return normalized(element && (element.getAttribute('aria-label') || element.getAttribute('title') || element.innerText || element.textContent)); }
   function visible(element) {
     if (!element || !element.isConnected) return false;
@@ -203,27 +222,84 @@
     return match ? { model: 'gpt-' + match[1] + '-' + match[2].toLowerCase(), effort: parseEffort(match[3]), speed: match[4] ? parseSpeed(match[4]) : null } : null;
   }
   function modelTriggers() {
-    return controls().filter(element => !element.closest('[role="menu"], [role="listbox"]')
-      && (element.matches(MODEL_CONTROL) || element.matches('button[data-tone="neutral"][aria-haspopup="menu"]')
-        && !!element.closest('form, [data-chatgpt-composer]') && !!parseCombinedModel(labelOf(element))));
+    return controls().filter(element => !element.closest('[role="menu"], [role="listbox"], [data-model-picker-view]')
+      && (element.matches(MODEL_CONTROL) || element.matches('button[aria-haspopup="menu"], button[aria-haspopup="dialog"]')
+        && !!element.closest('form, [data-chatgpt-composer]') && controlLabels(element).some(label => !!parseCombinedModel(label))));
   }
   function ownedMenus(triggers) {
     if (triggers.length !== 1) return [];
     const trigger = triggers[0];
+    if (trigger.getAttribute('aria-expanded') === 'false' || trigger.getAttribute('data-state') === 'closed') return [];
     const ids = normalized([trigger.getAttribute('aria-controls'), trigger.getAttribute('aria-owns')].filter(Boolean).join(' ')).split(' ').filter(Boolean);
-    return all('[role="menu"], [role="listbox"]').filter(menu => !menu.closest(TRANSCRIPT)
+    const linked = all('[role="menu"], [role="listbox"], [role="dialog"], ' + PICKER_CONTENT).filter(menu => !menu.closest(TRANSCRIPT)
+      && menu.getAttribute('data-state') !== 'closed'
       && (menu.id && ids.includes(menu.id) || trigger.id && normalized(menu.getAttribute('aria-labelledby')).split(' ').includes(trigger.id)));
+    if (linked.length) return linked.filter(menu => !linked.some(other => other !== menu && other.contains(menu)));
+    // Some mobile popovers omit aria-controls but expose the provider's exact
+    // intelligence picker marker. Never bind an arbitrary dialog or Theme menu.
+    if (!trigger.matches(MODEL_CONTROL)) return [];
+    const panels = all(PICKER_CONTENT).filter(panel => !panel.closest(TRANSCRIPT) && !panel.closest('[data-state="closed"]'));
+    const roots = [...new Set(panels.map(panel => panel.closest('[role="menu"], [role="dialog"]') || panel))];
+    return roots.length === 1 ? roots : [];
+  }
+  function pickerHeaders() {
+    return ownedMenus(modelTriggers()).flatMap(menu => all('[data-model-picker-view-toggle]',menu));
+  }
+  function pickerReadings() {
+    const values = [];
+    for (const header of pickerHeaders()) {
+      values.push(renderedWords(header));
+      for (const node of all('[data-menu-row-content],span,div',header)) {
+        if (!node.querySelector('button,[role="menuitemradio"],[role="option"]')) values.push(renderedWords(node));
+      }
+    }
+    for (const menu of ownedMenus(modelTriggers())) for (const region of all(EFFORT_SLIDER,menu)) {
+      const owner=region.closest('[aria-describedby]');
+      for (const id of normalized(owner && owner.getAttribute('aria-describedby')).split(' ')) {
+        const node=document.getElementById(id);
+        if (node && menu.contains(node) && visible(node)) values.push(renderedWords(node).split(/[,，]/)[0]);
+      }
+      for (const slider of region.querySelectorAll('[role="slider"]')) {
+        const value=normalized(slider.getAttribute('aria-valuetext')); if(value)values.push(value);
+      }
+    }
+    const models=[], efforts=[];
+    for (const label of values) {
+      const combined=parseCombinedModel(label);
+      const reverse=/^(Low|Light|Medium|High|XHigh|Extra high|Max|Ultra)\s+((?:GPT[-\s]?)?\d+(?:\.\d+)?\s*[- ]?\s*(?:Sol|Astra|Luna))$/i.exec(label);
+      const model=combined ? combined.model : reverse ? parseModel(reverse[2]) : parseModel(label);
+      const effort=combined ? combined.effort : reverse ? parseEffort(reverse[1]) : parseEffort(label);
+      if(model)models.push(model);if(effort)efforts.push(effort);
+    }
+    return {models,efforts};
+  }
+  function fastControlState(element) {
+    const labels=controlLabels(element).concat(normalized(element.getAttribute('aria-describedby')).split(' ').map(id=>document.getElementById(id))
+      .filter(node=>node && visible(node) && !node.closest(TRANSCRIPT)).map(renderedWords));
+    const name=/^(?:Fast(?: mode| responses?| response mode)?|빠름|빠른 (?:응답|모드)|빠른 응답 모드)$/i;
+    const onAction=/^(?:Disable|Turn off) (?:fast(?: mode| responses?| response mode)?)$|^(?:빠름|빠른 (?:응답|모드)|빠른 응답 모드) (?:끄기|해제)$/i;
+    const offAction=/^(?:Enable|Turn on) (?:fast(?: mode| responses?| response mode)?)$|^(?:빠름|빠른 (?:응답|모드)|빠른 응답 모드) (?:켜기|활성화)$/i;
+    const values=[];
+    for(const label of labels) {if(onAction.test(label))values.push('fast');if(offAction.test(label))values.push('standard');}
+    if(labels.some(label=>name.test(label))) {
+      for(const attribute of ['aria-checked','aria-pressed']) {
+        const value=element.getAttribute(attribute);if(value==='true'||value==='false')values.push(value==='true'?'fast':'standard');
+      }
+      const state=element.getAttribute('data-state');
+      if(/^(on|checked)$/.test(state||''))values.push('fast');if(/^(off|unchecked)$/.test(state||''))values.push('standard');
+    }
+    return uniqueValue(values);
   }
   function fastToggles() {
     const menus = ownedMenus(modelTriggers());
-    return controls().filter(element => /^Fast$|^빠름$/i.test(labelOf(element))
-      && element.matches('[role="switch"], [role="checkbox"], [role="menuitemcheckbox"], button[aria-pressed]')
+    return controls().filter(element => element.matches('button,[role="switch"], [role="checkbox"], [role="menuitemcheckbox"]')
       && (menus.some(menu => menu.contains(element)) || element.closest('[role="group"][aria-label="Speed"], [role="group"][aria-label="속도"]'))
-      && /^(?:true|false)$/.test(element.getAttribute('aria-checked') || element.getAttribute('aria-pressed') || ''));
+      && !!fastControlState(element));
   }
-  function fastToggleValue(element) { return (element.getAttribute('aria-checked') || element.getAttribute('aria-pressed')) === 'true' ? 'fast' : 'standard'; }
+  function fastToggleValue(element) { return fastControlState(element); }
   function invalidatePopupEvidence(event) {
-    if (event.target instanceof Element && modelTriggers().some(trigger => trigger.contains(event.target))) observedSpeed = null;
+    if (event.target instanceof Element && (modelTriggers().some(trigger => trigger.contains(event.target))
+      || ownedMenus(modelTriggers()).some(menu=>menu.contains(event.target)))) observedSpeed = null;
   }
   function preferenceEvidence() {
     const chosen = controls().filter(selected);
@@ -249,10 +325,11 @@
         : dimension === 'speed' ? /^(?:Speed|Response speed|속도|응답 속도)$/i : /^(?:Model|AI model|모델)$/i;
       return labels.some(label => groupLabel.test(label));
     };
-    const model = uniqueValue(modelControls.concat(chosen.filter(element => isDimensionEvidence(element, 'model'))).map(element => parseModel(labelOf(element))));
+    const picker=pickerReadings();
+    const model = uniqueValue(modelControls.concat(chosen.filter(element => isDimensionEvidence(element, 'model'))).flatMap(element => controlLabels(element).map(parseModel)).concat(picker.models));
     const currentControls = chosen.concat(modelControls, triggers.effort, triggers.speed);
-    const combined = modelControls.map(element => parseCombinedModel(labelOf(element))).filter(Boolean);
-    const effort = uniqueValue(combined.map(item => item.effort).concat(currentControls.filter(element => isDimensionEvidence(element, 'effort')).map(element => {
+    const combined = modelControls.flatMap(element => controlLabels(element).map(parseCombinedModel)).filter(Boolean);
+    const effort = uniqueValue(picker.efforts.concat(combined.map(item => item.effort), currentControls.filter(element => isDimensionEvidence(element, 'effort')).map(element => {
       const label = labelOf(element);
       if (selected(element) && parseEffort(label)) return parseEffort(label);
       const description = /^(?:Reasoning effort|Thinking effort|추론 강도|생각 강도)\s*[:：]\s*(Low|Light|Medium|High|XHigh|Extra high|Max|Ultra|미디엄|중간)$/i.exec(label);
@@ -267,7 +344,7 @@
       return null;
     }));
     let speed = uniqueValue(speedValues);
-    const popupSpeed = toggles.some(element => element.closest('[role="menu"], [role="listbox"]'))
+    const popupSpeed = toggles.some(element => menus.model.some(menu=>menu.contains(element)))
       || chosen.some(element => element.closest('[role="menu"], [role="listbox"]') && isDimensionEvidence(element, 'speed') && parseSpeed(labelOf(element)));
     if (speed) observedSpeed = popupSpeed && model && effort ? { value: speed, model, effort } : null;
     else if (speedValues.filter(Boolean).length) observedSpeed = null; // Conflicting evidence is never hidden by a remembered menu.
@@ -291,14 +368,13 @@
     if (editorText(editor)) return 'composer_has_draft';
     if (all('[data-testid="attachment"], [data-file-name], [role="group"][aria-label], [role="progressbar"], progress', scope).length
       || Array.from(scope.querySelectorAll('input[type="file"]')).some(input => input.files && input.files.length)) return 'composer_has_attachments';
-    // Missing/contradictory selected UI evidence is never replaced by the desired
-    // preference, a model offer or arbitrary transcript text.
-    if (!state.model || !state.effort) return 'preference_selection_unverified';
+    // An empty current value is a reason to OPEN the known picker and read it,
+    // not a reason to prevent the only operation that can reveal that value.
+    if ((!state.model || !state.effort) && modelTriggers().length !== 1) return 'preference_selection_unverified';
     return 'safe';
   }
   function optionValue(element, dimension) {
-    const label = labelOf(element);
-    return dimension === 'model' ? parseModel(label) : dimension === 'effort' ? parseEffort(label) : parseSpeed(label);
+    return uniqueValue(controlLabels(element).map(label=>dimension === 'model' ? parseModel(label) : dimension === 'effort' ? parseEffort(label) : parseSpeed(label)));
   }
   function preferenceOptions(dimension, value) {
     if (dimension === 'speed') {
@@ -327,7 +403,19 @@
         ? /^(?:Reasoning effort|Thinking effort|추론 강도|생각 강도)(?:\s*[:：]\s*(?:Low|Light|Medium|High|XHigh|Extra high|Max|Ultra|미디엄|중간))?$/i.test(label)
         : /^(?:Speed|Response speed|속도|응답 속도)(?:\s*[:：]\s*(?:Fast|Standard|Flex|빠름))?$/i.test(label);
     });
-    return dedicated.length || dimension === 'model' ? dedicated : modelTriggers().filter(element => !!parseCombinedModel(labelOf(element)) && /^(?:menu|listbox|true)$/.test(element.getAttribute('aria-haspopup') || ''));
+    return dedicated.length || dimension === 'model' ? dedicated : modelTriggers().filter(element => /^(?:menu|listbox|dialog|true)$/.test(element.getAttribute('aria-haspopup') || ''));
+  }
+  function activatePickerControl(element, opening) {
+    // Radix mobile triggers open on pointerdown, while ordinary buttons use
+    // click. A consumed pointerdown must not be followed by a second toggle.
+    if(opening && typeof PointerEvent==='function') {
+      const before=element.getAttribute('aria-expanded');
+      const down=new PointerEvent('pointerdown',{bubbles:true,cancelable:true,button:0,pointerId:1,pointerType:'mouse',isPrimary:true});
+      element.dispatchEvent(down);
+      element.dispatchEvent(new PointerEvent('pointerup',{bubbles:true,cancelable:true,button:0,pointerId:1,pointerType:'mouse',isPrimary:true}));
+      if(down.defaultPrevented || element.getAttribute('aria-expanded')!==before)return;
+    }
+    element.click();
   }
   function clickPreference(element, dimension, value, opening) {
     const selection = preferenceSelection;
@@ -336,14 +424,63 @@
       return;
     }
     selection.clicks++;
+    if(selection.deadline==null)selection.deadline=performance.now()+PREFERENCE_OPERATION_TIMEOUT_MS;
+    const ownsOpening=opening && modelTriggers().includes(element) && ownedMenus([element]).length===0;
+    if(ownsOpening)openedPreferenceTrigger=element;
     preferenceSelectionFlight = { dimension, value, opening, deadline: performance.now() + PREFERENCE_SELECTION_TIMEOUT_MS };
     selection.status = 'preference_selection_pending';
-    try { element.click(); }
+    try { activatePickerControl(element,opening); }
     catch (_) { preferenceSelectionUncertain = true; selection.status = 'preference_selection_uncertain'; }
+  }
+  function sliderControls() {
+    return ownedMenus(modelTriggers()).flatMap(menu=>all(EFFORT_SLIDER,menu).map(region=>{
+      const thumbs=Array.from(region.querySelectorAll('[role="slider"]'));
+      if(thumbs.length!==1 || region.closest('[aria-disabled="true"]'))return null;
+      const thumb=thumbs[0], min=Number(thumb.getAttribute('aria-valuemin')), max=Number(thumb.getAttribute('aria-valuemax')), now=Number(thumb.getAttribute('aria-valuenow'));
+      if(!['aria-valuemin','aria-valuemax','aria-valuenow'].every(a=>thumb.hasAttribute(a)) || ![min,max,now].every(Number.isInteger) || min<0 || max-min>12 || now<min || now>max)return null;
+      const target=region.closest('[role="menuitem"],[aria-keyshortcuts]')||thumb;
+      return enabled(target)?{target,now,min,max}:null;
+    }).filter(Boolean));
+  }
+  function moveEffortSlider(state) {
+    const sliders=sliderControls(), desired=EFFORTS.indexOf(configuredPreferences.effort), current=EFFORTS.indexOf(state.effort);
+    if(sliders.length!==1 || current<0 || desired<0 || desired===current)return false;
+    const slider=sliders[0], direction=desired>current?1:-1;
+    if(slider.now+direction<slider.min || slider.now+direction>slider.max)return false;
+    preferenceSelection.clicks++;
+    if(preferenceSelection.deadline==null)preferenceSelection.deadline=performance.now()+PREFERENCE_OPERATION_TIMEOUT_MS;
+    preferenceSelection.status='preference_selection_pending';
+    preferenceSelectionFlight={dimension:'effort',value:configuredPreferences.effort,slider:true,previousPosition:slider.now,deadline:performance.now()+PREFERENCE_SELECTION_TIMEOUT_MS};
+    try {
+      slider.target.focus({preventScroll:true});
+      slider.target.dispatchEvent(new KeyboardEvent('keydown',{key:direction>0?'ArrowRight':'ArrowLeft',bubbles:true,cancelable:true}));
+    } catch(_) {preferenceSelectionUncertain=true;preferenceSelection.status='preference_selection_uncertain';}
+    return true;
+  }
+  function closeOwnedPicker() {
+    if(!openedPreferenceTrigger)return false;
+    const menus=ownedMenus([openedPreferenceTrigger]);
+    if(!menus.length){openedPreferenceTrigger=null;preferenceCloseFlight=null;return false;}
+    if(preferenceCloseFlight) {
+      if(performance.now()>=preferenceCloseFlight.deadline) {preferenceSelectionUncertain=true;preferenceSelection.status='preference_selection_uncertain';}
+      return true;
+    }
+    preferenceCloseFlight={deadline:performance.now()+PREFERENCE_SELECTION_TIMEOUT_MS};
+    preferenceSelection.status='preference_selection_pending';
+    const target=menus[0].contains(document.activeElement)?document.activeElement:menus[0];
+    target.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',code:'Escape',bubbles:true,cancelable:true}));
+    return true;
   }
   function advancePreferenceSelection() {
     const selection = preferenceSelection;
-    if (!selection || !selection.enabled || !preferenceConfigurationValid) return;
+    if (!selection || !selection.enabled || selection.failed || !preferenceConfigurationValid) return;
+    // Deadlines are evaluated BEFORE draft/model gates. An unmounted value or a
+    // newly typed draft must never turn a five-second attempt into infinite loading.
+    if((preferenceSelectionFlight && performance.now()>=preferenceSelectionFlight.deadline)
+      || (preferenceCloseFlight && performance.now()>=preferenceCloseFlight.deadline)
+      || (selection.deadline!=null && performance.now()>=selection.deadline)) {
+      preferenceSelectionUncertain=true;selection.status='preference_selection_uncertain';selection.enabled=false;return;
+    }
     const state = readState(), gate = preferenceSelectionGate(state);
     if (gate !== 'safe') {
       selection.status = gate;
@@ -358,7 +495,9 @@
       if (performance.now() >= flight.deadline) {
         preferenceSelectionUncertain = true; selection.status = 'preference_selection_uncertain'; return;
       }
-      if (!flight.opening && state[flight.dimension] === flight.value) {
+      if(flight.slider && sliderControls().length===1 && sliderControls()[0].now!==flight.previousPosition && state.effort) {
+        preferenceSelectionFlight=null;
+      } else if (!flight.opening && state[flight.dimension] === flight.value) {
         preferenceSelectionFlight = null;
       } else if (flight.opening) {
         if (state[flight.dimension] === configuredPreferences[flight.dimension]) {
@@ -374,26 +513,36 @@
           const nextChoices = preferenceOptions(flight.dimension, requested);
           if (nextChoices.length !== 1 || !enabled(nextChoices[0])) { selection.status = 'preference_option_unavailable'; return; }
           clickPreference(nextChoices[0], flight.dimension, requested, false);
+        } else if(flight.dimension==='effort' && moveEffortSlider(state)) {
+          return;
+        } else if(flight.dimension==='model' && pickerHeaders().length===1 && ownedMenus(modelTriggers()).length && !flight.headerOpened) {
+          flight.headerOpened=true;
+          try {activatePickerControl(pickerHeaders()[0],true);}catch(_){preferenceSelectionUncertain=true;}
         }
         return;
       } else return;
     }
     const dimension = ['model', 'effort', 'speed'].find(name => state[name] !== configuredPreferences[name]);
-    if (!dimension) { selection.status = 'verified'; return; }
+    if (!dimension) { if(closeOwnedPicker())return; selection.status = 'verified'; selection.deadline=null; return; }
     if (selection.failed || selection.clicks >= MAX_PREFERENCE_SELECTION_CLICKS) { selection.status = 'preference_selection_limit'; return; }
     const requested = configuredPreferences[dimension], choices = preferenceOptions(dimension, requested);
     if (choices.length === 1 && enabled(choices[0])) { clickPreference(choices[0], dimension, requested, false); return; }
     if (choices.length > 1) { selection.failed = true; selection.status = 'preference_option_ambiguous'; return; }
+    if(dimension==='effort' && moveEffortSlider(state))return;
+    if(dimension==='model' && pickerHeaders().length===1 && ownedMenus(modelTriggers()).length) {
+      clickPreference(pickerHeaders()[0],dimension,requested,true);return;
+    }
     const triggers = preferenceTriggers(dimension);
     if (triggers.length !== 1 || !enabled(triggers[0])) { selection.failed = true; selection.status = 'preference_option_unavailable'; return; }
+    if(ownedMenus(triggers).length) { selection.failed=true;selection.status='preference_option_unavailable';return; }
     clickPreference(triggers[0], dimension, requested, true);
   }
   function ensurePreferences(payload) {
     const preferences = applyPreferences(payload);
     if (!preferences) { if (preferenceSelection) preferenceSelection.enabled = false; return inspectAndEmit(); }
     const key = JSON.stringify(preferences);
-    if (!preferenceSelection || preferenceSelection.key !== key) preferenceSelection = { key, clicks: 0, enabled: true, failed: false, status: 'pending' };
-    else preferenceSelection.enabled = true;
+    if (!preferenceSelection || preferenceSelection.key !== key) preferenceSelection = { key, clicks: 0, enabled: true, failed: false, status: 'pending', deadline:null };
+    else if(!preferenceSelectionUncertain && !preferenceSelection.failed)preferenceSelection.enabled = true;
     if (connectionPreparation && connectionPreparation.status === 'verified' && readState().authenticated === null) {
       connectionPreparation = { enabled: true, status: 'pending', accountAttempted: false, sidebarOpened: false, workAttempted: false };
       advanceConnectionPreparation();
@@ -580,6 +729,20 @@
   function connect(payload) {
     if (!connectionCanChangeUi(readState())) return inspectAndEmit();
     if (connectionPreparation && connectionPreparation.enabled) return ensurePreferences(payload);
+    // Explicit connection owns this picker workflow even when the owner opened
+    // it first. Release its focus trap before the queued message can be filled.
+    const triggers=modelTriggers();
+    if(triggers.length===1 && ownedMenus(triggers).length===1)openedPreferenceTrigger=triggers[0];
+    // A failed observation/open attempt may be retried explicitly. Never replay
+    // an unacknowledged relative slider movement or speed toggle.
+    if(preferenceSelection && (preferenceSelection.failed || preferenceSelectionUncertain)) {
+      const state=readState(), flight=preferenceSelectionFlight;
+      const acknowledged=flight && (state[flight.dimension]===flight.value
+        || flight.slider && sliderControls().length===1 && sliderControls()[0].now!==flight.previousPosition);
+      if(!flight || flight.opening || acknowledged) {
+        preferenceSelection=null;preferenceSelectionFlight=null;preferenceCloseFlight=null;preferenceSelectionUncertain=false;
+      }
+    }
     connectionPreparation = { enabled: true, status: 'pending', accountAttempted: false, sidebarOpened: false, workAttempted: false };
     advanceConnectionPreparation();
     return ensurePreferences(payload);
@@ -620,6 +783,11 @@
     if (!state.workSelected) return 'work_unverified';
     if (cleaningSession) return 'conversation_cleanup_pending';
     if (state.conversationOwned !== true) return 'unowned_conversation';
+    if(preferenceSelectionUncertain)return 'preference_selection_uncertain';
+    if(!active && composer() && editorText(composer()))return 'composer_has_draft';
+    if(preferenceSelection && preferenceSelection.failed)return preferenceSelection.status;
+    if(preferenceSelection && /^(?:composer_has_draft|composer_has_attachments)$/.test(preferenceSelection.status))return preferenceSelection.status;
+    if(preferenceCloseFlight)return 'preference_selection_pending';
     if (preferenceSelectionFlight) return preferenceSelectionUncertain ? 'preference_selection_uncertain' : 'preference_selection_pending';
     if (state.model !== (preferences || configuredPreferences).model) return 'model_unverified';
     if (state.effort !== (preferences || configuredPreferences).effort) return 'effort_unverified';
@@ -633,6 +801,9 @@
   function inspect() {
     const state = readState();
     state.selectionStatus = preferenceSelection ? preferenceSelection.status : null;
+    state.pickerUi={triggerCount:modelTriggers().length,menuCount:ownedMenus(modelTriggers()).length,sliderCount:sliderControls().length,
+      fastControlCount:fastToggles().length,composerChars:composer()?editorText(composer()).length:0,
+      autoOpened:!!openedPreferenceTrigger,selectionClicks:preferenceSelection?preferenceSelection.clicks:0};
     const code = readyCode(state);
     return { ok: code === 'ready', code, state, requiredPreferences: Object.assign({}, configuredPreferences),
       preferenceSelection: preferenceSelection ? { status: preferenceSelection.status, clicks: preferenceSelection.clicks, enabled: preferenceSelection.enabled } : null,
@@ -907,7 +1078,7 @@
     }
     return inspection;
   }
-  function editorText(editor) { return editor.matches('textarea, input') ? normalized(editor.value) : textOf(editor); }
+  function editorText(editor) { return editor.matches('textarea, input') ? normalized(editor.value) : renderedWords(editor); }
   function fillEditor(editor, text) {
     editor.focus();
     if (editor.matches('textarea, input')) {
