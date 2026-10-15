@@ -29,3 +29,5 @@
 기존 앱 위에 업데이트하고 **Work → 연결**을 누른다. 모델 선택창을 직접 열어둘 필요가 없다.
 
 [설치 파일](https://github.com/dog898996/be3hyu/releases/tag/v0.4.6) · [검사 기록](benchmarks/android-v046-focused.json) · [APK 검사](benchmarks/android-v046-apk.json).
+
+[APK 직접 다운로드](https://raw.githubusercontent.com/dog898996/be3hyu/f1a6d69e377ee2daa48858554d8f42de3c6d5430/release-assets/v0.4.6/hoyoung-v0.4.6.apk) · [공개 다운로드 확인](benchmarks/android-v046-downloads.json). APK·소스 ZIP·검증 JSON·SHA256SUMS 4개를 인증 없이 내려받아 HTTP 200, 전체 크기와 SHA-256을 확인했다. 기존 배포 서명과 같으며 소스 커밋은 `c8dee06c3c7218a1d2850d7ec94f9984411a432f`다.
