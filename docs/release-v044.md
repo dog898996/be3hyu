@@ -33,3 +33,5 @@
 4. 세션을 바꾸려면 작업 결과 저장이 끝난 뒤 **새 Work 대화**를 누른다. 삭제 자동 확인이 실패하면 해당 대화를 웹에서 직접 삭제하고 **삭제 확인 복구**를 사용한다.
 
 관련 네이티브 **14/14**, 브라우저 연결 fixture **66/66**, 서명 릴리스 빌드와 릴리스 필수 lint를 통과했다. APK의 기존 서명·48개 권한·네이티브 라이브러리 및 포함한 연결 스크립트도 확인했다. 검사 결과는 [집중 검사 기록](benchmarks/android-v044-focused.json), [APK 검사 기록](benchmarks/android-v044-apk.json)에 남긴다. 전체 5년 시뮬레이션·전체 Android 제품 검사는 반복하지 않았다. 유료 모델 호출이나 계정 설정 변경은 하지 않았다. 실제 로그인한 휴대폰 Work 연결·삭제·계정 기억 혼용은 이 환경에서 검증하지 못했다.
+
+[APK 직접 다운로드](https://raw.githubusercontent.com/dog898996/be3hyu/f8f59cf38149d41221fe9422d1545d6213ae5b39/release-assets/v0.4.4/hoyoung-v0.4.4.apk) · [공개 다운로드 확인](benchmarks/android-v044-downloads.json). GitHub 릴리스 첨부 업로드가 인증 오류로 거절되어 같은 저장소의 배포 파일 커밋에 고정했다. APK·소스 ZIP·검증 JSON·SHA256SUMS 4개를 인증 없이 끝까지 내려받아 HTTP 200, 크기, SHA-256을 확인했다. APK 소스 커밋은 `2b0784e6ff73b5c3c448da6c632c8b78d28e73c5`다.

@@ -1,0 +1,45 @@
+{
+  "version": "0.4.4",
+  "checkedAt": "2026-10-15T00:43:33.213567+00:00",
+  "sourceCommit": "2b0784e6ff73b5c3c448da6c632c8b78d28e73c5",
+  "artifactCommit": "f8f59cf38149d41221fe9422d1545d6213ae5b39",
+  "files": [
+    {
+      "name": "hoyoung-v0.4.4.apk",
+      "url": "https://raw.githubusercontent.com/dog898996/be3hyu/f8f59cf38149d41221fe9422d1545d6213ae5b39/release-assets/v0.4.4/hoyoung-v0.4.4.apk",
+      "httpStatus": 200,
+      "bytes": 79136534,
+      "sha256": "b7cbf4b9e778d49a1009a2e185143019e3af1b939e273a6bf7443d539a148e3c",
+      "anonymousDownload": true,
+      "matchesPublishedArtifact": true
+    },
+    {
+      "name": "hoyoung-v0.4.4-source.zip",
+      "url": "https://raw.githubusercontent.com/dog898996/be3hyu/f8f59cf38149d41221fe9422d1545d6213ae5b39/release-assets/v0.4.4/hoyoung-v0.4.4-source.zip",
+      "httpStatus": 200,
+      "bytes": 54992345,
+      "sha256": "2cee44fcd17d9438d435fd85866edabcbc352ab8f2d8f8544c878cba81bd61e8",
+      "anonymousDownload": true,
+      "matchesPublishedArtifact": true
+    },
+    {
+      "name": "hoyoung-v0.4.4-verification.json",
+      "url": "https://raw.githubusercontent.com/dog898996/be3hyu/f8f59cf38149d41221fe9422d1545d6213ae5b39/release-assets/v0.4.4/hoyoung-v0.4.4-verification.json",
+      "httpStatus": 200,
+      "bytes": 12296,
+      "sha256": "0c3e5fdd0f0b01979bd2a8faeeba3eb81fae5ec910749a7be43e12a2bc5ef4c7",
+      "anonymousDownload": true,
+      "matchesPublishedArtifact": true
+    },
+    {
+      "name": "SHA256SUMS.txt",
+      "url": "https://raw.githubusercontent.com/dog898996/be3hyu/f8f59cf38149d41221fe9422d1545d6213ae5b39/release-assets/v0.4.4/SHA256SUMS.txt",
+      "httpStatus": 200,
+      "bytes": 276,
+      "sha256": "a6fc20a5ac4e3ff188621c85a9ebd670d970bea0bb0d580fe6c6cda32221d14a",
+      "anonymousDownload": true,
+      "matchesPublishedArtifact": true
+    }
+  ],
+  "releaseAssetUpload": "GitHub uploads endpoint rejected credentials; files are pinned in the same repository artifact commit."
+}
