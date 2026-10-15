@@ -1,0 +1,186 @@
+["install", "-r", "/workspace/be3hyu/mobile/app/build/outputs/apk/debug/app-debug.apk"]
+Performing Streamed Install
+Success
+
+["install", "-r", "/workspace/be3hyu/mobile/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"]
+Performing Streamed Install
+Success
+
+["shell", "settings", "put", "secure", "enabled_accessibility_services", "com.hoyoung.assistant/.phone.HoyoungAccessibilityService"]
+
+["shell", "settings", "put", "secure", "accessibility_enabled", "1"]
+
+["shell", "am", "start", "-W", "-n", "com.hoyoung.assistant/.MainActivity"]
+Starting: Intent { cmp=com.hoyoung.assistant/.MainActivity }
+Status: timeout
+LaunchState: UNKNOWN (-1)
+Activity: com.hoyoung.assistant/.MainActivity
+WaitTime: 11198
+Complete
+
+["shell", "am", "instrument", "--no-restart", "-w", "-r", "-e", "class", "com.hoyoung.assistant.SettingsExplorerDeviceTest", "com.hoyoung.assistant.test/com.hoyoung.assistant.PreservingAccessibilityTestRunner"]
+INSTRUMENTATION_STATUS: class=com.hoyoung.assistant.SettingsExplorerDeviceTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=4
+INSTRUMENTATION_STATUS: stream=
+com.hoyoung.assistant.SettingsExplorerDeviceTest:
+INSTRUMENTATION_STATUS: test=multilineKoreanEditsSaveWithoutOverwritingConcurrentChatSettings
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: stream=HOYOUNG_EXPLORER_SETTINGS fixture fontScale=1.0; uiMode=17; pixels=1080x2400
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=HOYOUNG_FIXTURE_UI_GEOMETRY phase=foreground-failed; focused=false; found=false; full=Rect(0, 0 - 0, 0); visible=Rect(0, 0 - 0, 0); viewport=Rect(0, 0 - 0, 0); safe=Rect(0, 63 - 1080, 2274)
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.hoyoung.assistant.SettingsExplorerDeviceTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=4
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: The real app window must be foreground and focused before touching its controls: focused=false; found=false; full=Rect(0, 0 - 0, 0); visible=Rect(0, 0 - 0, 0); viewport=Rect(0, 0 - 0, 0); safe=Rect(0, 63 - 1080, 2274); uiPackage=android
+	at org.junit.Assert.fail(Assert.java:89)
+	at com.hoyoung.assistant.DeviceFixtureHealth.awaitForeground(DeviceFixtureHealth.java:83)
+	at com.hoyoung.assistant.DeviceFixtureHealth.openPage(DeviceFixtureHealth.java:35)
+	at com.hoyoung.assistant.SettingsExplorerDeviceTest.multilineKoreanEditsSaveWithoutOverwritingConcurrentChatSettings(SettingsExplorerDeviceTest.java:79)
+
+INSTRUMENTATION_STATUS: stream=
+Error in multilineKoreanEditsSaveWithoutOverwritingConcurrentChatSettings(com.hoyoung.assistant.SettingsExplorerDeviceTest):
+java.lang.AssertionError: The real app window must be foreground and focused before touching its controls: focused=false; found=false; full=Rect(0, 0 - 0, 0); visible=Rect(0, 0 - 0, 0); viewport=Rect(0, 0 - 0, 0); safe=Rect(0, 63 - 1080, 2274); uiPackage=android
+	at org.junit.Assert.fail(Assert.java:89)
+	at com.hoyoung.assistant.DeviceFixtureHealth.awaitForeground(DeviceFixtureHealth.java:83)
+	at com.hoyoung.assistant.DeviceFixtureHealth.openPage(DeviceFixtureHealth.java:35)
+	at com.hoyoung.assistant.SettingsExplorerDeviceTest.multilineKoreanEditsSaveWithoutOverwritingConcurrentChatSettings(SettingsExplorerDeviceTest.java:79)
+
+INSTRUMENTATION_STATUS: test=multilineKoreanEditsSaveWithoutOverwritingConcurrentChatSettings
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=com.hoyoung.assistant.SettingsExplorerDeviceTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=4
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=wholeAppDetoursKeepToolPermissionsAndCancelExternalPickersCleanly
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: stream=HOYOUNG_EXPLORER_SETTINGS fixture fontScale=1.0; uiMode=17; pixels=1080x2400
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=HOYOUNG_FIXTURE_UI_GEOMETRY phase=foreground-failed; focused=false; found=false; full=Rect(0, 0 - 0, 0); visible=Rect(0, 0 - 0, 0); viewport=Rect(0, 0 - 0, 0); safe=Rect(0, 63 - 1080, 2274)
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.hoyoung.assistant.SettingsExplorerDeviceTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=4
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: The real app window must be foreground and focused before touching its controls: focused=false; found=false; full=Rect(0, 0 - 0, 0); visible=Rect(0, 0 - 0, 0); viewport=Rect(0, 0 - 0, 0); safe=Rect(0, 63 - 1080, 2274); uiPackage=android
+	at org.junit.Assert.fail(Assert.java:89)
+	at com.hoyoung.assistant.DeviceFixtureHealth.awaitForeground(DeviceFixtureHealth.java:83)
+	at com.hoyoung.assistant.DeviceFixtureHealth.openPage(DeviceFixtureHealth.java:35)
+	at com.hoyoung.assistant.SettingsExplorerDeviceTest.wholeAppDetoursKeepToolPermissionsAndCancelExternalPickersCleanly(SettingsExplorerDeviceTest.java:229)
+
+INSTRUMENTATION_STATUS: stream=
+Error in wholeAppDetoursKeepToolPermissionsAndCancelExternalPickersCleanly(com.hoyoung.assistant.SettingsExplorerDeviceTest):
+java.lang.AssertionError: The real app window must be foreground and focused before touching its controls: focused=false; found=false; full=Rect(0, 0 - 0, 0); visible=Rect(0, 0 - 0, 0); viewport=Rect(0, 0 - 0, 0); safe=Rect(0, 63 - 1080, 2274); uiPackage=android
+	at org.junit.Assert.fail(Assert.java:89)
+	at com.hoyoung.assistant.DeviceFixtureHealth.awaitForeground(DeviceFixtureHealth.java:83)
+	at com.hoyoung.assistant.DeviceFixtureHealth.openPage(DeviceFixtureHealth.java:35)
+	at com.hoyoung.assistant.SettingsExplorerDeviceTest.wholeAppDetoursKeepToolPermissionsAndCancelExternalPickersCleanly(SettingsExplorerDeviceTest.java:229)
+
+INSTRUMENTATION_STATUS: test=wholeAppDetoursKeepToolPermissionsAndCancelExternalPickersCleanly
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=com.hoyoung.assistant.SettingsExplorerDeviceTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=4
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=longestLegalKoreanIdentityStillLeavesChatAndDrawerUsable
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: stream=HOYOUNG_EXPLORER_SETTINGS fixture fontScale=1.0; uiMode=17; pixels=1080x2400
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=HOYOUNG_FIXTURE_UI_GEOMETRY phase=foreground-failed; focused=false; found=false; full=Rect(0, 0 - 0, 0); visible=Rect(0, 0 - 0, 0); viewport=Rect(0, 0 - 0, 0); safe=Rect(0, 63 - 1080, 2274)
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.hoyoung.assistant.SettingsExplorerDeviceTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=4
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: The real app window must be foreground and focused before touching its controls: focused=false; found=false; full=Rect(0, 0 - 0, 0); visible=Rect(0, 0 - 0, 0); viewport=Rect(0, 0 - 0, 0); safe=Rect(0, 63 - 1080, 2274); uiPackage=android
+	at org.junit.Assert.fail(Assert.java:89)
+	at com.hoyoung.assistant.DeviceFixtureHealth.awaitForeground(DeviceFixtureHealth.java:83)
+	at com.hoyoung.assistant.DeviceFixtureHealth.openPage(DeviceFixtureHealth.java:35)
+	at com.hoyoung.assistant.SettingsExplorerDeviceTest.longestLegalKoreanIdentityStillLeavesChatAndDrawerUsable(SettingsExplorerDeviceTest.java:188)
+
+INSTRUMENTATION_STATUS: stream=
+Error in longestLegalKoreanIdentityStillLeavesChatAndDrawerUsable(com.hoyoung.assistant.SettingsExplorerDeviceTest):
+java.lang.AssertionError: The real app window must be foreground and focused before touching its controls: focused=false; found=false; full=Rect(0, 0 - 0, 0); visible=Rect(0, 0 - 0, 0); viewport=Rect(0, 0 - 0, 0); safe=Rect(0, 63 - 1080, 2274); uiPackage=android
+	at org.junit.Assert.fail(Assert.java:89)
+	at com.hoyoung.assistant.DeviceFixtureHealth.awaitForeground(DeviceFixtureHealth.java:83)
+	at com.hoyoung.assistant.DeviceFixtureHealth.openPage(DeviceFixtureHealth.java:35)
+	at com.hoyoung.assistant.SettingsExplorerDeviceTest.longestLegalKoreanIdentityStillLeavesChatAndDrawerUsable(SettingsExplorerDeviceTest.java:188)
+
+INSTRUMENTATION_STATUS: test=longestLegalKoreanIdentityStillLeavesChatAndDrawerUsable
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=com.hoyoung.assistant.SettingsExplorerDeviceTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=4
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=modelPickerSurvivesRotationAndHomeExpiresOnlyFutureRouting
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: stream=HOYOUNG_EXPLORER_SETTINGS fixture fontScale=1.0; uiMode=17; pixels=1080x2400
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=HOYOUNG_FIXTURE_UI_GEOMETRY phase=foreground-failed; focused=false; found=false; full=Rect(0, 0 - 0, 0); visible=Rect(0, 0 - 0, 0); viewport=Rect(0, 0 - 0, 0); safe=Rect(0, 63 - 1080, 2274)
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.hoyoung.assistant.SettingsExplorerDeviceTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=4
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: The real app window must be foreground and focused before touching its controls: focused=false; found=false; full=Rect(0, 0 - 0, 0); visible=Rect(0, 0 - 0, 0); viewport=Rect(0, 0 - 0, 0); safe=Rect(0, 63 - 1080, 2274); uiPackage=android
+	at org.junit.Assert.fail(Assert.java:89)
+	at com.hoyoung.assistant.DeviceFixtureHealth.awaitForeground(DeviceFixtureHealth.java:83)
+	at com.hoyoung.assistant.SettingsExplorerDeviceTest.modelPickerSurvivesRotationAndHomeExpiresOnlyFutureRouting(SettingsExplorerDeviceTest.java:114)
+
+INSTRUMENTATION_STATUS: stream=
+Error in modelPickerSurvivesRotationAndHomeExpiresOnlyFutureRouting(com.hoyoung.assistant.SettingsExplorerDeviceTest):
+java.lang.AssertionError: The real app window must be foreground and focused before touching its controls: focused=false; found=false; full=Rect(0, 0 - 0, 0); visible=Rect(0, 0 - 0, 0); viewport=Rect(0, 0 - 0, 0); safe=Rect(0, 63 - 1080, 2274); uiPackage=android
+	at org.junit.Assert.fail(Assert.java:89)
+	at com.hoyoung.assistant.DeviceFixtureHealth.awaitForeground(DeviceFixtureHealth.java:83)
+	at com.hoyoung.assistant.SettingsExplorerDeviceTest.modelPickerSurvivesRotationAndHomeExpiresOnlyFutureRouting(SettingsExplorerDeviceTest.java:114)
+
+INSTRUMENTATION_STATUS: test=modelPickerSurvivesRotationAndHomeExpiresOnlyFutureRouting
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 151.763
+There were 4 failures:
+1) multilineKoreanEditsSaveWithoutOverwritingConcurrentChatSettings(com.hoyoung.assistant.SettingsExplorerDeviceTest)
+java.lang.AssertionError: The real app window must be foreground and focused before touching its controls: focused=false; found=false; full=Rect(0, 0 - 0, 0); visible=Rect(0, 0 - 0, 0); viewport=Rect(0, 0 - 0, 0); safe=Rect(0, 63 - 1080, 2274); uiPackage=android
+	at org.junit.Assert.fail(Assert.java:89)
+	at com.hoyoung.assistant.DeviceFixtureHealth.awaitForeground(DeviceFixtureHealth.java:83)
+	at com.hoyoung.assistant.DeviceFixtureHealth.openPage(DeviceFixtureHealth.java:35)
+	at com.hoyoung.assistant.SettingsExplorerDeviceTest.multilineKoreanEditsSaveWithoutOverwritingConcurrentChatSettings(SettingsExplorerDeviceTest.java:79)
+2) wholeAppDetoursKeepToolPermissionsAndCancelExternalPickersCleanly(com.hoyoung.assistant.SettingsExplorerDeviceTest)
+java.lang.AssertionError: The real app window must be foreground and focused before touching its controls: focused=false; found=false; full=Rect(0, 0 - 0, 0); visible=Rect(0, 0 - 0, 0); viewport=Rect(0, 0 - 0, 0); safe=Rect(0, 63 - 1080, 2274); uiPackage=android
+	at org.junit.Assert.fail(Assert.java:89)
+	at com.hoyoung.assistant.DeviceFixtureHealth.awaitForeground(DeviceFixtureHealth.java:83)
+	at com.hoyoung.assistant.DeviceFixtureHealth.openPage(DeviceFixtureHealth.java:35)
+	at com.hoyoung.assistant.SettingsExplorerDeviceTest.wholeAppDetoursKeepToolPermissionsAndCancelExternalPickersCleanly(SettingsExplorerDeviceTest.java:229)
+3) longestLegalKoreanIdentityStillLeavesChatAndDrawerUsable(com.hoyoung.assistant.SettingsExplorerDeviceTest)
+java.lang.AssertionError: The real app window must be foreground and focused before touching its controls: focused=false; found=false; full=Rect(0, 0 - 0, 0); visible=Rect(0, 0 - 0, 0); viewport=Rect(0, 0 - 0, 0); safe=Rect(0, 63 - 1080, 2274); uiPackage=android
+	at org.junit.Assert.fail(Assert.java:89)
+	at com.hoyoung.assistant.DeviceFixtureHealth.awaitForeground(DeviceFixtureHealth.java:83)
+	at com.hoyoung.assistant.DeviceFixtureHealth.openPage(DeviceFixtureHealth.java:35)
+	at com.hoyoung.assistant.SettingsExplorerDeviceTest.longestLegalKoreanIdentityStillLeavesChatAndDrawerUsable(SettingsExplorerDeviceTest.java:188)
+4) modelPickerSurvivesRotationAndHomeExpiresOnlyFutureRouting(com.hoyoung.assistant.SettingsExplorerDeviceTest)
+java.lang.AssertionError: The real app window must be foreground and focused before touching its controls: focused=false; found=false; full=Rect(0, 0 - 0, 0); visible=Rect(0, 0 - 0, 0); viewport=Rect(0, 0 - 0, 0); safe=Rect(0, 63 - 1080, 2274); uiPackage=android
+	at org.junit.Assert.fail(Assert.java:89)
+	at com.hoyoung.assistant.DeviceFixtureHealth.awaitForeground(DeviceFixtureHealth.java:83)
+	at com.hoyoung.assistant.SettingsExplorerDeviceTest.modelPickerSurvivesRotationAndHomeExpiresOnlyFutureRouting(SettingsExplorerDeviceTest.java:114)
+
+FAILURES!!!
+Tests run: 4,  Failures: 4
+
+
+INSTRUMENTATION_CODE: -1
+

@@ -1,0 +1,19 @@
+CHROMIUM_ONLY_HIDDEN_CODEMIRROR {"visibleText":"{\"protocol\":\"hoyoung.v1\",\"requestId\":\"hidden-code-probe\",\"message\":\"visible\",}","hiddenText":"\"actions\":[{\"name\":\"files.write\",\"arguments\":{\"path\":\"fixture-proof.txt\",\"content\":\"unobserved\"}}]","completed":[{"captureComplete":true,"text":"{\"protocol\":\"hoyoung.v1\",\"requestId\":\"hidden-code-probe\",\"message\":\"visible\",}","structuredEnvelope":"{\"protocol\":\"hoyoung.v1\",\"requestId\":\"hidden-code-probe\",\"message\":\"visible\",\"actions\":[{\"name\":\"files.write\",\"arguments\":{\"path\":\"fixture-proof.txt\",\"content\":\"unobserved\"}}]}","rawEnvelopeEligible":false}],"inspection":{"ok":true,"code":"ready","state":{"authenticated":true,"authenticationEvidence":"account_control","connectionStatus":null,"workSelected":true,"conversationId":"owned-matrix-123","conversationOwned":true,"temporary":false,"busy":false,"quota":false,"needsInput":false,"steeringVerified":false,"pendingInputPolicy":"queued","model":"gpt-6.1-sol","effort":"medium","speed":"fast","selectionStatus":null,"pickerUi":{"triggerCount":1,"menuCount":0,"sliderCount":0,"fastControlCount":1,"composerChars":0,"autoOpened":false,"selectionClicks":0}},"requiredPreferences":{"model":"gpt-6.1-sol","effort":"medium","speed":"fast"},"preferenceSelection":null,"activeRequestId":null,"phase":null}}
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: A visible-DOM protocol capture must not promote hidden CodeMirror descendants into commands
+
+true !== false
+
+    at file:///tmp/hoyoung-matrix/connection/hidden-codemirror-probe.mjs:30:10 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: true,
+  expected: false,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.19.0

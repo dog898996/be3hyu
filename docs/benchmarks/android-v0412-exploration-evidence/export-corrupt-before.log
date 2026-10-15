@@ -1,0 +1,16 @@
+JUnit version 4.13.2
+.describeBeforeDestinationOpen=not_checked_on_list
+destinationBeforeBytes=39;destinationAfterBytes=0
+notice=저장·복원을 완료하지 못했어. 기존 폰 데이터를 확인해.
+E
+Time: 5.34
+There was 1 failure:
+1) corruptOriginalMustNotTruncateExistingExportDestination(com.hoyoung.assistant.ExportCorruptOriginalReviewTest)
+org.junit.ComparisonFailure: A SHA-256-invalid original must be rejected before truncating the chosen destination expected:<[existing destination bytes must survive]> but was:<[]>
+	at org.junit.Assert.assertEquals(Assert.java:117)
+	at com.hoyoung.assistant.ExportCorruptOriginalReviewTest.corruptOriginalMustNotTruncateExistingExportDestination(ExportCorruptOriginalReviewTest.java:67)
+	Suppressed: org.robolectric.android.internal.AndroidTestEnvironment$UnExecutedRunnablesException: Main looper has queued unexecuted runnables. This might be the cause of the test failure. You might need a shadowOf(Looper.getMainLooper()).idle() call.
+
+FAILURES!!!
+Tests run: 1,  Failures: 1
+

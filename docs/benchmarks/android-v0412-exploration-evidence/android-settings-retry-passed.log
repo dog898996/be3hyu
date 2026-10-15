@@ -1,0 +1,110 @@
+INSTRUMENTATION_STATUS: class=com.hoyoung.assistant.SettingsExplorerDeviceTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=
+com.hoyoung.assistant.SettingsExplorerDeviceTest:
+INSTRUMENTATION_STATUS: test=multilineKoreanEditsSaveWithoutOverwritingConcurrentChatSettings
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: stream=HOYOUNG_EXPLORER_SETTINGS fixture fontScale=1.0; uiMode=17; pixels=1080x2400
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=HOYOUNG_FIXTURE_UI_GEOMETRY phase=visible-sidebar-open; focused=true; found=true; full=Rect(32, 37 - 148, 163); visible=Rect(32, 37 - 148, 163); viewport=Rect(0, 0 - 1080, 2274); safe=Rect(0, 0 - 1080, 2274)
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=HOYOUNG_FIXTURE_UI_GEOMETRY phase=before-click-sidebar-open; focused=true; found=true; full=Rect(32, 37 - 148, 163); visible=Rect(32, 37 - 148, 163); viewport=Rect(0, 0 - 1080, 2274); safe=Rect(0, 0 - 1080, 2274)
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=HOYOUNG_FIXTURE_UI_GEOMETRY phase=visible-sidebar-설정; focused=true; found=true; full=Rect(58, 1529 - 814, 1718); visible=Rect(58, 1529 - 814, 1718); viewport=Rect(0, 0 - 861, 2274); safe=Rect(0, 0 - 1080, 2274)
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=HOYOUNG_FIXTURE_UI_GEOMETRY phase=before-click-sidebar-설정; focused=true; found=true; full=Rect(58, 1529 - 814, 1718); visible=Rect(58, 1529 - 814, 1718); viewport=Rect(0, 0 - 861, 2274); safe=Rect(0, 0 - 1080, 2274)
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=HOYOUNG_EXPLORER_SETTINGS evidence=/storage/emulated/0/Android/data/com.hoyoung.assistant/files/explorer-settings/01-settings-overview
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=HOYOUNG_FIXTURE_UI_GEOMETRY phase=visible-expand-사용자 지침; focused=true; found=true; full=Rect(53, 1980 - 1027, 2138); visible=Rect(53, 1980 - 1027, 2138); viewport=Rect(0, 203 - 1080, 2274); safe=Rect(0, 0 - 1080, 2274)
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=HOYOUNG_FIXTURE_UI_GEOMETRY phase=before-click-expand-사용자 지침; focused=true; found=true; full=Rect(53, 1980 - 1027, 2138); visible=Rect(53, 1980 - 1027, 2138); viewport=Rect(0, 203 - 1080, 2274); safe=Rect(0, 0 - 1080, 2274)
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=HOYOUNG_FIXTURE_UI_GEOMETRY phase=before-scroll-description-사용자 지침 편집; focused=true; found=true; full=Rect(95, 2138 - 985, 2275); visible=Rect(95, 2138 - 985, 2274); viewport=Rect(0, 203 - 1080, 2274); safe=Rect(0, 0 - 1080, 2274)
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=HOYOUNG_FIXTURE_UI_GEOMETRY phase=visible-description-사용자 지침 편집; focused=true; found=true; full=Rect(95, 798 - 985, 935); visible=Rect(95, 798 - 985, 935); viewport=Rect(0, 203 - 1080, 2274); safe=Rect(0, 0 - 1080, 2274)
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=HOYOUNG_EXPLORER_SETTINGS evidence=/storage/emulated/0/Android/data/com.hoyoung.assistant/files/explorer-settings/02-long-korean-instructions
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=HOYOUNG_FIXTURE_UI_GEOMETRY phase=before-scroll-text-설정 저장; focused=true; found=true; full=Rect(53, 2402 - 1027, 2528); visible=Rect(53, 2136 - 1027, 2262); viewport=Rect(0, 266 - 1080, 2274); safe=Rect(0, 63 - 1080, 2274)
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=HOYOUNG_FIXTURE_UI_GEOMETRY phase=visible-text-설정 저장; focused=true; found=true; full=Rect(53, 1907 - 1027, 2033); visible=Rect(53, 1907 - 1027, 2033); viewport=Rect(0, 266 - 1080, 2274); safe=Rect(0, 63 - 1080, 2274)
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=HOYOUNG_FIXTURE_UI_GEOMETRY phase=visible-description-사용자 지침 편집; focused=true; found=true; full=Rect(95, 366 - 985, 935); visible=Rect(95, 366 - 985, 935); viewport=Rect(0, 266 - 1080, 2274); safe=Rect(0, 63 - 1080, 2274)
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=HOYOUNG_FIXTURE_UI_GEOMETRY phase=visible-text-설정 저장; focused=true; found=true; full=Rect(53, 1907 - 1027, 2033); visible=Rect(53, 1907 - 1027, 2033); viewport=Rect(0, 266 - 1080, 2274); safe=Rect(0, 63 - 1080, 2274)
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=HOYOUNG_EXPLORER_SETTINGS evidence=/storage/emulated/0/Android/data/com.hoyoung.assistant/files/explorer-settings/03-concurrent-setting-conflict
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=HOYOUNG_FIXTURE_UI_GEOMETRY phase=visible-sidebar-open; focused=true; found=true; full=Rect(32, 100 - 148, 226); visible=Rect(32, 100 - 148, 226); viewport=Rect(0, 63 - 1080, 2274); safe=Rect(0, 63 - 1080, 2274)
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=HOYOUNG_FIXTURE_UI_GEOMETRY phase=before-click-sidebar-open; focused=true; found=true; full=Rect(32, 100 - 148, 226); visible=Rect(32, 100 - 148, 226); viewport=Rect(0, 63 - 1080, 2274); safe=Rect(0, 63 - 1080, 2274)
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=HOYOUNG_FIXTURE_UI_GEOMETRY phase=visible-sidebar-권한; focused=true; found=true; full=Rect(58, 1340 - 814, 1529); visible=Rect(58, 1340 - 814, 1529); viewport=Rect(0, 63 - 861, 2274); safe=Rect(0, 63 - 1080, 2274)
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=HOYOUNG_FIXTURE_UI_GEOMETRY phase=before-click-sidebar-권한; focused=true; found=true; full=Rect(58, 1340 - 814, 1529); visible=Rect(58, 1340 - 814, 1529); viewport=Rect(0, 63 - 861, 2274); safe=Rect(0, 63 - 1080, 2274)
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=HOYOUNG_FIXTURE_UI_GEOMETRY phase=visible-sidebar-open; focused=true; found=true; full=Rect(32, 100 - 148, 226); visible=Rect(32, 100 - 148, 226); viewport=Rect(0, 63 - 1080, 2274); safe=Rect(0, 63 - 1080, 2274)
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=HOYOUNG_FIXTURE_UI_GEOMETRY phase=before-click-sidebar-open; focused=true; found=true; full=Rect(32, 100 - 148, 226); visible=Rect(32, 100 - 148, 226); viewport=Rect(0, 63 - 1080, 2274); safe=Rect(0, 63 - 1080, 2274)
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=HOYOUNG_FIXTURE_UI_GEOMETRY phase=visible-sidebar-설정; focused=true; found=true; full=Rect(58, 1529 - 814, 1718); visible=Rect(58, 1529 - 814, 1718); viewport=Rect(0, 63 - 861, 2274); safe=Rect(0, 63 - 1080, 2274)
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=HOYOUNG_FIXTURE_UI_GEOMETRY phase=before-click-sidebar-설정; focused=true; found=true; full=Rect(58, 1529 - 814, 1718); visible=Rect(58, 1529 - 814, 1718); viewport=Rect(0, 63 - 861, 2274); safe=Rect(0, 63 - 1080, 2274)
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=HOYOUNG_FIXTURE_UI_GEOMETRY phase=visible-expand-사용자 지침; focused=true; found=true; full=Rect(53, 2043 - 1027, 2201); visible=Rect(53, 2043 - 1027, 2201); viewport=Rect(0, 266 - 1080, 2274); safe=Rect(0, 63 - 1080, 2274)
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=HOYOUNG_FIXTURE_UI_GEOMETRY phase=before-click-expand-사용자 지침; focused=true; found=true; full=Rect(53, 2043 - 1027, 2201); visible=Rect(53, 2043 - 1027, 2201); viewport=Rect(0, 266 - 1080, 2274); safe=Rect(0, 63 - 1080, 2274)
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=HOYOUNG_FIXTURE_UI_GEOMETRY phase=before-scroll-description-사용자 지침 편집; focused=true; found=true; full=Rect(95, 2201 - 985, 2338); visible=Rect(95, 2201 - 985, 2274); viewport=Rect(0, 266 - 1080, 2274); safe=Rect(0, 63 - 1080, 2274)
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=HOYOUNG_FIXTURE_UI_GEOMETRY phase=visible-description-사용자 지침 편집; focused=true; found=true; full=Rect(95, 798 - 985, 935); visible=Rect(95, 798 - 985, 935); viewport=Rect(0, 266 - 1080, 2274); safe=Rect(0, 63 - 1080, 2274)
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=HOYOUNG_EXPLORER_SETTINGS multiline-native-edit-save; concurrent-unedited-setting-retained; stale-edited-setting-rejected; reopened-latest
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.hoyoung.assistant.SettingsExplorerDeviceTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=multilineKoreanEditsSaveWithoutOverwritingConcurrentChatSettings
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_RESULT: stream=
+
+Time: 160.213
+
+OK (1 test)
+
+
+INSTRUMENTATION_CODE: -1

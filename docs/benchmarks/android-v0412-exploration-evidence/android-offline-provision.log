@@ -1,0 +1,54 @@
+["shell", "for p in READ_CONTACTS WRITE_CONTACTS READ_CALENDAR WRITE_CALENDAR ACCESS_COARSE_LOCATION ACCESS_FINE_LOCATION ACCESS_BACKGROUND_LOCATION CAMERA RECORD_AUDIO READ_PHONE_STATE READ_PHONE_NUMBERS CALL_PHONE READ_SMS SEND_SMS RECEIVE_SMS READ_CALL_LOG WRITE_CALL_LOG BLUETOOTH_CONNECT BLUETOOTH_SCAN READ_MEDIA_IMAGES READ_MEDIA_VIDEO READ_MEDIA_AUDIO READ_MEDIA_VISUAL_USER_SELECTED POST_NOTIFICATIONS ACTIVITY_RECOGNITION NEARBY_WIFI_DEVICES; do pm grant com.hoyoung.assistant android.permission.$p || exit 1; done"]
+
+["shell", "for op in GET_USAGE_STATS WRITE_SETTINGS SYSTEM_ALERT_WINDOW MANAGE_EXTERNAL_STORAGE SCHEDULE_EXACT_ALARM ACCESS_RESTRICTED_SETTINGS; do appops set com.hoyoung.assistant $op allow || exit 1; done"]
+
+["shell", "cmd", "notification", "allow_listener", "com.hoyoung.assistant/.phone.HoyoungNotificationListener"]
+
+["shell", "cmd", "notification", "allow_dnd", "com.hoyoung.assistant"]
+
+["shell", "settings", "put", "secure", "enabled_accessibility_services", "com.hoyoung.assistant/.phone.HoyoungAccessibilityService"]
+
+["shell", "settings", "put", "secure", "accessibility_enabled", "1"]
+
+["shell", "dumpsys", "deviceidle", "whitelist", "+com.hoyoung.assistant"]
+Added: com.hoyoung.assistant
+
+["shell", "dpm", "set-active-admin", "com.hoyoung.assistant/.phone.HoyoungDeviceAdminReceiver"]
+Success: Active admin set to component com.hoyoung.assistant/.phone.HoyoungDeviceAdminReceiver
+
+["shell", "am", "start", "-W", "-n", "com.hoyoung.assistant/.MainActivity"]
+Starting: Intent { cmp=com.hoyoung.assistant/.MainActivity }
+Status: timeout
+LaunchState: UNKNOWN (-1)
+Activity: com.hoyoung.assistant/.MainActivity
+WaitTime: 10914
+Complete
+
+["shell", "am", "instrument", "--no-restart", "-w", "-r", "-e", "class", "com.hoyoung.assistant.OfflineFixtureDeviceTest", "com.hoyoung.assistant.test/com.hoyoung.assistant.PreservingAccessibilityTestRunner"]
+INSTRUMENTATION_STATUS: class=com.hoyoung.assistant.OfflineFixtureDeviceTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=
+com.hoyoung.assistant.OfflineFixtureDeviceTest:
+INSTRUMENTATION_STATUS: test=actualConnectivityManagerReportsNoActiveOrRemainingNetworks
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: stream=HOYOUNG_FIXTURE_FRAMEWORK_OFFLINE actual-activeNetwork=null; actual-getAllNetworks=0; five-consecutive-observations; no-production-bypass
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.hoyoung.assistant.OfflineFixtureDeviceTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=actualConnectivityManagerReportsNoActiveOrRemainingNetworks
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_RESULT: stream=
+
+Time: 1.247
+
+OK (1 test)
+
+
+INSTRUMENTATION_CODE: -1
+

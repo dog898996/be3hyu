@@ -1,0 +1,16 @@
+✔ a whole rendered hoyoung pre/code reply forwards a separate exact envelope and retains the unfenced visible original (1563.177548ms)
+✔ hidden pre/code whitespace cannot change structured JSON string values (483.523307ms)
+✔ whole hoyoung code keeps Markdown-looking JSON values and exact source quotes; rendered bare formatting is ineligible (864.691672ms)
+✔ plain whole JSON remains an untouched original; quoted, partial, ambiguous and unknown-language rendered code never becomes an envelope (4061.130588ms)
+✔ rendered envelope metadata must settle and oversized structured code is reported explicitly without clipping the original (1004.699919ms)
+✔ captured CodeMirror hoyoung reply yields exact JSON rather than language or copy controls (445.091734ms)
+✔ virtualized CodeMirror code waits for all lines before completing or recovering (547.859954ms)
+✔ hidden CodeMirror code never becomes a structured command until every source line is rendered (2772.401223ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 12219.892038

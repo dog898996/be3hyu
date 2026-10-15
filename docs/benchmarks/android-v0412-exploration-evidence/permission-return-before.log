@@ -1,0 +1,17 @@
+JUnit version 4.13.2
+.blockedTab=권한 설정
+grantedTab=권한 설정
+grantedTitle=권한 설정
+chatComposerExists=true
+E
+Time: 6.422
+There was 1 failure:
+1) returningAfterPermissionGrantRestoresARealTab(com.hoyoung.assistant.PermissionReturnReviewTest)
+org.junit.ComparisonFailure: Permission onboarding is not a normal tab; restored chat must use the chat identity expected:<[대화]> but was:<[권한 설정]>
+	at org.junit.Assert.assertEquals(Assert.java:117)
+	at com.hoyoung.assistant.PermissionReturnReviewTest.returningAfterPermissionGrantRestoresARealTab(PermissionReturnReviewTest.java:43)
+	Suppressed: org.robolectric.android.internal.AndroidTestEnvironment$UnExecutedRunnablesException: Main looper has queued unexecuted runnables. This might be the cause of the test failure. You might need a shadowOf(Looper.getMainLooper()).idle() call.
+
+FAILURES!!!
+Tests run: 1,  Failures: 1
+

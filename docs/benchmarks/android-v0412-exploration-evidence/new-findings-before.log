@@ -1,0 +1,89 @@
+Android SDK: /workspace/.tools/android-build/sdk
+Java compiler: /workspace/.tools/android-build/jdk-17.0.16+8/bin/javac
+Gradle: /workspace/.tools/android-build/gradle-8.11.1/bin/gradle
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.11.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+Warning: SDK processing. This version only understands SDK XML versions up to 3 but an SDK XML file of version 4 was encountered. This can happen if you use versions of Android Studio and the command-line tools that were released at different times.
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:javaPreCompileDebug UP-TO-DATE
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :app:generateDebugResValues UP-TO-DATE
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:mergeDebugResources UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :app:processDebugMainManifest UP-TO-DATE
+> Task :app:processDebugManifest UP-TO-DATE
+> Task :app:processDebugManifestForPackage UP-TO-DATE
+> Task :app:processDebugResources UP-TO-DATE
+
+> Task :app:compileDebugJavaWithJavac
+Note: /workspace/be3hyu/mobile/app/src/main/java/com/hoyoung/assistant/MainActivity.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :app:bundleDebugClassesToCompileJar
+> Task :app:bundleDebugClassesToRuntimeJar
+> Task :app:preDebugUnitTestBuild UP-TO-DATE
+> Task :app:javaPreCompileDebugUnitTest UP-TO-DATE
+> Task :app:compileDebugUnitTestJavaWithJavac
+> Task :app:mergeDebugShaders UP-TO-DATE
+> Task :app:compileDebugShaders NO-SOURCE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:mergeDebugAssets UP-TO-DATE
+> Task :app:packageDebugUnitTestForUnitTest UP-TO-DATE
+> Task :app:generateDebugUnitTestConfig UP-TO-DATE
+> Task :app:processDebugJavaRes NO-SOURCE
+> Task :app:processDebugUnitTestJavaRes NO-SOURCE
+
+> Task :app:testDebugUnitTest
+
+AssistantIdentitySurfaceExplorerTest > defaultFloatingCardUsesCurrentSavedAssistantName FAILED
+    java.lang.AssertionError: A new default floating card must display the current saved name, not the bundled name
+        at org.junit.Assert.fail(Assert.java:89)
+        at org.junit.Assert.assertTrue(Assert.java:42)
+        at org.junit.Assert.assertNotNull(Assert.java:713)
+        at com.hoyoung.assistant.phone.AssistantIdentitySurfaceExplorerTest.defaultFloatingCardUsesCurrentSavedAssistantName(AssistantIdentitySurfaceExplorerTest.java:64)
+
+AssistantIdentitySurfaceExplorerTest > recordingNotificationUsesCurrentSavedAssistantName FAILED
+    java.lang.AssertionError: Recording title ignored the saved assistant identity: 호영이 녹음 중
+        at org.junit.Assert.fail(Assert.java:89)
+        at org.junit.Assert.assertTrue(Assert.java:42)
+        at com.hoyoung.assistant.phone.AssistantIdentitySurfaceExplorerTest.recordingNotificationUsesCurrentSavedAssistantName(AssistantIdentitySurfaceExplorerTest.java:78)
+
+OwnerDraftAttachmentImportTest > duplicateBatchAndAlreadySavedDuplicateDraftRecoverWithoutLosingTextOrAuthorship FAILED
+    java.io.IOException: Missing or duplicate attachment id
+        at com.hoyoung.assistant.store.InternalFiles.freezeAttachments(InternalFiles.java:170)
+        at com.hoyoung.assistant.runtime.OwnerDraftAttachmentImportTest.duplicateBatchAndAlreadySavedDuplicateDraftRecoverWithoutLosingTextOrAuthorship(OwnerDraftAttachmentImportTest.java:54)
+
+OwnerDraftAttachmentImportTest > repeatedImportStillPassesRealAttachmentFreezeAndPreservesDraftIdentity FAILED
+    java.io.IOException: Missing or duplicate attachment id
+        at com.hoyoung.assistant.store.InternalFiles.freezeAttachments(InternalFiles.java:170)
+        at com.hoyoung.assistant.runtime.OwnerDraftAttachmentImportTest.repeatedImportStillPassesRealAttachmentFreezeAndPreservesDraftIdentity(OwnerDraftAttachmentImportTest.java:46)
+
+OwnerDraftAttachmentImportTest > limitCountsDistinctOriginalsAndNinthNewOriginalLeavesDraftUnchanged FAILED
+    java.lang.IllegalArgumentException: A message supports at most eight attachments
+        at com.hoyoung.assistant.runtime.OwnerDraftStore.lambda$appendAttachments$2(OwnerDraftStore.java:119)
+        at com.hoyoung.assistant.store.HoyoungStore.withTransaction(HoyoungStore.java:239)
+        at com.hoyoung.assistant.runtime.OwnerDraftStore.appendAttachments(OwnerDraftStore.java:115)
+        at com.hoyoung.assistant.runtime.OwnerDraftAttachmentImportTest.limitCountsDistinctOriginalsAndNinthNewOriginalLeavesDraftUnchanged(OwnerDraftAttachmentImportTest.java:68)
+
+35 tests completed, 5 failed
+
+> Task :app:testDebugUnitTest FAILED
+[Incubating] Problems report is available at: file:///workspace/be3hyu/mobile/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:testDebugUnitTest'.
+> There were failing tests. See the report at: file:///workspace/be3hyu/mobile/app/build/reports/tests/testDebugUnitTest/index.html
+
+* Try:
+> Run with --scan to get full insights.
+
+BUILD FAILED in 37s
+24 actionable tasks: 5 executed, 19 up-to-date

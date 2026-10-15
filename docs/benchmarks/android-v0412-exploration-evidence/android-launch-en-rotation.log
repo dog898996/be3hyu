@@ -1,0 +1,81 @@
+INFO         | Android emulator version 37.2.12.0 (build_id 16428233) (CL:N/A)
+INFO         | Graphics backend: gfxstream
+INFO         | Found systemPath /workspace/.tools/android-build/sdk/system-images/android-35/default/x86_64/
+INFO         | Saving last run QEMU version for the AVD to 2
+INFO         | Feature 'Vulkan' (21) is overridden to 'disabled'
+INFO         | Increasing RAM size to 2560MB
+INFO         | Guest GLES Driver: Auto (ext controls)
+INFO         | emuglConfig_init: vulkan_mode_selected:swiftshader gles_mode_selected:swiftshader
+INFO         | Checking system compatibility:
+INFO         |   Checking: hasSufficientDiskSpace
+INFO         |      Ok: Disk space requirements to run avd: `hoyoung-en_rotation` are met
+INFO         |   Checking: hasSufficientHwGpu
+INFO         |      Ok: Hardware GPU compatibility checks are not required
+INFO         |   Checking: hasSufficientSystem
+INFO         |      Ok: System requirements to run avd: `hoyoung-en_rotation` are met
+WARNING      | File System is not ext4, disable QuickbootFileBacked feature
+WARNING      | x86_64 emulation may not work without hardware acceleration!
+INFO         | Storing crashdata in: /tmp/android-agent/emu-crash-37.2.12.db, detection is enabled for process: 80080
+INFO         | Initializing gfxstream backend
+INFO         | startOpenglesRendererImpl: gpu info
+INFO         | 
+INFO         | SharedLibrary::open for [libX11]
+WARNING      | Could not open libX11.so, try libX11.so.6
+INFO         | SharedLibrary::open for [libX11.so.6]
+INFO         | SharedLibrary::open for [libX11-xcb]
+WARNING      | Could not open libX11-xcb.so, try libX11-xcb.so.1
+INFO         | SharedLibrary::open for [libX11-xcb.so.1]
+INFO         | Graphics Adapter Vendor Google (Google Inc.)
+INFO         | Graphics Adapter Android Emulator OpenGL ES Translator (Google SwiftShader)
+INFO         | Graphics API Version OpenGL ES 3.0 (OpenGL ES 3.0 SwiftShader 4.0.0.1)
+INFO         | Graphics API Extensions GL_OES_EGL_sync GL_OES_EGL_image GL_OES_EGL_image_external GL_OES_depth24 GL_OES_depth32 GL_OES_element_index_uint GL_OES_texture_float GL_OES_texture_float_linear GL_OES_compressed_paletted_texture GL_OES_compressed_ETC1_RGB8_texture GL_OES_depth_texture GL_OES_texture_half_float GL_OES_texture_half_float_linear GL_OES_packed_depth_stencil GL_OES_vertex_half_float GL_OES_standard_derivatives GL_OES_texture_npot GL_OES_rgb8_rgba8 GL_EXT_color_buffer_float GL_EXT_color_buffer_half_float GL_EXT_texture_format_BGRA8888 GL_APPLE_texture_format_BGRA8888 
+INFO         | Graphics Device Extensions N/A
+INFO         | Sending adb public key [QAAAAKkaz5hn1iva5lpl0x7GBi0JW3qJQbYz0Dbpk6JLKhiko7Sa4IywjRhcmROWcEIqPz7T+ex8U4vZ/aY98qxIfdSqWJHZoNPJDPgIHrnOCw/Z9AK1PLsP614wpwTQv/pgGo5/EVZLSHqp5mUrOYN3L/vVHAvyuNOKwjTtYixw1UABbhPHOTKo+ye3JRGm97gP1ONI+r35pFLPQyxghdUJ2IyaQV3o6sA6ePdtVJhXu3QrNoVaaQYwoENinoiWfLa3L+dNi14/YqyLD9RyAdj+nfC0mcbjb1ZcYc4gs6oJUEgCMusI338uDDQLfp+nRfs4E4dHbmixg4O0hNew01lAxZthUyzuqcUsjl+ZQTt8gvGj7VnFu4P3/qvOsRVjfWCCF4madVxVP+76ZYvUeqslHW7gP/OzlaBMri/BGPtNZPnSDZ8Dtq1GBFnvA9qGBh8QtyBZYKyE+bzJixSWhbTCVM25h4q97XcHIMPSdrAUuxOgw9MLHLQA/02XrJBp7h94scug2zV5nLdPntVUY+KyXO37Ds6fXaylosP/zxTuDKfA9imjp8Shkr+qL/BGXXYjA5LPYSYszhCQDvLrULaYSrT/NMBeRMTjRiA0ZE8uPe4zcv8rAsQWFb+1ewtyUtpQhv/RoLlhUcl2CekKRbqZeHit3EeCBQJ65vMIQT5aruKYrEFvVwEAAQA= @unknown]
+INFO         | Userspace boot properties:
+INFO         |   androidboot.boot_devices=pci0000:00/0000:00:03.0 pci0000:00/0000:00:06.0
+INFO         |   androidboot.dalvik.vm.heapsize=576m
+INFO         |   androidboot.debug.hwui.renderer=skiagl
+INFO         |   androidboot.debug.sf.nobootanimation=1
+INFO         |   androidboot.hardware=ranchu
+INFO         |   androidboot.hardware.gltransport=pipe
+INFO         |   androidboot.logcat=*:V
+INFO         |   androidboot.opengles.version=196608
+INFO         |   androidboot.qemu=1
+INFO         |   androidboot.qemu.adb.pubkey=QAAAAKkaz5hn1iva5lpl0x7GBi0JW3qJQbYz0Dbpk6JLKhiko7Sa4IywjRhcmROWcEIqPz7T+ex8U4vZ/aY98qxIfdSqWJHZoNPJDPgIHrnOCw/Z9AK1PLsP614wpwTQv/pgGo5/EVZLSHqp5mUrOYN3L/vVHAvyuNOKwjTtYixw1UABbhPHOTKo+ye3JRGm97gP1ONI+r35pFLPQyxghdUJ2IyaQV3o6sA6ePdtVJhXu3QrNoVaaQYwoENinoiWfLa3L+dNi14/YqyLD9RyAdj+nfC0mcbjb1ZcYc4gs6oJUEgCMusI338uDDQLfp+nRfs4E4dHbmixg4O0hNew01lAxZthUyzuqcUsjl+ZQTt8gvGj7VnFu4P3/qvOsRVjfWCCF4madVxVP+76ZYvUeqslHW7gP/OzlaBMri/BGPtNZPnSDZ8Dtq1GBFnvA9qGBh8QtyBZYKyE+bzJixSWhbTCVM25h4q97XcHIMPSdrAUuxOgw9MLHLQA/02XrJBp7h94scug2zV5nLdPntVUY+KyXO37Ds6fXaylosP/zxTuDKfA9imjp8Shkr+qL/BGXXYjA5LPYSYszhCQDvLrULaYSrT/NMBeRMTjRiA0ZE8uPe4zcv8rAsQWFb+1ewtyUtpQhv/RoLlhUcl2CekKRbqZeHit3EeCBQJ65vMIQT5aruKYrEFvVwEAAQA= @unknown
+INFO         |   androidboot.qemu.avd_name=hoyoung-en_rotation
+INFO         |   androidboot.qemu.camera_hq_edge_processing=0
+INFO         |   androidboot.qemu.camera_protocol_ver=1
+INFO         |   androidboot.qemu.cpuvulkan.version=4206592
+INFO         |   androidboot.qemu.gltransport.drawFlushInterval=800
+INFO         |   androidboot.qemu.gltransport.name=pipe
+INFO         |   androidboot.qemu.hwcodec.avcdec=2
+INFO         |   androidboot.qemu.hwcodec.hevcdec=2
+INFO         |   androidboot.qemu.hwcodec.vpxdec=2
+INFO         |   androidboot.qemu.settings.system.screen_off_timeout=2147483647
+INFO         |   androidboot.qemu.skin=960x1600
+INFO         |   androidboot.qemu.virtiowifi=1
+INFO         |   androidboot.qemu.vsync=60
+INFO         |   androidboot.serialno=EMULATOR37X2X12X0
+INFO         |   androidboot.vbmeta.digest=602b0c809848f3be570a96601071931225108ec3b3739d99a1dc41db38efe83c
+INFO         |   androidboot.vbmeta.hash_alg=sha256
+INFO         |   androidboot.vbmeta.size=6720
+INFO         |   androidboot.veritymode=enforcing
+INFO         | Activated packet streamer for bluetooth emulation
+TCG doesn't support requested feature: CPUID.01H:ECX.avx [bit 28]
+TCG doesn't support requested feature: CPUID.01H:ECX.f16c [bit 29]
+WARNING: cannnot unmap ptr 0x7f241c401000 as it is in the protected range from 0x7f237c400000 to 0x7f241c600000
+INFO         | Monitoring duration of emulator setup.
+INFO         | Successfully initialized netsim WiFi
+INFO         | Setting display: 0 configuration to: 960x1600, dpi: 320x320 
+INFO         | setDisplayActiveConfig: id:0, 960x1600
+INFO         | emulatorSetupEnvironment: Environment scene is not required
+WARNING      | Downloaded protobuf file is corrupt.
+ERROR        | detected a hanging thread 'QEMU2 CPU0 thread'. No response for 18799 ms
+WARNING      | Netsim Wifi ipv6:%5B::1%5D:33893 is gone due to Stream removed (Socket closed)
+INFO         | Boot completed in 707579 ms
+INFO         | Increasing screen off timeout, logcat buffer size to 2M.
+WARNING      | adb command '/workspace/.tools/android-build/sdk/platform-tools/adb -s emulator-5564 shell settings put system screen_off_timeout 2147483647 ' failed: ''
+WARNING      | adb command '/workspace/.tools/android-build/sdk/platform-tools/adb -s emulator-5564 shell settings put system screen_off_timeout 2147483647 ' failed: 'adb: device 'emulator-5564' not found'
+WARNING      | adb command '/workspace/.tools/android-build/sdk/platform-tools/adb -s emulator-5564 shell settings put system screen_off_timeout 2147483647 ' failed: 'adb: device offline'
+[80091:80091:20261015,074817.035768:ERROR file_io_posix.cc:145] open /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq: No such file or directory (2)
+[80091:80091:20261015,074817.035858:ERROR file_io_posix.cc:145] open /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq: No such file or directory (2)
