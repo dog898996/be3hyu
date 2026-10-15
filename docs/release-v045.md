@@ -24,3 +24,5 @@ Work 화면에 모델이 보이는데도 `authentication_unverified`로 멈추�
 실제 사용자의 휴대폰 DOM, 실계정 로그인·전송은 이 환경에서 확인하지 못했다. 웹 구조가 fixture와 다르면 **⋯ → 연결 진단 복사**로 추가 확인이 필요하다. 로컬 검사 통과를 실계정 연결 성공으로 보고하지 않는다.
 
 [설치 파일](https://github.com/dog898996/be3hyu/releases/tag/v0.4.5) · [집중 검사 기록](benchmarks/android-v045-focused.json) · [APK 검사](benchmarks/android-v045-apk.json).
+
+[APK 직접 다운로드](https://raw.githubusercontent.com/dog898996/be3hyu/fd6dec6d5d4ceb518a34aeb483b965cb913b6022/release-assets/v0.4.5/hoyoung-v0.4.5.apk) · [공개 다운로드 확인](benchmarks/android-v045-downloads.json). APK·소스 ZIP·검증 JSON·SHA256SUMS 4개를 인증 없이 끝까지 내려받아 HTTP 200, 크기와 SHA-256 일치를 확인했다. 소스 커밋은 `33b2b88ef4fac2902f94725d5b5ca6190df171e6`이며 기존 배포 서명과 동일하다.
