@@ -347,7 +347,7 @@ public final class WorkCompatibilityExplorerDeviceTest {
 
     @Test public void truncatedAndCodeFormattedUserTurnsAreConfirmedWithoutResending() throws Exception {
         open("window.expandClicks=0;document.querySelector('form').addEventListener('submit',()=>{"
-            +"const content=window.lastGroup.querySelector('[data-search-result-target]');if(window.clicks===1){const full=content.textContent;content.textContent=full.slice(0,100);"
+            +"const content=window.lastGroup.querySelector('[data-search-result-target]');if(window.clicks===1){const authored=content.cloneNode(true);authored.querySelectorAll('button').forEach(node=>node.remove());const full=authored.textContent;content.textContent=full.slice(0,100);"
             +"const button=document.createElement('button');button.type='button';button.setAttribute('aria-expanded','false');button.setAttribute('data-thread-find-skip','true');button.setAttribute('data-markdown-copy','exclude');button.textContent='더 보기';content.parentElement.append(button);"
             +"button.onclick=()=>{window.expandClicks++;setTimeout(()=>{content.textContent=full;button.setAttribute('aria-expanded','true');},500);};}"
             +"else content.innerHTML='원문<pre data-markdown-copy=code-block><code data-markdown-copy-content=true data-language=json>{\"value\":\"a b\"}</code></pre>끝';});");
