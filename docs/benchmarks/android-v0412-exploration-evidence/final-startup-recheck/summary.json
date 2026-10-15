@@ -1,0 +1,72 @@
+{
+  "at": "2026-10-15T09:07:27.009543+00:00",
+  "elapsedSeconds": 45.37544221700227,
+  "steps": [
+    {
+      "step": "wait-device",
+      "exit": 0
+    },
+    {
+      "step": "stop-old-process",
+      "exit": 0
+    },
+    {
+      "step": "install-app",
+      "exit": 0
+    },
+    {
+      "step": "install-tests",
+      "exit": 0
+    },
+    {
+      "step": "accessibility",
+      "exit": 0
+    },
+    {
+      "step": "wake",
+      "exit": 0
+    },
+    {
+      "step": "unlock",
+      "exit": 0
+    },
+    {
+      "step": "clear-log",
+      "exit": 0
+    },
+    {
+      "step": "stop-before-cold-start",
+      "exit": 0
+    },
+    {
+      "step": "cold-start",
+      "exit": 0
+    },
+    {
+      "step": "windows",
+      "exit": 0
+    },
+    {
+      "step": "activity",
+      "exit": 0
+    },
+    {
+      "step": "events",
+      "exit": 0
+    },
+    {
+      "step": "logcat",
+      "exit": 0
+    },
+    {
+      "step": "screenshot",
+      "exit": 0
+    }
+  ],
+  "scope": "Local real Android35 TCG cold startup only; no fabricated ANR dismissal",
+  "version": "0.4.13",
+  "observedLaunchState": "WARM",
+  "androidLaunchResult": "Status: ok; TotalTime 17212 ms",
+  "observedScreen": "Actual permission onboarding rendered, 28/29 grants, accessibility reconnect incomplete; no app ANR dialog on captured screen",
+  "limits": "Observation of one launch on slow TCG; not a claim of fast cold startup or that previous UI scenarios passed."
+}

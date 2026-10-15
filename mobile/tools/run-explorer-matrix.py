@@ -97,7 +97,18 @@ try:
         raise RuntimeError('Emulator boot timeout')
     if device('shell', 'getprop', 'ro.kernel.qemu').strip() != '1':
         raise RuntimeError('Not a disposable emulator')
-    device('root'); device('wait-for-device')
+    # ADB can close its transport while the fresh emulator restarts adbd. Check
+    # the observed UID after reconnecting instead of treating that EOF as a pass.
+    root_ready = False
+    for attempt in range(3):
+        device('root', check=False, timeout=20)
+        device('wait-for-device', timeout=30)
+        if device('shell', 'id', '-u', check=False, timeout=10).strip() == '0':
+            root_ready = True
+            break
+        time.sleep(1)
+    if not root_ready:
+        raise RuntimeError('Emulator adbd did not become root; no product tests executed')
     device('shell', 'cmd', 'connectivity', 'airplane-mode', 'enable')
     device('shell', 'svc', 'wifi', 'disable')
     device('shell', 'svc', 'data', 'disable', check=False)

@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-15T08:40:25.138822+00:00",
+  "updatedAt": "2026-10-15T09:08:10.045658+00:00",
   "rules": {
     "scope": "Every explorer independently explores the whole app.",
     "severityPoints": {
@@ -19,7 +19,7 @@
     "milestoneMeasure": "Highest individual verified score; severity and verified-fix/reproduction bonuses count. Unverified hypotheses and duplicate root causes earn no discovery points.",
     "milestoneAction": "At each crossed milestone finish the lowest scored active exploration session after preserving findings; ties use verified fixes, then earliest confirmed report. Continue root integration of every finding.",
     "completion": "All exploration sessions end when verification is complete, including the highest ranked session. No hidden conditions or survival instructions.",
-    "deviceStatus": "Five actual software QEMU guests attempted; parallel start hit host OOM. One guest reached boot and app APK installation, instrumentation provisioning still pending. No product device pass claims.",
+    "deviceStatus": "Five independent KVM Android35 jobs completed: 105/140 product scenario runs passed, 35 failed. Final Work recovery patch is running separately; no full-pass claim.",
     "eliminationsSoFar": [
       {
         "milestone": 5,
@@ -34,6 +34,20 @@
         "score": 5,
         "reason": "Lowest active score tied with B; both have one verified fix, B had the earlier confirmed finding",
         "at": "2026-10-15T08:26:16.699466+00:00"
+      },
+      {
+        "milestone": 15,
+        "agent": "android_media_explorer",
+        "score": 8,
+        "reason": "B reached 15 after confirmed actual startup ANR; C was lowest active",
+        "at": "2026-10-15T09:08:10.045658+00:00"
+      },
+      {
+        "milestone": 20,
+        "agent": "android_settings_explorer",
+        "score": 15,
+        "reason": "D reached 21 after startup fix and independently reproduced stale cache publication; B was lowest active",
+        "at": "2026-10-15T09:08:10.045658+00:00"
       }
     ],
     "deadline": "2026-10-15T09:15:00Z"
@@ -46,22 +60,22 @@
       "status": "exploration_ended_at_score_milestone_10"
     },
     "android_settings_explorer": {
-      "confirmed": 1,
+      "confirmed": 2,
       "fixed": 3,
-      "score": 9,
-      "status": "active"
+      "score": 15,
+      "status": "exploration_ended_at_score_milestone_20"
     },
     "android_media_explorer": {
       "confirmed": 2,
       "fixed": 1,
       "score": 8,
-      "status": "active"
+      "status": "exploration_ended_at_score_milestone_15"
     },
     "android_lifecycle_explorer": {
-      "confirmed": 3,
-      "fixed": 2,
-      "score": 14,
-      "status": "active"
+      "confirmed": 4,
+      "fixed": 4,
+      "score": 21,
+      "status": "winner_exploration_completed"
     },
     "android_memory_explorer": {
       "confirmed": 0,
@@ -191,6 +205,43 @@
       "fixPoints": 2,
       "fixOwner": "android_settings_explorer",
       "evidenceAfter": "/tmp/hoyoung-matrix/final-focused-retry.log"
+    },
+    {
+      "id": "F008",
+      "title": "Main-thread journal state read waits on the ingestion spool monitor during app startup",
+      "discoverer": "android_settings_explorer",
+      "severity": "high",
+      "points": 6,
+      "fixOwner": "android_lifecycle_explorer",
+      "fixPoints": 2,
+      "status": "fixed_jvm_verified_device_recheck_pending",
+      "evidence": "/tmp/hoyoung-matrix/settings/final-device-app-startup-anr.txt",
+      "evidenceAfter": "/tmp/hoyoung-matrix/lifecycle/startup-read-after.log",
+      "environmentAmplification": "Actual app startup ANR occurred on severely CPU-constrained TCG; no claim that app code alone caused the entire delay"
+    },
+    {
+      "id": "F009",
+      "title": "Late state read publishes stale cache over a newer write or restored generation",
+      "discoverer": "android_lifecycle_explorer",
+      "severity": "medium",
+      "points": 3,
+      "fixOwner": "android_lifecycle_explorer",
+      "fixPoints": 2,
+      "status": "fixed_jvm_verified",
+      "evidence": "/tmp/hoyoung-matrix/lifecycle/startup-read-baseline.log",
+      "evidenceAfter": "/tmp/hoyoung-matrix/lifecycle/startup-read-after.log"
+    },
+    {
+      "id": "F010",
+      "title": "Work reports ready between picker acknowledgement and modal dismissal, then cannot find Send",
+      "discoverer": "root_integration",
+      "severity": "high",
+      "points": 0,
+      "fixPoints": 0,
+      "status": "fixed_25_browser_tests_passed_android_recheck_pending",
+      "evidence": "/tmp/hoyoung-matrix/ci-five/failed-all.log",
+      "evidenceAfter": "/tmp/hoyoung-matrix/final-picker-ready.log",
+      "competitionEligible": false
     }
   ]
 }

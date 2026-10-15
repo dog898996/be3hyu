@@ -1,0 +1,395 @@
+{
+  "conclusion": "failure",
+  "headSha": "28232a9a6f457092dee89a050659441831a3b72f",
+  "jobs": [
+    {
+      "completedAt": "2026-10-15T08:59:10Z",
+      "conclusion": "failure",
+      "databaseId": 116333187010,
+      "name": "explore (en-rotation)",
+      "startedAt": "2026-10-15T08:48:41Z",
+      "status": "completed",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Check out source",
+          "number": 2,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Set up Java 17",
+          "number": 3,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Require runner SDK and hardware acceleration",
+          "number": 4,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Prepare pinned build tools",
+          "number": 5,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Install official API 35 AOSP emulator",
+          "number": 6,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Build the exact debug and instrumentation APKs",
+          "number": 7,
+          "status": "completed"
+        },
+        {
+          "conclusion": "failure",
+          "name": "Explore all areas on the independent real Android profile",
+          "number": 8,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Set up Java 17",
+          "number": 15,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Check out source",
+          "number": 16,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 17,
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/dog898996/be3hyu/actions/runs/38708324279/job/116333187010"
+    },
+    {
+      "completedAt": "2026-10-15T08:59:05Z",
+      "conclusion": "failure",
+      "databaseId": 116333187262,
+      "name": "explore (ko-tablet)",
+      "startedAt": "2026-10-15T08:48:41Z",
+      "status": "completed",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Check out source",
+          "number": 2,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Set up Java 17",
+          "number": 3,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Require runner SDK and hardware acceleration",
+          "number": 4,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Prepare pinned build tools",
+          "number": 5,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Install official API 35 AOSP emulator",
+          "number": 6,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Build the exact debug and instrumentation APKs",
+          "number": 7,
+          "status": "completed"
+        },
+        {
+          "conclusion": "failure",
+          "name": "Explore all areas on the independent real Android profile",
+          "number": 8,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Set up Java 17",
+          "number": 15,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Check out source",
+          "number": 16,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 17,
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/dog898996/be3hyu/actions/runs/38708324279/job/116333187262"
+    },
+    {
+      "completedAt": "2026-10-15T08:58:33Z",
+      "conclusion": "failure",
+      "databaseId": 116333187404,
+      "name": "explore (ko-compact)",
+      "startedAt": "2026-10-15T08:48:41Z",
+      "status": "completed",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Check out source",
+          "number": 2,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Set up Java 17",
+          "number": 3,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Require runner SDK and hardware acceleration",
+          "number": 4,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Prepare pinned build tools",
+          "number": 5,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Install official API 35 AOSP emulator",
+          "number": 6,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Build the exact debug and instrumentation APKs",
+          "number": 7,
+          "status": "completed"
+        },
+        {
+          "conclusion": "failure",
+          "name": "Explore all areas on the independent real Android profile",
+          "number": 8,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Set up Java 17",
+          "number": 15,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Check out source",
+          "number": 16,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 17,
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/dog898996/be3hyu/actions/runs/38708324279/job/116333187404"
+    },
+    {
+      "completedAt": "2026-10-15T08:59:11Z",
+      "conclusion": "failure",
+      "databaseId": 116333187406,
+      "name": "explore (ko-large-text)",
+      "startedAt": "2026-10-15T08:48:41Z",
+      "status": "completed",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Check out source",
+          "number": 2,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Set up Java 17",
+          "number": 3,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Require runner SDK and hardware acceleration",
+          "number": 4,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Prepare pinned build tools",
+          "number": 5,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Install official API 35 AOSP emulator",
+          "number": 6,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Build the exact debug and instrumentation APKs",
+          "number": 7,
+          "status": "completed"
+        },
+        {
+          "conclusion": "failure",
+          "name": "Explore all areas on the independent real Android profile",
+          "number": 8,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Set up Java 17",
+          "number": 15,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Check out source",
+          "number": 16,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 17,
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/dog898996/be3hyu/actions/runs/38708324279/job/116333187406"
+    },
+    {
+      "completedAt": "2026-10-15T08:59:26Z",
+      "conclusion": "failure",
+      "databaseId": 116333187512,
+      "name": "explore (ko-background)",
+      "startedAt": "2026-10-15T08:48:41Z",
+      "status": "completed",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Check out source",
+          "number": 2,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Set up Java 17",
+          "number": 3,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Require runner SDK and hardware acceleration",
+          "number": 4,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Prepare pinned build tools",
+          "number": 5,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Install official API 35 AOSP emulator",
+          "number": 6,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Build the exact debug and instrumentation APKs",
+          "number": 7,
+          "status": "completed"
+        },
+        {
+          "conclusion": "failure",
+          "name": "Explore all areas on the independent real Android profile",
+          "number": 8,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Set up Java 17",
+          "number": 15,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Check out source",
+          "number": 16,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 17,
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/dog898996/be3hyu/actions/runs/38708324279/job/116333187512"
+    }
+  ],
+  "status": "completed",
+  "url": "https://github.com/dog898996/be3hyu/actions/runs/38708324279",
+  "recordedAt": "2026-10-15T09:08:04.653977+00:00",
+  "notes": "Actual separate KVM Android35 runners, synthetic offline app fixtures. Source SHA is explicit; later startup patch needs separate validation."
+}

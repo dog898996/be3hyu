@@ -1,0 +1,153 @@
+{
+  "device": "emulator-5562",
+  "realDeviceTestsExecutedByThisAgent": 3,
+  "deviceEvidence": [
+    "settings-device-direct.log",
+    "settings-after-system-ui-restart.log",
+    "final-device-modelPickerSurvivesRotationAndHomeExpiresOnlyFutureRouting.log",
+    "final-device-longestLegalKoreanIdentityStillLeavesChatAndDrawerUsable.log",
+    "final-device-wholeAppDetoursKeepToolPermissionsAndCancelExternalPickersCleanly.log",
+    "final-device-live.png",
+    "final-device-app-startup-anr.txt",
+    "final-device-anr-events.txt",
+    "final-device-window-state.txt",
+    "device-screens"
+  ],
+  "deviceStatus": "Final debug/test APK installed. Three individual scenarios fail before functional interaction because an actual app startup ANR modal owns focus. Dialog was never dismissed. Real trace confirms main waits on PhoneObservationSpool monitor; slow VM scheduling is also present. QEMU PID84639 SIGSTOP at 08:55:13 UTC on root request.",
+  "jvmResults": [
+    {
+      "suite": "com.hoyoung.assistant.SettingsRecreationExplorerTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "timestamp": "2026-10-15T08:38:43"
+    },
+    {
+      "suite": "com.hoyoung.assistant.TabletRotationExplorerTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "timestamp": "2026-10-15T08:38:45"
+    },
+    {
+      "suite": "com.hoyoung.assistant.MainActivityRoutingProfileTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "timestamp": "2026-10-15T08:38:41"
+    },
+    {
+      "suite": "com.hoyoung.assistant.MainActivityAccountsUiTest",
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "timestamp": "2026-10-15T08:38:33"
+    },
+    {
+      "suite": "com.hoyoung.assistant.ui.PrivateFormStateTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "timestamp": "2026-10-15T08:39:00"
+    },
+    {
+      "suite": "com.hoyoung.assistant.MediaSavedStateCapacityTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "timestamp": "2026-10-15T08:43:53"
+    },
+    {
+      "suite": "com.hoyoung.assistant.PermissionReturnReviewTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "timestamp": "2026-10-15T08:38:43"
+    }
+  ],
+  "pendingRegression": null,
+  "sourcesChanged": [
+    "MainActivity.java",
+    "ui/PrivateFormState.java",
+    "store/AccountStore.java (account temporary-state cleanup hook)",
+    "SettingsExplorerDeviceTest.java",
+    "SettingsRecreationExplorerTest.java",
+    "ui/PrivateFormStateTest.java"
+  ],
+  "notes": "JVM results are not Android device passes. Source changes are shared with root and no commits or Gradle runs were made by this agent.",
+  "deviceProvisioningEvidence": "vm-readiness-blocked.json",
+  "realDeviceTestsExecutedByRoot": 5,
+  "realDevicePassedMethods": [
+    "multilineKoreanEditsSaveWithoutOverwritingConcurrentChatSettings"
+  ],
+  "realDeviceRemainingMethods": [
+    "modelPickerSurvivesRotationAndHomeExpiresOnlyFutureRouting",
+    "longestLegalKoreanIdentityStillLeavesChatAndDrawerUsable",
+    "wholeAppDetoursKeepToolPermissionsAndCancelExternalPickersCleanly"
+  ],
+  "realDeviceSourceVersion": "Final source before any subsequent startup fix; all three scenario attempts blocked by observed startup ANR. Earlier settings functional pass was an earlier APK/profile.",
+  "updatedUtc": "2026-10-15T08:57:07.322907+00:00",
+  "parentReportedRelatedJvmTotal": {
+    "tests": 152,
+    "failures": 0,
+    "errors": 0
+  },
+  "largeAccountSavedStateBytes": {
+    "before": 1202684,
+    "after": 524,
+    "exactUnsavedTextRestored": true,
+    "evidenceType": "JVM Android Parcel measurement; not a device Binder exception"
+  },
+  "independentAccountDeletionRegression": {
+    "passed": true,
+    "checks": [
+      "Actual UI token contains original and edited synthetic passwords",
+      "AccountStore.delete removes base/bak/new snapshot files",
+      "Recreating prior Bundle does not reopen removed account or recover credentials"
+    ],
+    "junitXml": "TEST-com.hoyoung.assistant.MediaSavedStateCapacityTest.xml",
+    "evidenceType": "Robolectric JVM integration, not an Android device test"
+  },
+  "finalSourceDeviceRuns": [
+    {
+      "method": "modelPickerSurvivesRotationAndHomeExpiresOnlyFutureRouting",
+      "status": "failed_before_product_interaction",
+      "seconds": 44.3,
+      "reason": "Existing app startup ANR dialog owns focus; uiPackage=android",
+      "log": "final-device-modelPickerSurvivesRotationAndHomeExpiresOnlyFutureRouting.log"
+    },
+    {
+      "method": "longestLegalKoreanIdentityStillLeavesChatAndDrawerUsable",
+      "status": "failed_before_product_interaction",
+      "seconds": 26.484,
+      "reason": "Existing app startup ANR dialog owns focus; uiPackage=android",
+      "log": "final-device-longestLegalKoreanIdentityStillLeavesChatAndDrawerUsable.log"
+    },
+    {
+      "method": "wholeAppDetoursKeepToolPermissionsAndCancelExternalPickersCleanly",
+      "status": "failed_before_product_interaction",
+      "seconds": 20.131,
+      "reason": "Existing app startup ANR dialog owns focus; uiPackage=android",
+      "log": "final-device-wholeAppDetoursKeepToolPermissionsAndCancelExternalPickersCleanly.log"
+    }
+  ],
+  "finalDeviceProfile": {
+    "fontScale": 1.6,
+    "uiMode": 33,
+    "nightMode": true,
+    "pixels": "1080x2400",
+    "evidence": "Runtime Resources proof in all three final-device instrumentation logs"
+  },
+  "earlierPassedDeviceProfile": "1.0; uiMode=17; pixels=1080x2400",
+  "observedAppAnr": {
+    "timestampUtc": "2026-10-15T08:48:53Z",
+    "pid": 5366,
+    "subject": "Process failed to complete startup",
+    "mainWait": "HoyoungApplication.onCreate -> PhoneContextCollector -> PhoneActivityTracker.load -> PhoneEventJournal.get -> PhoneObservationSpool.readState monitor",
+    "lockOwner": "hoyoung-phone-journal-ingest -> maintainArchive -> readState -> PhoneEventJournal.hash -> String.format",
+    "mainSchedWaitSeconds": 21.491289087,
+    "rootCauseStatus": "Observed app ANR and lock wait; product-only cause vs VM scheduling contribution not yet isolated",
+    "trace": "final-device-app-startup-anr.txt",
+    "screenshot": "final-device-live.png"
+  }
+}

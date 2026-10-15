@@ -1,6 +1,6 @@
 {
   "version": "0.4.12",
-  "recordedAt": "2026-10-15T08:48:19.689820+00:00",
+  "recordedAt": "2026-10-15T09:08:10.045658+00:00",
   "jvm": {
     "finalRelatedBatch": {
       "tests": 152,
@@ -37,10 +37,20 @@
     "observedFontScale": 1.0,
     "requestedFontScale": 1.6,
     "fiveProfileValidationComplete": false,
-    "finalCandidateRemainingUiScenarios": "pending"
+    "finalCandidateRemainingUiScenarios": "Three attempts blocked before target UI actions by actual app startup ANR; logs retained",
+    "finalCandidateObservedFontScale": 1.6,
+    "finalCandidateObservedUiMode": 33
   },
   "githubFiveProfileMatrix": {
-    "status": "prepared_not_yet_dispatched",
+    "status": "completed_with_failures",
+    "runId": 38708324279,
+    "url": "https://github.com/dog898996/be3hyu/actions/runs/38708324279",
+    "sourceCommit": "28232a9a6f457092dee89a050659441831a3b72f",
+    "profiles": 5,
+    "testsPerProfile": 28,
+    "passedScenarioRuns": 105,
+    "failedScenarioRuns": 35,
+    "allPassed": false,
     "paidRunnersAllowed": false,
     "publicRepositoryOnly": true
   },

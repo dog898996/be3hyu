@@ -1,0 +1,72 @@
+{
+  "en-rotation": {
+    "tests": 28,
+    "failures": 6,
+    "failedScenarios": {
+      "WorkCompatibilityExplorerDeviceTest.reconnectPreservesOwnerDraftAndAttachmentAndDelayedAcknowledgement": "java.lang.AssertionError: Missing native event accepted/delayed-request; events=[{\"type\":\"state\",\"code\":\"speed_unverified\",\"state\":{\"authenticated\":true,\"authenticationEvidence\":\"account_control\",\"connectionStatus\":null,\"workSelected\":true,\"conversationId\":null,\"conversationOwned\":true,\"temporary\":false,\"busy\":false,\"quota\":false,\"needsInput\":false,\"steeringVerified\":false,\"pendingInputPolicy\":\"queued\",\"model\":\"gpt-6",
+      "SettingsExplorerDeviceTest.modelPickerSurvivesRotationAndHomeExpiresOnlyFutureRouting": "java.lang.NullPointerException: Current state was null unexpectedly. Last stage = STARTED",
+      "MediaExplorerDeviceTest.unreadableAndSlowDocumentsPreserveDraftAndCompleteAcrossRotation": "java.lang.AssertionError: The real app window must be foreground and focused before touching its controls: focused=false; found=false; full=Rect(0, 0 - 0, 0); visible=Rect(0, 0 - 0, 0); viewport=Rect(0, 0 - 0, 0); safe=Rect(0, 136 - 960, 1504); uiPackage=com.hoyoung.assistant",
+      "MediaExplorerDeviceTest.allFileTypesAndEmptyImageSurviveSendViewAndRotation": "java.lang.AssertionError: The actual native control must be fully visible inside its safe viewport: description-01-photo.png: focused=true; found=true; full=Rect(458, 261 - 898, 621); visible=Rect(458, 290 - 898, 621); viewport=Rect(0, 290 - 960, 1258); safe=Rect(0, 136 - 960, 1504)",
+      "ExportRotationExplorerDeviceTest.rotatingActualCreateDocumentPickerStillExportsTheSelectedOriginal": "java.lang.AssertionError: Export must use the existing test-only SAF provider",
+      "LifecycleExplorerDeviceTest.draftSurvivesScreenOffBackgroundRecreationAndActualReplyTap": "java.lang.NullPointerException"
+    },
+    "passes": 22
+  },
+  "ko-tablet": {
+    "tests": 28,
+    "failures": 9,
+    "failedScenarios": {
+      "WorkCompatibilityExplorerDeviceTest.reconnectPreservesOwnerDraftAndAttachmentAndDelayedAcknowledgement": "java.lang.AssertionError: Missing native event accepted/delayed-request; events=[{\"type\":\"state\",\"code\":\"speed_unverified\",\"state\":{\"authenticated\":true,\"authenticationEvidence\":\"account_control\",\"connectionStatus\":null,\"workSelected\":true,\"conversationId\":null,\"conversationOwned\":true,\"temporary\":false,\"busy\":false,\"quota\":false,\"needsInput\":false,\"steeringVerified\":false,\"pendingInputPolicy\":\"queued\",\"model\":\"gpt-6",
+      "SettingsExplorerDeviceTest.modelPickerSurvivesRotationAndHomeExpiresOnlyFutureRouting": "java.lang.AssertionError: The real Android lifecycle or persisted operation must complete",
+      "MediaExplorerDeviceTest.rapidSendAndReactionClearViewPreserveImmutableHistory": "java.lang.AssertionError: Timed out waiting for actual display rotation",
+      "MediaExplorerDeviceTest.unreadableAndSlowDocumentsPreserveDraftAndCompleteAcrossRotation": "java.lang.AssertionError: The real app window must be foreground and focused before touching its controls: focused=false; found=false; full=Rect(0, 0 - 0, 0); visible=Rect(0, 0 - 0, 0); viewport=Rect(0, 0 - 0, 0); safe=Rect(0, 136 - 1280, 725); uiPackage=com.hoyoung.assistant",
+      "MediaExplorerDeviceTest.rotationPreservesEachSidebarDestination": "java.lang.AssertionError: Timed out waiting for actual display rotation",
+      "MediaExplorerDeviceTest.allFileTypesAndEmptyImageSurviveSendViewAndRotation": "java.lang.AssertionError: Timed out waiting for actual display rotation",
+      "MediaExplorerDeviceTest.draftSurvivesChoiceDismissalPickerBackAndRealRotation": "java.lang.AssertionError: Timed out waiting for actual display rotation",
+      "ExportRotationExplorerDeviceTest.rotatingActualCreateDocumentPickerStillExportsTheSelectedOriginal": "java.lang.AssertionError: Export must use the existing test-only SAF provider",
+      "LifecycleExplorerDeviceTest.draftSurvivesScreenOffBackgroundRecreationAndActualReplyTap": "java.lang.NullPointerException"
+    },
+    "passes": 19
+  },
+  "ko-compact": {
+    "tests": 28,
+    "failures": 6,
+    "failedScenarios": {
+      "SettingsExplorerDeviceTest.modelPickerSurvivesRotationAndHomeExpiresOnlyFutureRouting": "java.lang.NullPointerException: Current state was null unexpectedly. Last stage = STARTED",
+      "MediaExplorerDeviceTest.rapidSendAndReactionClearViewPreserveImmutableHistory": "java.lang.AssertionError: 비운 대화 다시 보기",
+      "MediaExplorerDeviceTest.unreadableAndSlowDocumentsPreserveDraftAndCompleteAcrossRotation": "java.lang.AssertionError: The real app window must be foreground and focused before touching its controls: focused=false; found=false; full=Rect(0, 0 - 0, 0); visible=Rect(0, 0 - 0, 0); viewport=Rect(0, 0 - 0, 0); safe=Rect(0, 136 - 720, 1184); uiPackage=com.hoyoung.assistant",
+      "MediaExplorerDeviceTest.allFileTypesAndEmptyImageSurviveSendViewAndRotation": "java.lang.AssertionError: Real SAF fixture file 05-unknown.dat",
+      "ExportRotationExplorerDeviceTest.rotatingActualCreateDocumentPickerStillExportsTheSelectedOriginal": "java.lang.AssertionError: Export must use the existing test-only SAF provider",
+      "LifecycleExplorerDeviceTest.draftSurvivesScreenOffBackgroundRecreationAndActualReplyTap": "java.lang.NullPointerException"
+    },
+    "passes": 22
+  },
+  "ko-large-text": {
+    "tests": 28,
+    "failures": 7,
+    "failedScenarios": {
+      "WorkCompatibilityExplorerDeviceTest.reconnectPreservesOwnerDraftAndAttachmentAndDelayedAcknowledgement": "java.lang.AssertionError: Missing native event accepted/delayed-request; events=[{\"type\":\"state\",\"code\":\"speed_unverified\",\"state\":{\"authenticated\":true,\"authenticationEvidence\":\"account_control\",\"connectionStatus\":null,\"workSelected\":true,\"conversationId\":null,\"conversationOwned\":true,\"temporary\":false,\"busy\":false,\"quota\":false,\"needsInput\":false,\"steeringVerified\":false,\"pendingInputPolicy\":\"queued\",\"model\":\"gpt-6",
+      "SettingsExplorerDeviceTest.modelPickerSurvivesRotationAndHomeExpiresOnlyFutureRouting": "java.lang.NullPointerException: Current state was null unexpectedly. Last stage = STARTED",
+      "MediaExplorerDeviceTest.unreadableAndSlowDocumentsPreserveDraftAndCompleteAcrossRotation": "java.lang.AssertionError: The real app window must be foreground and focused before touching its controls: focused=false; found=false; full=Rect(0, 0 - 0, 0); visible=Rect(0, 0 - 0, 0); viewport=Rect(0, 0 - 0, 0); safe=Rect(0, 136 - 1080, 2274); uiPackage=com.hoyoung.assistant",
+      "ExportRotationExplorerDeviceTest.rotatingActualCreateDocumentPickerStillExportsTheSelectedOriginal": "java.lang.AssertionError: Export must use the existing test-only SAF provider",
+      "LifecycleExplorerDeviceTest.draftSurvivesScreenOffBackgroundRecreationAndActualReplyTap": "java.lang.NullPointerException",
+      "LifecycleExplorerDeviceTest.dismissedNotificationIsNotReadAndDoesNotReplay": "java.lang.AssertionError: Actual System UI swipe must dismiss the reply",
+      "LifecycleExplorerDeviceTest.actualForegroundStopControlReleasesServiceAndPreservesDraft": "java.lang.AssertionError"
+    },
+    "passes": 21
+  },
+  "ko-background": {
+    "tests": 28,
+    "failures": 7,
+    "failedScenarios": {
+      "WorkCompatibilityExplorerDeviceTest.reconnectPreservesOwnerDraftAndAttachmentAndDelayedAcknowledgement": "java.lang.AssertionError: Missing native event accepted/delayed-request; events=[{\"type\":\"state\",\"code\":\"speed_unverified\",\"state\":{\"authenticated\":true,\"authenticationEvidence\":\"account_control\",\"connectionStatus\":null,\"workSelected\":true,\"conversationId\":null,\"conversationOwned\":true,\"temporary\":false,\"busy\":false,\"quota\":false,\"needsInput\":false,\"steeringVerified\":false,\"pendingInputPolicy\":\"queued\",\"model\":\"gpt-6",
+      "SettingsExplorerDeviceTest.modelPickerSurvivesRotationAndHomeExpiresOnlyFutureRouting": "java.lang.NullPointerException: Current state was null unexpectedly. Last stage = STARTED",
+      "MediaExplorerDeviceTest.rapidSendAndReactionClearViewPreserveImmutableHistory": "java.lang.AssertionError: 비운 대화 다시 보기",
+      "MediaExplorerDeviceTest.unreadableAndSlowDocumentsPreserveDraftAndCompleteAcrossRotation": "java.lang.AssertionError: The real app window must be foreground and focused before touching its controls: focused=false; found=false; full=Rect(0, 0 - 0, 0); visible=Rect(0, 0 - 0, 0); viewport=Rect(0, 0 - 0, 0); safe=Rect(0, 56 - 1504, 720); uiPackage=com.hoyoung.assistant",
+      "MediaExplorerDeviceTest.allFileTypesAndEmptyImageSurviveSendViewAndRotation": "java.lang.AssertionError: The actual native control must be fully visible inside its safe viewport: description-01-photo.png: focused=true; found=true; full=Rect(258, 261 - 658, 621); visible=Rect(258, 290 - 658, 621); viewport=Rect(0, 290 - 720, 1258); safe=Rect(0, 136 - 720, 1504)",
+      "ExportRotationExplorerDeviceTest.rotatingActualCreateDocumentPickerStillExportsTheSelectedOriginal": "java.lang.AssertionError: Export must use the existing test-only SAF provider",
+      "LifecycleExplorerDeviceTest.draftSurvivesScreenOffBackgroundRecreationAndActualReplyTap": "java.lang.NullPointerException"
+    },
+    "passes": 21
+  }
+}

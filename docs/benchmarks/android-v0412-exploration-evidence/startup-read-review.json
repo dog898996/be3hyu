@@ -1,0 +1,25 @@
+{
+  "verifiedUtc": "2026-10-15T09:00:46.218260+00:00",
+  "actualDeviceEvidence": {
+    "observer": "android_settings_explorer",
+    "trace": "/tmp/hoyoung-matrix/settings/final-device-app-startup-anr.txt",
+    "sha256": "4c5d8f11ed0356cc7336a29b7a5beed5fc956a6c6066d74e15250269cdb21c5a",
+    "observation": "Application startup main thread blocked on PhoneObservationSpool monitor held by journal ingest readState/hash/String.format. Slow software-emulated CPU/scheduling amplified the stall."
+  },
+  "changes": [
+    "PhoneEventJournal.hash uses the same SHA-256 and lowercase hex bytes without per-byte Formatter allocation.",
+    "PhoneObservationSpool.readState reads atomically published complete files without the global spool monitor; checksum validation is retained.",
+    "Concurrent state read caches publish with putIfAbsent so newer persisted puts win.",
+    "Backup restore publishes a fresh cache map so in-flight old readers cannot refill the restored cache."
+  ],
+  "tests": {
+    "baseline": "startup-read-baseline.log: 5 tests, 3 expected failures (monitor wait, newer put overwritten, restored cache contaminated).",
+    "after": "startup-read-after.log: 27/27 pass, new startup suite plus existing journal-spool and archive-compaction suites.",
+    "runner": "Direct javac/JUnit against changed production classes and existing compiled dependencies; no Gradle or ADB invoked by this agent."
+  },
+  "limits": [
+    "Rebuilt APK startup/ANR recurrence is awaiting coordinator/device reviewer verification.",
+    "Initial small disk reads still occur on main; this patch does not redesign application initialization.",
+    "No archive, observation or database rows are discarded by the patch."
+  ]
+}
