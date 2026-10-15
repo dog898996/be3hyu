@@ -1,0 +1,79 @@
+Android SDK: /workspace/.tools/android-build/sdk
+Java compiler: /workspace/.tools/android-build/jdk-17.0.16+8/bin/javac
+Gradle: /workspace/.tools/android-build/gradle-8.11.1/bin/gradle
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.11.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+Warning: SDK processing. This version only understands SDK XML versions up to 3 but an SDK XML file of version 4 was encountered. This can happen if you use versions of Android Studio and the command-line tools that were released at different times.
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:javaPreCompileDebug UP-TO-DATE
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :app:generateDebugResValues UP-TO-DATE
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:mergeDebugResources UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :app:processDebugMainManifest UP-TO-DATE
+> Task :app:processDebugManifest UP-TO-DATE
+> Task :app:processDebugManifestForPackage UP-TO-DATE
+> Task :app:processDebugResources UP-TO-DATE
+> Task :app:compileDebugJavaWithJavac UP-TO-DATE
+> Task :app:bundleDebugClassesToRuntimeJar UP-TO-DATE
+> Task :app:bundleDebugClassesToCompileJar UP-TO-DATE
+> Task :app:preDebugUnitTestBuild UP-TO-DATE
+> Task :app:javaPreCompileDebugUnitTest UP-TO-DATE
+
+> Task :app:compileDebugUnitTestJavaWithJavac
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :app:mergeDebugShaders UP-TO-DATE
+> Task :app:compileDebugShaders NO-SOURCE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:mergeDebugAssets UP-TO-DATE
+> Task :app:packageDebugUnitTestForUnitTest
+> Task :app:processDebugJavaRes NO-SOURCE
+> Task :app:processDebugUnitTestJavaRes NO-SOURCE
+> Task :app:generateDebugUnitTestConfig
+
+> Task :app:testDebugUnitTest
+
+WorkConversationRecoveryTest > ownerResolvedOldCreationDoesNotBlockNewRequestsOrClaimDeletion FAILED
+    org.junit.ComparisonFailure: expected:<[]> but was:<[f82db1d5-c131-4bb2-8237-3e391e803e2e]>
+        at org.junit.Assert.assertEquals(Assert.java:117)
+        at org.junit.Assert.assertEquals(Assert.java:146)
+        at com.hoyoung.assistant.web.WorkConversationRecoveryTest.ownerResolvedOldCreationDoesNotBlockNewRequestsOrClaimDeletion(WorkConversationRecoveryTest.java:62)
+
+WorkConversationRecoveryTest > ownerAbandonedCreationIsPreservedWithoutReplayingTheOldTask FAILED
+    org.junit.ComparisonFailure: expected:<[]> but was:<[6b06490b-01eb-49ed-a503-1ef135e879ab]>
+        at org.junit.Assert.assertEquals(Assert.java:117)
+        at org.junit.Assert.assertEquals(Assert.java:146)
+        at com.hoyoung.assistant.web.WorkConversationRecoveryTest.ownerAbandonedCreationIsPreservedWithoutReplayingTheOldTask(WorkConversationRecoveryTest.java:72)
+
+WorkConversationRecoveryTest > unreviewedOrMissingCreationNeverAdvertisesReadyOrDiscardsItsReceipt FAILED
+    java.lang.AssertionError
+        at org.junit.Assert.fail(Assert.java:87)
+        at org.junit.Assert.assertTrue(Assert.java:42)
+        at org.junit.Assert.assertFalse(Assert.java:65)
+        at org.junit.Assert.assertFalse(Assert.java:75)
+        at com.hoyoung.assistant.web.WorkConversationRecoveryTest.unreviewedOrMissingCreationNeverAdvertisesReadyOrDiscardsItsReceipt(WorkConversationRecoveryTest.java:78)
+
+4 tests completed, 3 failed
+
+> Task :app:testDebugUnitTest FAILED
+[Incubating] Problems report is available at: file:///workspace/be3hyu/mobile/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:testDebugUnitTest'.
+> There were failing tests. See the report at: file:///workspace/be3hyu/mobile/app/build/reports/tests/testDebugUnitTest/index.html
+
+* Try:
+> Run with --scan to get full insights.
+
+BUILD FAILED in 20s
+24 actionable tasks: 4 executed, 20 up-to-date

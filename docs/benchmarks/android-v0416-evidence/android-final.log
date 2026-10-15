@@ -1,0 +1,923 @@
+explore (ko-tablet)	Set up job	﻿2026-10-15T12:58:01.9145396Z Current runner version: '2.337.0'
+explore (ko-tablet)	Set up job	2026-10-15T12:58:01.9172867Z ##[group]Runner Image Provisioner
+explore (ko-tablet)	Set up job	2026-10-15T12:58:01.9173789Z Hosted Compute Agent
+explore (ko-tablet)	Set up job	2026-10-15T12:58:01.9174430Z Version: 20261012.601
+explore (ko-tablet)	Set up job	2026-10-15T12:58:01.9175902Z Commit: f3dc54e1fb89da6852db922499a0233137369e1d
+explore (ko-tablet)	Set up job	2026-10-15T12:58:01.9176786Z Build Date: 2026-10-12T17:48:21Z
+explore (ko-tablet)	Set up job	2026-10-15T12:58:01.9177569Z Worker ID: {94760196-31cc-4844-8ba3-0b9398487bcc}
+explore (ko-tablet)	Set up job	2026-10-15T12:58:01.9178399Z Region: eastus2
+explore (ko-tablet)	Set up job	2026-10-15T12:58:01.9178976Z Cloud: Azure
+explore (ko-tablet)	Set up job	2026-10-15T12:58:01.9179591Z ##[endgroup]
+explore (ko-tablet)	Set up job	2026-10-15T12:58:01.9181208Z ##[group]Operating System
+explore (ko-tablet)	Set up job	2026-10-15T12:58:01.9182698Z Ubuntu
+explore (ko-tablet)	Set up job	2026-10-15T12:58:01.9183663Z 24.04.5
+explore (ko-tablet)	Set up job	2026-10-15T12:58:01.9184457Z LTS
+explore (ko-tablet)	Set up job	2026-10-15T12:58:01.9185597Z ##[endgroup]
+explore (ko-tablet)	Set up job	2026-10-15T12:58:01.9186488Z ##[group]Runner Image
+explore (ko-tablet)	Set up job	2026-10-15T12:58:01.9187312Z Image: ubuntu-24.04
+explore (ko-tablet)	Set up job	2026-10-15T12:58:01.9187964Z Version: 20261012.334.1
+explore (ko-tablet)	Set up job	2026-10-15T12:58:01.9189058Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261012.334/images/ubuntu/Ubuntu2404-Readme.md
+explore (ko-tablet)	Set up job	2026-10-15T12:58:01.9191440Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261012.334
+explore (ko-tablet)	Set up job	2026-10-15T12:58:01.9192468Z ##[endgroup]
+explore (ko-tablet)	Set up job	2026-10-15T12:58:01.9193701Z ##[group]GITHUB_TOKEN Permissions
+explore (ko-tablet)	Set up job	2026-10-15T12:58:01.9196299Z Contents: read
+explore (ko-tablet)	Set up job	2026-10-15T12:58:01.9197050Z Metadata: read
+explore (ko-tablet)	Set up job	2026-10-15T12:58:01.9197629Z ##[endgroup]
+explore (ko-tablet)	Set up job	2026-10-15T12:58:01.9199881Z Secret source: Actions
+explore (ko-tablet)	Set up job	2026-10-15T12:58:01.9200990Z Cache mode: write
+explore (ko-tablet)	Set up job	2026-10-15T12:58:01.9202124Z Prepare workflow directory
+explore (ko-tablet)	Set up job	2026-10-15T12:58:01.9619644Z Prepare all required actions
+explore (ko-tablet)	Set up job	2026-10-15T12:58:01.9669056Z Getting action download info
+explore (ko-tablet)	Set up job	2026-10-15T12:58:02.2202424Z Download action repository 'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1' (SHA:3d3c42e5aac5ba805825da76410c181273ba90b1)
+explore (ko-tablet)	Set up job	2026-10-15T12:58:02.3473309Z Download action repository 'actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6' (SHA:de7274f081f381c8f8158605e0321c36c376e2e6)
+explore (ko-tablet)	Set up job	2026-10-15T12:58:02.8191066Z Complete job name: explore (ko-tablet)
+explore (ko-tablet)	Check out source	﻿2026-10-15T12:58:02.9041992Z ##[group]Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+explore (ko-tablet)	Check out source	2026-10-15T12:58:02.9043432Z with:
+explore (ko-tablet)	Check out source	2026-10-15T12:58:02.9043932Z   persist-credentials: false
+explore (ko-tablet)	Check out source	2026-10-15T12:58:02.9044460Z   repository: dog898996/be3hyu
+explore (ko-tablet)	Check out source	2026-10-15T12:58:02.9048501Z   token: ***
+explore (ko-tablet)	Check out source	2026-10-15T12:58:02.9048951Z   ssh-strict: true
+explore (ko-tablet)	Check out source	2026-10-15T12:58:02.9049392Z   ssh-user: git
+explore (ko-tablet)	Check out source	2026-10-15T12:58:02.9049823Z   clean: true
+explore (ko-tablet)	Check out source	2026-10-15T12:58:02.9050307Z   sparse-checkout-cone-mode: true
+explore (ko-tablet)	Check out source	2026-10-15T12:58:02.9050846Z   fetch-depth: 1
+explore (ko-tablet)	Check out source	2026-10-15T12:58:02.9051281Z   fetch-tags: false
+explore (ko-tablet)	Check out source	2026-10-15T12:58:02.9051724Z   show-progress: true
+explore (ko-tablet)	Check out source	2026-10-15T12:58:02.9052170Z   lfs: false
+explore (ko-tablet)	Check out source	2026-10-15T12:58:02.9052587Z   submodules: false
+explore (ko-tablet)	Check out source	2026-10-15T12:58:02.9053076Z   set-safe-directory: true
+explore (ko-tablet)	Check out source	2026-10-15T12:58:02.9053635Z   allow-unsafe-pr-checkout: false
+explore (ko-tablet)	Check out source	2026-10-15T12:58:02.9054807Z ##[endgroup]
+explore (ko-tablet)	Check out source	2026-10-15T12:58:03.0165859Z Syncing repository: dog898996/be3hyu
+explore (ko-tablet)	Check out source	2026-10-15T12:58:03.0168634Z ##[group]Getting Git version info
+explore (ko-tablet)	Check out source	2026-10-15T12:58:03.0169817Z Working directory is '/home/runner/work/be3hyu/be3hyu'
+explore (ko-tablet)	Check out source	2026-10-15T12:58:03.0171506Z [command]/usr/bin/git version
+explore (ko-tablet)	Check out source	2026-10-15T12:58:03.0302293Z git version 2.55.0
+explore (ko-tablet)	Check out source	2026-10-15T12:58:03.0329140Z ##[endgroup]
+explore (ko-tablet)	Check out source	2026-10-15T12:58:03.0341535Z Temporarily overriding HOME='/home/runner/work/_temp/5a9c58ab-d448-401b-9001-9debcafb08ef' before making global git config changes
+explore (ko-tablet)	Check out source	2026-10-15T12:58:03.0344256Z Adding repository directory to the temporary git global config as a safe directory
+explore (ko-tablet)	Check out source	2026-10-15T12:58:03.0348674Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/be3hyu/be3hyu
+explore (ko-tablet)	Check out source	2026-10-15T12:58:03.0405121Z Deleting the contents of '/home/runner/work/be3hyu/be3hyu'
+explore (ko-tablet)	Check out source	2026-10-15T12:58:03.0409640Z ##[group]Determining repository object format
+explore (ko-tablet)	Check out source	2026-10-15T12:58:03.0411534Z ##[endgroup]
+explore (ko-tablet)	Check out source	2026-10-15T12:58:03.0412885Z ##[group]Initializing the repository
+explore (ko-tablet)	Check out source	2026-10-15T12:58:03.0417476Z [command]/usr/bin/git init /home/runner/work/be3hyu/be3hyu
+explore (ko-tablet)	Check out source	2026-10-15T12:58:03.0561815Z hint: Using 'master' as the name for the initial branch. This default branch name
+explore (ko-tablet)	Check out source	2026-10-15T12:58:03.0565683Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+explore (ko-tablet)	Check out source	2026-10-15T12:58:03.0570667Z hint: to use in all of your new repositories, which will suppress this warning,
+explore (ko-tablet)	Check out source	2026-10-15T12:58:03.0572813Z hint: call:
+explore (ko-tablet)	Check out source	2026-10-15T12:58:03.0573942Z hint:
+explore (ko-tablet)	Check out source	2026-10-15T12:58:03.0575305Z hint: 	git config --global init.defaultBranch <name>
+explore (ko-tablet)	Check out source	2026-10-15T12:58:03.0576669Z hint:
+explore (ko-tablet)	Check out source	2026-10-15T12:58:03.0577949Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+explore (ko-tablet)	Check out source	2026-10-15T12:58:03.0580235Z hint: 'development'. The just-created branch can be renamed via this command:
+explore (ko-tablet)	Check out source	2026-10-15T12:58:03.0582650Z hint:
+explore (ko-tablet)	Check out source	2026-10-15T12:58:03.0583793Z hint: 	git branch -m <name>
+explore (ko-tablet)	Check out source	2026-10-15T12:58:03.0585251Z hint:
+explore (ko-tablet)	Check out source	2026-10-15T12:58:03.0586708Z hint: Disable this message with "git config set advice.defaultBranchName false"
+explore (ko-tablet)	Check out source	2026-10-15T12:58:03.0588826Z Initialized empty Git repository in /home/runner/work/be3hyu/be3hyu/.git/
+explore (ko-tablet)	Check out source	2026-10-15T12:58:03.0592598Z [command]/usr/bin/git remote add origin https://github.com/dog898996/be3hyu
+explore (ko-tablet)	Check out source	2026-10-15T12:58:03.0649883Z ##[endgroup]
+explore (ko-tablet)	Check out source	2026-10-15T12:58:03.0651459Z ##[group]Disabling automatic garbage collection
+explore (ko-tablet)	Check out source	2026-10-15T12:58:03.0653806Z [command]/usr/bin/git config --local gc.auto 0
+explore (ko-tablet)	Check out source	2026-10-15T12:58:03.0698650Z ##[endgroup]
+explore (ko-tablet)	Check out source	2026-10-15T12:58:03.0700621Z ##[group]Setting up auth
+explore (ko-tablet)	Check out source	2026-10-15T12:58:03.0703210Z Removing SSH command configuration
+explore (ko-tablet)	Check out source	2026-10-15T12:58:03.0706171Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+explore (ko-tablet)	Check out source	2026-10-15T12:58:03.0745479Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+explore (ko-tablet)	Check out source	2026-10-15T12:58:03.1170413Z Removing HTTP extra header
+explore (ko-tablet)	Check out source	2026-10-15T12:58:03.1176846Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+explore (ko-tablet)	Check out source	2026-10-15T12:58:03.1215980Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+explore (ko-tablet)	Check out source	2026-10-15T12:58:03.1442202Z Removing includeIf entries pointing to credentials config files
+explore (ko-tablet)	Check out source	2026-10-15T12:58:03.1448306Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+explore (ko-tablet)	Check out source	2026-10-15T12:58:03.1487790Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+explore (ko-tablet)	Check out source	2026-10-15T12:58:03.1730320Z [command]/usr/bin/git config --file /home/runner/work/_temp/git-credentials-81b026b1-2ca0-4a58-9fcd-dec238ad6550.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+explore (ko-tablet)	Check out source	2026-10-15T12:58:03.1773809Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/be3hyu/be3hyu/.git.path /home/runner/work/_temp/git-credentials-81b026b1-2ca0-4a58-9fcd-dec238ad6550.config
+explore (ko-tablet)	Check out source	2026-10-15T12:58:03.1810682Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/be3hyu/be3hyu/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-81b026b1-2ca0-4a58-9fcd-dec238ad6550.config
+explore (ko-tablet)	Check out source	2026-10-15T12:58:03.1850296Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-81b026b1-2ca0-4a58-9fcd-dec238ad6550.config
+explore (ko-tablet)	Check out source	2026-10-15T12:58:03.1889468Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-81b026b1-2ca0-4a58-9fcd-dec238ad6550.config
+explore (ko-tablet)	Check out source	2026-10-15T12:58:03.1923812Z ##[endgroup]
+explore (ko-tablet)	Check out source	2026-10-15T12:58:03.1926091Z ##[group]Fetching the repository
+explore (ko-tablet)	Check out source	2026-10-15T12:58:03.1932393Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +e190d256d3d219b0d452aed88d5d8ad138df6963:refs/remotes/origin/main
+explore (ko-tablet)	Check out source	2026-10-15T12:58:04.4525513Z From https://github.com/dog898996/be3hyu
+explore (ko-tablet)	Check out source	2026-10-15T12:58:04.4527570Z  * [new ref]         e190d256d3d219b0d452aed88d5d8ad138df6963 -> origin/main
+explore (ko-tablet)	Check out source	2026-10-15T12:58:04.4534091Z [command]/usr/bin/git branch --list --remote origin/main
+explore (ko-tablet)	Check out source	2026-10-15T12:58:04.4564316Z   origin/main
+explore (ko-tablet)	Check out source	2026-10-15T12:58:04.4572770Z [command]/usr/bin/git rev-parse refs/remotes/origin/main
+explore (ko-tablet)	Check out source	2026-10-15T12:58:04.4599461Z e190d256d3d219b0d452aed88d5d8ad138df6963
+explore (ko-tablet)	Check out source	2026-10-15T12:58:04.4604175Z ##[endgroup]
+explore (ko-tablet)	Check out source	2026-10-15T12:58:04.4605509Z ##[group]Determining the checkout info
+explore (ko-tablet)	Check out source	2026-10-15T12:58:04.4606438Z ##[endgroup]
+explore (ko-tablet)	Check out source	2026-10-15T12:58:04.4608714Z [command]/usr/bin/git sparse-checkout disable
+explore (ko-tablet)	Check out source	2026-10-15T12:58:04.4667632Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+explore (ko-tablet)	Check out source	2026-10-15T12:58:04.4701974Z ##[group]Checking out the ref
+explore (ko-tablet)	Check out source	2026-10-15T12:58:04.4706346Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+explore (ko-tablet)	Check out source	2026-10-15T12:58:04.7367199Z Switched to a new branch 'main'
+explore (ko-tablet)	Check out source	2026-10-15T12:58:04.7372816Z branch 'main' set up to track 'origin/main'.
+explore (ko-tablet)	Check out source	2026-10-15T12:58:04.7473494Z ##[endgroup]
+explore (ko-tablet)	Check out source	2026-10-15T12:58:04.7477728Z [command]/usr/bin/git log -1 --format=%H
+explore (ko-tablet)	Check out source	2026-10-15T12:58:04.7509211Z e190d256d3d219b0d452aed88d5d8ad138df6963
+explore (ko-tablet)	Check out source	2026-10-15T12:58:04.7518336Z ##[group]Removing auth
+explore (ko-tablet)	Check out source	2026-10-15T12:58:04.7519063Z Removing SSH command configuration
+explore (ko-tablet)	Check out source	2026-10-15T12:58:04.7522109Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+explore (ko-tablet)	Check out source	2026-10-15T12:58:04.7566607Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+explore (ko-tablet)	Check out source	2026-10-15T12:58:04.7821695Z Removing HTTP extra header
+explore (ko-tablet)	Check out source	2026-10-15T12:58:04.7828063Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+explore (ko-tablet)	Check out source	2026-10-15T12:58:04.7872218Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+explore (ko-tablet)	Check out source	2026-10-15T12:58:04.8127345Z Removing includeIf entries pointing to credentials config files
+explore (ko-tablet)	Check out source	2026-10-15T12:58:04.8129921Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+explore (ko-tablet)	Check out source	2026-10-15T12:58:04.8163659Z includeif.gitdir:/home/runner/work/be3hyu/be3hyu/.git.path
+explore (ko-tablet)	Check out source	2026-10-15T12:58:04.8165520Z includeif.gitdir:/home/runner/work/be3hyu/be3hyu/.git/worktrees/*.path
+explore (ko-tablet)	Check out source	2026-10-15T12:58:04.8167059Z includeif.gitdir:/github/workspace/.git.path
+explore (ko-tablet)	Check out source	2026-10-15T12:58:04.8168271Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+explore (ko-tablet)	Check out source	2026-10-15T12:58:04.8175035Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/be3hyu/be3hyu/.git.path
+explore (ko-tablet)	Check out source	2026-10-15T12:58:04.8207655Z /home/runner/work/_temp/git-credentials-81b026b1-2ca0-4a58-9fcd-dec238ad6550.config
+explore (ko-tablet)	Check out source	2026-10-15T12:58:04.8220245Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/be3hyu/be3hyu/.git.path \/home\/runner\/work\/_temp\/git\-credentials\-81b026b1\-2ca0\-4a58\-9fcd\-dec238ad6550\.config
+explore (ko-tablet)	Check out source	2026-10-15T12:58:04.8263886Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/be3hyu/be3hyu/.git/worktrees/*.path
+explore (ko-tablet)	Check out source	2026-10-15T12:58:04.8331065Z /home/runner/work/_temp/git-credentials-81b026b1-2ca0-4a58-9fcd-dec238ad6550.config
+explore (ko-tablet)	Check out source	2026-10-15T12:58:04.8342062Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/be3hyu/be3hyu/.git/worktrees/*.path \/home\/runner\/work\/_temp\/git\-credentials\-81b026b1\-2ca0\-4a58\-9fcd\-dec238ad6550\.config
+explore (ko-tablet)	Check out source	2026-10-15T12:58:04.8391635Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+explore (ko-tablet)	Check out source	2026-10-15T12:58:04.8428969Z /github/runner_temp/git-credentials-81b026b1-2ca0-4a58-9fcd-dec238ad6550.config
+explore (ko-tablet)	Check out source	2026-10-15T12:58:04.8487885Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path \/github\/runner_temp\/git\-credentials\-81b026b1\-2ca0\-4a58\-9fcd\-dec238ad6550\.config
+explore (ko-tablet)	Check out source	2026-10-15T12:58:04.8562494Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+explore (ko-tablet)	Check out source	2026-10-15T12:58:04.8592162Z /github/runner_temp/git-credentials-81b026b1-2ca0-4a58-9fcd-dec238ad6550.config
+explore (ko-tablet)	Check out source	2026-10-15T12:58:04.8599621Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path \/github\/runner_temp\/git\-credentials\-81b026b1\-2ca0\-4a58\-9fcd\-dec238ad6550\.config
+explore (ko-tablet)	Check out source	2026-10-15T12:58:04.8640546Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+explore (ko-tablet)	Check out source	2026-10-15T12:58:04.8888705Z Removing credentials config '/home/runner/work/_temp/git-credentials-81b026b1-2ca0-4a58-9fcd-dec238ad6550.config'
+explore (ko-tablet)	Check out source	2026-10-15T12:58:04.8897745Z ##[endgroup]
+explore (ko-tablet)	Set up Java 17	﻿2026-10-15T12:58:04.9280495Z ##[group]Run actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6
+explore (ko-tablet)	Set up Java 17	2026-10-15T12:58:04.9280914Z with:
+explore (ko-tablet)	Set up Java 17	2026-10-15T12:58:04.9281115Z   distribution: temurin
+explore (ko-tablet)	Set up Java 17	2026-10-15T12:58:04.9281343Z   java-version: 17.0.16+8
+explore (ko-tablet)	Set up Java 17	2026-10-15T12:58:04.9281575Z   java-package: jdk
+explore (ko-tablet)	Set up Java 17	2026-10-15T12:58:04.9281802Z   check-latest: false
+explore (ko-tablet)	Set up Java 17	2026-10-15T12:58:04.9282013Z   force-download: false
+explore (ko-tablet)	Set up Java 17	2026-10-15T12:58:04.9282227Z   set-default: true
+explore (ko-tablet)	Set up Java 17	2026-10-15T12:58:04.9282427Z   server-id: github
+explore (ko-tablet)	Set up Java 17	2026-10-15T12:58:04.9282654Z   mvn-repositories-include-central: true
+explore (ko-tablet)	Set up Java 17	2026-10-15T12:58:04.9282966Z   mvn-repositories-prioritize-central: true
+explore (ko-tablet)	Set up Java 17	2026-10-15T12:58:04.9283261Z   overwrite-settings: true
+explore (ko-tablet)	Set up Java 17	2026-10-15T12:58:04.9283494Z   cache-read-only: false
+explore (ko-tablet)	Set up Java 17	2026-10-15T12:58:04.9283713Z   job-status: success
+explore (ko-tablet)	Set up Java 17	2026-10-15T12:58:04.9286329Z   token: ***
+explore (ko-tablet)	Set up Java 17	2026-10-15T12:58:04.9286553Z   show-download-progress: false
+explore (ko-tablet)	Set up Java 17	2026-10-15T12:58:04.9286807Z   problem-matcher: true
+explore (ko-tablet)	Set up Java 17	2026-10-15T12:58:04.9287024Z ##[endgroup]
+explore (ko-tablet)	Set up Java 17	2026-10-15T12:58:05.0026506Z ##[group]Installed distributions
+explore (ko-tablet)	Set up Java 17	2026-10-15T12:58:05.0116648Z Trying to resolve the latest version from remote
+explore (ko-tablet)	Set up Java 17	2026-10-15T12:58:05.3073070Z Resolved latest version as 17.0.16+8
+explore (ko-tablet)	Set up Java 17	2026-10-15T12:58:05.3073992Z Trying to download...
+explore (ko-tablet)	Set up Java 17	2026-10-15T12:58:05.3076324Z Downloading Java 17.0.16+8 (Temurin-Hotspot) from https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.16%2B8/OpenJDK17U-jdk_x64_linux_hotspot_17.0.16_8.tar.gz ...
+explore (ko-tablet)	Set up Java 17	2026-10-15T12:58:06.5632884Z Verifying Java package signature...
+explore (ko-tablet)	Set up Java 17	2026-10-15T12:58:07.0495597Z Extracting Java archive...
+explore (ko-tablet)	Set up Java 17	2026-10-15T12:58:07.0590872Z [command]/usr/bin/tar --use-compress-program /usr/bin/pigz -d -x --warning=no-unknown-keyword --overwrite -C /home/runner/work/_temp/c42f3b90-dff9-4ff9-9c52-4b90fd49d508 -f /home/runner/work/_temp/628569df-a936-49cb-a9b7-37e8464fce98
+explore (ko-tablet)	Set up Java 17	2026-10-15T12:58:08.2857181Z Java 17.0.16+8 was downloaded
+explore (ko-tablet)	Set up Java 17	2026-10-15T12:58:08.2857793Z Setting Java 17.0.16+8 as the default
+explore (ko-tablet)	Set up Java 17	2026-10-15T12:58:08.2863833Z 
+explore (ko-tablet)	Set up Java 17	2026-10-15T12:58:08.2864269Z Java configuration:
+explore (ko-tablet)	Set up Java 17	2026-10-15T12:58:08.2865018Z   Distribution: temurin
+explore (ko-tablet)	Set up Java 17	2026-10-15T12:58:08.2865403Z   Version: 17.0.16+8
+explore (ko-tablet)	Set up Java 17	2026-10-15T12:58:08.2865968Z   Path: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.16-8/x64
+explore (ko-tablet)	Set up Java 17	2026-10-15T12:58:08.2866484Z 
+explore (ko-tablet)	Set up Java 17	2026-10-15T12:58:08.2867910Z ##[endgroup]
+explore (ko-tablet)	Set up Java 17	2026-10-15T12:58:08.2916787Z Creating settings.xml with server-id: github
+explore (ko-tablet)	Set up Java 17	2026-10-15T12:58:08.2918698Z Creating toolchains.xml for JDK version 17.0.16+8 from temurin
+explore (ko-tablet)	Set up Java 17	2026-10-15T12:58:08.2922012Z Writing to /home/runner/.m2/settings.xml
+explore (ko-tablet)	Set up Java 17	2026-10-15T12:58:08.2925274Z Writing to /home/runner/.m2/toolchains.xml
+explore (ko-tablet)	Set up Java 17	2026-10-15T12:58:08.2933449Z Configured MAVEN_ARGS to include -ntp to suppress Maven transfer progress logs. Set 'show-download-progress: true' to keep the download progress output.
+explore (ko-tablet)	Require runner SDK and hardware acceleration	﻿2026-10-15T12:58:08.3104876Z ##[group]Run set -euo pipefail
+explore (ko-tablet)	Require runner SDK and hardware acceleration	2026-10-15T12:58:08.3105295Z [36;1mset -euo pipefail[0m
+explore (ko-tablet)	Require runner SDK and hardware acceleration	2026-10-15T12:58:08.3105637Z [36;1mrunner_sdk_dir="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}"[0m
+explore (ko-tablet)	Require runner SDK and hardware acceleration	2026-10-15T12:58:08.3106089Z [36;1mif [[ -z "$runner_sdk_dir" || ! -d "$runner_sdk_dir" ]]; then[0m
+explore (ko-tablet)	Require runner SDK and hardware acceleration	2026-10-15T12:58:08.3106548Z [36;1m  echo '::error::The standard runner Android SDK is unavailable.' >&2[0m
+explore (ko-tablet)	Require runner SDK and hardware acceleration	2026-10-15T12:58:08.3106917Z [36;1m  exit 1[0m
+explore (ko-tablet)	Require runner SDK and hardware acceleration	2026-10-15T12:58:08.3107118Z [36;1mfi[0m
+explore (ko-tablet)	Require runner SDK and hardware acceleration	2026-10-15T12:58:08.3107348Z [36;1mif [[ ! -x "$JAVA_HOME/bin/javac" ]]; then[0m
+explore (ko-tablet)	Require runner SDK and hardware acceleration	2026-10-15T12:58:08.3107916Z [36;1m  echo '::error::Java 17 setup did not provide javac.' >&2[0m
+explore (ko-tablet)	Require runner SDK and hardware acceleration	2026-10-15T12:58:08.3108244Z [36;1m  exit 1[0m
+explore (ko-tablet)	Require runner SDK and hardware acceleration	2026-10-15T12:58:08.3108442Z [36;1mfi[0m
+explore (ko-tablet)	Require runner SDK and hardware acceleration	2026-10-15T12:58:08.3108639Z [36;1mif [[ ! -c /dev/kvm ]]; then[0m
+explore (ko-tablet)	Require runner SDK and hardware acceleration	2026-10-15T12:58:08.3109044Z [36;1m  echo '::error::Hardware-accelerated instrumentation requires /dev/kvm.' >&2[0m
+explore (ko-tablet)	Require runner SDK and hardware acceleration	2026-10-15T12:58:08.3109449Z [36;1m  exit 1[0m
+explore (ko-tablet)	Require runner SDK and hardware acceleration	2026-10-15T12:58:08.3109676Z [36;1mfi[0m
+explore (ko-tablet)	Require runner SDK and hardware acceleration	2026-10-15T12:58:08.3109870Z [36;1msudo chmod 0666 /dev/kvm[0m
+explore (ko-tablet)	Require runner SDK and hardware acceleration	2026-10-15T12:58:08.3110157Z [36;1mif [[ ! -r /dev/kvm || ! -w /dev/kvm ]]; then[0m
+explore (ko-tablet)	Require runner SDK and hardware acceleration	2026-10-15T12:58:08.3110509Z [36;1m  echo '::error::The runner cannot access /dev/kvm.' >&2[0m
+explore (ko-tablet)	Require runner SDK and hardware acceleration	2026-10-15T12:58:08.3110825Z [36;1m  exit 1[0m
+explore (ko-tablet)	Require runner SDK and hardware acceleration	2026-10-15T12:58:08.3111009Z [36;1mfi[0m
+explore (ko-tablet)	Require runner SDK and hardware acceleration	2026-10-15T12:58:08.3111250Z [36;1mtools_dir="$RUNNER_TEMP/hoyoung-android-tools"[0m
+explore (ko-tablet)	Require runner SDK and hardware acceleration	2026-10-15T12:58:08.3111612Z [36;1mmodel_dir="$RUNNER_TEMP/hoyoung-semantic-model"[0m
+explore (ko-tablet)	Require runner SDK and hardware acceleration	2026-10-15T12:58:08.3111934Z [36;1mmkdir -p "$tools_dir"[0m
+explore (ko-tablet)	Require runner SDK and hardware acceleration	2026-10-15T12:58:08.3112201Z [36;1mln -s "$runner_sdk_dir" "$tools_dir/sdk"[0m
+explore (ko-tablet)	Require runner SDK and hardware acceleration	2026-10-15T12:58:08.3112522Z [36;1mln -s "$JAVA_HOME" "$tools_dir/jdk-17.0.16+8"[0m
+explore (ko-tablet)	Require runner SDK and hardware acceleration	2026-10-15T12:58:08.3112896Z [36;1mecho "HOYOUNG_ANDROID_TOOLS_DIR=$tools_dir" >> "$GITHUB_ENV"[0m
+explore (ko-tablet)	Require runner SDK and hardware acceleration	2026-10-15T12:58:08.3113335Z [36;1mecho "HOYOUNG_SEMANTIC_MODEL_DIR=$model_dir" >> "$GITHUB_ENV"[0m
+explore (ko-tablet)	Require runner SDK and hardware acceleration	2026-10-15T12:58:08.3402633Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+explore (ko-tablet)	Require runner SDK and hardware acceleration	2026-10-15T12:58:08.3403094Z env:
+explore (ko-tablet)	Require runner SDK and hardware acceleration	2026-10-15T12:58:08.3403462Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.16-8/x64
+explore (ko-tablet)	Require runner SDK and hardware acceleration	2026-10-15T12:58:08.3404065Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.16-8/x64
+explore (ko-tablet)	Require runner SDK and hardware acceleration	2026-10-15T12:58:08.3404950Z   MAVEN_ARGS: -ntp
+explore (ko-tablet)	Require runner SDK and hardware acceleration	2026-10-15T12:58:08.3405250Z ##[endgroup]
+explore (ko-tablet)	Prepare pinned build tools	﻿2026-10-15T12:58:08.3675883Z ##[group]Run ./mobile/tools/build-android.sh --prepare ./mobile
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:08.3676387Z [36;1m./mobile/tools/build-android.sh --prepare ./mobile[0m
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:08.3743323Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:08.3743674Z env:
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:08.3743979Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.16-8/x64
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:08.3744688Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.16-8/x64
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:08.3745129Z   MAVEN_ARGS: -ntp
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:08.3745449Z   HOYOUNG_ANDROID_TOOLS_DIR: /home/runner/work/_temp/hoyoung-android-tools
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:08.3745934Z   HOYOUNG_SEMANTIC_MODEL_DIR: /home/runner/work/_temp/hoyoung-semantic-model
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:08.3746306Z ##[endgroup]
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:09.4215776Z Verified gradle-8.11.1-bin.zip
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:11.1911079Z Verified commandlinetools-linux-15859902_latest.zip
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:14.7177537Z WARNING: The SDK Manager CLI tool (sdkmanager) is deprecated. Use Android CLI instead.
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:14.7179192Z The 'android' binary can also be found in the cmdline-tools directory, and 'android sdk' is the replacement for 'sdkmanager'.
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:14.7181045Z To learn more about the Android CLI and how to use it, see the documentation (https://d.android.com/tools/agents/android-cli)
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:14.7182091Z 
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:15.5155599Z Loading package information...                                                  
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:15.6065888Z Loading local repository...                                                     
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:15.6066916Z [                                       ] 3% Loading local repository...        
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:15.6169372Z [                                       ] 3% Fetch remote repository...         
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:15.8546323Z [=                                      ] 3% Fetch remote repository...         
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:15.9353078Z [=                                      ] 4% Fetch remote repository...         
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:16.0289388Z [=                                      ] 5% Fetch remote repository...         
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:16.0910416Z [==                                     ] 5% Fetch remote repository...         
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:16.1705757Z [==                                     ] 6% Fetch remote repository...         
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:16.2525953Z [==                                     ] 7% Fetch remote repository...         
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:16.2555547Z [==                                     ] 7% Computing updates...               
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:16.2661377Z [===                                    ] 8% Computing updates...               
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:16.2811054Z [===                                    ] 10% Computing updates...              
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:16.6547729Z [===                                    ] 10% Installing CMake 3.22.1           
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:16.6999856Z [===                                    ] 10% Downloading cmake-3.22.1-linux.zip
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:16.8000276Z [====                                   ] 10% Downloading cmake-3.22.1-linux.zip
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:16.9650724Z [====                                   ] 11% Downloading cmake-3.22.1-linux.zip
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:17.1215614Z [====                                   ] 12% Downloading cmake-3.22.1-linux.zip
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:17.1808539Z [=====                                  ] 13% Downloading cmake-3.22.1-linux.zip
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:17.2065764Z [=====                                  ] 14% Downloading cmake-3.22.1-linux.zip
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:17.2172956Z [=====                                  ] 15% Downloading cmake-3.22.1-linux.zip
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:17.2263145Z [======                                 ] 15% Downloading cmake-3.22.1-linux.zip
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:17.2436879Z [======                                 ] 16% Downloading cmake-3.22.1-linux.zip
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:17.2600962Z [======                                 ] 17% Downloading cmake-3.22.1-linux.zip
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:17.2731037Z [=======                                ] 18% Downloading cmake-3.22.1-linux.zip
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:17.2857393Z [=======                                ] 19% Downloading cmake-3.22.1-linux.zip
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:17.2912058Z [=======                                ] 20% Downloading cmake-3.22.1-linux.zip
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:17.2979500Z [========                               ] 20% Downloading cmake-3.22.1-linux.zip
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:17.3091315Z [========                               ] 21% Downloading cmake-3.22.1-linux.zip
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:17.4848183Z [========                               ] 21% Unzipping...                      
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:17.5014105Z [========                               ] 21% Unzipping... bin/cmake            
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:17.5323981Z [========                               ] 22% Unzipping... bin/cmake            
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:17.5702909Z [=========                              ] 23% Unzipping... bin/cmake            
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:17.6003616Z [=========                              ] 24% Unzipping... bin/cmake            
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:17.6039493Z [=========                              ] 24% Unzipping... bin/ctest            
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:17.6171744Z [=========                              ] 25% Unzipping... bin/ctest            
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:17.6312198Z [==========                             ] 25% Unzipping... bin/ctest            
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:17.6583618Z [==========                             ] 26% Unzipping... bin/ctest            
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:17.6885756Z [==========                             ] 27% Unzipping... bin/ctest            
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:17.6959464Z [===========                            ] 28% Unzipping... bin/ctest            
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:17.7145112Z [===========                            ] 28% Unzipping... bin/cpack            
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:17.7413450Z [===========                            ] 29% Unzipping... bin/cpack            
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:17.7554457Z [===========                            ] 30% Unzipping... bin/cpack            
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:17.7662370Z [============                           ] 30% Unzipping... bin/cpack            
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:17.7788869Z [============                           ] 31% Unzipping... bin/cpack            
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:17.7795294Z [============                           ] 31% Unzipping... share/vim/vimfiles/in
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:17.7804216Z [============                           ] 31% Unzipping... share/vim/vimfiles/sy
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:17.7807967Z [============                           ] 31% Unzipping... share/aclocal/cmake.m
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:17.7814658Z [============                           ] 31% Unzipping... share/emacs/site-lisp
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:17.7820338Z [============                           ] 31% Unzipping... share/cmake-3.22/incl
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:18.1712792Z [============                           ] 31% Unzipping... share/cmake-3.22/Help
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:18.1819603Z [============                           ] 31% Unzipping... share/cmake-3.22/Temp
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:18.1847526Z [============                           ] 32% Unzipping... share/cmake-3.22/Temp
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:18.3895903Z [============                           ] 32% Unzipping... share/cmake-3.22/Modu
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:18.3901509Z [============                           ] 32% Unzipping... share/bash-completion
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:18.3905171Z [============                           ] 32% Unzipping... doc/cmake-3.22/Copyri
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:18.3930186Z [============                           ] 32% Unzipping... doc/cmake-3.22/cmzlib
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:18.3941059Z [============                           ] 32% Unzipping... doc/cmake-3.22/cmzstd
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:18.3965221Z [============                           ] 32% Unzipping... doc/cmake-3.22/cmnght
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:18.3988530Z [============                           ] 32% Unzipping... doc/cmake-3.22/cmsys/
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:18.4015222Z [============                           ] 32% Unzipping... doc/cmake-3.22/cmcurl
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:18.4045376Z [============                           ] 32% Unzipping... doc/cmake-3.22/cmlibr
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:18.4082829Z [============                           ] 32% Unzipping... doc/cmake-3.22/cmliba
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:18.4084011Z [============                           ] 32% Unzipping... doc/cmake-3.22/cmlibl
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:18.4097961Z [============                           ] 32% Unzipping... doc/cmake-3.22/cmlibu
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:18.4098918Z [============                           ] 32% Unzipping... doc/openssl-1.1.1l/LI
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:18.4099831Z [============                           ] 32% Unzipping... source.properties    
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:18.4100741Z [============                           ] 32% Unzipping... bin/ninja            
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:18.4101653Z [============                           ] 32% Unzipping... doc/ninja/LICENSE    
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:18.4102481Z [============                           ] 32% Unzipping... share/cmake-3.22/Modu
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:18.4103367Z [=============                          ] 33% Unzipping... share/cmake-3.22/Modu
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:18.5425978Z [=====================                  ] 55% Unzipping... share/cmake-3.22/Modu
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:18.5845274Z [=====================                  ] 55% Installing NDK (Side by side) 28.2
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:18.6610491Z [=====================                  ] 55% Downloading android-ndk-r28c-linux
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:18.9077843Z [======================                 ] 55% Downloading android-ndk-r28c-linux
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:19.2379646Z [======================                 ] 56% Downloading android-ndk-r28c-linux
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:19.4543724Z [======================                 ] 57% Downloading android-ndk-r28c-linux
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:19.6242647Z [=======================                ] 58% Downloading android-ndk-r28c-linux
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:19.7614890Z [=======================                ] 59% Downloading android-ndk-r28c-linux
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:19.8503680Z [=======================                ] 60% Downloading android-ndk-r28c-linux
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:19.9164962Z [========================               ] 60% Downloading android-ndk-r28c-linux
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:20.0620953Z [========================               ] 61% Downloading android-ndk-r28c-linux
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:20.2179795Z [========================               ] 62% Downloading android-ndk-r28c-linux
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:20.3836034Z [=========================              ] 63% Downloading android-ndk-r28c-linux
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:20.5417748Z [=========================              ] 64% Downloading android-ndk-r28c-linux
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:20.6121123Z [=========================              ] 65% Downloading android-ndk-r28c-linux
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:20.6970276Z [==========================             ] 65% Downloading android-ndk-r28c-linux
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:20.8002564Z [==========================             ] 66% Downloading android-ndk-r28c-linux
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:21.0649959Z [==========================             ] 66% Unzipping... share/cmake-3.22/Modu
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:21.0665757Z [==========================             ] 66% Unzipping... android-ndk-r28c/    
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:21.1476116Z [==========================             ] 66% Unzipping... android-ndk-r28c/READ
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:21.1501920Z [==========================             ] 66% Unzipping... android-ndk-r28c/meta
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:21.4093099Z [==========================             ] 66% Unzipping... android-ndk-r28c/shad
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:21.4099858Z [==========================             ] 66% Unzipping... android-ndk-r28c/ndk-
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:21.4100818Z [==========================             ] 66% Unzipping... android-ndk-r28c/wrap
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:21.4102425Z [==========================             ] 66% Unzipping... android-ndk-r28c/ndk-
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:21.5202139Z [==========================             ] 66% Unzipping... android-ndk-r28c/tool
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:22.4173654Z [==========================             ] 67% Unzipping... android-ndk-r28c/tool
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:23.2806943Z [===========================            ] 68% Unzipping... android-ndk-r28c/tool
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:24.1632191Z [===========================            ] 69% Unzipping... android-ndk-r28c/tool
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:24.5597881Z [===========================            ] 70% Unzipping... android-ndk-r28c/tool
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:25.0377707Z [============================           ] 70% Unzipping... android-ndk-r28c/tool
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:26.1405226Z [============================           ] 71% Unzipping... android-ndk-r28c/tool
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:27.2831230Z [============================           ] 72% Unzipping... android-ndk-r28c/tool
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:28.5068947Z [=============================          ] 73% Unzipping... android-ndk-r28c/tool
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:29.3545949Z [=============================          ] 74% Unzipping... android-ndk-r28c/tool
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:29.7540513Z [=============================          ] 75% Unzipping... android-ndk-r28c/tool
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:30.1753262Z [==============================         ] 75% Unzipping... android-ndk-r28c/tool
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:30.9816694Z [==============================         ] 76% Unzipping... android-ndk-r28c/tool
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:31.4293721Z [==============================         ] 77% Unzipping... android-ndk-r28c/tool
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:31.4413906Z [==============================         ] 77% Unzipping... android-ndk-r28c/buil
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:31.6673414Z [==============================         ] 77% Unzipping... android-ndk-r28c/sour
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:31.6694177Z [==============================         ] 77% Unzipping... android-ndk-r28c/NOTI
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:31.6696345Z [==============================         ] 77% Unzipping... android-ndk-r28c/ndk-
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:31.6709825Z [==============================         ] 77% Unzipping... android-ndk-r28c/NOTI
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:31.6749033Z [==============================         ] 77% Unzipping... android-ndk-r28c/pyth
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:31.7159750Z [==============================         ] 77% Unzipping... android-ndk-r28c/preb
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:31.7162506Z [==============================         ] 77% Unzipping... android-ndk-r28c/ndk-
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:31.7163787Z [==============================         ] 77% Unzipping... android-ndk-r28c/sour
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:31.9267231Z [==============================         ] 77% Unzipping... android-ndk-r28c/simp
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:31.9268867Z [==============================         ] 77% Unzipping... android-ndk-r28c/CHAN
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:32.0568617Z [==============================         ] 78% Unzipping... android-ndk-r28c/CHAN
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:32.0570084Z [=======================================] 100% Unzipping... android-ndk-r28c/CHA
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:32.0623080Z 
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:32.0743457Z SDK build licenses accepted; transcript: /home/runner/work/_temp/hoyoung-android-tools/sdk-license-acceptance.log
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:32.0797686Z Android SDK: /home/runner/work/_temp/hoyoung-android-tools/sdk
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:32.0798626Z Java compiler: /home/runner/work/_temp/hoyoung-android-tools/jdk-17.0.16+8/bin/javac
+explore (ko-tablet)	Prepare pinned build tools	2026-10-15T12:58:32.0799597Z Gradle: /home/runner/work/_temp/hoyoung-android-tools/gradle-8.11.1/bin/gradle
+explore (ko-tablet)	Install official API 35 AOSP emulator	﻿2026-10-15T12:58:32.0835738Z ##[group]Run set -euo pipefail
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:32.0836124Z [36;1mset -euo pipefail[0m
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:32.0836373Z [36;1mpython3 - <<'PY'[0m
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:32.0836602Z [36;1mimport os[0m
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:32.0836817Z [36;1mimport pathlib[0m
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:32.0837047Z [36;1mimport subprocess[0m
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:32.0837268Z [36;1m[0m
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:32.0837575Z [36;1msdk = pathlib.Path(os.environ['HOYOUNG_ANDROID_TOOLS_DIR']) / 'sdk'[0m
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:32.0838044Z [36;1msdkmanager = sdk / 'cmdline-tools/15859902/bin/sdkmanager'[0m
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:32.0838509Z [36;1mif not sdkmanager.is_file() or not os.access(sdkmanager, os.X_OK):[0m
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:32.0838970Z [36;1m    raise SystemExit('Pinned official sdkmanager is missing.')[0m
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:32.0839452Z [36;1mcommand = [str(sdkmanager), '--sdk_root=' + str(sdk), '--channel=0'][0m
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:32.0839836Z [36;1maccepted = subprocess.run([0m
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:32.0840143Z [36;1m    [*command, '--licenses'], input='y\n' * 100,[0m
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:32.0840502Z [36;1m    text=True, capture_output=True)[0m
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:32.0840791Z [36;1mif accepted.returncode:[0m
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:32.0841052Z [36;1m    print(accepted.stdout)[0m
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:32.0841310Z [36;1m    print(accepted.stderr)[0m
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:32.0841592Z [36;1m    raise SystemExit(accepted.returncode)[0m
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:32.0841889Z [36;1msubprocess.run([[0m
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:32.0842184Z [36;1m    *command, '--install', 'platform-tools', 'emulator',[0m
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:32.0842594Z [36;1m    'system-images;android-35;default;x86_64'], check=True)[0m
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:32.0842921Z [36;1mPY[0m
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:32.0843211Z [36;1m"$HOYOUNG_ANDROID_TOOLS_DIR/sdk/emulator/emulator" -accel-check[0m
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:32.0906849Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:32.0907189Z env:
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:32.0907493Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.16-8/x64
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:32.0908001Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.16-8/x64
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:32.0908402Z   MAVEN_ARGS: -ntp
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:32.0908732Z   HOYOUNG_ANDROID_TOOLS_DIR: /home/runner/work/_temp/hoyoung-android-tools
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:32.0909225Z   HOYOUNG_SEMANTIC_MODEL_DIR: /home/runner/work/_temp/hoyoung-semantic-model
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:32.0909603Z ##[endgroup]
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:34.0285980Z WARNING: The SDK Manager CLI tool (sdkmanager) is deprecated. Use Android CLI instead.
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:34.0287900Z The 'android' binary can also be found in the cmdline-tools directory, and 'android sdk' is the replacement for 'sdkmanager'.
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:34.0289824Z To learn more about the Android CLI and how to use it, see the documentation (https://d.android.com/tools/agents/android-cli)
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:34.0290979Z 
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:34.8298420Z Loading package information...                                                  
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:34.9340486Z Loading local repository...                                                     
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:34.9341758Z [                                       ] 3% Loading local repository...        
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:34.9452712Z [                                       ] 3% Fetch remote repository...         
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:35.2954440Z [=                                      ] 3% Fetch remote repository...         
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:35.3868612Z [=                                      ] 4% Fetch remote repository...         
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:35.4189341Z [=                                      ] 5% Fetch remote repository...         
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:35.4661802Z [==                                     ] 5% Fetch remote repository...         
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:35.5565277Z [==                                     ] 6% Fetch remote repository...         
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:35.6415801Z [==                                     ] 7% Fetch remote repository...         
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:35.6447866Z [==                                     ] 7% Computing updates...               
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:35.6565321Z [===                                    ] 8% Computing updates...               
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:35.6722496Z [===                                    ] 10% Computing updates...              
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:36.0413194Z [===                                    ] 10% Installing Android Emulator       
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:36.3648525Z [===                                    ] 10% Downloading emulator-linux_x64-164
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:36.7086833Z [====                                   ] 10% Downloading emulator-linux_x64-164
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:36.8938957Z [====                                   ] 11% Downloading emulator-linux_x64-164
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:37.0635265Z [====                                   ] 12% Downloading emulator-linux_x64-164
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:37.1602822Z [=====                                  ] 13% Downloading emulator-linux_x64-164
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:37.2222456Z [=====                                  ] 14% Downloading emulator-linux_x64-164
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:37.3324234Z [=====                                  ] 15% Downloading emulator-linux_x64-164
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:37.3630723Z [======                                 ] 15% Downloading emulator-linux_x64-164
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:37.4584554Z [======                                 ] 16% Downloading emulator-linux_x64-164
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:37.5309097Z [======                                 ] 17% Downloading emulator-linux_x64-164
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:37.6045727Z [=======                                ] 18% Downloading emulator-linux_x64-164
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:37.6790634Z [=======                                ] 19% Downloading emulator-linux_x64-164
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:37.7210618Z [=======                                ] 20% Downloading emulator-linux_x64-164
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:37.7719431Z [========                               ] 20% Downloading emulator-linux_x64-164
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:37.8354383Z [========                               ] 21% Downloading emulator-linux_x64-164
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:37.9287911Z [========                               ] 21% Unzipping...                      
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:37.9288873Z [========                               ] 21% Unzipping... emulator/            
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:37.9290066Z [========                               ] 21% Unzipping... emulator/resources/  
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:37.9769424Z [========                               ] 21% Unzipping... emulator/qsn         
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:38.0515747Z [========                               ] 21% Unzipping... emulator/emulator    
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:38.0743170Z [========                               ] 21% Unzipping... emulator/netsimd     
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:38.1703922Z [========                               ] 22% Unzipping... emulator/netsimd     
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:38.1705163Z [========                               ] 22% Unzipping... emulator/bin64/      
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:38.1706212Z [========                               ] 22% Unzipping... emulator/qemu/       
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:38.1735641Z [========                               ] 22% Unzipping... emulator/NOTICE.txt  
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:38.1913561Z [========                               ] 22% Unzipping... emulator/crashpad_han
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:38.1917010Z [========                               ] 22% Unzipping... emulator/source.prope
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:38.2620469Z [========                               ] 22% Unzipping... emulator/nimble_bridg
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:38.2624038Z [========                               ] 22% Unzipping... emulator/LICENSE     
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:38.2625373Z [========                               ] 22% Unzipping... emulator/lib/        
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:38.2709831Z [========                               ] 22% Unzipping... emulator/qemu-img    
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:38.2710810Z [========                               ] 22% Unzipping... emulator/include/    
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:38.2715890Z [========                               ] 22% Unzipping... emulator/NOTICE.csv  
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:38.2723845Z [========                               ] 22% Unzipping... emulator/lib64/      
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:38.2880569Z [========                               ] 22% Unzipping... emulator/emulator-che
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:38.3081355Z [========                               ] 22% Unzipping... emulator/crashreport 
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:38.3099891Z [========                               ] 22% Unzipping... emulator/mksdcard    
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:38.3278103Z [========                               ] 22% Unzipping... emulator/resources/To
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:38.3349221Z [========                               ] 22% Unzipping... emulator/resources/de
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:38.3351802Z [========                               ] 22% Unzipping... emulator/resources/To
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:38.3368531Z [========                               ] 22% Unzipping... emulator/resources/de
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:38.3502124Z [========                               ] 22% Unzipping... emulator/resources/To
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:38.3503471Z [========                               ] 22% Unzipping... emulator/resources/ma
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:38.3529141Z [========                               ] 22% Unzipping... emulator/resources/de
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:38.3530298Z [========                               ] 22% Unzipping... emulator/resources/sk
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:38.3563640Z [========                               ] 22% Unzipping... emulator/resources/de
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:38.3565098Z [========                               ] 22% Unzipping... emulator/resources/ma
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:38.3577104Z [========                               ] 22% Unzipping... emulator/resources/po
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:38.3641887Z [========                               ] 22% Unzipping... emulator/resources/ma
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:38.3650229Z [=========                              ] 23% Unzipping... emulator/resources/ma
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:38.3717131Z [=========                              ] 23% Unzipping... emulator/resources/sk
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:38.3732208Z [=========                              ] 23% Unzipping... emulator/resources/ma
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:38.3767073Z [=========                              ] 23% Unzipping... emulator/bin64/e2fsck
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:38.3801181Z [=========                              ] 23% Unzipping... emulator/bin64/fsck.e
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:38.3823367Z [=========                              ] 23% Unzipping... emulator/bin64/tune2f
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:38.3837293Z [=========                              ] 23% Unzipping... emulator/bin64/resize
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:38.3860661Z [=========                              ] 23% Unzipping... emulator/bin64/mkfs.e
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:38.7455020Z [=========                              ] 23% Unzipping... emulator/qemu/linux-x
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.0922328Z [=========                              ] 24% Unzipping... emulator/qemu/linux-x
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.2628634Z [=========                              ] 25% Unzipping... emulator/qemu/linux-x
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.4449422Z [==========                             ] 25% Unzipping... emulator/qemu/linux-x
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.4453264Z [==========                             ] 25% Unzipping... emulator/lib/emulator
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.4456023Z [==========                             ] 25% Unzipping... emulator/lib/rtc_serv
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.4460530Z [==========                             ] 25% Unzipping... emulator/lib/advanced
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.4461678Z [==========                             ] 25% Unzipping... emulator/lib/cmake/  
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.4464915Z [==========                             ] 25% Unzipping... emulator/lib/emulator
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.4468242Z [==========                             ] 25% Unzipping... emulator/lib/control_
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.4471934Z [==========                             ] 25% Unzipping... emulator/lib/emulated
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.4474834Z [==========                             ] 25% Unzipping... emulator/lib/rtc_serv
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.4478668Z [==========                             ] 25% Unzipping... emulator/lib/emu-orig
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.4483147Z [==========                             ] 25% Unzipping... emulator/lib/hardware
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.4483949Z [==========                             ] 25% Unzipping... emulator/lib/pkgconfi
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.4485570Z [==========                             ] 25% Unzipping... emulator/lib/pc-bios/
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.4488596Z [==========                             ] 25% Unzipping... emulator/lib/snapshot
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.4495679Z [==========                             ] 25% Unzipping... emulator/lib/adb_serv
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.4499305Z [==========                             ] 25% Unzipping... emulator/lib/hostapd.
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.4503636Z [==========                             ] 25% Unzipping... emulator/lib/grpc_end
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.4522078Z [==========                             ] 25% Unzipping... emulator/lib/ca-bundl
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.4545379Z [==========                             ] 25% Unzipping... emulator/lib/ui_contr
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.4575290Z [==========                             ] 25% Unzipping... emulator/lib/snapshot
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.4585126Z [==========                             ] 25% Unzipping... emulator/lib/ice_conf
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.4677215Z [==========                             ] 25% Unzipping... emulator/lib/libflatb
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.4890537Z [==========                             ] 26% Unzipping... emulator/lib/libflatb
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.4898632Z [==========                             ] 26% Unzipping... emulator/lib/emulator
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.4900776Z [==========                             ] 26% Unzipping... emulator/lib/waterfal
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.4903752Z [==========                             ] 26% Unzipping... emulator/lib/emulated
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.4916151Z [==========                             ] 26% Unzipping... emulator/lib/cmake/fl
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.4918740Z [==========                             ] 26% Unzipping... emulator/lib/pkgconfi
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.5110118Z [==========                             ] 26% Unzipping... emulator/lib/pc-bios/
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.5207675Z [==========                             ] 26% Unzipping... emulator/include/flat
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.5286088Z [==========                             ] 26% Unzipping... emulator/lib64/libgli
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.5404238Z [==========                             ] 26% Unzipping... emulator/lib64/libpro
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.5408351Z [==========                             ] 26% Unzipping... emulator/lib64/qt/   
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.5801075Z [==========                             ] 26% Unzipping... emulator/lib64/liband
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.6487123Z [==========                             ] 26% Unzipping... emulator/lib64/libgfx
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.6488031Z [==========                             ] 26% Unzipping... emulator/lib64/gles_l
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.6498651Z [==========                             ] 26% Unzipping... emulator/lib64/liband
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.6499420Z [==========                             ] 26% Unzipping... emulator/lib64/vulkan
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.6500119Z [==========                             ] 26% Unzipping... emulator/lib64/gles_s
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.6504685Z [==========                             ] 26% Unzipping... emulator/lib64/libemu
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.6625503Z [==========                             ] 26% Unzipping... emulator/lib64/libpro
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.8136359Z [==========                             ] 26% Unzipping... emulator/lib64/liband
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.8159714Z [==========                             ] 26% Unzipping... emulator/lib64/libtcm
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.8160481Z [==========                             ] 26% Unzipping... emulator/lib64/libima
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.8223213Z [==========                             ] 26% Unzipping... emulator/lib64/libc++
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.8501895Z [==========                             ] 26% Unzipping... emulator/lib64/liband
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.8548453Z [==========                             ] 26% Unzipping... emulator/lib64/libabs
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.8549428Z [==========                             ] 26% Unzipping... emulator/lib64/gles_a
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.8625735Z [==========                             ] 26% Unzipping... emulator/lib64/libsha
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.8692477Z [==========                             ] 26% Unzipping... emulator/lib64/libc++
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.8693335Z [==========                             ] 26% Unzipping... emulator/lib64/qt/res
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.8694077Z [==========                             ] 26% Unzipping... emulator/lib64/qt/lib
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.8695033Z [==========                             ] 26% Unzipping... emulator/lib64/qt/tra
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.8695946Z [==========                             ] 26% Unzipping... emulator/lib64/qt/plu
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.8728553Z [==========                             ] 26% Unzipping... emulator/lib64/qt/res
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:39.9441801Z [==========                             ] 27% Unzipping... emulator/lib64/qt/res
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:40.0531057Z [==========                             ] 27% Unzipping... emulator/lib64/qt/lib
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:40.4596413Z [===========                            ] 28% Unzipping... emulator/lib64/qt/lib
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:40.8537961Z [===========                            ] 29% Unzipping... emulator/lib64/qt/lib
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:41.0821473Z [===========                            ] 30% Unzipping... emulator/lib64/qt/lib
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:41.1627753Z [============                           ] 30% Unzipping... emulator/lib64/qt/lib
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:41.2709657Z [============                           ] 30% Unzipping... emulator/lib64/qt/tra
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:41.2826975Z [============                           ] 30% Unzipping... emulator/lib64/qt/plu
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:41.3038578Z [============                           ] 30% Unzipping... emulator/lib64/gles_l
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:41.3657412Z [============                           ] 31% Unzipping... emulator/lib64/gles_l
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:41.7145327Z [============                           ] 31% Unzipping... emulator/lib64/vulkan
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:42.0335899Z [============                           ] 32% Unzipping... emulator/lib64/vulkan
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:42.1002149Z [============                           ] 32% Unzipping... emulator/lib64/gles_s
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:42.1578423Z [============                           ] 32% Unzipping... emulator/lib64/gles_a
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:42.2230939Z [=============                          ] 33% Unzipping... emulator/lib64/gles_a
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:42.3556233Z [=====================                  ] 55% Unzipping... emulator/lib64/gles_a
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:42.4024209Z [=====================                  ] 55% Installing Intel x86_64 Atom Syste
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:42.4275848Z [=====================                  ] 55% Downloading x86_64-35_r02.zip... e
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:42.5140703Z [======================                 ] 55% Downloading x86_64-35_r02.zip... e
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:42.7078344Z [======================                 ] 56% Downloading x86_64-35_r02.zip... e
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:42.9781565Z [======================                 ] 57% Downloading x86_64-35_r02.zip... e
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:43.1602427Z [=======================                ] 58% Downloading x86_64-35_r02.zip... e
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:43.3501261Z [=======================                ] 59% Downloading x86_64-35_r02.zip... e
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:43.4621920Z [=======================                ] 60% Downloading x86_64-35_r02.zip... e
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:43.5333499Z [========================               ] 60% Downloading x86_64-35_r02.zip... e
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:43.7323706Z [========================               ] 61% Downloading x86_64-35_r02.zip... e
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:43.9326032Z [========================               ] 62% Downloading x86_64-35_r02.zip... e
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:44.1154312Z [=========================              ] 63% Downloading x86_64-35_r02.zip... e
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:44.2936847Z [=========================              ] 64% Downloading x86_64-35_r02.zip... e
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:44.4067332Z [=========================              ] 65% Downloading x86_64-35_r02.zip... e
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:44.5372565Z [==========================             ] 65% Downloading x86_64-35_r02.zip... e
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:44.6761800Z [==========================             ] 66% Downloading x86_64-35_r02.zip... e
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:44.6776939Z [==========================             ] 66% Unzipping... emulator/lib64/gles_a
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:44.6912151Z [==========================             ] 66% Unzipping... x86_64/NOTICE.txt    
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:44.6913741Z [==========================             ] 66% Unzipping... x86_64/VerifiedBootPa
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:44.6916653Z [==========================             ] 66% Unzipping... x86_64/advancedFeatur
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:44.6918921Z [==========================             ] 66% Unzipping... x86_64/build.prop    
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:44.7506974Z [==========================             ] 66% Unzipping... x86_64/encryptionkey.
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:44.8571633Z [==========================             ] 66% Unzipping... x86_64/kernel-ranchu 
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:44.8599640Z [==========================             ] 67% Unzipping... x86_64/kernel-ranchu 
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:44.8604816Z [==========================             ] 67% Unzipping... x86_64/kernel_cmdline
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:44.8737953Z [==========================             ] 67% Unzipping... x86_64/ramdisk.img   
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:44.8739937Z [==========================             ] 67% Unzipping... x86_64/source.propert
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:45.4228458Z [==========================             ] 67% Unzipping... x86_64/system.img    
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:46.0260226Z [===========================            ] 68% Unzipping... x86_64/system.img    
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:46.7604960Z [===========================            ] 69% Unzipping... x86_64/system.img    
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:47.1471445Z [===========================            ] 70% Unzipping... x86_64/system.img    
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:47.4636447Z [============================           ] 70% Unzipping... x86_64/system.img    
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:48.1228064Z [============================           ] 71% Unzipping... x86_64/system.img    
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:48.6778131Z [============================           ] 72% Unzipping... x86_64/system.img    
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:49.2678603Z [=============================          ] 73% Unzipping... x86_64/system.img    
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:49.9824491Z [=============================          ] 74% Unzipping... x86_64/system.img    
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:50.3667287Z [=============================          ] 75% Unzipping... x86_64/system.img    
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:50.7856106Z [==============================         ] 75% Unzipping... x86_64/system.img    
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:51.3601455Z [==============================         ] 76% Unzipping... x86_64/system.img    
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:53.6918535Z [==============================         ] 77% Unzipping... x86_64/system.img    
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:54.1373235Z [==============================         ] 77% Unzipping... x86_64/vendor.img    
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:54.1376504Z [==============================         ] 77% Unzipping... x86_64/data/empty_dat
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:54.1378932Z [==============================         ] 77% Unzipping... x86_64/data/local.pro
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:54.1382592Z [==============================         ] 77% Unzipping... x86_64/data/misc/apns
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:54.1387470Z [==============================         ] 77% Unzipping... x86_64/data/misc/emul
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:54.1398627Z [==============================         ] 77% Unzipping... x86_64/data/misc/mode
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:54.1409429Z [==============================         ] 77% Unzipping... x86_64/data/misc/pixe
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:54.2711982Z [==============================         ] 78% Unzipping... x86_64/data/misc/pixe
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:54.2713009Z [=======================================] 100% Unzipping... x86_64/data/misc/pix
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:54.2778527Z 
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:54.3346313Z accel:
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:54.3346662Z 0
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:54.3346951Z KVM (version 12) is installed and usable.
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:58:54.3347308Z accel
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	﻿2026-10-15T12:58:54.3400420Z ##[group]Run ./mobile/tools/build-android.sh ./mobile assembleDebug assembleDebugAndroidTest
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:58:54.3401140Z [36;1m./mobile/tools/build-android.sh ./mobile assembleDebug assembleDebugAndroidTest[0m
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:58:54.3464433Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:58:54.3465098Z env:
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:58:54.3465426Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.16-8/x64
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:58:54.3465949Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.16-8/x64
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:58:54.3466362Z   MAVEN_ARGS: -ntp
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:58:54.3466728Z   HOYOUNG_ANDROID_TOOLS_DIR: /home/runner/work/_temp/hoyoung-android-tools
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:58:54.3467260Z   HOYOUNG_SEMANTIC_MODEL_DIR: /home/runner/work/_temp/hoyoung-semantic-model
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:58:54.3467659Z ##[endgroup]
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:58:54.4103370Z Android SDK: /home/runner/work/_temp/hoyoung-android-tools/sdk
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:58:54.4104396Z Java compiler: /home/runner/work/_temp/hoyoung-android-tools/jdk-17.0.16+8/bin/javac
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:58:54.4105802Z Gradle: /home/runner/work/_temp/hoyoung-android-tools/gradle-8.11.1/bin/gradle
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:58:55.0733058Z 
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:58:55.0734849Z Welcome to Gradle 8.11.1!
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:58:55.0735389Z 
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:58:55.0736614Z Here are the highlights of this release:
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:58:55.0744838Z  - Parallel load and store for Configuration Cache
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:58:55.0745857Z  - Java compilation errors at the end of the build output
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:58:55.0746594Z  - Consolidated report for warnings and deprecations
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:58:55.0747078Z 
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:58:55.0747515Z For more details see https://docs.gradle.org/8.11.1/release-notes.html
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:58:55.0747829Z 
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:58:55.1767240Z To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.11.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:58:56.2746105Z Daemon will be stopped at the end of the build 
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:59:29.4742399Z > Task :app:preBuild UP-TO-DATE
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:59:29.4765250Z > Task :app:preDebugBuild UP-TO-DATE
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:59:29.5718481Z > Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:59:29.5719617Z > Task :app:javaPreCompileDebug
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:59:32.7717757Z > Task :app:generateDebugResValues
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:59:32.7731878Z > Task :app:checkDebugAarMetadata
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:59:32.7755270Z > Task :app:mapDebugSourceSetPaths
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:59:32.7785336Z > Task :app:generateDebugResources
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:59:33.0745767Z > Task :app:packageDebugResources
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:59:33.4717231Z > Task :app:mergeDebugResources
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:59:33.9735486Z > Task :app:createDebugCompatibleScreenManifests
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:59:33.9749828Z > Task :app:extractDeepLinksDebug
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:59:34.0737043Z > Task :app:parseDebugLocalResources
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:59:34.1746378Z > Task :app:processDebugMainManifest
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:59:34.4717360Z > Task :app:processDebugManifest
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:59:34.4735946Z > Task :app:mergeDebugShaders
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:59:34.4736966Z > Task :app:compileDebugShaders NO-SOURCE
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:59:34.4737535Z > Task :app:generateDebugAssets UP-TO-DATE
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:59:34.4738209Z > Task :app:mergeDebugAssets
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:59:34.4738500Z > Task :app:processDebugManifestForPackage
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:59:34.9717522Z > Task :app:compressDebugAssets
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:59:34.9728125Z > Task :app:desugarDebugFileDependencies
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:59:34.9755707Z > Task :app:processDebugJavaRes NO-SOURCE
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:59:35.0716997Z > Task :app:processDebugResources
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:59:35.5725631Z > Task :app:mergeDebugJavaResource
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:59:44.3736673Z 
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:59:44.3765865Z Note: Some input files use or override a deprecated API.
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:59:44.3766560Z > Task :app:compileDebugJavaWithJavac
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:59:44.3767693Z Note: Recompile with -Xlint:deprecation for details.
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:59:57.5725080Z 
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T12:59:57.5749777Z > Task :app:dexBuilderDebug
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:05.1718727Z > Task :app:mergeDebugGlobalSynthetics
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:05.1719716Z > Task :app:checkDebugDuplicateClasses
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:05.6719164Z 
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:05.6740541Z > Task :app:configureCMakeDebug[arm64-v8a]
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:05.6742847Z [CXX5304] This version only understands SDK XML versions up to 3 but an SDK XML file of version 4 was encountered. This can happen if you use versions of Android Studio and the command-line tools that were released at different times.
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:05.6746482Z [CXX5304] This version only understands SDK XML versions up to 3 but an SDK XML file of version 4 was encountered. This can happen if you use versions of Android Studio and the command-line tools that were released at different times.
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:06.7725052Z 
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:06.7743089Z > Task :app:mergeExtDexDebug
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:06.7772532Z > Task :app:mergeLibDexDebug
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:07.1725379Z > Task :app:mergeProjectDexDebug
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0716512Z 
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0722599Z > Task :app:buildCMakeDebug[arm64-v8a]
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0724081Z C/C++: ninja: Entering directory `/home/runner/work/be3hyu/be3hyu/mobile/app/.cxx/Debug/2o5j2e24/arm64-v8a'
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0726124Z C/C++: In file included from /home/runner/work/be3hyu/be3hyu/mobile/app/src/main/cpp/ann_jni.cpp:4:
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0727932Z C/C++: In file included from /home/runner/work/be3hyu/be3hyu/mobile/app/src/main/cpp/ann_index.h:24:
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0730132Z C/C++: /home/runner/work/be3hyu/be3hyu/mobile/app/src/main/cpp/third_party/hnswlib/hnswlib.h:130:48: warning: unused parameter 'id' [-Wunused-parameter]
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0732067Z C/C++:   130 |     virtual bool operator()(hnswlib::labeltype id) { return true; }
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0752800Z C/C++:       |                                                ^
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0755195Z C/C++: In file included from /home/runner/work/be3hyu/be3hyu/mobile/app/src/main/cpp/ann_jni.cpp:4:
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0756472Z C/C++: In file included from /home/runner/work/be3hyu/be3hyu/mobile/app/src/main/cpp/ann_index.h:24:
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0759441Z C/C++: In file included from /home/runner/work/be3hyu/be3hyu/mobile/app/src/main/cpp/third_party/hnswlib/hnswlib.h:226:
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0760991Z C/C++: /home/runner/work/be3hyu/be3hyu/mobile/app/src/main/cpp/third_party/hnswlib/stop_condition.h:166:40: warning: unused parameter 'label' [-Wunused-parameter]
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0762504Z C/C++:   166 |     void add_point_to_result(labeltype label, const void *datapoint, dist_t dist) override {
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0763365Z C/C++:       |                                        ^
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0764861Z C/C++: /home/runner/work/be3hyu/be3hyu/mobile/app/src/main/cpp/third_party/hnswlib/stop_condition.h:175:45: warning: unused parameter 'label' [-Wunused-parameter]
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0766456Z C/C++:   175 |     void remove_point_from_result(labeltype label, const void *datapoint, dist_t dist) override {
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0767342Z C/C++:       |                                             ^
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0768250Z C/C++: /home/runner/work/be3hyu/be3hyu/mobile/app/src/main/cpp/third_party/hnswlib/stop_condition.h:175:82: warning: unused parameter 'dist' [-Wunused-parameter]
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0770343Z C/C++:   175 |     void remove_point_from_result(labeltype label, const void *datapoint, dist_t dist) override {
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0771397Z C/C++:       |                                                                                  ^
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0773066Z C/C++: /home/runner/work/be3hyu/be3hyu/mobile/app/src/main/cpp/third_party/hnswlib/stop_condition.h:234:40: warning: unused parameter 'label' [-Wunused-parameter]
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0775010Z C/C++:   234 |     void add_point_to_result(labeltype label, const void *datapoint, dist_t dist) override {
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0775968Z C/C++:       |                                        ^
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0777349Z C/C++: /home/runner/work/be3hyu/be3hyu/mobile/app/src/main/cpp/third_party/hnswlib/stop_condition.h:234:59: warning: unused parameter 'datapoint' [-Wunused-parameter]
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0779439Z C/C++:   234 |     void add_point_to_result(labeltype label, const void *datapoint, dist_t dist) override {
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0780380Z C/C++:       |                                                           ^
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0781738Z C/C++: /home/runner/work/be3hyu/be3hyu/mobile/app/src/main/cpp/third_party/hnswlib/stop_condition.h:234:77: warning: unused parameter 'dist' [-Wunused-parameter]
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0783398Z C/C++:   234 |     void add_point_to_result(labeltype label, const void *datapoint, dist_t dist) override {
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0784396Z C/C++:       |                                                                             ^
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0786120Z C/C++: /home/runner/work/be3hyu/be3hyu/mobile/app/src/main/cpp/third_party/hnswlib/stop_condition.h:238:45: warning: unused parameter 'label' [-Wunused-parameter]
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0787779Z C/C++:   238 |     void remove_point_from_result(labeltype label, const void *datapoint, dist_t dist) override {
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0788730Z C/C++:       |                                             ^
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0790059Z C/C++: /home/runner/work/be3hyu/be3hyu/mobile/app/src/main/cpp/third_party/hnswlib/stop_condition.h:238:64: warning: unused parameter 'datapoint' [-Wunused-parameter]
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0791765Z C/C++:   238 |     void remove_point_from_result(labeltype label, const void *datapoint, dist_t dist) override {
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0792734Z C/C++:       |                                                                ^
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0794057Z C/C++: /home/runner/work/be3hyu/be3hyu/mobile/app/src/main/cpp/third_party/hnswlib/stop_condition.h:238:82: warning: unused parameter 'dist' [-Wunused-parameter]
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0795881Z C/C++:   238 |     void remove_point_from_result(labeltype label, const void *datapoint, dist_t dist) override {
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0796889Z C/C++:       |                                                                                  ^
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0797845Z C/C++: In file included from /home/runner/work/be3hyu/be3hyu/mobile/app/src/main/cpp/ann_jni.cpp:4:
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0799034Z C/C++: In file included from /home/runner/work/be3hyu/be3hyu/mobile/app/src/main/cpp/ann_index.h:24:
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0800350Z C/C++: In file included from /home/runner/work/be3hyu/be3hyu/mobile/app/src/main/cpp/third_party/hnswlib/hnswlib.h:227:
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0802044Z C/C++: /home/runner/work/be3hyu/be3hyu/mobile/app/src/main/cpp/third_party/hnswlib/bruteforce.h:25:47: warning: unused parameter 's' [-Wunused-parameter]
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0803331Z C/C++:    25 |     BruteforceSearch(SpaceInterface <dist_t> *s)
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0803956Z C/C++:       |                                               ^
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0805503Z C/C++: /home/runner/work/be3hyu/be3hyu/mobile/app/src/main/cpp/third_party/hnswlib/bruteforce.h:64:64: warning: unused parameter 'replace_deleted' [-Wunused-parameter]
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0807150Z C/C++:    64 |     void addPoint(const void *datapoint, labeltype label, bool replace_deleted = false) {
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0808051Z C/C++:       |                                                                ^
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0809260Z C/C++: In file included from /home/runner/work/be3hyu/be3hyu/mobile/app/src/main/cpp/ann_jni.cpp:4:
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0810440Z C/C++: In file included from /home/runner/work/be3hyu/be3hyu/mobile/app/src/main/cpp/ann_index.h:24:
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0811734Z C/C++: In file included from /home/runner/work/be3hyu/be3hyu/mobile/app/src/main/cpp/third_party/hnswlib/hnswlib.h:228:
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0813404Z C/C++: /home/runner/work/be3hyu/be3hyu/mobile/app/src/main/cpp/third_party/hnswlib/hnswalg.h:74:45: warning: unused parameter 's' [-Wunused-parameter]
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0815041Z C/C++:    74 |     HierarchicalNSW(SpaceInterface<dist_t> *s) {
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0815677Z C/C++:       |                                             ^
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0817240Z C/C++: /home/runner/work/be3hyu/be3hyu/mobile/app/src/main/cpp/third_party/hnswlib/hnswalg.h:81:14: warning: unused parameter 'nmslib' [-Wunused-parameter]
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0818493Z C/C++:    81 |         bool nmslib = false,
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0818972Z C/C++:       |              ^
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0820145Z C/C++: /home/runner/work/be3hyu/be3hyu/mobile/app/src/main/cpp/third_party/hnswlib/hnswalg.h:507:21: warning: unused parameter 'data_point' [-Wunused-parameter]
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0821415Z C/C++:   507 |         const void *data_point,
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0821910Z C/C++:       |                     ^
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.0822360Z C/C++: 15 warnings generated.
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.2716850Z 
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:10.2722369Z > Task :app:configureCMakeDebug[x86_64]
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2716875Z 
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2745604Z > Task :app:buildCMakeDebug[x86_64]
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2747120Z C/C++: ninja: Entering directory `/home/runner/work/be3hyu/be3hyu/mobile/app/.cxx/Debug/2o5j2e24/x86_64'
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2775547Z C/C++: In file included from /home/runner/work/be3hyu/be3hyu/mobile/app/src/main/cpp/ann_jni.cpp:4:
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2795846Z C/C++: In file included from /home/runner/work/be3hyu/be3hyu/mobile/app/src/main/cpp/ann_index.h:24:
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2798246Z C/C++: /home/runner/work/be3hyu/be3hyu/mobile/app/src/main/cpp/third_party/hnswlib/hnswlib.h:130:48: warning: unused parameter 'id' [-Wunused-parameter]
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2799907Z C/C++:   130 |     virtual bool operator()(hnswlib::labeltype id) { return true; }
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2800821Z C/C++:       |                                                ^
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2801866Z C/C++: In file included from /home/runner/work/be3hyu/be3hyu/mobile/app/src/main/cpp/ann_jni.cpp:4:
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2803251Z C/C++: In file included from /home/runner/work/be3hyu/be3hyu/mobile/app/src/main/cpp/ann_index.h:24:
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2804957Z C/C++: In file included from /home/runner/work/be3hyu/be3hyu/mobile/app/src/main/cpp/third_party/hnswlib/hnswlib.h:226:
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2806928Z C/C++: /home/runner/work/be3hyu/be3hyu/mobile/app/src/main/cpp/third_party/hnswlib/stop_condition.h:166:40: warning: unused parameter 'label' [-Wunused-parameter]
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2808722Z C/C++:   166 |     void add_point_to_result(labeltype label, const void *datapoint, dist_t dist) override {
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2809775Z C/C++:       |                                        ^
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2811219Z C/C++: /home/runner/work/be3hyu/be3hyu/mobile/app/src/main/cpp/third_party/hnswlib/stop_condition.h:175:45: warning: unused parameter 'label' [-Wunused-parameter]
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2813109Z C/C++:   175 |     void remove_point_from_result(labeltype label, const void *datapoint, dist_t dist) override {
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2814216Z C/C++:       |                                             ^
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2816046Z C/C++: /home/runner/work/be3hyu/be3hyu/mobile/app/src/main/cpp/third_party/hnswlib/stop_condition.h:175:82: warning: unused parameter 'dist' [-Wunused-parameter]
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2817870Z C/C++:   175 |     void remove_point_from_result(labeltype label, const void *datapoint, dist_t dist) override {
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2819375Z C/C++:       |                                                                                  ^
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2820915Z C/C++: /home/runner/work/be3hyu/be3hyu/mobile/app/src/main/cpp/third_party/hnswlib/stop_condition.h:234:40: warning: unused parameter 'label' [-Wunused-parameter]
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2822673Z C/C++:   234 |     void add_point_to_result(labeltype label, const void *datapoint, dist_t dist) override {
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2823673Z C/C++:       |                                        ^
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2825310Z C/C++: /home/runner/work/be3hyu/be3hyu/mobile/app/src/main/cpp/third_party/hnswlib/stop_condition.h:234:59: warning: unused parameter 'datapoint' [-Wunused-parameter]
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2827103Z C/C++:   234 |     void add_point_to_result(labeltype label, const void *datapoint, dist_t dist) override {
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2828621Z C/C++:       |                                                           ^
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2830062Z C/C++: /home/runner/work/be3hyu/be3hyu/mobile/app/src/main/cpp/third_party/hnswlib/stop_condition.h:234:77: warning: unused parameter 'dist' [-Wunused-parameter]
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2831872Z C/C++:   234 |     void add_point_to_result(labeltype label, const void *datapoint, dist_t dist) override {
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2832953Z C/C++:       |                                                                             ^
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2834455Z C/C++: /home/runner/work/be3hyu/be3hyu/mobile/app/src/main/cpp/third_party/hnswlib/stop_condition.h:238:45: warning: unused parameter 'label' [-Wunused-parameter]
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2836454Z C/C++:   238 |     void remove_point_from_result(labeltype label, const void *datapoint, dist_t dist) override {
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2837536Z C/C++:       |                                             ^
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2838971Z C/C++: /home/runner/work/be3hyu/be3hyu/mobile/app/src/main/cpp/third_party/hnswlib/stop_condition.h:238:64: warning: unused parameter 'datapoint' [-Wunused-parameter]
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2840755Z C/C++:   238 |     void remove_point_from_result(labeltype label, const void *datapoint, dist_t dist) override {
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2843601Z C/C++:       |                                                                ^
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2845327Z C/C++: /home/runner/work/be3hyu/be3hyu/mobile/app/src/main/cpp/third_party/hnswlib/stop_condition.h:238:82: warning: unused parameter 'dist' [-Wunused-parameter]
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2847111Z C/C++:   238 |     void remove_point_from_result(labeltype label, const void *datapoint, dist_t dist) override {
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2848258Z C/C++:       |                                                                                  ^
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2849337Z C/C++: In file included from /home/runner/work/be3hyu/be3hyu/mobile/app/src/main/cpp/ann_jni.cpp:4:
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2850657Z C/C++: In file included from /home/runner/work/be3hyu/be3hyu/mobile/app/src/main/cpp/ann_index.h:24:
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2852100Z C/C++: In file included from /home/runner/work/be3hyu/be3hyu/mobile/app/src/main/cpp/third_party/hnswlib/hnswlib.h:227:
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2853899Z C/C++: /home/runner/work/be3hyu/be3hyu/mobile/app/src/main/cpp/third_party/hnswlib/bruteforce.h:25:47: warning: unused parameter 's' [-Wunused-parameter]
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2855474Z C/C++:    25 |     BruteforceSearch(SpaceInterface <dist_t> *s)
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2856243Z C/C++:       |                                               ^
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2857675Z C/C++: /home/runner/work/be3hyu/be3hyu/mobile/app/src/main/cpp/third_party/hnswlib/bruteforce.h:64:64: warning: unused parameter 'replace_deleted' [-Wunused-parameter]
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2859441Z C/C++:    64 |     void addPoint(const void *datapoint, labeltype label, bool replace_deleted = false) {
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2860448Z C/C++:       |                                                                ^
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2861523Z C/C++: In file included from /home/runner/work/be3hyu/be3hyu/mobile/app/src/main/cpp/ann_jni.cpp:4:
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2863118Z C/C++: In file included from /home/runner/work/be3hyu/be3hyu/mobile/app/src/main/cpp/ann_index.h:24:
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2864860Z C/C++: In file included from /home/runner/work/be3hyu/be3hyu/mobile/app/src/main/cpp/third_party/hnswlib/hnswlib.h:228:
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2867770Z C/C++: /home/runner/work/be3hyu/be3hyu/mobile/app/src/main/cpp/third_party/hnswlib/hnswalg.h:74:45: warning: unused parameter 's' [-Wunused-parameter]
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2869273Z C/C++:    74 |     HierarchicalNSW(SpaceInterface<dist_t> *s) {
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2870065Z C/C++:       |                                             ^
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2871442Z C/C++: /home/runner/work/be3hyu/be3hyu/mobile/app/src/main/cpp/third_party/hnswlib/hnswalg.h:81:14: warning: unused parameter 'nmslib' [-Wunused-parameter]
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2873125Z C/C++:    81 |         bool nmslib = false,
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2873771Z C/C++:       |              ^
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2875322Z C/C++: /home/runner/work/be3hyu/be3hyu/mobile/app/src/main/cpp/third_party/hnswlib/hnswalg.h:507:21: warning: unused parameter 'data_point' [-Wunused-parameter]
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2876757Z C/C++:   507 |         const void *data_point,
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2877446Z C/C++:       |                     ^
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2878100Z C/C++: 15 warnings generated.
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2878558Z 
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.2879302Z > Task :app:mergeDebugJniLibFolders
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.8717270Z > Task :app:mergeDebugNativeLibs
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.9717748Z > Task :app:validateSigningDebug
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:13.9775611Z > Task :app:writeDebugAppMetadata
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:14.0725669Z > Task :app:writeDebugSigningConfigVersions
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:14.1717811Z > Task :app:bundleDebugClassesToCompileJar
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:14.1718715Z > Task :app:preDebugAndroidTestBuild SKIPPED
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:14.1719461Z > Task :app:javaPreCompileDebugAndroidTest
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:14.4717526Z > Task :app:stripDebugDebugSymbols
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:15.8718202Z > Task :app:checkDebugAndroidTestAarMetadata
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:15.8795273Z > Task :app:generateDebugAndroidTestResValues
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:15.8855322Z > Task :app:mapDebugAndroidTestSourceSetPaths
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:15.8905278Z > Task :app:generateDebugAndroidTestResources
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:15.8935477Z > Task :app:mergeDebugAndroidTestResources
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:16.0737757Z > Task :app:processDebugAndroidTestManifest
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:16.2716664Z > Task :app:processDebugAndroidTestResources
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:16.3729076Z > Task :app:packageDebug
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:16.3729517Z > Task :app:createDebugApkListingFileRedirect
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:16.3729850Z > Task :app:assembleDebug
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:18.0720941Z Note: Some input files use or override a deprecated API.
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:18.0745000Z 
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:18.0745749Z Note: Recompile with -Xlint:deprecation for details.
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:18.0775481Z > Task :app:compileDebugAndroidTestJavaWithJavac
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:18.0794973Z 
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:18.0835335Z > Task :app:mergeDebugAndroidTestShaders
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:18.0836070Z > Task :app:compileDebugAndroidTestShaders NO-SOURCE
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:18.0836764Z > Task :app:generateDebugAndroidTestAssets UP-TO-DATE
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:18.0837378Z > Task :app:mergeDebugAndroidTestAssets
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:18.0837919Z > Task :app:compressDebugAndroidTestAssets
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:18.0838533Z > Task :app:desugarDebugAndroidTestFileDependencies
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:18.8716506Z > Task :app:dexBuilderDebugAndroidTest
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:23.3717156Z > Task :app:processDebugAndroidTestJavaRes NO-SOURCE
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:23.3718202Z > Task :app:mergeDebugAndroidTestGlobalSynthetics
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:23.5750195Z > Task :app:checkDebugAndroidTestDuplicateClasses
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:23.5775405Z > Task :app:mergeDebugAndroidTestJavaResource
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:23.9716783Z > Task :app:mergeExtDexDebugAndroidTest
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:23.9736070Z > Task :app:mergeLibDexDebugAndroidTest
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:23.9765361Z > Task :app:mergeDebugAndroidTestJniLibFolders
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:23.9766691Z > Task :app:mergeDebugAndroidTestNativeLibs NO-SOURCE
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:23.9767992Z > Task :app:stripDebugAndroidTestDebugSymbols NO-SOURCE
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:23.9768826Z > Task :app:validateSigningDebugAndroidTest
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:23.9769644Z > Task :app:writeDebugAndroidTestSigningConfigVersions
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:23.9770453Z > Task :app:mergeProjectDexDebugAndroidTest
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:24.0730947Z > Task :app:packageDebugAndroidTest
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:24.0731500Z > Task :app:createDebugAndroidTestApkListingFileRedirect
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:24.0732277Z > Task :app:assembleDebugAndroidTest
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:24.1377995Z [Incubating] Problems report is available at: file:///home/runner/work/be3hyu/be3hyu/mobile/build/reports/problems/problems-report.html
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:24.1385869Z 
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:24.1386209Z BUILD SUCCESSFUL in 1m 29s
+explore (ko-tablet)	Build the exact debug and instrumentation APKs	2026-10-15T13:00:24.1386987Z 64 actionable tasks: 64 executed
+explore (ko-tablet)	Explore all areas on the independent real Android profile	﻿2026-10-15T13:00:24.2846947Z ##[group]Run python3 mobile/tools/run-explorer-matrix.py 'ko-tablet' --scope 'native-dispatch'
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:00:24.2847673Z [36;1mpython3 mobile/tools/run-explorer-matrix.py 'ko-tablet' --scope 'native-dispatch'[0m
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:00:24.2913127Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:00:24.2913472Z env:
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:00:24.2913768Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.16-8/x64
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:00:24.2914259Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.16-8/x64
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:00:24.2915062Z   MAVEN_ARGS: -ntp
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:00:24.2915400Z   HOYOUNG_ANDROID_TOOLS_DIR: /home/runner/work/_temp/hoyoung-android-tools
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:00:24.2916011Z   HOYOUNG_SEMANTIC_MODEL_DIR: /home/runner/work/_temp/hoyoung-semantic-model
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:00:24.2916450Z ##[endgroup]
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:10.7966203Z INSTRUMENTATION_STATUS: class=com.hoyoung.assistant.OfflineFixtureDeviceTest
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:10.7985342Z INSTRUMENTATION_STATUS: current=1
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:10.7986169Z INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:10.7986784Z INSTRUMENTATION_STATUS: numtests=1
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:10.7987253Z INSTRUMENTATION_STATUS: stream=
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:10.7987931Z com.hoyoung.assistant.OfflineFixtureDeviceTest:
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:10.7988764Z INSTRUMENTATION_STATUS: test=actualConnectivityManagerReportsNoActiveOrRemainingNetworks
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:10.7989538Z INSTRUMENTATION_STATUS_CODE: 1
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:10.7990701Z INSTRUMENTATION_STATUS: stream=HOYOUNG_FIXTURE_FRAMEWORK_OFFLINE actual-activeNetwork=null; actual-getAllNetworks=0; five-consecutive-observations; no-production-bypass
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:10.7991862Z 
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:10.7992468Z INSTRUMENTATION_STATUS_CODE: 0
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:10.7993122Z INSTRUMENTATION_STATUS: class=com.hoyoung.assistant.OfflineFixtureDeviceTest
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:10.7993802Z INSTRUMENTATION_STATUS: current=1
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:10.7994295Z INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:10.7995063Z INSTRUMENTATION_STATUS: numtests=1
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:10.7995526Z INSTRUMENTATION_STATUS: stream=.
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:10.7996280Z INSTRUMENTATION_STATUS: test=actualConnectivityManagerReportsNoActiveOrRemainingNetworks
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:10.7997099Z INSTRUMENTATION_STATUS_CODE: 0
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:10.7997499Z INSTRUMENTATION_RESULT: stream=
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:10.7997752Z 
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:10.7997876Z Time: 0.811
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:10.7998042Z 
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:10.7998151Z OK (1 test)
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:10.7998313Z 
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:10.7998329Z 
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:10.7998479Z INSTRUMENTATION_CODE: -1
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:10.7998703Z 
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:10.7999759Z HOYOUNG_EXPLORER_PROFILE {"profile": "ko-tablet", "api": 35, "requestedPixels": [1280, 800], "requestedFontScale": 1.2, "requestedLocale": "ko-KR", "configurationMustBeReadFromActualTestProof": true}
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:16.8676369Z INSTRUMENTATION_STATUS: class=com.hoyoung.assistant.WorkNativeDispatchDeviceTest
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:16.8677522Z INSTRUMENTATION_STATUS: current=1
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:16.8678287Z INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:16.8679159Z INSTRUMENTATION_STATUS: numtests=1
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:16.8680891Z INSTRUMENTATION_STATUS: stream=
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:16.8681583Z com.hoyoung.assistant.WorkNativeDispatchDeviceTest:
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:16.8682826Z INSTRUMENTATION_STATUS: test=reviewedCreationReconnectsAndNewRequestReachesNativeChatExactlyOnce
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:16.8683950Z INSTRUMENTATION_STATUS_CODE: 1
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:16.8686355Z INSTRUMENTATION_STATUS: stream=HOYOUNG_NATIVE_DISPATCH production-runtime-controller-journal; reviewed-orphan-retired; final-native-authorization; one-submit; one-native-chat-reply; no-old-replay; actual-Android35-WebView; offline-synthetic-provider
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:16.8688562Z 
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:16.8688796Z INSTRUMENTATION_STATUS_CODE: 0
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:16.8689641Z INSTRUMENTATION_STATUS: class=com.hoyoung.assistant.WorkNativeDispatchDeviceTest
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:16.8690583Z INSTRUMENTATION_STATUS: current=1
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:16.8691570Z INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:16.8692189Z INSTRUMENTATION_STATUS: numtests=1
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:16.8692747Z INSTRUMENTATION_STATUS: stream=.
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:16.8693760Z INSTRUMENTATION_STATUS: test=reviewedCreationReconnectsAndNewRequestReachesNativeChatExactlyOnce
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:16.8695088Z INSTRUMENTATION_STATUS_CODE: 0
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:16.8695623Z INSTRUMENTATION_RESULT: stream=
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:16.8695949Z 
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:16.8696108Z Time: 5.87
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:16.8696326Z 
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:16.8696490Z OK (1 test)
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:16.8696700Z 
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:16.8696714Z 
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:16.8696912Z INSTRUMENTATION_CODE: -1
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:16.8697223Z 
+explore (ko-tablet)	Explore all areas on the independent real Android profile	2026-10-15T13:01:16.9468289Z 
+explore (ko-tablet)	Post Set up Java 17	﻿2026-10-15T13:01:18.4360866Z Post job cleanup.
+explore (ko-tablet)	Post Check out source	﻿2026-10-15T13:01:18.5214160Z Post job cleanup.
+explore (ko-tablet)	Post Check out source	2026-10-15T13:01:18.6072098Z [command]/usr/bin/git version
+explore (ko-tablet)	Post Check out source	2026-10-15T13:01:18.6114077Z git version 2.55.0
+explore (ko-tablet)	Post Check out source	2026-10-15T13:01:18.6159755Z Temporarily overriding HOME='/home/runner/work/_temp/2c8fc9eb-aca8-4e14-af17-d2462a5cd9df' before making global git config changes
+explore (ko-tablet)	Post Check out source	2026-10-15T13:01:18.6161190Z Adding repository directory to the temporary git global config as a safe directory
+explore (ko-tablet)	Post Check out source	2026-10-15T13:01:18.6166156Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/be3hyu/be3hyu
+explore (ko-tablet)	Post Check out source	2026-10-15T13:01:18.6198672Z Removing SSH command configuration
+explore (ko-tablet)	Post Check out source	2026-10-15T13:01:18.6205359Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+explore (ko-tablet)	Post Check out source	2026-10-15T13:01:18.6249890Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+explore (ko-tablet)	Post Check out source	2026-10-15T13:01:18.6566681Z Removing HTTP extra header
+explore (ko-tablet)	Post Check out source	2026-10-15T13:01:18.6577103Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+explore (ko-tablet)	Post Check out source	2026-10-15T13:01:18.6622270Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+explore (ko-tablet)	Post Check out source	2026-10-15T13:01:18.6911895Z Removing includeIf entries pointing to credentials config files
+explore (ko-tablet)	Post Check out source	2026-10-15T13:01:18.6918453Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+explore (ko-tablet)	Post Check out source	2026-10-15T13:01:18.6955584Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+explore (ko-tablet)	Complete job	﻿2026-10-15T13:01:18.7405447Z Cleaning up orphan processes
+explore (ko-tablet)	Complete job	2026-10-15T13:01:18.7742346Z Terminate orphan process: pid (3188) (adb)
+explore (ko-tablet)	Complete job	2026-10-15T13:01:18.7767974Z Terminate orphan process: pid (3700) (emulator)

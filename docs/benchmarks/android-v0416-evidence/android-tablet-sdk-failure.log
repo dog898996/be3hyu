@@ -1,0 +1,62 @@
+explore (ko-tablet)	Install official API 35 AOSP emulator	﻿2026-10-15T12:50:38.0878072Z ##[group]Run set -euo pipefail
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:50:38.0878451Z [36;1mset -euo pipefail[0m
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:50:38.0878704Z [36;1mpython3 - <<'PY'[0m
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:50:38.0878938Z [36;1mimport os[0m
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:50:38.0879154Z [36;1mimport pathlib[0m
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:50:38.0879384Z [36;1mimport subprocess[0m
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:50:38.0879605Z [36;1m[0m
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:50:38.0879917Z [36;1msdk = pathlib.Path(os.environ['HOYOUNG_ANDROID_TOOLS_DIR']) / 'sdk'[0m
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:50:38.0880387Z [36;1msdkmanager = sdk / 'cmdline-tools/15859902/bin/sdkmanager'[0m
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:50:38.0880851Z [36;1mif not sdkmanager.is_file() or not os.access(sdkmanager, os.X_OK):[0m
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:50:38.0881314Z [36;1m    raise SystemExit('Pinned official sdkmanager is missing.')[0m
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:50:38.0881780Z [36;1mcommand = [str(sdkmanager), '--sdk_root=' + str(sdk), '--channel=0'][0m
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:50:38.0882168Z [36;1maccepted = subprocess.run([0m
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:50:38.0882469Z [36;1m    [*command, '--licenses'], input='y\n' * 100,[0m
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:50:38.0882835Z [36;1m    text=True, capture_output=True)[0m
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:50:38.0883130Z [36;1mif accepted.returncode:[0m
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:50:38.0883707Z [36;1m    print(accepted.stdout)[0m
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:50:38.0884039Z [36;1m    print(accepted.stderr)[0m
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:50:38.0884330Z [36;1m    raise SystemExit(accepted.returncode)[0m
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:50:38.0884630Z [36;1msubprocess.run([[0m
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:50:38.0884921Z [36;1m    *command, '--install', 'platform-tools', 'emulator',[0m
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:50:38.0885344Z [36;1m    'system-images;android-35;default;x86_64'], check=True)[0m
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:50:38.0885674Z [36;1mPY[0m
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:50:38.0885966Z [36;1m"$HOYOUNG_ANDROID_TOOLS_DIR/sdk/emulator/emulator" -accel-check[0m
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:50:38.0947375Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:50:38.0947714Z env:
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:50:38.0948014Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.16-8/x64
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:50:38.0948527Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.16-8/x64
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:50:38.0948932Z   MAVEN_ARGS: -ntp
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:50:38.0949259Z   HOYOUNG_ANDROID_TOOLS_DIR: /home/runner/work/_temp/hoyoung-android-tools
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:50:38.0949755Z   HOYOUNG_SEMANTIC_MODEL_DIR: /home/runner/work/_temp/hoyoung-semantic-model
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:50:38.0950135Z ##[endgroup]
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:50:39.8282633Z WARNING: The SDK Manager CLI tool (sdkmanager) is deprecated. Use Android CLI instead.
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:50:39.8284620Z The 'android' binary can also be found in the cmdline-tools directory, and 'android sdk' is the replacement for 'sdkmanager'.
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:50:39.8286461Z To learn more about the Android CLI and how to use it, see the documentation (https://d.android.com/tools/agents/android-cli)
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:50:39.8287510Z 
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:50:40.6156810Z Loading package information...                                                  
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:50:40.7130196Z Loading local repository...                                                     
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:50:40.7132273Z [                                       ] 3% Loading local repository...        
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:50:40.7234997Z [                                       ] 3% Fetch remote repository...         
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:50:41.1218062Z [=                                      ] 3% Fetch remote repository...         
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:50:41.1933945Z [=                                      ] 4% Fetch remote repository...         
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:50:41.2340446Z [=                                      ] 5% Fetch remote repository...         
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:50:41.2803176Z [==                                     ] 5% Fetch remote repository...         
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:50:41.3744892Z [==                                     ] 6% Fetch remote repository...         
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:50:41.4174721Z [==                                     ] 7% Fetch remote repository...         
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:50:41.4194094Z [==                                     ] 7% Computing updates...               
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:50:41.4344242Z [===                                    ] 8% Computing updates...               
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:50:41.4479993Z [===                                    ] 10% Computing updates...              
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:50:44.8347576Z [===                                    ] 10% Installing Android Emulator       
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:54:55.8843849Z [===                                    ] 10% Downloading emulator-linux_x64-164
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:54:55.8851643Z [========                               ] 21% Downloading emulator-linux_x64-164
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:54:56.0338536Z [========                               ] 21% Unzipping...                      
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:54:56.0339809Z Warning: An error occurred while preparing SDK package Android Emulator: Error reading Zip content from a SeekableByteChannel.
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:54:56.0340487Z                                                                                 
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:54:56.1187234Z Traceback (most recent call last):
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:54:56.1187716Z   File "<stdin>", line 17, in <module>
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:54:56.1188212Z   File "/usr/lib/python3.12/subprocess.py", line 571, in run
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:54:56.1194624Z     raise CalledProcessError(retcode, process.args,
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:54:56.1196542Z subprocess.CalledProcessError: Command '['/home/runner/work/_temp/hoyoung-android-tools/sdk/cmdline-tools/15859902/bin/sdkmanager', '--sdk_root=/home/runner/work/_temp/hoyoung-android-tools/sdk', '--channel=0', '--install', 'platform-tools', 'emulator', 'system-images;android-35;default;x86_64']' returned non-zero exit status 1.
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:54:56.1335424Z [========                               ] 21% Unzipping...                      
+explore (ko-tablet)	Install official API 35 AOSP emulator	2026-10-15T12:54:56.1349588Z ##[error]Process completed with exit code 1.

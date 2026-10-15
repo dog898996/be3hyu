@@ -1,0 +1,176 @@
+{
+  "version": "0.4.16",
+  "productionCommit": "e190d256d3d219b0d452aed88d5d8ad138df6963",
+  "reportedFailure": {
+    "installedVersion": "0.4.15",
+    "webReady": true,
+    "lastCode": "conversation_journal_unavailable",
+    "requestPhase": "idle",
+    "acceptedRequests": 0
+  },
+  "native": {
+    "tests": 99,
+    "failures": 0,
+    "suites": [
+      {
+        "name": "com.hoyoung.assistant.runtime.WorkReplyRecoveryTest",
+        "tests": "8",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.hoyoung.assistant.web.WorkConversationRecoveryTest",
+        "tests": "7",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.hoyoung.assistant.web.WorkConversationJournalTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.hoyoung.assistant.runtime.AssistantRuntimeTest",
+        "tests": "56",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.hoyoung.assistant.web.WorkStartupRecoveryTest",
+        "tests": "25",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      }
+    ]
+  },
+  "reproduction": {
+    "beforeTests": 4,
+    "beforeFailures": 3,
+    "visibleNoticeAssertionStrengthened": true,
+    "retiredCreationClaimedDeleted": false,
+    "unknownOutcomeAutomaticallyRetried": false
+  },
+  "android": {
+    "status": "completed",
+    "run": "https://github.com/dog898996/be3hyu/actions/runs/38737665972",
+    "scope": "production runtime-controller-journal-WebView dispatch and native reply publication",
+    "fixture": "Offline synthetic provider page, production native classes and actual API35 WebView",
+    "profiles": [
+      "ko-compact",
+      "ko-large-text",
+      "en-rotation",
+      "ko-tablet",
+      "ko-background"
+    ],
+    "attempt1": [
+      {
+        "profile": "ko-compact",
+        "nativeRoundTripVerified": true,
+        "passCounters": [
+          "1",
+          "1"
+        ]
+      },
+      {
+        "profile": "ko-large-text",
+        "nativeRoundTripVerified": true,
+        "passCounters": [
+          "1",
+          "1"
+        ]
+      },
+      {
+        "profile": "en-rotation",
+        "nativeRoundTripVerified": true,
+        "passCounters": [
+          "1",
+          "1"
+        ]
+      },
+      {
+        "profile": "ko-tablet",
+        "nativeRoundTripVerified": false,
+        "passCounters": []
+      },
+      {
+        "profile": "ko-background",
+        "nativeRoundTripVerified": true,
+        "passCounters": [
+          "1",
+          "1"
+        ]
+      }
+    ],
+    "retryReason": "Only ko-tablet rerun after an SDK zip download failure before product tests. Attempt 2 log contains ko-tablet; the four other successful profile results are retained from attempt 1 at the same code commit.",
+    "tests": 5,
+    "failures": 0,
+    "finalResults": [
+      {
+        "profile": "ko-compact",
+        "passed": true,
+        "nativeRoundTripTests": 1,
+        "offlinePrerequisiteTests": 1,
+        "attempt": 1
+      },
+      {
+        "profile": "ko-large-text",
+        "passed": true,
+        "nativeRoundTripTests": 1,
+        "offlinePrerequisiteTests": 1,
+        "attempt": 1
+      },
+      {
+        "profile": "en-rotation",
+        "passed": true,
+        "nativeRoundTripTests": 1,
+        "offlinePrerequisiteTests": 1,
+        "attempt": 1
+      },
+      {
+        "profile": "ko-tablet",
+        "passed": true,
+        "nativeRoundTripTests": 1,
+        "offlinePrerequisiteTests": 1,
+        "attempt": 2
+      },
+      {
+        "profile": "ko-background",
+        "passed": true,
+        "nativeRoundTripTests": 1,
+        "offlinePrerequisiteTests": 1,
+        "attempt": 1
+      }
+    ]
+  },
+  "earlierAndroidRun": {
+    "run": "https://github.com/dog898996/be3hyu/actions/runs/38736732123",
+    "commit": "c6916cc923750090923ebe29a8de84c98e7f697c",
+    "failureReason": "New native integration fixture read stale readiness before posted navigation started; it now waits for the specific old reservation retirement receipt as well as readiness.",
+    "compatibilityTests": 65,
+    "compatibilityFailures": 0,
+    "newFixtureTests": 5,
+    "newFixtureFailures": 5
+  },
+  "browser": {
+    "status": "not_rerun",
+    "reason": "No browser JavaScript changed. Actual Android production WebView regressions were used instead."
+  },
+  "paidModelRequests": 0,
+  "physicalGalaxyVerified": false,
+  "liveAuthenticatedChatGPTVerified": false,
+  "evidenceFiles": [
+    "android-v0416-evidence/native.log",
+    "android-v0416-evidence/before.log",
+    "android-v0416-evidence/build.log",
+    "android-v0416-evidence/android-initial.log",
+    "android-v0416-evidence/android-roundtrip-attempt1.log",
+    "android-v0416-evidence/android-tablet-sdk-failure.log",
+    "android-v0416-evidence/android-final.log"
+  ]
+}
