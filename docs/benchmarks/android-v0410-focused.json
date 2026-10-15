@@ -1,0 +1,82 @@
+{
+  "version": "0.4.10",
+  "date": "2026-10-15",
+  "browser": {
+    "command": "node --test mobile/tests/work-bridge.test.mjs",
+    "tests": 95,
+    "passed": 95,
+    "failed": 0,
+    "captureFixtureSource": "miuuyy/codex-chatgpt-web@0b6087c5307c7a58adda9c420358f3f70d2035f5",
+    "reportedFailuresReproducedBeforeFix": [
+      "collapsed user prompt is not acknowledged after route transition",
+      "CodeMirror hoyoung block does not yield a structured envelope"
+    ]
+  },
+  "native": {
+    "tests": 37,
+    "passed": 37,
+    "classes": [
+      {
+        "name": "com.hoyoung.assistant.MainActivityRoutingProfileTest",
+        "tests": "8",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.hoyoung.assistant.runtime.AssistantRuntimePreparingSteeringTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.hoyoung.assistant.runtime.WorkReplyRecoveryTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.hoyoung.assistant.web.WorkStartupRecoveryTest",
+        "tests": "23",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      }
+    ]
+  },
+  "coverage": [
+    "collapsed user message UI excluded from exact prompt matching",
+    "first Work route adoption and follow-up request",
+    "project conversation route alias",
+    "open account menu does not hide transcript evidence",
+    "manual provider submission during native authorization cannot replay",
+    "CodeMirror whole hoyoung JSON and incomplete-line rejection",
+    "settled request-bound prior reply recovery with no provider resubmission",
+    "old action and memory proposals archived without execution or promotion",
+    "privacy changes prevent publishing old reply text",
+    "failed or hanging page can retry without reload per tap",
+    "replacement renderer mounts into the visible Work tab",
+    "recovery followed by next queued message",
+    "settings simplification preserves goals and optimization; stale settings cannot overwrite chat updates"
+  ],
+  "paidModelCalls": 0,
+  "physicalGalaxyTested": false,
+  "liveAuthenticatedProviderTested": false,
+  "longTermMemorySimulationRepeated": false,
+  "limitations": [
+    "Browser tests use captured public DOM plus synthetic localized variations, not a live account.",
+    "An old version that did not save the conversation ID needs the owner to open the prior Work reply once.",
+    "Exact request-bound completed protocol replies can be recovered; ambiguous, incomplete, or malformed results remain unresolved."
+  ],
+  "packagedAssetsMatchSource": {
+    "work-bridge.js": true,
+    "work-session-cleanup.js": true,
+    "cos-dom-adapter.js": true,
+    "vendor/chat-on-steroids/chatgpt-dom.js": true,
+    "vendor/chat-on-steroids/LICENSE": true,
+    "vendor/chat-on-steroids/source.json": true
+  },
+  "releaseBuild": "assembleRelease and lintVitalRelease passed"
+}

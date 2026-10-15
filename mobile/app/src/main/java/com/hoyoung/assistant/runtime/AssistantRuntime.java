@@ -933,6 +933,47 @@ public final class AssistantRuntime {
         }
     }
 
+    public synchronized JSONArray recoverableWebRequestIds() {
+        JSONArray ids=new JSONArray();
+        if(active!=null||completing||restoringBackup||storageRecoveryBlocked||!receiptsReady)return ids;
+        JSONArray requests=store.uncertainRequests(100);
+        for(int i=0;i<requests.length();i++)ids.put(requests.optJSONObject(i).optString("external_id"));
+        return ids;
+    }
+
+    /** Archive a provider reply already on screen. Recovery cannot replay tools or
+     * promote old memory proposals after their original admission context was lost. */
+    public synchronized boolean recoverObservedWebReply(JSONObject proof) {
+        if(active!=null||completing||restoringBackup||storageRecoveryBlocked||!receiptsReady
+                ||proof==null||!proof.optBoolean("ok")||!proof.optBoolean("captureComplete"))return false;
+        String id=proof.optString("requestId"),raw=proof.optString("envelope");
+        JSONObject request=store.getRequestByExternalId(id),envelope=parseEnvelope(raw,id);
+        if(request==null||!"uncertain".equals(request.optString("status"))||envelope==null
+                ||!proof.optString("conversationId").matches("[A-Za-z0-9_-]{8,128}"))return false;
+        boolean contextCurrent=false;
+        try {contextCurrent=store.getPrivacyLedger().fingerprint().equals(store.getSetting("requestPrivacyFingerprint:"+id,""))
+                    &&identity.snapshot().optString("revision").equals(store.getSetting("dispatchIdentityRevision:"+id,""));}
+        catch(IOException unavailable){ }
+        final boolean release=contextCurrent;
+        final String message=envelope.optString("message");
+        final boolean deferred=(envelope.optJSONArray("actions")!=null&&envelope.optJSONArray("actions").length()>0)
+                ||(envelope.optJSONArray("memories")!=null&&envelope.optJSONArray("memories").length()>0)
+                ||envelope.has("reaction")||envelope.has("routing");
+        JSONObject saved=store.withTransaction(db->{
+            store.markRequest(request.optLong("id"),deferred?"blocked":"completed",raw);
+            JSONObject answer=release&&!message.trim().isEmpty()?store.addMessage("assistant","[복구한 이전 답변]\n"+message,id):null;
+            store.recordEvent("work_reply_recovered",object("requestId",id,"conversationId",proof.optString("conversationId"),
+                    "originalRetained",true,"replyReleased",answer!=null,"nativeEffectsReplayed",false,"memoryProposalsPromoted",false,"proposalsDeferred",deferred));
+            return answer;
+        });
+        releaseRequestResources(id,"blocked_memory");recomputeUncertainty();webStateAt=0;
+        if(saved!=null)publishReply(saved,"reply");
+        store.putSetting("runtime.lastCode","reply_recovered");
+        if(!release)localNotice("reply_recovered_context_changed","이전 Work 답변 원문을 회수했어. 그동안 바뀐 기억·설정과 섞이지 않도록 결과 기록에 보관했어.");
+        else if(deferred)localNotice("reply_recovered_proposals_held","이전 답변을 가져왔어. 포함된 작업·기억 변경 제안은 원문에 보관했고 다시 실행하지 않았어. 이어갈 내용은 대화로 알려줘.");
+        changed();return true;
+    }
+
     public synchronized void resolveUncertain(long id) {
         JSONObject request = store.getRequest(id);
         if (request == null || !"uncertain".equals(request.optString("status"))) throw new IllegalArgumentException("확인되지 않은 작업만 정리할 수 있어.");

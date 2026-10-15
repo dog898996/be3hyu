@@ -3,9 +3,10 @@
 (function () {
   'use strict';
   window.HoyoungDeleteConversation = async function (id) {
-    const path = '/c/' + id;
+    const path = location.pathname;
+    const target = /^\/(?:g\/[^/]+\/)?c\/([A-Za-z0-9_-]{8,128})\/?$/.exec(path);
     const result = code => ({ type: 'session_cleanup', code, conversationId: id });
-    if (!/^[A-Za-z0-9_-]{8,128}$/.test(id) || location.origin !== 'https://chatgpt.com' || location.pathname !== path)
+    if (!/^[A-Za-z0-9_-]{8,128}$/.test(id) || location.origin !== 'https://chatgpt.com' || !target || target[1] !== id)
       return result('conversation_cleanup_wrong_target');
     const visible = node => !!node && node.isConnected && !!node.getClientRects().length
       && !node.closest('[hidden],[inert],[aria-hidden="true"]') && getComputedStyle(node).visibility !== 'hidden';

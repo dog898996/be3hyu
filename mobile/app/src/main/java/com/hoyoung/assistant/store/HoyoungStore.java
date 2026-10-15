@@ -586,6 +586,15 @@ public final class HoyoungStore extends SQLiteOpenHelper {
         return one(getReadableDatabase(), "SELECT * FROM requests WHERE id = ?", new String[]{String.valueOf(id)});
     }
 
+    public synchronized JSONObject getRequestByExternalId(String id) {
+        return one(getReadableDatabase(), "SELECT * FROM requests WHERE external_id = ?", new String[]{id});
+    }
+
+    public synchronized JSONArray uncertainRequests(int limit) {
+        return queryRows(getReadableDatabase(), "SELECT * FROM requests WHERE status = 'uncertain' ORDER BY id DESC LIMIT ?",
+                new String[]{String.valueOf(boundedLimit(limit, 100))});
+    }
+
     public synchronized boolean hasUncertainRequests() { return hasUncertainRequests(-1); }
 
     public synchronized boolean hasUncertainRequests(long excludeId) {

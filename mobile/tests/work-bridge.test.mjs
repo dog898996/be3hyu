@@ -6,6 +6,8 @@ import { chromium } from 'playwright';
 
 const asset = name => readFile(new URL('../app/src/main/assets/' + name, import.meta.url), 'utf8');
 const source = '(function(){\n' + await asset('vendor/chat-on-steroids/chatgpt-dom.js') + '\n' + await asset('cos-dom-adapter.js') + '\n})();\n' + await asset('work-session-cleanup.js') + '\n' + await asset('work-bridge.js');
+const capturedWorkTurn=await readFile(new URL('./fixtures/chatgpt-power-complete.html',import.meta.url),'utf8');
+const capturedCodeMirror=await readFile(new URL('./fixtures/chatgpt-codemirror-reply-2026-10-11.html',import.meta.url),'utf8');
 let browser;
 before(async () => { browser = await chromium.launch({ headless: true, executablePath: '/usr/bin/chromium', args: ['--no-sandbox'] }); });
 after(async () => { await browser?.close(); });
@@ -1412,8 +1414,112 @@ test('reinjection does not create another worker; route changes invalidate outst
     await page.evaluate(() => history.pushState({}, '', '/c/other-conversation'));
     await advance(page, 500);
     assert.equal((await events(page)).some(event => event.type === 'error' && event.code === 'navigation_uncertain'), true);
-    assert.equal((await send(page, { requestId: 'new-id' })).code, 'bridge_stale');
+    assert.equal((await send(page, { requestId: 'new-id' })).code, 'dispatch_uncertain');
+    assert.equal((await page.evaluate(()=>window.HoyoungWorkBridge.connectionDiagnostics())).route.disposed,false);
     assert.equal(await page.evaluate(() => window.clicks), 1);
+  });
+});
+
+test('captured Work turn with collapse controls survives first route transition and a second owner message',async()=>{
+  await pageFixture(async page=>{
+    await connect(page);assert.equal((await send(page,{text:'원문을\n정확히 **기억**해 줘.'})).ok,true);await advance(page,2600);
+    assert.equal((await events(page)).filter(event=>event.type==='accepted').length,1);
+    assert.equal((await events(page)).filter(event=>event.type==='completed').length,1);
+    assert.equal((await inspect(page)).state.workSelected,true);
+    assert.equal((await send(page,{requestId:'second-owner',text:'그리고 이것도 기억해'})).ok,true);await advance(page,2600);
+    assert.equal((await events(page)).filter(event=>event.type==='completed').length,2);assert.equal(await page.evaluate(()=>window.clicks),2);
+  },{setup:`document.querySelector('form').addEventListener('submit',()=>{
+    const text=window.lastGroup.querySelector('[data-search-result-target]').textContent;
+    const holder=document.createElement('div');holder.innerHTML=${JSON.stringify(capturedWorkTurn)};
+    const group=holder.firstElementChild;group.setAttribute('data-turn-key','captured-'+window.clicks);
+    const content=group.querySelector('[data-search-result-target]');content.innerHTML='';
+    const prose=document.createElement('div');prose.style.whiteSpace='pre-wrap';prose.textContent=text;content.append(prose);
+    const more=document.createElement('button');more.textContent='더 보기';more.setAttribute('aria-expanded','false');content.append(more);
+    window.lastGroup.replaceWith(group);window.lastGroup=group;document.querySelector('[data-testid="stop-button"]').hidden=true;
+    document.querySelector('#work').hidden=true;
+  });`});
+});
+
+test('captured CodeMirror hoyoung reply yields exact JSON rather than language or copy controls',async()=>{
+  await pageFixture(async page=>{
+    await send(page);await advance(page,300);
+    await page.evaluate(({html,json})=>{
+      const answer=window.answer('');const holder=document.createElement('div');holder.innerHTML=html;
+      const body=holder.querySelector('[data-markdown-text-style="assistant-message"]');body.querySelector('h1').remove();body.querySelector('ul').remove();
+      const editor=body.querySelector('.cm-content');editor.dataset.language='hoyoung';editor.innerHTML='';
+      for(const text of json.split('\n')){const line=document.createElement('div');line.className='cm-line';line.textContent=text;editor.append(line);}
+      body.querySelector('[data-markdown-copy="exclude"] .truncate').textContent='hoyoung';
+      answer.querySelector('.markdown').replaceWith(body);
+    },{html:capturedCodeMirror,json:controlEnvelope});await advance(page,2600);
+    const completed=(await events(page)).find(event=>event.type==='completed');assert.ok(completed);
+    assert.equal(completed.structuredEnvelope,controlEnvelope);
+  });
+});
+
+test('virtualized CodeMirror code waits for all lines before completing or recovering',async()=>{
+  await pageFixture(async page=>{
+    await send(page);await advance(page,300);
+    await page.evaluate(json=>{
+      const answer=window.answer('');const markdown=answer.querySelector('.markdown');
+      markdown.innerHTML='<div data-markdown-copy="code-block"><div class="cm-content" data-language="hoyoung"><div class="cm-line"></div></div><div class="cm-gap"></div></div>';
+      markdown.querySelector('.cm-line').textContent=json;
+    },controlEnvelope);await advance(page,2600);
+    assert.equal((await events(page)).filter(event=>event.type==='completed').length,0);
+    const recovery=await page.evaluate(()=>window.HoyoungWorkBridge.recoverResponse(['request-001']));assert.equal(recovery.ok,false);
+    await page.evaluate(()=>document.querySelector('.cm-gap').remove());await advance(page,2600);
+    const completed=(await events(page)).find(event=>event.type==='completed');assert.ok(completed);assert.equal(completed.structuredEnvelope,controlEnvelope);
+  });
+});
+
+test('owned Work route aliases and an open account menu do not lose a received answer',async()=>{
+  await pageFixture(async page=>{
+    await connect(page);await send(page);await advance(page,300);
+    await page.evaluate(()=>{
+      history.replaceState({},'','/g/project-fixture/c/owned-fixture-123');
+      document.querySelector('#turns').setAttribute('aria-hidden','true');
+      document.querySelector('#work').hidden=true;window.answer('메뉴를 열어도 답변 원문은 수집돼');
+    });await advance(page,2600);
+    assert.equal((await events(page)).filter(event=>event.type==='completed').length,1);
+    assert.equal((await inspect(page)).state.conversationId,'owned-fixture-123');
+    assert.equal((await inspect(page)).state.workSelected,true);assert.equal(await page.evaluate(()=>window.clicks),1);
+  });
+});
+
+test('a mismatched user turn cannot be accepted by ignoring collapse controls or matching only a prefix',async()=>{
+  await pageFixture(async page=>{
+    await send(page);await advance(page,31000);
+    assert.equal((await events(page)).filter(event=>event.type==='accepted').length,0);
+    assert.equal((await inspect(page)).code,'conversation_changed');
+    assert.equal(await page.evaluate(()=>window.clicks),1);
+  },{setup:`document.querySelector('form').addEventListener('submit',()=>{const text=window.lastGroup.querySelector('[data-search-result-target]');text.append(document.createTextNode(' 이건 다른 요청'));const more=document.createElement('button');more.textContent='더 보기';text.append(more);});`});
+});
+
+test('recovering a completed reply after navigation is read-only, settled, request-bound and cannot replay send',async()=>{
+  await pageFixture(async page=>{
+    await send(page);await advance(page,300);
+    await page.evaluate(()=>history.pushState({},'','/c/unrelated-history'));await advance(page,300);
+    await page.evaluate(()=>history.pushState({},'','/c/owned-fixture-123'));
+    await renderedCodeAnswer(page,controlEnvelope);await advance(page,300);
+    assert.equal((await page.evaluate(()=>window.HoyoungWorkBridge.recoverResponse(['wrong-request']))).ok,false);
+    assert.equal((await page.evaluate(()=>window.HoyoungWorkBridge.recoverResponse(['request-one']))).code,'reply_recovery_settling');
+    await advance(page,2200);const proof=await page.evaluate(()=>window.HoyoungWorkBridge.recoverResponse(['request-one']));
+    assert.equal(proof.ok,true);assert.equal(proof.envelope,controlEnvelope);assert.equal(proof.conversationId,'owned-fixture-123');
+    assert.equal(await page.evaluate(()=>window.clicks),1);
+    assert.equal(await page.evaluate(()=>window.HoyoungWorkBridge.adoptRecoveredResponse('request-one','owned-fixture-123')),true);
+    assert.equal((await inspect(page)).activeRequestId,null);
+    assert.equal((await send(page)).code,'duplicate_request');assert.equal(await page.evaluate(()=>window.clicks),1);
+  });
+});
+
+test('recovery rejects edited or ambiguous response captures and waits for the final reply',async()=>{
+  await pageFixture(async page=>{
+    await send(page);await advance(page,300);await renderedCodeAnswer(page,controlEnvelope);
+    const recover=()=>page.evaluate(()=>window.HoyoungWorkBridge.recoverResponse(['request-one']));
+    assert.equal((await recover()).code,'reply_recovery_settling');
+    await advance(page,1000);await page.evaluate(()=>document.querySelector('pre code').textContent+=' ');
+    assert.equal((await recover()).code,'reply_recovery_settling');
+    await page.evaluate(()=>{const other=window.lastGroup.cloneNode(true);other.setAttribute('data-turn-key','duplicate-rendered-response');document.querySelector('#turns').append(other);});
+    await advance(page,2200);assert.equal((await recover()).code,'reply_recovery_ambiguous');assert.equal(await page.evaluate(()=>window.clicks),1);
   });
 });
 

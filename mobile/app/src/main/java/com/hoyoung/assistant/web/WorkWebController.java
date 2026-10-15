@@ -71,9 +71,11 @@ public final class WorkWebController implements AssistantRuntime.Transport {
     private String script;
     private final WorkConversationJournal conversations;
     private boolean cleanupRunning;
+    private boolean recoveringReply;
     private ValueCallback<Uri[]> fileCallback;
     private String currentOrigin = "";
     private String pageLoadFailure = "";
+    private boolean pageAwaitingFinish;
     private final java.util.concurrent.ExecutorService downloads = java.util.concurrent.Executors.newSingleThreadExecutor();
     private final java.util.concurrent.ExecutorService responseCaptures = java.util.concurrent.Executors.newSingleThreadExecutor();
     private final java.util.concurrent.ExecutorService attachmentPreparation = java.util.concurrent.Executors.newSingleThreadExecutor();
@@ -105,7 +107,7 @@ public final class WorkWebController implements AssistantRuntime.Transport {
 
     public WebView getView() {
         if (view == null) {
-            if (ownerRecoveryRequired || !canAutomaticallyOpen(runtime.state())) {
+            if (!canOpenForInspection(runtime.state())) {
                 publishUnavailableState("work_recovery_review_required", false, 0, null);
                 scheduleSafetyWait();
                 throw new IllegalStateException("기존 Work 결과 확인이나 원문 복구가 끝나야 연결 화면을 새로 열 수 있어.");
@@ -134,7 +136,7 @@ public final class WorkWebController implements AssistantRuntime.Transport {
     private void attemptStart() {
         if (conversations.blocked()) { publishUnavailableState("conversation_journal_unreadable", false, 0, null); return; }
         if (view != null && started) return;
-        if (ownerRecoveryRequired || !canAutomaticallyOpen(runtime.state())) {
+        if (!canOpenForInspection(runtime.state())) {
             publishUnavailableState("work_recovery_review_required", false, 0, null);
             scheduleSafetyWait(); return;
         }
@@ -145,7 +147,7 @@ public final class WorkWebController implements AssistantRuntime.Transport {
         try { destination = getView(); }
         catch (RuntimeException | LinkageError alreadyReported) { return; }
         // Recheck after construction/configuration and immediately before URL load.
-        if (ownerRecoveryRequired || !canAutomaticallyOpen(runtime.state())) {
+        if (!canOpenForInspection(runtime.state())) {
             publishUnavailableState("work_recovery_review_required", false, 0, null); scheduleSafetyWait(); return;
         }
         try {
@@ -164,6 +166,18 @@ public final class WorkWebController implements AssistantRuntime.Transport {
                 || !"idle".equals(state.optString("activePhase"))) return false;
         Object active = state.opt("activeRequestId");
         return active == JSONObject.NULL || active instanceof String && ((String) active).isEmpty();
+    }
+
+    static boolean canReadRecovery(JSONObject state) {
+        if(state==null||!state.optBoolean("receiptIndexReady")||!state.optBoolean("uncertaintyBlocked")
+                ||state.optBoolean("restoringBackup")||state.optBoolean("storageRecoveryBlocked")
+                ||!"idle".equals(state.optString("activePhase")))return false;
+        Object active=state.opt("activeRequestId");
+        return active==JSONObject.NULL||active instanceof String&&((String)active).isEmpty();
+    }
+
+    private boolean canOpenForInspection(JSONObject state) {
+        return canReadRecovery(state)||!ownerRecoveryRequired&&canAutomaticallyOpen(state);
     }
 
     /** Preparing owns a frozen route but has not crossed the JavaScript send boundary. */
@@ -225,14 +239,25 @@ public final class WorkWebController implements AssistantRuntime.Transport {
     }
 
     private void publishLoadingState() {
+        watchPageLoad();
         JSONObject state = new JSONObject();
         try { state.put("loading", true).put("authenticated", JSONObject.NULL).put("workSelected", false)
             .put("temporary", false).put("busy", true).put("quota", false).put("ready", false); } catch (Exception ignored) { }
         emitState(state, "page_loading");
     }
 
+    private void watchPageLoad() {
+        pageAwaitingFinish=true;WebView target=view;int epoch=documentEpoch;
+        main.postDelayed(()->{
+            if(view!=target||documentEpoch!=epoch||!pageAwaitingFinish||!pageLoadFailure.isEmpty())return;
+            pageAwaitingFinish=false;loaded=false;pageLoadFailure="page_load_timeout";
+            emitActiveTransportError("WORK_PAGE_LOAD_TIMEOUT");
+            publishUnavailableState(pageLoadFailure,false,0,null);
+        },30_000);
+    }
+
     private void discardView(WebView discarded) {
-        if (discarded == view) { view = null; loaded = false; started = false; currentOrigin = ""; advanceDocumentEpoch(); }
+        if (discarded == view) { view = null; loaded = false; started = false; pageAwaitingFinish=false; currentOrigin = ""; advanceDocumentEpoch(); }
         if (fileCallback != null) {
             ValueCallback<Uri[]> callback = fileCallback; fileCallback = null;
             try { callback.onReceiveValue(null); } catch (RuntimeException | LinkageError ignored) { }
@@ -325,6 +350,7 @@ public final class WorkWebController implements AssistantRuntime.Transport {
                 if (loaded) emitActiveTransportError("WORK_DOCUMENT_REPLACED");
                 loaded = false;
                 currentOrigin = url; pageLoadFailure = "";
+                watchPageLoad();
                 JSONObject state = new JSONObject();
                 try { state.put("loading", true).put("workSelected", false).put("temporary", false).put("authenticated", JSONObject.NULL); } catch (Exception ignored) { }
                 emitState(state, "page_loading");
@@ -332,6 +358,7 @@ public final class WorkWebController implements AssistantRuntime.Transport {
             @Override public void onPageFinished(WebView v, String url) {
                 if (v != view) return;
                 try {
+                pageAwaitingFinish=false;
                 if (!pageLoadFailure.isEmpty()) { publishUnavailableState(pageLoadFailure, false, 0, null); return; }
                 documentEverLoaded = true;
                 startupRetry.reset();
@@ -342,7 +369,7 @@ public final class WorkWebController implements AssistantRuntime.Transport {
                     String restore = conversations.id().isEmpty() ? "" : "\nwindow.HoyoungWorkBridge.restoreOwnedConversation(" + JSONObject.quote(conversations.id()) + ");";
                     v.evaluateJavascript(script + restore, ignored -> {
                         if (v != view || !loaded || epoch != documentEpoch) return;
-                        if (conversations.cleaning()) runConversationCleanup(); else connect();
+                        if (conversations.cleaning()) runConversationCleanup(); else inspect(true);
                     });
                 } else if (loaded) publishUnavailableState("bridge_script_unavailable", false, 0, null);
                 else publishUnavailableState("authentication_required", false, 0, null);
@@ -350,12 +377,12 @@ public final class WorkWebController implements AssistantRuntime.Transport {
             }
             @Override public void onReceivedError(WebView v, WebResourceRequest request, android.webkit.WebResourceError error) {
                 if (v != view || !request.isForMainFrame()) return;
-                loaded = false; emitActiveTransportError("WORK_PAGE_LOAD_FAILED");
+                pageAwaitingFinish=false; loaded = false; emitActiveTransportError("WORK_PAGE_LOAD_FAILED");
                 pageLoadFailure = "page_load_failed"; publishUnavailableState(pageLoadFailure, false, 0, null);
             }
             @Override public void onReceivedHttpError(WebView v, WebResourceRequest request, android.webkit.WebResourceResponse response) {
                 if (v != view || !request.isForMainFrame()) return;
-                loaded = false; emitActiveTransportError("WORK_PAGE_HTTP_ERROR");
+                pageAwaitingFinish=false; loaded = false; emitActiveTransportError("WORK_PAGE_HTTP_ERROR");
                 pageLoadFailure = "page_http_" + response.getStatusCode(); publishUnavailableState(pageLoadFailure, false, 0, null);
             }
             @Override public boolean onRenderProcessGone(WebView v, RenderProcessGoneDetail detail) {
@@ -413,7 +440,30 @@ public final class WorkWebController implements AssistantRuntime.Transport {
 
     @Override public void inspect() { inspect(false); }
 
-    public void connect() { inspect(true); }
+    /** Explicit owner retry. Loading failure is not an already-running connection. */
+    public void connect() {
+        main.post(() -> {
+            JSONObject state=runtime.state();
+            if(view==null && canAutomaticallyOpen(state)) {
+                ownerRecoveryRequired=false;startupRetry.reset();cancelStartupRetry();
+            }
+            if(view!=null&&loaded&&state.optBoolean("quotaBlocked")&&canAutomaticallyOpen(state)) {
+                manualRetryCheck();return;
+            }
+            if(view!=null && !loaded && !pageLoadFailure.isEmpty()
+                    && (canAutomaticallyOpen(state)||canReadRecovery(state))) {
+                String retryUrl=currentOrigin;
+                if(!isAllowedBrowserOrigin(Uri.parse(retryUrl)))
+                    retryUrl=conversations.id().isEmpty()?HOME_URL:HOME_URL+"c/"+conversations.id();
+                // Clear before queuing navigation: repeated taps cannot reload again.
+                pageLoadFailure="";advanceDocumentEpoch();publishLoadingState();
+                try {view.loadUrl(retryUrl);started=true;}
+                catch(RuntimeException|LinkageError failure){startupFailed(failure);}
+                return;
+            }
+            inspect(true);
+        });
+    }
 
     /** Fresh read-only snapshot: copying diagnostics must not open menus or send a request. */
     public void readConnectionDiagnostics(ValueCallback<JSONObject> callback) {
@@ -452,8 +502,9 @@ public final class WorkWebController implements AssistantRuntime.Transport {
 
     private void inspect(boolean prepareConnection) {
         main.post(() -> {
-            if (view == null || !loaded) return;
+            if (view == null || !loaded) {if(prepareConnection)attemptStart();return;}
             if (conversations.cleaning() || conversations.blocked()) { publishUnavailableState("conversation_cleanup_pending", false, 0, null); return; }
+            if(canReadRecovery(runtime.state())&&runtime.recoverableWebRequestIds().length()>0) {recoverRenderedReply();return;}
             final JSONObject preferences;
             try { preferences = bridgePreferences(); }
             catch (Exception invalidPreferences) { emitState(new JSONObject(), "unsupported_preferences"); return; }
@@ -473,6 +524,31 @@ public final class WorkWebController implements AssistantRuntime.Transport {
                 } catch (Exception ignored) { emitError("BRIDGE_INSPECTION_INVALID", null); }
             }); } catch (RuntimeException | LinkageError failure) { startupFailed(failure); }
         });
+    }
+
+    private void recoverRenderedReply() {
+        if(recoveringReply||view==null||!loaded)return;
+        JSONArray ids=runtime.recoverableWebRequestIds();if(ids.length()==0)return;
+        recoveringReply=true;final WebView target=view;final int epoch=documentEpoch;
+        Runnable timeout=()->{if(view==target&&documentEpoch==epoch)recoveringReply=false;};main.postDelayed(timeout,5_000);
+        try {target.evaluateJavascript("window.HoyoungWorkBridge && window.HoyoungWorkBridge.recoverResponse ? JSON.stringify(window.HoyoungWorkBridge.recoverResponse("+ids+")) : null",raw->{
+            main.removeCallbacks(timeout);
+            if(view!=target||!loaded||documentEpoch!=epoch)return;
+            recoveringReply=false;
+            if(!canReadRecovery(runtime.state()))return;
+            try {
+                JSONObject proof=decodeResult(raw),state=proof.optJSONObject("state");String code=proof.optString("code","reply_recovery_open_conversation");
+                if(state!=null)emitState(state,code);
+                if("reply_recovery_settling".equals(code)) {main.postDelayed(()->{if(view==target&&loaded&&documentEpoch==epoch)recoverRenderedReply();},2_100);return;}
+                if(!proof.optBoolean("ok"))return;
+                String request=proof.optString("requestId"),conversation=proof.optString("conversationId");
+                if(!conversations.accept(request,conversation)||!runtime.recoverObservedWebReply(proof))return;
+                ownerRecoveryRequired=false;
+                target.evaluateJavascript("window.HoyoungWorkBridge.adoptRecoveredResponse("+JSONObject.quote(request)+","+JSONObject.quote(conversation)+")",ignored->{
+                    if(view==target&&loaded&&documentEpoch==epoch)inspect(true);
+                });
+            } catch(Exception invalid) {publishUnavailableState("reply_recovery_open_conversation",false,0,null);}
+        });} catch(RuntimeException failure) {main.removeCallbacks(timeout);recoveringReply=false;}
     }
 
     public void selectWork() {
@@ -805,6 +881,7 @@ public final class WorkWebController implements AssistantRuntime.Transport {
 
     /** Main-thread document boundary; worker ordering preserves received bytes before closure. */
     private void advanceDocumentEpoch() {
+        recoveringReply = false;
         int nextEpoch = ++documentEpoch;
         responseCaptures.execute(() -> {
             if (nextEpoch <= captureDocumentEpoch) return;
@@ -1069,8 +1146,11 @@ public final class WorkWebController implements AssistantRuntime.Transport {
 
     public void manualRetryCheck() {
         main.post(() -> {
-            if (view == null || !loaded) { runtime.localNotice("retry_connection_missing", "Work 연결을 먼저 확인해 줘."); return; }
-            try { view.evaluateJavascript("window.HoyoungWorkBridge && window.HoyoungWorkBridge.prepareOwnerRetry ? JSON.stringify(window.HoyoungWorkBridge.prepareOwnerRetry()) : null", raw -> {
+            JSONObject state=runtime.state();
+            if(view==null||!loaded||canReadRecovery(state)||!state.optBoolean("quotaBlocked")){connect();return;}
+            WebView target=view;int epoch=documentEpoch;
+            try { target.evaluateJavascript("window.HoyoungWorkBridge && window.HoyoungWorkBridge.prepareOwnerRetry ? JSON.stringify(window.HoyoungWorkBridge.prepareOwnerRetry()) : null", raw -> {
+                if(view!=target||!loaded||documentEpoch!=epoch)return;
                 try {
                     JSONObject receipt = decodeResult(raw);
                     if (receipt.optBoolean("ok")) { runtime.confirmQuotaRecovery(); inspect(); }

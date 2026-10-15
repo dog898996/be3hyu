@@ -106,6 +106,31 @@ public final class WorkStartupRecoveryTest {
         advance(30_000);assertEquals(1,view.urlLoads);
     }
 
+    @Test public void ownerReconnectAfterLoadFailureReloadsTheSamePageOnlyOnceDespiteRepeatedTaps() throws Exception {
+        List<RecordingView> views=new ArrayList<>();WorkWebController controller=controller(c->{RecordingView v=new RecordingView(c);views.add(v);return v;});
+        controller.start();idle();RecordingView view=views.get(0);WebViewClient client=view.getWebViewClient();
+        client.onPageStarted(view,"https://chatgpt.com/c/retry-owned-123",null);
+        field(WorkWebController.class,"pageLoadFailure").set(controller,"page_load_failed");
+        for(int i=0;i<6;i++)controller.connect();idle();
+        assertEquals(2,view.urlLoads);assertEquals("https://chatgpt.com/c/retry-owned-123",view.lastUrl);
+        assertEquals("page_loading",runtime.state().optString("readinessCode"));
+        assertEquals(1,views.size());assertTrue(view.scripts.stream().noneMatch(script->script.contains("HoyoungWorkBridge.send(")));
+        field(WorkWebController.class,"pageLoadFailure").set(controller,"page_http_429");
+        controller.manualRetryCheck();idle();assertEquals(3,view.urlLoads);
+    }
+
+    @Test public void hangingPageBecomesRetryableAndARecreatedDocumentDoesNotKeepTheOldRecoveryFlight() throws Exception {
+        List<RecordingView> views=new ArrayList<>();WorkWebController controller=controller(c->{RecordingView v=new RecordingView(c);views.add(v);return v;});
+        controller.start();idle();RecordingView view=views.get(0);advance(30_001);
+        assertEquals("page_load_timeout",runtime.state().optString("readinessCode"));
+        controller.connect();controller.connect();idle();assertEquals(2,view.urlLoads);
+        field(WorkWebController.class,"recoveringReply").setBoolean(controller,true);
+        view.getWebViewClient().onPageStarted(view,"https://chatgpt.com/",null);
+        assertFalse(field(WorkWebController.class,"recoveringReply").getBoolean(controller));
+        view.getWebViewClient().onPageFinished(view,"https://accounts.google.com/");
+        advance(30_001);assertEquals("authentication_required",runtime.state().optString("readinessCode"));
+    }
+
     @Test public void repeatedStartsUseOneMonotonicOneFiveThirtySixtySecondBackoff() throws Exception {
         runtime.receive("대기 원문은 startup 실패해도 보존", new JSONArray());
         int[] calls = {0}; WorkWebController controller = controller(c -> { calls[0]++; throw new IllegalStateException("Injected missing provider"); });
@@ -156,7 +181,7 @@ public final class WorkStartupRecoveryTest {
             assertFalse(WorkWebController.canAutomaticallyOpen(blocked));
     }
 
-    @Test public void rendererLossKeepsTheAcceptedOutcomeUnknownAndRequiresExplicitRecoveryEvenAfterOwnerAbandons() throws Exception {
+    @Test public void rendererLossAllowsReadOnlyRecoveryWithoutResubmittingTheAcceptedRequest() throws Exception {
         List<RecordingView> views = new ArrayList<>();
         WorkWebController controller = controller(c -> { RecordingView result = new RecordingView(c); views.add(result); return result; });
         controller.start(); idle(); RecordingView originalView = views.get(0); WebViewClient client = originalView.getWebViewClient();
@@ -168,10 +193,37 @@ public final class WorkStartupRecoveryTest {
         assertNull(controller.getExistingView()); assertTrue(runtime.state().optBoolean("uncertaintyBlocked"));
         assertEquals("uncertain", store.getRequest(original.getLong("id")).getString("status"));
         assertEquals("이미 접수된 원문", store.getRequest(original.getLong("id")).getString("text"));
-        controller.start(); idle(); advance(120_000); assertEquals(1, views.size());
-        runtime.abandonUncertain(original.getLong("id")); controller.start(); idle(); assertEquals(1, views.size());
-        controller.openTemporary(); idle(); assertEquals(2, views.size()); assertEquals(1, views.get(1).urlLoads);
+        controller.start(); idle(); advance(120_000); assertEquals(2, views.size());
+        assertEquals("uncertain",store.getRequest(original.getLong("id")).optString("status"));
+        assertTrue(views.get(1).scripts.stream().noneMatch(script->script.contains("HoyoungWorkBridge.send(")));
+        runtime.abandonUncertain(original.getLong("id")); controller.start(); idle(); assertEquals(2, views.size());
+        controller.openTemporary(); idle(); assertEquals(2, views.size()); assertEquals(2, views.get(1).urlLoads);
         assertTrue(client.onRenderProcessGone(originalView, detail())); assertSame(views.get(1), controller.getExistingView());
+    }
+
+    @Test public void reconnectReadsAnUncertainReplyAndImportsItWithoutSendingOrChangingModels() throws Exception {
+        List<RecordingView> views=new ArrayList<>();
+        WorkWebController controller=controller(c->{RecordingView v=new RecordingView(c);views.add(v);return v;});
+        ready();JSONObject request=runtime.receive("이미 보낸 메시지",new JSONArray());String id=request.getString("external_id");
+        ((WorkConversationJournal)field(WorkWebController.class,"conversations").get(controller)).begin(id);
+        runtime.onWebEvent(object("type","error","code","navigation_uncertain","requestId",id,"mayHaveBeenAccepted",true));
+        assertTrue(WorkWebController.canReadRecovery(runtime.state()));
+        assertFalse(WorkWebController.canAutomaticallySelectPreferences(runtime.state()));
+        JSONObject restoring=new JSONObject(runtime.state().toString()).put("restoringBackup",true);
+        assertFalse(WorkWebController.canReadRecovery(restoring));
+        controller.connect();idle();assertEquals(1,views.size());markLoaded(controller);
+        RecordingView view=views.get(0);controller.connect();idle();
+        assertTrue(view.scripts.get(view.scripts.size()-1).contains("recoverResponse("));
+        view.callbacks.get(view.callbacks.size()-1).onReceiveValue(JSONObject.quote(object("ok",false,"code","reply_recovery_settling","state",readyState()).toString()));
+        advance(2_101);
+        String envelope=object("protocol","hoyoung.v1","requestId",id,"message","회수된 답변","status","completed").toString();
+        JSONObject proof=object("ok",true,"code","reply_recovered","captureComplete",true,"requestId",id,"conversationId","owned-recovery-123","envelope",envelope,"state",readyState());
+        view.callbacks.get(view.callbacks.size()-1).onReceiveValue(JSONObject.quote(proof.toString()));
+        assertEquals("completed",store.getRequest(request.getLong("id")).getString("status"));
+        assertFalse(runtime.state().optBoolean("uncertaintyBlocked"));
+        assertTrue(store.listMessages(20).toString().contains("회수된 답변"));
+        assertTrue(view.scripts.stream().anyMatch(script->script.contains("adoptRecoveredResponse(")));
+        assertTrue(view.scripts.stream().noneMatch(script->script.contains("HoyoungWorkBridge.send(")||script.contains("ensurePreferences(")));
     }
 
     @Test public void anInitialNeverLoadedRendererLossRetriesWithoutDiscardingQueuedOwnerInput() throws Exception {
@@ -381,11 +433,12 @@ public final class WorkStartupRecoveryTest {
         RuntimeException javascriptFailure;
         LinkageError javascriptLinkageFailure;
         int destroyCalls, urlLoads;
+        String lastUrl="";
         final List<ValueCallback<String>> callbacks = new ArrayList<>();
         final List<String> scripts = new ArrayList<>();
         RecordingView(Context context) { super(context); }
         @Override public WebSettings getSettings() { if (settingsFailure) throw new IllegalStateException("Injected settings failure"); return super.getSettings(); }
-        @Override public void loadUrl(String url) { urlLoads++; /* Robolectric fixture does not navigate or call an account. */ }
+        @Override public void loadUrl(String url) { urlLoads++; lastUrl=url; /* Robolectric fixture does not navigate or call an account. */ }
         @Override public void destroy() { destroyCalls++; if (destroyFailure) throw new IllegalStateException("Injected teardown failure"); super.destroy(); }
         @Override public void evaluateJavascript(String script, ValueCallback<String> callback) {
             scripts.add(script);

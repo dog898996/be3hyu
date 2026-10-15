@@ -20,9 +20,13 @@ public final class WorkConnectionStatus {
             case "composer_has_draft" -> "아래 ChatGPT 웹 입력창에 작성 중인 내용이 있어 자동 선택을 멈췄어. 그 내용을 보관하거나 지운 뒤 연결을 누르면 돼. 앱 대화의 대기 메시지는 그대로 남아 있어.";
             case "composer_has_attachments" -> "아래 웹 입력창의 첨부가 있어 자동 선택을 멈췄어. 첨부를 정리한 뒤 연결을 누르면 돼.";
             case "composer_unverified" -> "Work의 새 메시지 입력창을 찾지 못했어. 열린 메뉴를 닫고 입력창이 보이게 해 줘.";
-            case "page_load_failed", "page_http_403", "page_http_429" -> "웹 페이지를 불러오지 못했어. 네트워크나 웹에 표시된 인증·한도 안내를 확인해 줘.";
+            case "page_load_failed", "page_http_403", "page_http_429", "page_load_timeout" -> "웹 페이지를 불러오지 못했어. ‘연결’을 누르면 같은 페이지를 다시 열어. 이미 보낸 요청은 재전송하지 않아. 인증·한도 안내가 보이면 해당 안내를 확인해 줘.";
             case "ready" -> "연결 준비가 됐어. 대화 탭의 전송 대기 메시지는 순서대로 처리해.";
             case "busy" -> "Work의 진행 중인 응답을 기다리고 있어.";
+            case "conversation_changed" -> "웹에서 다른 대화로 이동했어. 기존 호영 대화로 돌아오면 답변을 확인할 수 있어. 이미 보낸 요청은 다시 전송하지 않아.";
+            case "reply_recovery_open_conversation" -> "이전 요청의 답변을 찾고 있어. 아래 웹의 대화 목록에서 답변이 나온 호영 대화를 열고 ‘연결’을 눌러 줘. 새 요청 없이 받은 답변만 가져와.";
+            case "reply_recovery_settling" -> "이미 나온 답변을 읽고 있어. 확인되면 앱 대화로 가져올게.";
+            case "reply_recovered" -> "이전 답변을 회수했어. 대화 탭에서 확인할 수 있어.";
             case "page_loading" -> "Work 페이지를 불러오는 중이야.";
             default -> "아래 웹 상태를 확인한 뒤 ‘연결’을 눌러 줘. 계속 막히면 ⋯에서 ‘연결 진단 복사’를 보내 줘.";
         };
@@ -35,6 +39,7 @@ public final class WorkConnectionStatus {
             case "authentication_unverified" -> "계정 표시 확인 필요 · 연결을 눌러 줘";
             case "connection_preparing" -> "계정과 Work 확인 중…";
             case "page_loading" -> "ChatGPT를 여는 중…";
+            case "page_load_failed", "page_load_timeout", "page_http_403", "page_http_429" -> "페이지를 못 불러왔어 · 연결로 재시도";
             case "work_unverified", "work_control_unverified" -> "Work 선택 필요 · 연결을 눌러 줘";
             case "speed_unverified", "model_unverified", "effort_unverified", "preference_selection_unverified" -> "자동 선택 확인 필요 · 연결을 눌러 줘";
             case "preference_selection_pending" -> "모델·속도 적용 중…";
@@ -44,6 +49,10 @@ public final class WorkConnectionStatus {
             case "conversation_cleanup_pending" -> "이전 대화 정리 중…";
             case "conversation_cleanup_unconfirmed", "conversation_cleanup_control_unverified", "conversation_cleanup_confirmation_unverified", "conversation_cleanup_wrong_target", "conversation_journal_unreadable", "conversation_ownership_unresolved" -> "대화 기록 확인 필요 · ⋯에서 복구";
             case "busy" -> "작업 중 · 추가 지시는 대화에서";
+            case "conversation_changed" -> "기존 호영 대화로 돌아가면 확인할 수 있어";
+            case "reply_recovery_open_conversation" -> "답변이 나온 이전 대화를 열어 줘 · 연결로 가져오기";
+            case "reply_recovery_settling" -> "이전 답변을 가져오는 중…";
+            case "reply_recovered" -> "이전 답변을 가져왔어";
             case "quota_exhausted" -> "사용 한도 대기 · 메시지는 저장돼";
             default -> "연결 확인 필요 · ⋯에서 상세 보기";
         };

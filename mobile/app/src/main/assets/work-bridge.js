@@ -18,6 +18,9 @@
 
   const initialDocument = document;
   let initialPath = location.pathname;
+  let suspendedRoute = false;
+  let disposalReason = '';
+  let recoveryObservation = null;
   let ownedConversationId = '';
   let verifiedWorkSession = false;
   let cleaningSession = false;
@@ -837,8 +840,8 @@
     const selectedChat = selectable.some(element => /^(?:Chat|Chat mode|채팅|Chat 모드)$/i.test(labelOf(element)) && selected(element));
     if (selectedChat) verifiedWorkSession = false;
     if (selectedWork && location.pathname === initialPath) verifiedWorkSession = true;
-    const ownPath = ownedConversationId && location.pathname === '/c/' + ownedConversationId;
-    const fresh = location.pathname === '/' && turnSnapshot().turns.length === 0;
+    const ownPath = ownedConversationId && conversationIdFromPath(location.pathname) === ownedConversationId;
+    const fresh = !ownedConversationId && location.pathname === '/' && turnSnapshot().turns.length === 0;
     return Object.assign({
       authenticated: authentication.authenticated,
       authenticationEvidence: authentication.authenticationEvidence,
@@ -857,6 +860,7 @@
   }
   function readyCode(state, preferences) {
     if (disposed || document !== initialDocument || location.origin !== 'https://chatgpt.com') return 'unsupported_origin';
+    if (suspendedRoute) return 'conversation_changed';
     if (!preferenceConfigurationValid) return 'unsupported_preferences';
     if (state.authenticated === false) return 'authentication_required';
     if (connectionPreparation && connectionPreparation.enabled && /^(?:pending|account_opening|work_selecting)$/.test(connectionPreparation.status)) return 'connection_preparing';
@@ -900,6 +904,9 @@
     }:null;
     // Only control structure and model-picker labels. Never serialize the page,
     // draft body, transcript, input values, storage, tokens, or account menu.
+    snapshot.route={path:location.pathname.slice(0,256),observedPath:initialPath.slice(0,256),suspended:suspendedRoute,disposed,disposalReason};
+    const turns=turnSnapshot();snapshot.transcript={valid:turns.valid,users:turns.turns.filter(turn=>turn.role==='user').length,assistants:turns.turns.filter(turn=>turn.role==='assistant').length,
+      matchingActiveUsers:active?turns.turns.filter(turn=>turn.role==='user'&&!active.baseline.has(turn.id)&&turn.text===normalized(active.text)).length:0};
     snapshot.dom={editor:shape(editor),rawComposer:shape(raw),editorWasWrapper:!!raw&&raw!==editor,
       triggers:triggers.slice(0,3).map(trigger=>({...shape(trigger),linked:normalized(trigger.getAttribute('aria-controls')).split(' ')
         .filter(Boolean).slice(0,3).map(id=>shape(document.getElementById(id)))})),
@@ -908,6 +915,30 @@
     return snapshot;
   }
 
+  function conversationIdFromPath(path) {
+    const match=/^\/(?:g\/[^/]+\/)?c\/([A-Za-z0-9_-]{8,128})\/?$/.exec(path);
+    return match?match[1]:'';
+  }
+  function authoredUserText(element) {
+    // A collapsed user bubble includes translated Show more/Copy controls.
+    // Compare the authored subtree, never the controls or a loose text prefix.
+    const clone=element.cloneNode(true);
+    for(const control of clone.querySelectorAll('button,[role="button"],script,style,svg,[hidden],[aria-hidden="true"],[data-markdown-copy="exclude"]'))control.remove();
+    for(const block of clone.querySelectorAll('br,div,p,li,ul,ol,blockquote,pre')) {
+      if(block.tagName==='BR')block.replaceWith(document.createTextNode('\n'));
+      else {block.before(document.createTextNode('\n'));block.after(document.createTextNode('\n'));}
+    }
+    return normalized(clone.textContent);
+  }
+  function transcriptRendered(element) {
+    if(!element||!element.isConnected)return false;
+    for(let node=element;node;node=node.parentElement) {
+      const style=getComputedStyle(node);
+      if(node.hidden||node.inert||style.display==='none'||/^(hidden|collapse)$/.test(style.visibility))return false;
+    }
+    return true; // Modal aria-hidden and off-screen/virtualized layout do not change authorship.
+  }
+  function transcriptAll(selector,root) {return Array.from((root||document).querySelectorAll(selector)).filter(transcriptRendered);}
   function turnSnapshot() {
     const turns = [];
     const known = new Set();
@@ -915,24 +946,27 @@
     let valid = true;
     for (const group of Array.from(document.querySelectorAll('[data-turn-key]'))) {
       if (group.parentElement && group.parentElement.closest('[data-turn-key]')) continue;
+      if(!transcriptRendered(group))continue; // Ignore retained, display:none pages from other conversations.
       const key = normalized(group.getAttribute('data-turn-key'));
       if (!key || groupKeys.has(key)) { valid = false; continue; }
       groupKeys.add(key);
       known.add('group:user:' + key); known.add('group:assistant:' + key);
-      const userRoots = all('[data-user-message-bubble]', group);
-      const assistantRoots = all('[data-conversation-role="assistant"], [data-chatgpt-agent-turn-start]', group)
-        .filter(element => !element.parentElement || !element.parentElement.closest('[data-conversation-role="assistant"]'));
+      const userRoots = transcriptAll('[data-user-message-bubble]', group);
+      const assistantSelector='[data-conversation-role="assistant"], [data-content-search-unit-key$=":assistant"], [data-chatgpt-search-unit-key$=":assistant"], [data-chatgpt-agent-turn-start]';
+      const assistantRoots = transcriptAll(assistantSelector, group)
+        .filter(element => !element.parentElement || !element.parentElement.closest(assistantSelector));
       if (userRoots.length > 1) valid = false;
       if (userRoots.length === 1) {
         const user = userRoots[0];
-        const content = all('[data-search-result-target]', user);
-        turns.push({ id: 'group:user:' + key, key, role: 'user', root: group, content: user, text: textOf(content.length === 1 ? content[0] : user) });
+        const content = transcriptAll('[data-search-result-target]', user);
+        turns.push({ id: 'group:user:' + key, key, role: 'user', root: group, content: user, text: authoredUserText(content.length === 1 ? content[0] : user) });
       }
       if (assistantRoots.length) turns.push({ id: 'group:assistant:' + key, key, role: 'assistant', root: group, content: assistantRoots[assistantRoots.length - 1] });
     }
     const legacyKeys = new Set();
     for (const turn of Array.from(document.querySelectorAll('[data-testid^="conversation-turn-"]'))) {
       if (turn.closest('[data-turn-key]') || turn.parentElement && turn.parentElement.closest('[data-testid^="conversation-turn-"]')) continue;
+      if(!transcriptRendered(turn))continue;
       const role = turn.getAttribute('data-turn') || turn.getAttribute('data-message-author-role')
         || (turn.querySelector('[data-message-author-role="assistant"]') ? 'assistant' : turn.querySelector('[data-message-author-role="user"]') ? 'user' : null);
       if (role !== 'assistant' && role !== 'user') continue;
@@ -942,7 +976,7 @@
       legacyKeys.add(role + ':' + key);
       const id = 'legacy:' + role + ':' + key;
       const content = turn.querySelector('[data-message-author-role="' + role + '"]') || turn;
-      turns.push({ id, key, role, root: turn, content, text: role === 'user' ? textOf(content) : null });
+      turns.push({ id, key, role, root: turn, content, text: role === 'user' ? authoredUserText(content) : null });
       known.add('legacy:user:' + key); known.add('legacy:assistant:' + key);
     }
     // Virtualized old turns still count in the baseline even when their content unmounts.
@@ -955,14 +989,14 @@
     return { turns, known, valid };
   }
   function answerSnapshot(turn) {
-    let answers = all(ANSWER, turn.root).filter(element => !element.closest('[data-user-message-bubble], [data-message-author-role="user"], [data-conversation-role="user"]')
+    let answers = transcriptAll(ANSWER, turn.root).filter(element => !element.closest('[data-user-message-bubble], [data-message-author-role="user"], [data-conversation-role="user"]')
       && (turn.content.contains(element) || !!(turn.content.compareDocumentPosition(element) & Node.DOCUMENT_POSITION_FOLLOWING)));
-    if (turn.content.matches(ANSWER) && visible(turn.content)) answers.unshift(turn.content);
+    if (turn.content.matches(ANSWER) && transcriptRendered(turn.content)) answers.unshift(turn.content);
     answers = answers.filter(element => !element.parentElement || !element.parentElement.closest(ANSWER)
       || !turn.content.contains(element.parentElement.closest(ANSWER)));
     const lastAnswer = answers[answers.length - 1];
     if (!lastAnswer) return { text: '', complete: false, rawEnvelopeEligible: false };
-    const footer = all(FOOTER, turn.root).find(element => !element.closest('[data-user-message-bubble], [data-message-author-role="user"], [data-conversation-role="user"]')
+    const footer = transcriptAll(FOOTER, turn.root).find(element => !element.closest('[data-user-message-bubble], [data-message-author-role="user"], [data-conversation-role="user"]')
       && !lastAnswer.contains(element) && !!(lastAnswer.compareDocumentPosition(element) & Node.DOCUMENT_POSITION_FOLLOWING));
     const answer = { text: answers.map(element => element.innerText || element.textContent || '').filter(Boolean).join('\n\n'), complete: !!footer, rawEnvelopeEligible: false };
     // Markdown rendering removes literal fences. Never turn a quoted example or
@@ -971,6 +1005,7 @@
     if (answers.length === 1) {
       answer.rawEnvelopeEligible = bareProtocolEligible(answers[0]);
       Object.assign(answer, wholeStructuredEnvelope(answers[0]));
+      if (answer.structuredEnvelopeUnavailable === 'structured_code_incomplete') answer.complete = false;
     }
     return answer;
   }
@@ -978,15 +1013,33 @@
     // innerText loses quote/code/Markdown syntax. A rendered quotation must not
     // become a raw JSON command just because its visible characters form JSON.
     // Runtime still requires the whole valid object + current protocol/requestId.
-    return all('pre, code, blockquote, q, li, details, strong, em, b, i, s, del, mark, sub, sup, a, h1, h2, h3, h4, h5, h6, table, img, video, audio, canvas, iframe, object, embed, hr, [role="img"], input, textarea, select, button', answer).length === 0;
+    return transcriptAll('pre, code, .cm-content, blockquote, q, li, details, strong, em, b, i, s, del, mark, sub, sup, a, h1, h2, h3, h4, h5, h6, table, img, video, audio, canvas, iframe, object, embed, hr, [role="img"], input, textarea, select, button', answer).length === 0;
   }
   function wholeStructuredEnvelope(answer) {
-    const blocks = all('pre', answer);
+    const surfaces=transcriptAll('[data-markdown-copy="code-block"]',answer);
+    if(surfaces.length) {
+      if(surfaces.length!==1||surfaces[0].closest('blockquote,q,li,details'))return {};
+      const surface=surfaces[0],editors=transcriptAll('.cm-content[data-language]',surface);
+      if(editors.length!==1||normalized(editors[0].getAttribute('data-language')).toLowerCase()!=='hoyoung')return {};
+      const editor=editors[0],lines=Array.from(editor.children);
+      if(!lines.length||lines.some(line=>!line.matches('.cm-line'))||surface.querySelector('.cm-gap'))
+        return {structuredEnvelopeUnavailable:'structured_code_incomplete'};
+      const walker=document.createTreeWalker(answer,NodeFilter.SHOW_TEXT);
+      for(let node=walker.nextNode();node;node=walker.nextNode())
+        if(transcriptRendered(node.parentElement)&&normalized(node.textContent)&&!surface.contains(node))return {};
+      for(const element of transcriptAll('img,video,audio,canvas,iframe,object,embed,hr,table,input,textarea,select,button,a,pre',answer))
+        if(!surface.contains(element))return {};
+      const text=lines.map(line=>line.textContent||'').join('\n');
+      if(!text.trim())return {};
+      if(text.length>MAX_STRUCTURED_ENVELOPE_CHARS)return {structuredEnvelopeUnavailable:'structured_envelope_too_large',structuredEnvelopeObservedChars:text.length};
+      return {structuredEnvelope:text,structuredEnvelopeSource:'whole-language-hoyoung-code-block'};
+    }
+    const blocks = transcriptAll('pre', answer);
     if (blocks.length !== 1) return {};
     const pre = blocks[0];
     const quotation = pre.closest('blockquote, q, li, details');
     if (quotation && answer.contains(quotation)) return {};
-    const codes = all('code', pre);
+    const codes = transcriptAll('code', pre);
     if (codes.length !== 1) return {};
     const code = codes[0];
     const languages = [];
@@ -1002,15 +1055,15 @@
     // A code-only reply may contain its language label and copy controls inside
     // the same pre. Unknown headers outside it, explanatory prose and non-text
     // attachments prevent extraction. Ordinary raw text is still preserved.
-    for (const element of all('img, video, audio, canvas, iframe, object, embed, hr, table, [role="img"], input, textarea, select, button, a', answer)) {
+    for (const element of transcriptAll('img, video, audio, canvas, iframe, object, embed, hr, table, [role="img"], input, textarea, select, button, a', answer)) {
       if (!code.contains(element) && !(pre.contains(element) && element.closest('button'))) return {};
     }
     for (const element of code.querySelectorAll('*')) {
-      if (!visible(element) && normalized(element.textContent)) return {};
+      if (!transcriptRendered(element) && normalized(element.textContent)) return {};
     }
     const walker = document.createTreeWalker(answer, NodeFilter.SHOW_TEXT);
     for (let node = walker.nextNode(); node; node = walker.nextNode()) {
-      if (!visible(node.parentElement) || code.contains(node) || !normalized(node.textContent)) continue;
+      if (!transcriptRendered(node.parentElement) || code.contains(node) || !normalized(node.textContent)) continue;
       if (pre.contains(node) && (node.parentElement.closest('button') || normalized(node.textContent).toLowerCase() === 'hoyoung')) continue;
       return {};
     }
@@ -1026,10 +1079,11 @@
   }
   function uncertain(code, metadata) {
     if (!active || active.phase === 'uncertain') return;
+    const mayHaveBeenAccepted = !!active.clicked || !submissionStillUnobserved(active);
     active.phase = 'uncertain';
     active.uncertaintyCode = code;
     remember({ requestId: active.requestId, text: active.text, phase: 'uncertain', code });
-    emitError(code, active.requestId, Object.assign({ mayHaveBeenAccepted: !!active.clicked, retryAllowed: false }, metadata || {}));
+    emitError(code, active.requestId, Object.assign({ mayHaveBeenAccepted, retryAllowed: false }, metadata || {}));
   }
   function responseParts(text) {
     const pieces = [];
@@ -1071,17 +1125,29 @@
   function tick() {
     if (disposed) return;
     if (cleaningSession) return;
+    if(location.pathname===initialPath)suspendedRoute=false;
+    const currentConversation=conversationIdFromPath(location.pathname);
+    if(ownedConversationId&&currentConversation===ownedConversationId) {initialPath=location.pathname;suspendedRoute=false;}
     if (location.pathname !== initialPath && initialPath === '/' && active && active.clicked && active.freshConversation
-        && /^\/c\/[A-Za-z0-9_-]{8,128}$/.test(location.pathname)) {
+        && currentConversation) {
       const snapshot = turnSnapshot();
       const users = snapshot.turns.filter(turn => turn.role === 'user' && !active.baseline.has(turn.id));
       if (snapshot.valid && users.length === 1 && users[0].text === normalized(active.text)) {
         initialPath = location.pathname;
-        ownedConversationId = initialPath.substring(3);
+        ownedConversationId = currentConversation;suspendedRoute=false;
       } else if (Date.now() - active.clickedAt < ACCEPT_TIMEOUT_MS) return;
     }
-    if (document !== initialDocument || location.origin !== 'https://chatgpt.com' || location.pathname !== initialPath) {
+    if (document !== initialDocument || location.origin !== 'https://chatgpt.com') {
       dispose('navigation_uncertain'); return;
+    }
+    if(location.pathname!==initialPath) {
+      // A same-document SPA route is not a foreign origin. Keep observation
+      // alive so returning to the owned conversation or recovering its reply
+      // remains possible; never send again or click an old page's controls.
+      suspendedRoute=true;
+      if(active)uncertain('navigation_uncertain');
+      if(preferenceSelection)preferenceSelection.enabled=false;
+      inspectAndEmit();return;
     }
     const quota = quotaBanner();
     if (quota) {
@@ -1434,11 +1500,11 @@
   }
   function cancel() {
     if (!active) return result('nothing_to_cancel');
+    if (!active.clicked && !submissionStillUnobserved(active)) {
+      uncertain('cancellation_submission_unverified', { knownNotSent: false, mayHaveBeenAccepted: true });
+      return result('cancellation_submission_unverified', { requestId: active.requestId, retryAllowed: false, knownNotSent: false });
+    }
     if (/^(?:preparing(?:_attachments)?|awaiting_authorization)$/.test(active.phase) && !active.clicked) {
-      if (!submissionStillUnobserved(active)) {
-        uncertain('cancellation_submission_unverified', { knownNotSent: false, mayHaveBeenAccepted: true });
-        return result('cancellation_submission_unverified', { requestId: active.requestId, retryAllowed: false });
-      }
       const cancelled = active; active = null;
       if (cancelled.authorizationTimer) clearTimeout(cancelled.authorizationTimer);
       remember({ requestId: cancelled.requestId, text: cancelled.text, phase: 'cancelled' });
@@ -1457,7 +1523,7 @@
     if (disposed) return;
     if (active && active.authorizationTimer) clearTimeout(active.authorizationTimer);
     if (active) emitError(code || 'navigation_uncertain', active.requestId, { mayHaveBeenAccepted: !!active.clicked || !submissionStillUnobserved(active), retryAllowed: false });
-    disposed = true;
+    disposed = true;disposalReason=code||'document_changed';
     if (observer) observer.disconnect();
     if (interval) clearInterval(interval);
     window.removeEventListener('pagehide', onPageHide);
@@ -1466,8 +1532,40 @@
   }
   function onPageHide() { dispose('navigation_uncertain'); }
   function restoreOwnedConversation(id) {
-    if (active || cleaningSession || !/^[A-Za-z0-9_-]{8,128}$/.test(id) || location.pathname !== '/c/' + id) return false;
-    ownedConversationId = id; verifiedWorkSession = true; return true;
+    if (active || cleaningSession || !/^[A-Za-z0-9_-]{8,128}$/.test(id) || conversationIdFromPath(location.pathname) !== id) return false;
+    ownedConversationId = id; verifiedWorkSession = true;initialPath=location.pathname;suspendedRoute=false;return true;
+  }
+  function recoverResponse(requestIds) {
+    // Read-only recovery of an already rendered result. No submit, picker,
+    // deletion, clipboard, provider API or tool execution belongs here.
+    const state=readState(),id=conversationIdFromPath(location.pathname);
+    if(document!==initialDocument||location.origin!=='https://chatgpt.com'||!id||state.busy||state.needsInput||state.authenticated!==true) {
+      recoveryObservation=null;return {ok:false,code:'reply_recovery_open_conversation',state};
+    }
+    const allowed=new Set(Array.isArray(requestIds)?requestIds.filter(value=>typeof value==='string'&&/^[A-Za-z0-9_.:-]{1,128}$/.test(value)).slice(0,100):[]);
+    const snapshot=turnSnapshot(),matches=[];
+    if(snapshot.valid)for(const turn of snapshot.turns.filter(item=>item.role==='assistant')) {
+      const answer=answerSnapshot(turn);if(!answer.complete)continue;
+      const text=answer.structuredEnvelope||(answer.rawEnvelopeEligible?answer.text:'');
+      if(!text||text.length>MAX_STRUCTURED_ENVELOPE_CHARS)continue;
+      let envelope;try{envelope=JSON.parse(text);}catch(_){continue;}
+      if(envelope&&envelope.protocol==='hoyoung.v1'&&allowed.has(envelope.requestId))matches.push({requestId:envelope.requestId,turnId:turn.id,envelope:text,text:answer.text});
+    }
+    if(matches.length!==1) {recoveryObservation=null;return {ok:false,code:matches.length?'reply_recovery_ambiguous':'reply_recovery_open_conversation',state};}
+    const match=matches[0],key=JSON.stringify([id,match.requestId,match.turnId,match.envelope,match.text]);
+    if(!recoveryObservation||recoveryObservation.key!==key){recoveryObservation={key,requestId:match.requestId,conversationId:id,at:Date.now()};return {ok:false,code:'reply_recovery_settling',state};}
+    if(Date.now()-recoveryObservation.at<COMPLETION_SETTLE_MS)return {ok:false,code:'reply_recovery_settling',state};
+    return {ok:true,code:'reply_recovered',conversationId:id,captureComplete:true,...match,state};
+  }
+  function adoptRecoveredResponse(requestId,id) {
+    if(!recoveryObservation||recoveryObservation.requestId!==requestId||recoveryObservation.conversationId!==id
+      ||Date.now()-recoveryObservation.at<COMPLETION_SETTLE_MS||conversationIdFromPath(location.pathname)!==id
+      ||active&&active.requestId!==requestId)return false;
+    const text=active?active.text:receipts.has(requestId)?receipts.get(requestId).text:undefined;
+    active=null;ownedConversationId=id;initialPath=location.pathname;suspendedRoute=false;verifiedWorkSession=true;
+    preferenceSelection=null;preferenceSelectionFlight=null;preferenceSelectionUncertain=false;preferenceCloseFlight=null;
+    remember({requestId,text,phase:'completed',code:'reply_recovered'});recoveryObservation=null;
+    inspectAndEmit();return true;
   }
   async function deleteOwnedConversation(id) {
     if (active || readState().busy || !ownedConversationId || id !== ownedConversationId || cleaningSession)
@@ -1481,7 +1579,7 @@
     // receipt and explicitly loads a fresh document. Failure needs owner review.
     return event;
   }
-  const api = { inspect, connectionDiagnostics, connect, selectWork, send, cancel, inspectAndEmit, prepareOwnerRetry, authorizeDispatch, configurePreferences, ensurePreferences, captureUsageObservation, restoreOwnedConversation, deleteOwnedConversation };
+  const api = { inspect, connectionDiagnostics, connect, selectWork, send, cancel, inspectAndEmit, prepareOwnerRetry, authorizeDispatch, configurePreferences, ensurePreferences, captureUsageObservation, restoreOwnedConversation, deleteOwnedConversation, recoverResponse, adoptRecoveredResponse };
   Object.defineProperty(api, '__document', { value: document });
   Object.defineProperty(api, '__dispose', { value: dispose });
   window.HoyoungWorkBridge = api;

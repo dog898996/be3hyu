@@ -65,16 +65,43 @@ public class MainActivityRoutingProfileTest {
         app.getRuntime().onWebEvent(new JSONObject().put("type","state").put("code","authentication_unverified").put("state",new JSONObject().put("workSelected",true).put("temporary",false)));
         Method refresh=MainActivity.class.getDeclaredMethod("refreshStatus");refresh.setAccessible(true);refresh.invoke(activity);
         TextView detail=(TextView)MainActivityUiTestSupport.description(root(),"Work 연결 상세");
-        assertTrue(detail.getText().toString().contains("authentication_unverified"));assertTrue(detail.getText().toString().contains("웹 왼쪽 메뉴"));
-        assertTrue(((TextView)get("connection")).getText().toString().contains("로그인"));
-        int count=app.getStore().listRequests(100).length();MainActivityUiTestSupport.text(root(),"검증 요청").performClick();assertEquals(count,app.getStore().listRequests(100).length());
+        assertTrue(detail.getText().toString().contains("계정 표시 확인 필요"));
+        detail.performClick();AlertDialog details=ShadowAlertDialog.getLatestAlertDialog();
+        String detailText=Shadows.shadowOf(details).getMessage().toString();
+        assertTrue(detailText.contains("authentication_unverified"));assertTrue(detailText.contains("웹 왼쪽 메뉴"));
+        details.getButton(AlertDialog.BUTTON_NEGATIVE).performClick();
+        int count=app.getStore().listRequests(100).length();
+        MainActivityUiTestSupport.text(root(),"연결").performClick();drain();
+        assertEquals(count,app.getStore().listRequests(100).length());
+    }
+
+    @Test public void aReplacementWebViewIsMountedOnTheVisibleWorkTabWithoutRenavigation()throws Exception{
+        MainActivityUiTestSupport.navigate(activity,"Work");
+        android.webkit.WebView old=app.getWebController().getExistingView();
+        android.webkit.WebView replacement=new android.webkit.WebView(activity);
+        Field webField=app.getWebController().getClass().getDeclaredField("view");webField.setAccessible(true);webField.set(app.getWebController(),replacement);
+        Method refresh=MainActivity.class.getDeclaredMethod("refreshStatus");refresh.setAccessible(true);refresh.invoke(activity);
+        View host=MainActivityUiTestSupport.description(root(),"Work 웹 화면");assertSame(host,replacement.getParent());
+        if(old!=null)assertNotSame(host,old.getParent());
+        refresh.invoke(activity);assertSame(host,replacement.getParent());assertEquals(1,((ViewGroup)host).getChildCount());
     }
     @Test public void uneditedPermanentFieldsNeverOverwriteLaterChatChangesAndEditedConflictsAreRejected()throws Exception{
-        MainActivityUiTestSupport.navigate(activity,"설정");EditText goals=findHint(root(),"계속 맡길 일과 목표");goals.setText("화면에서 편집한 목표");
+        app.getStore().putSetting("standingGoals","기존에 저장한 계속 맡길 일");
+        MainActivityUiTestSupport.navigate(activity,"설정");
+        assertNull(findHint(root(),"계속 맡길 일과 목표"));
+        assertNull(MainActivityUiTestSupport.text(root(),"사용량 절약 · 하루 10% 목표"));
+        assertNotNull(MainActivityUiTestSupport.text(root(),"백업 용량 한도 · GiB"));
+        EditText instructions=(EditText)MainActivityUiTestSupport.description(root(),"사용자 지침 편집");
+        instructions.setText("화면에서 편집한 지침");
         app.getRuntime().updatePersonalSettings(new JSONObject().put("requiredEffort","high"),null);
-        MainActivityUiTestSupport.text(root(),"설정 저장").performClick();assertEquals("high",app.getStore().getSetting("requiredEffort",""));assertEquals("화면에서 편집한 목표",app.getStore().getSetting("standingGoals",""));
-        goals.setText("뒤늦은 화면 편집");app.getRuntime().updatePersonalSettings(new JSONObject().put("standingGoals","더 최근 채팅 설정"),null);
-        MainActivityUiTestSupport.text(root(),"설정 저장").performClick();assertEquals("더 최근 채팅 설정",app.getStore().getSetting("standingGoals",""));
+        MainActivityUiTestSupport.text(root(),"설정 저장").performClick();
+        assertEquals("high",app.getStore().getSetting("requiredEffort",""));
+        assertEquals("화면에서 편집한 지침",app.getStore().getSetting("customInstructions",""));
+        assertEquals("기존에 저장한 계속 맡길 일",app.getStore().getSetting("standingGoals",""));
+        assertEquals("true",app.getStore().getSetting("usageOptimizationEnabled","true"));
+        assertEquals("10",app.getStore().getSetting("budgetTargetPercent","10"));
+        instructions.setText("뒤늦은 화면 편집");app.getRuntime().updatePersonalSettings(new JSONObject().put("customInstructions","더 최근 채팅 설정"),null);
+        MainActivityUiTestSupport.text(root(),"설정 저장").performClick();assertEquals("더 최근 채팅 설정",app.getStore().getSetting("customInstructions",""));
     }
     @Test public void nameChangesRefreshHeaderAndAvatarAndStaleNameFormCannotUndoChatRename()throws Exception{
         MainActivityUiTestSupport.navigate(activity,"설정");EditText name=(EditText)MainActivityUiTestSupport.description(root(),"비서 이름 편집");name.setText("하루");
