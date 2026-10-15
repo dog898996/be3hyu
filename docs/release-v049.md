@@ -22,3 +22,5 @@
 브라우저 연결 검사 **88/88**, 서명 릴리스 빌드·필수 lint·APK 서명 검사·패키징된 연결 파일 6개의 원본 일치 확인을 통과했다. 이번에 추가한 재현 두 검사는 수정 전 모두 실패하고 수정 후 통과했다. 네이티브 코드는 변경하지 않아 네이티브 전체 검사와 장기기억 시뮬레이션을 반복하지 않았다. 유료 모델 호출은 0회다.
 
 [관련 검사 기록](benchmarks/android-v049-focused.json) · [APK 검사](benchmarks/android-v049-apk.json) · [설치 파일](https://github.com/dog898996/be3hyu/releases/tag/v0.4.9). 기존 앱과 같은 앱 ID·서명을 유지한다.
+
+[APK 직접 다운로드](https://raw.githubusercontent.com/dog898996/be3hyu/f8f886a9bdc74d944794f3a12b3e86c7a5542ca0/release-assets/v0.4.9/hoyoung-v0.4.9.apk) · [공개 다운로드 확인](benchmarks/android-v049-downloads.json). APK·전체 소스 ZIP·검증 JSON·체크섬 4개를 인증 없이 다운로드해 HTTP 200, 전체 크기와 SHA-256 일치를 확인했다. 소스 커밋은 `0bc501a3ba6d69a99e426e7f29760eb02c9864eb`이며 APK SHA-256은 `534072a26130a562c2a8ba44d77abb820285b38980cfb43983699012f1b89ac9`다.
