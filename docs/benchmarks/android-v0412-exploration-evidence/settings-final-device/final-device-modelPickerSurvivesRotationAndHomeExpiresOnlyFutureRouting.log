@@ -1,0 +1,47 @@
+INSTRUMENTATION_STATUS: class=com.hoyoung.assistant.SettingsExplorerDeviceTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=
+com.hoyoung.assistant.SettingsExplorerDeviceTest:
+INSTRUMENTATION_STATUS: test=modelPickerSurvivesRotationAndHomeExpiresOnlyFutureRouting
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: stream=HOYOUNG_EXPLORER_SETTINGS fixture fontScale=1.6; uiMode=33; pixels=1080x2400
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=HOYOUNG_FIXTURE_UI_GEOMETRY phase=foreground-failed; focused=false; found=false; full=Rect(0, 0 - 0, 0); visible=Rect(0, 0 - 0, 0); viewport=Rect(0, 0 - 0, 0); safe=Rect(0, 63 - 1080, 2274)
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.hoyoung.assistant.SettingsExplorerDeviceTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: The real app window must be foreground and focused before touching its controls: focused=false; found=false; full=Rect(0, 0 - 0, 0); visible=Rect(0, 0 - 0, 0); viewport=Rect(0, 0 - 0, 0); safe=Rect(0, 63 - 1080, 2274); uiPackage=android
+	at org.junit.Assert.fail(Assert.java:89)
+	at com.hoyoung.assistant.DeviceFixtureHealth.awaitForeground(DeviceFixtureHealth.java:83)
+	at com.hoyoung.assistant.SettingsExplorerDeviceTest.modelPickerSurvivesRotationAndHomeExpiresOnlyFutureRouting(SettingsExplorerDeviceTest.java:114)
+
+INSTRUMENTATION_STATUS: stream=
+Error in modelPickerSurvivesRotationAndHomeExpiresOnlyFutureRouting(com.hoyoung.assistant.SettingsExplorerDeviceTest):
+java.lang.AssertionError: The real app window must be foreground and focused before touching its controls: focused=false; found=false; full=Rect(0, 0 - 0, 0); visible=Rect(0, 0 - 0, 0); viewport=Rect(0, 0 - 0, 0); safe=Rect(0, 63 - 1080, 2274); uiPackage=android
+	at org.junit.Assert.fail(Assert.java:89)
+	at com.hoyoung.assistant.DeviceFixtureHealth.awaitForeground(DeviceFixtureHealth.java:83)
+	at com.hoyoung.assistant.SettingsExplorerDeviceTest.modelPickerSurvivesRotationAndHomeExpiresOnlyFutureRouting(SettingsExplorerDeviceTest.java:114)
+
+INSTRUMENTATION_STATUS: test=modelPickerSurvivesRotationAndHomeExpiresOnlyFutureRouting
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 44.3
+There was 1 failure:
+1) modelPickerSurvivesRotationAndHomeExpiresOnlyFutureRouting(com.hoyoung.assistant.SettingsExplorerDeviceTest)
+java.lang.AssertionError: The real app window must be foreground and focused before touching its controls: focused=false; found=false; full=Rect(0, 0 - 0, 0); visible=Rect(0, 0 - 0, 0); viewport=Rect(0, 0 - 0, 0); safe=Rect(0, 63 - 1080, 2274); uiPackage=android
+	at org.junit.Assert.fail(Assert.java:89)
+	at com.hoyoung.assistant.DeviceFixtureHealth.awaitForeground(DeviceFixtureHealth.java:83)
+	at com.hoyoung.assistant.SettingsExplorerDeviceTest.modelPickerSurvivesRotationAndHomeExpiresOnlyFutureRouting(SettingsExplorerDeviceTest.java:114)
+
+FAILURES!!!
+Tests run: 1,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1

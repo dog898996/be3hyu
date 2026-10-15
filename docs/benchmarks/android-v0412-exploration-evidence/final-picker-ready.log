@@ -1,0 +1,33 @@
+✔ mobile connect preserves drafts, attachments, busy and dispatched work (1663.679374ms)
+✔ phone power picker opens automatically from a generic label, confirms Fast, closes and sends without manual setup (500.800019ms)
+✔ connection never advertises ready between picker value acknowledgement and modal dismissal (607.506491ms)
+✔ reported Korean Work picker reads the complete split model and checkbox state, closes and completes a reply (892.031555ms)
+✔ phone power picker finishes and releases focus when the owner already opened it (657.924882ms)
+✔ phone picker keeps its composer trigger when opening replaces the model label with the action label (374.136114ms)
+✔ phone picker follows the linked surface without requiring a menu role or provider wrapper marker (1068.958393ms)
+✔ phone picker ignores only a surrounding composer wrapper, preserving the real editor and its draft (691.259925ms)
+✔ phone picker can finish its own paused entrance animation while unrelated dialogs stay untouched (363.015669ms)
+✔ phone picker retains the verified Work surface while its modal aria-hides the composer (302.740449ms)
+✔ phone picker releases a paused closing focus scope before sending (422.549193ms)
+✔ phone picker does not bind unrelated or multiple popovers, and diagnostics omit message text (1050.383462ms)
+✔ phone power picker changes model and steps the observed slider before freezing the exact requested route (446.528897ms)
+✔ phone power picker ignores hidden placeholder decorations but preserves genuine editable text (659.082833ms)
+✔ phone power picker ends a stalled check despite missing model evidence or a draft appearing after opening (4232.224159ms)
+✔ phone power picker retries an observation failure once the real controls hydrate (504.683876ms)
+✔ a guest composer, a signed-out page and unverified preference settings cannot dispatch (600.705517ms)
+✔ preference selection preserves owner drafts, attachments, busy/unauthenticated/non-Work state and active uncertain outcomes (2697.651338ms)
+✔ an active dispatch keeps immutable request preferences while next-route requirements change (454.702185ms)
+✔ a delayed preference acknowledgement is clicked once and blocks sending; a changed next route waits for the prior click (1077.732854ms)
+✔ a draft appearing while a setting changes stops further selection and preserves the draft despite a late acknowledgement (421.478231ms)
+✔ Theme Light and unrelated menu Standard cannot be clicked or prove preference choices (793.501136ms)
+✔ inline Appearance Light/Standard radios cannot prove effort/speed or override explicit picker evidence (309.721385ms)
+✔ invalid explicit preferences fail closed without restoring prior/default choices; configured missing request fields use exact current requirements (656.482347ms)
+✔ a restrictive composer refuses unsupported file types before any draft or upload; advertised MIME and extension options are honored (593.326534ms)
+ℹ tests 25
+ℹ suites 0
+ℹ pass 25
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 22545.994795

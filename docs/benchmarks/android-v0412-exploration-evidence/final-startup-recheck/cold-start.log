@@ -1,0 +1,7 @@
+Starting: Intent { cmp=com.hoyoung.assistant/.MainActivity }
+Status: ok
+LaunchState: WARM
+Activity: com.hoyoung.assistant/.MainActivity
+TotalTime: 17212
+WaitTime: 17508
+Complete

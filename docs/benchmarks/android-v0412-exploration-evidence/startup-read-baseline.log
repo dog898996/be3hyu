@@ -1,0 +1,24 @@
+JUnit version 4.13.2
+.E..E.E.
+Time: 4.622
+There were 3 failures:
+1) lateReadCannotOverwriteANewerPersistedPut(com.hoyoung.assistant.phone.PhoneJournalStartupReadTest)
+org.junit.ComparisonFailure: expected:<[new]> but was:<[old]>
+	at org.junit.Assert.assertEquals(Assert.java:117)
+	at org.junit.Assert.assertEquals(Assert.java:146)
+	at com.hoyoung.assistant.phone.PhoneJournalStartupReadTest.checkLateRead(PhoneJournalStartupReadTest.java:72)
+	at com.hoyoung.assistant.phone.PhoneJournalStartupReadTest.lateReadCannotOverwriteANewerPersistedPut(PhoneJournalStartupReadTest.java:57)
+2) stateReadDoesNotWaitForUnrelatedSpoolMonitor(com.hoyoung.assistant.phone.PhoneJournalStartupReadTest)
+java.util.concurrent.TimeoutException
+	at java.base/java.util.concurrent.FutureTask.get(FutureTask.java:204)
+	at com.hoyoung.assistant.phone.PhoneJournalStartupReadTest.stateReadDoesNotWaitForUnrelatedSpoolMonitor(PhoneJournalStartupReadTest.java:30)
+3) lateReadCannotRepopulateTheRestoredGenerationCache(com.hoyoung.assistant.phone.PhoneJournalStartupReadTest)
+org.junit.ComparisonFailure: expected:<[new]> but was:<[old]>
+	at org.junit.Assert.assertEquals(Assert.java:117)
+	at org.junit.Assert.assertEquals(Assert.java:146)
+	at com.hoyoung.assistant.phone.PhoneJournalStartupReadTest.checkLateRead(PhoneJournalStartupReadTest.java:72)
+	at com.hoyoung.assistant.phone.PhoneJournalStartupReadTest.lateReadCannotRepopulateTheRestoredGenerationCache(PhoneJournalStartupReadTest.java:58)
+
+FAILURES!!!
+Tests run: 5,  Failures: 3
+
