@@ -1,0 +1,3 @@
+96ea6dfa8b62d7ce0433078f8f823709c75f163a28859f90970812e21c1ce32a  hoyoung-v0.4.12.apk
+03adafb3d1277b328e12ffd42cfb67af9b0dae613dbfdda68b24c8d05c47ba23  hoyoung-v0.4.12-source.zip
+6e4d61c7b6790b76a2d03c1a3d9fc32d8a93b7c305ba025392b2c3410dcccd60  hoyoung-v0.4.12-verification.json
